@@ -26,10 +26,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/syftdata/event-hub.git"
+    "url": "git+https://github.com/syftdata/syft.git"
   },
   "bugs": {
-    "url": "https://github.com/syftdata/event-hub/issues"
+    "url": "https://github.com/syftdata/syft/issues"
   },
   "browser": {
     "./src/node/configstore.js": "./src/browser/configstore.js",
