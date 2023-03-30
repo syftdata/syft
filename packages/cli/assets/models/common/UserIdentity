@@ -1,0 +1,3 @@
+spec_type	identify
+spec_description	Emit this event to identify a User. Analytics Plugins can make `.identify` calls when this event is seen.
+userId	type.UUID	Id of the user.

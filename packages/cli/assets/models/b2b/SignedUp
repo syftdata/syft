@@ -1,0 +1,8 @@
+type	String	The type of signup, e.g. invited, organic.
+first_name	String	The first name of the user.
+last_name	String	The last name of the user.
+email	String	The email of the user.
+phone	String	The phone number of the user.
+username	String	The username of the user.
+title	String	The title of the user.
+context.groupId	String	The id of the account the user is joining.

@@ -1,0 +1,14 @@
+cart_id	String	Shopping cart ID
+products	Array	Products displayed in the product list
+products.$.product_id	String	Product ID displayed on the list
+products.$.sku	String	Sku of the product being viewed
+products.$.category	String	Product category being viewed
+products.$.name	String	Name of the product being viewed
+products.$.brand	String	Brand associated with the product
+products.$.variant	String	Variant of the product
+products.$.price	Number	Price ($) of the product being viewed
+products.$.quantity	Number	Quantity of a product
+products.$.coupon	String	Coupon code associated with a product (for example, MAY_DEALS_3)
+products.$.position	Number	Position in the product list (ex. 3)
+products.$.url	String	URL of the product page
+products.$.image_url	String	Image url of the product

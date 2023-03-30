@@ -1,0 +1,8 @@
+spec_type	page
+spec_description	This event tracks page views in the application. Log the event when a page is rendered.
+name	String	Name of the page.
+path?	String	Path portion of the page’s URL. Equivalent to location.pathname from the DOM API.
+referrer?	String	Previous page’s full URL. Equivalent to document.referrer from the DOM API.
+search?	String	Query string portion of the page’s URL. Equivalent to location.search from the DOM API.
+title?	String	Page’s title. Equivalent to document.title from the DOM API.
+url?	String	Page’s full URL. 

@@ -1,0 +1,6 @@
+{
+"verbose": true,
+"apikey": "xxx",
+"remote": "http://localhost:3000",
+"force": true
+}

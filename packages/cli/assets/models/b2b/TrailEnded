@@ -1,0 +1,4 @@
+trial_start_date	Date	The date when the trial starts. It is an ISO-8601 date string.
+trial_end_date	Date	The date when the trial ends. It is an ISO-8601 date string.
+trial_plan_name	String	The name of the plan being trialed.
+context.groupId	String	The id of the account the trial is associated with.

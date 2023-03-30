@@ -1,0 +1,4 @@
+spec_type	group_identify
+spec_description	Emit this event to identify a Group. Analytics Plugins can make `.set_group` calls when this event is seen.
+groupType	String	Type of the group. e.g: age-bucket, organization.
+groupId	String	Id of the group. e.g. "18-24", "syft-org"

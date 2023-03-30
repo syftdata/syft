@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es5",
+    "moduleResolution": "node",
+    "lib": ["dom"],
+    "module": "commonjs",
+    "noEmit": true,
+    "removeComments": false,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}

@@ -1,0 +1,5 @@
+invitee_email	String	The email address of the person receiving the invite.
+invitee_first_name	String	The first name of the person receiving the invite.
+invitee_last_name	String	The last name of the person receiving the invite.
+invitee_role	String	The permission group for the person receiving the invite.
+context.groupId	String	The id of the account the person is being invited to.

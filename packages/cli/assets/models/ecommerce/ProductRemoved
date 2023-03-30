@@ -1,0 +1,13 @@
+cart_id	String	Cart ID to which the product was removed from
+product_id	String	Database id of the product being viewed
+sku	String	Sku of the product being viewed
+category	String	Product category being viewed
+name	String	Name of the product being viewed
+brand	String	Brand associated with the product
+variant	String	Variant of the product
+price	Number	Price ($) of the product being viewed
+quantity	Number	Quantity of a product
+coupon	String	Coupon code associated with a product (for example, MAY_DEALS_3)
+position	Number	Position in the product list (ex. 3)
+url	String	URL of the product page
+image_url	String	Image url of the product

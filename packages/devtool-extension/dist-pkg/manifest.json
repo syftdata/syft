@@ -1,0 +1,57 @@
+{
+  "name": "Syft Dev Extension",
+  "description": "Syft Developer Extension to record and validate events.",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "icons": {
+    "32": "img/logo-32.png",
+    "48": "img/logo-48.png",
+    "128": "img/logo-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "img/logo-48.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "devtools_page": "devtools.html",
+  "content_scripts": [
+    {
+      "js": [
+        "assets/content-script-loader.chunk-5170fccf.9f2433c2.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [],
+      "resources": [
+        "img/*.png",
+        "scripts/*.js"
+      ],
+      "use_dynamic_url": false
+    },
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "resources": [
+        "assets/chunk-f66e8549.js",
+        "assets/chunk-5170fccf.js"
+      ],
+      "use_dynamic_url": true
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage"
+  ]
+}

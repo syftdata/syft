@@ -1,0 +1,4 @@
+spec_type	screen
+spec_description	This event tracks screen views in the application. Log the event when a screen is rendered.
+name	String	Name of the screen See the Name field docs for more details.
+properties	Object	Free-form dictionary of properties of the screen, like name See the Properties field docs for a list of reserved property names.

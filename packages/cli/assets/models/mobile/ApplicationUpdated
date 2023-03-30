@@ -1,0 +1,5 @@
+spec_description	This event is logged when the application is updated.
+previous_version	String	The previously recorded version.
+previous_build	String	The previously recorded build.
+version	String	The new version.
+build	String	The new build.

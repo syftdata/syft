@@ -1,0 +1,24 @@
+checkout_id	String	Checkout ID
+order_id	String	Order/transaction ID
+affiliation	String	Store or affiliation from which this transaction occurred (for example, Google Store)
+subtotal	Number	Order total after discounts but before taxes and shipping
+total	Number	Revenue ($) with discounts and coupons added in. Note that our Google Analytics Ecommerce destination accepts total or revenue, but not both. For better flexibility and total control over tracking, we let you decide how to calculate how coupons and discounts are applied
+revenue	Number	Revenue ($) associated with the transaction (excluding shipping and tax)
+shipping	Number	Shipping cost associated with the transaction
+tax	Number	Total tax associated with the transaction
+discount	Number	Total discount associated with the transaction
+coupon	String	Transaction coupon redeemed with the transaction
+currency	String	Currency code associated with the transaction
+products	Array	Products in the order
+products.$.product_id	String	Database id of the product being viewed
+products.$.sku	String	Sku of the product being viewed
+products.$.category	String	Product category being viewed
+products.$.name	String	Name of the product being viewed
+products.$.brand	String	Brand associated with the product
+products.$.variant	String	Variant of the product
+products.$.price	Number	Price ($) of the product being viewed
+products.$.quantity	Number	Quantity of a product
+products.$.coupon	String	Coupon code associated with a product (for example, MAY_DEALS_3)
+products.$.position	Number	Position in the product list (ex. 3)
+products.$.url	String	URL of the product page
+products.$.image_url	String	Image url of the product

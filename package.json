@@ -1,0 +1,12 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": {
+    "packages": ["packages/client", "packages/cli"]
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0",
+    "lerna": "^6.4.1",
+    "ts-node": "^10.9.1"
+  }
+}

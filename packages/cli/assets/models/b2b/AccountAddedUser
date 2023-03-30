@@ -1,0 +1,2 @@
+role	String	The permission group for this user in this account.
+context.groupId	String	The id of the account the user is being added to.

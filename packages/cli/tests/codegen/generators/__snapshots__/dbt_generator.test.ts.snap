@@ -1,0 +1,569 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generate with dbt parses an empty schema file 1`] = `
+"# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'test'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'test'
+
+model-paths: ['models']
+analysis-paths: ['analyses']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
+snapshot-paths: ['snapshots']
+
+target-path: 'target' 
+clean-targets: 
+  - 'target'
+  - 'dbt_packages'
+
+models:
+  test:
+    # Config indicated by + and applies to all files under models/example/
+    +materialized: table
+"
+`;
+
+exports[`generate with dbt parses an empty schema file 2`] = `
+"# sample profiles YAML file for dbt CLI (https://docs.getdbt.com/reference/profiles.yml)
+test:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      threads: 8
+      method: oauth # using gcloud (https://docs.getdbt.com/reference/warehouse-setups/bigquery-setup#oauth-via-gcloud)
+      project: testProject
+      dataset: testDataset_dev
+      timeout_seconds: 300
+"
+`;
+
+exports[`generate with dbt parses an event with HeapIO 1`] = `
+"# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'test'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'test'
+
+model-paths: ['models']
+analysis-paths: ['analyses']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
+snapshot-paths: ['snapshots']
+
+target-path: 'target' 
+clean-targets: 
+  - 'target'
+  - 'dbt_packages'
+
+models:
+  test:
+    # Config indicated by + and applies to all files under models/example/
+    +materialized: table
+"
+`;
+
+exports[`generate with dbt parses an event with HeapIO 2`] = `
+"# sample profiles YAML file for dbt CLI (https://docs.getdbt.com/reference/profiles.yml)
+test:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      threads: 8
+      method: oauth # using gcloud (https://docs.getdbt.com/reference/warehouse-setups/bigquery-setup#oauth-via-gcloud)
+      project: testProject
+      dataset: testDataset_dev
+      timeout_seconds: 300
+"
+`;
+
+exports[`generate with dbt parses an event with HeapIO 3`] = `
+"
+SELECT
+
+backgrounded,
+_id,
+anonymous_id,
+context_ip,
+context_library_name,
+context_library_version,
+context_page_path,
+context_page_title,
+context_page_url,
+context_locale,
+context_user_agent,
+event,
+event_text,
+loaded_at,
+original_timestamp,
+received_at,
+sent_at,
+timestamp,
+uuid_ts,
+event_id,
+user_id,
+session_id,
+time,
+type,
+library,
+platform,
+device_type,
+country,
+region,
+city,
+IP,
+referrer,
+landing_page,
+landing_page_query,
+landing_page_hash,
+browser,
+search_keyword,
+utm_source,
+utm_campaign,
+utm_medium,
+utm_term,
+utm_content,
+domain,
+path,
+hash,
+query,
+title,
+href,
+target_text,
+heap_previous_page
+
+FROM \`testProject\`.testDataset.test_event
+  "
+`;
+
+exports[`generate with dbt parses an event with HeapIO 4`] = `
+"models:
+  - name: stg_test_event
+    columns:
+      - name: backgrounded
+        tests:
+          - not_null
+      - name: _id
+        description: The unique ID of the track call itself.
+        tests:
+          - not_null
+      - name: anonymous_id
+        description: The anonymous ID of the user.
+        tests:
+          - not_null
+      - name: context_ip
+        description: >-
+          The IP address of the client. Non-user-related context fields sent
+          with each track call.
+        tests:
+          - not_null
+      - name: context_library_name
+        description: >-
+          The Logging library name. Non-user-related context fields sent with
+          each track call.
+        tests:
+          - not_null
+      - name: context_library_version
+        description: >-
+          The Logging library version. Non-user-related context fields sent with
+          each track call.
+        tests:
+          - not_null
+      - name: context_page_path
+        description: The path of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_page_title
+        description: The title of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_page_url
+        description: The full url of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_locale
+        description: The browsers locale used when the event was logged.
+        tests:
+          - not_null
+      - name: context_user_agent
+        description: The browsers user-agent string.
+        tests:
+          - not_null
+      - name: event
+        description: The slug of the event name, so you can join the tracks table.
+        tests:
+          - not_null
+      - name: event_text
+        description: The name of the event.
+        tests:
+          - not_null
+      - name: loaded_at
+        description: >-
+          The UTC timestamp reflecting when the data was staged by the
+          processor. Bigquery only.
+        tests:
+          - not_null
+      - name: original_timestamp
+        description: >-
+          The original timestamp set by the Segment library at the time the
+          event is created. This timestamp can be affected by device clock skew.
+        tests:
+          - not_null
+      - name: received_at
+        description: When Segment received the track call.
+        tests:
+          - not_null
+      - name: sent_at
+        description: >-
+          When a user triggered the track call. This timestamp can also be
+          affected by device clock skew
+        tests:
+          - not_null
+      - name: timestamp
+        description: The UTC-converted timestamp which is set by the Segment library
+        tests:
+          - not_null
+      - name: uuid_ts
+        description: >-
+          This is used to keep track of when the specific event was last
+          processed by our connector, specifically for deduping and debugging
+          purposes. You can generally ignore this column
+        tests:
+          - not_null
+      - name: event_id
+        description: Unique ID of the associated event, randomly generated by Heap.
+        tests:
+          - not_null
+      - name: user_id
+        description: Unique ID of the associated user, randomly generated by Heap.
+        tests:
+          - not_null
+      - name: session_id
+        description: Unique ID of the associated session, randomly generated by Heap.
+        tests:
+          - not_null
+      - name: time
+        description: Timestamp without timezone of when the event happened.
+        tests:
+          - not_null
+      - name: type
+        description: >-
+          For web autocaptured events, can be any of view page, click, submit,
+          change, with push state events registered as view page events. For iOS
+          auto-tracked events, can be touch, edit field, or a gesture recognizer
+          you’ve defined. For custom events, this will be the custom event name.
+        tests:
+          - not_null
+      - name: library
+        description: >-
+          Version of Heap library on which event occurred. Can be one of “web”,
+          “iOS”, or “server”.
+        tests:
+          - not_null
+      - name: platform
+        description: User’s operating system.
+        tests:
+          - not_null
+      - name: device_type
+        description: Device type, which can be one of “Mobile”, “Tablet”, or “Desktop”.
+        tests:
+          - not_null
+      - name: country
+        description: Country in which user session occurred, based on IP.
+        tests:
+          - not_null
+      - name: region
+        description: Region in which user session occurred, based on IP.
+        tests:
+          - not_null
+      - name: city
+        description: City in which user session occurred, based on IP.
+        tests:
+          - not_null
+      - name: IP
+        description: >-
+          The IP address for the session, which is used for determining
+          geolocation.
+        tests:
+          - not_null
+      - name: referrer
+        description: >-
+          URL that linked to your site and initiated the session.If the user
+          navigated directly to your site, or referral headers were stripped,
+          then this value will appear as NULL downstream and as \`direct\` in the
+          UI.
+        tests:
+          - not_null
+      - name: landing_page
+        description: URL of the first pageview of the session.
+        tests:
+          - not_null
+      - name: landing_page_query
+        description: The query parameters of the first page of the user’s session.
+        tests:
+          - not_null
+      - name: landing_page_hash
+        description: The hash route of the first page of the user’s session.
+        tests:
+          - not_null
+      - name: browser
+        description: User’s browser.
+        tests:
+          - not_null
+      - name: search_keyword
+        description: Search term that brought the user to your site. [Deprecated]
+        tests:
+          - not_null
+      - name: utm_source
+        description: >-
+          GA-based utm_source tag associated with the session’s initial
+          pageview.
+        tests:
+          - not_null
+      - name: utm_campaign
+        description: >-
+          GA-based utm_campaign tag associated with the session’s initial
+          pageview.
+        tests:
+          - not_null
+      - name: utm_medium
+        description: >-
+          GA-based utm_medium tag associated with the session’s initial
+          pageview.
+        tests:
+          - not_null
+      - name: utm_term
+        description: GA-based utm_term tag associated with the session’s initial pageview.
+        tests:
+          - not_null
+      - name: utm_content
+        description: >-
+          GA-based utm_content tag associated with the session’s initial
+          pageview.
+        tests:
+          - not_null
+      - name: domain
+        description: Domain including subdomain, e.g. blog.heap.io.
+        tests:
+          - not_null
+      - name: path
+        description: >-
+          Portion of the current URL following your domain, e.g. /docs for
+          heap.io/docs.
+        tests:
+          - not_null
+      - name: hash
+        description: >-
+          Portion of the current URL following the hash sign, e.g. #install for
+          heap.io/docs#install.
+        tests:
+          - not_null
+      - name: query
+        description: >-
+          Query params of the page’s current URL, e.g. ?utm_id=1234 for
+          heap.io?utm_id=1234.
+        tests:
+          - not_null
+      - name: title
+        description: Title of the current page.
+        tests:
+          - not_null
+      - name: href
+        description: href property of link (used for clicks on anchor tags).
+        tests:
+          - not_null
+      - name: target_text
+        description: Button text of the event target.
+        tests:
+          - not_null
+      - name: heap_previous_page
+        description: The previous page visited in this session.
+        tests:
+          - not_null
+version: 2
+"
+`;
+
+exports[`generate with dbt parses an event with Segment 1`] = `
+"# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'test'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'test'
+
+model-paths: ['models']
+analysis-paths: ['analyses']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
+snapshot-paths: ['snapshots']
+
+target-path: 'target' 
+clean-targets: 
+  - 'target'
+  - 'dbt_packages'
+
+models:
+  test:
+    # Config indicated by + and applies to all files under models/example/
+    +materialized: table
+"
+`;
+
+exports[`generate with dbt parses an event with Segment 2`] = `
+"# sample profiles YAML file for dbt CLI (https://docs.getdbt.com/reference/profiles.yml)
+test:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      threads: 8
+      method: oauth # using gcloud (https://docs.getdbt.com/reference/warehouse-setups/bigquery-setup#oauth-via-gcloud)
+      project: testProject
+      dataset: testDataset_dev
+      timeout_seconds: 300
+"
+`;
+
+exports[`generate with dbt parses an event with Segment 3`] = `
+"
+SELECT
+
+backgrounded,
+_id,
+anonymous_id,
+context_ip,
+context_library_name,
+context_library_version,
+context_page_path,
+context_page_title,
+context_page_url,
+context_locale,
+context_user_agent,
+event,
+event_text,
+loaded_at,
+original_timestamp,
+received_at,
+sent_at,
+timestamp,
+uuid_ts
+
+FROM \`testProject\`.testDataset.test_event
+  "
+`;
+
+exports[`generate with dbt parses an event with Segment 4`] = `
+"models:
+  - name: stg_test_event
+    columns:
+      - name: backgrounded
+        tests:
+          - not_null
+      - name: _id
+        description: The unique ID of the track call itself.
+        tests:
+          - not_null
+      - name: anonymous_id
+        description: The anonymous ID of the user.
+        tests:
+          - not_null
+      - name: context_ip
+        description: >-
+          The IP address of the client. Non-user-related context fields sent
+          with each track call.
+        tests:
+          - not_null
+      - name: context_library_name
+        description: >-
+          The Logging library name. Non-user-related context fields sent with
+          each track call.
+        tests:
+          - not_null
+      - name: context_library_version
+        description: >-
+          The Logging library version. Non-user-related context fields sent with
+          each track call.
+        tests:
+          - not_null
+      - name: context_page_path
+        description: The path of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_page_title
+        description: The title of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_page_url
+        description: The full url of the page on which the event was logged.
+        tests:
+          - not_null
+      - name: context_locale
+        description: The browsers locale used when the event was logged.
+        tests:
+          - not_null
+      - name: context_user_agent
+        description: The browsers user-agent string.
+        tests:
+          - not_null
+      - name: event
+        description: The slug of the event name, so you can join the tracks table.
+        tests:
+          - not_null
+      - name: event_text
+        description: The name of the event.
+        tests:
+          - not_null
+      - name: loaded_at
+        description: >-
+          The UTC timestamp reflecting when the data was staged by the
+          processor. Bigquery only.
+        tests:
+          - not_null
+      - name: original_timestamp
+        description: >-
+          The original timestamp set by the Segment library at the time the
+          event is created. This timestamp can be affected by device clock skew.
+        tests:
+          - not_null
+      - name: received_at
+        description: When Segment received the track call.
+        tests:
+          - not_null
+      - name: sent_at
+        description: >-
+          When a user triggered the track call. This timestamp can also be
+          affected by device clock skew
+        tests:
+          - not_null
+      - name: timestamp
+        description: The UTC-converted timestamp which is set by the Segment library
+        tests:
+          - not_null
+      - name: uuid_ts
+        description: >-
+          This is used to keep track of when the specific event was last
+          processed by our connector, specifically for deduping and debugging
+          purposes. You can generally ignore this column
+        tests:
+          - not_null
+version: 2
+"
+`;

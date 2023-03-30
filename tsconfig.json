@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "declaration": true,
+      "declarationMap": true,
+      "noImplicitAny": false,
+      "removeComments": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "strictNullChecks": true,
+      "target": "ES2015",
+      "sourceMap": true,
+      "lib": [
+        "ES2015"
+      ]
+    },
+    "exclude": [
+      "node_modules",
+      "lib",
+      "dist",
+      "**/*.spec.ts"
+    ]
+   }

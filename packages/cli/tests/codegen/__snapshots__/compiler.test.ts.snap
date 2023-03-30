@@ -1,0 +1,506 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateASTForProject with event annotations 1`] = `
+"[
+  {
+    "name": "UserIdentity",
+    "eventType": 3,
+    "exported": true,
+    "documentation": "User Identity is tracked via this event.\\n@type {SyftEventType.IDENTIFY}",
+    "fields": [
+      {
+        "name": "userId",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().uuid()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "email",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().email()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "country",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().length(2)"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "direction",
+        "type": {
+          "name": "0 | 1 | 2 | 3",
+          "zodType": "z.enum([0, 1, 2, 3])"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "isSpammer",
+        "type": {
+          "name": "\\"Yes\\" | \\"No\\"",
+          "zodType": "z.enum([\\"Yes\\", \\"No\\"])"
+        },
+        "isOptional": false,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2),\\n\\tdirection: z.enum([0, 1, 2, 3]),\\n\\tisSpammer: z.enum([\\"Yes\\", \\"No\\"])\\n  })"
+  }
+]"
+`;
+
+exports[`generateASTForProject with multiple schemas 1`] = `
+"[
+  {
+    "name": "UserIdentity",
+    "eventType": 3,
+    "exported": true,
+    "documentation": "User Identity is tracked via this event.\\n@type {SyftEventType.IDENTIFY}",
+    "fields": [
+      {
+        "name": "userId",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().uuid()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "email",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().email()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "country",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().length(2)"
+        },
+        "isOptional": false,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2)\\n  })"
+  },
+  {
+    "name": "BasePageEvent",
+    "eventType": 1,
+    "exported": false,
+    "documentation": "@type {SyftEventType.PAGE}",
+    "fields": [
+      {
+        "name": "page",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "time",
+        "type": {
+          "name": "Date",
+          "zodType": "z.date()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tpage: z.string(),\\n\\ttime: z.date()\\n  })"
+  },
+  {
+    "name": "IndexPageEvent",
+    "eventType": 1,
+    "exported": true,
+    "documentation": "Gets logged when user opens the index page.",
+    "fields": [
+      {
+        "name": "page",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false,
+        "documentation": "",
+        "defaultValue": "'index'"
+      },
+      {
+        "name": "loggedIn",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false,
+        "documentation": "",
+        "defaultValue": "false"
+      },
+      {
+        "name": "time",
+        "type": {
+          "name": "Date",
+          "zodType": "z.date()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tpage: z.string(),\\n\\tloggedIn: z.boolean(),\\n\\ttime: z.date()\\n  })"
+  },
+  {
+    "name": "SourceType",
+    "eventType": 0,
+    "exported": false,
+    "documentation": "",
+    "fields": [
+      {
+        "name": "source_name",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "source_id",
+        "type": {
+          "name": "number",
+          "zodType": "z.number().optional()"
+        },
+        "isOptional": true,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
+  },
+  {
+    "name": "SourceAction",
+    "eventType": 0,
+    "exported": false,
+    "documentation": "SourceAction gets logged when a source is created/updated/deleted.\\n@type {SyftEventType.TRACK}",
+    "fields": [
+      {
+        "name": "isOriginal",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false,
+        "documentation": "is the source original or a proxy."
+      },
+      {
+        "name": "id",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().uuid()"
+        },
+        "isOptional": false,
+        "documentation": "id of the source."
+      },
+      {
+        "name": "type",
+        "type": {
+          "name": "SourceType",
+          "typeFields": [
+            {
+              "name": "source_name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "source_id",
+              "type": {
+                "name": "number",
+                "zodType": "z.number()"
+              },
+              "isOptional": true
+            }
+          ],
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  })"
+        },
+        "isOptional": false,
+        "documentation": "Source type."
+      },
+      {
+        "name": "eventType",
+        "type": {
+          "name": "EventType",
+          "typeFields": [
+            {
+              "name": "name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "id",
+              "type": {
+                "name": "number",
+                "zodType": "z.number()"
+              },
+              "isOptional": true
+            },
+            {
+              "name": "test_field",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": true
+            }
+          ],
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()"
+        },
+        "isOptional": true,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()\\n  })"
+  },
+  {
+    "name": "SourceUpdated",
+    "eventType": 0,
+    "exported": true,
+    "documentation": "SourceAction gets logged when a source is created/updated/deleted.\\n@type {SyftEventType.TRACK}",
+    "fields": [
+      {
+        "name": "isOriginal",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false,
+        "documentation": "is the source original or a proxy."
+      },
+      {
+        "name": "id",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().uuid()"
+        },
+        "isOptional": false,
+        "documentation": "id of the source."
+      },
+      {
+        "name": "type",
+        "type": {
+          "name": "SourceType",
+          "typeFields": [
+            {
+              "name": "source_name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "source_id",
+              "type": {
+                "name": "number",
+                "zodType": "z.number()"
+              },
+              "isOptional": true
+            }
+          ],
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  })"
+        },
+        "isOptional": false,
+        "documentation": "Source type."
+      },
+      {
+        "name": "eventType",
+        "type": {
+          "name": "EventType",
+          "typeFields": [
+            {
+              "name": "name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "id",
+              "type": {
+                "name": "number",
+                "zodType": "z.number()"
+              },
+              "isOptional": true
+            },
+            {
+              "name": "test_field",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": true
+            }
+          ],
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()"
+        },
+        "isOptional": true,
+        "documentation": ""
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()\\n  })"
+  },
+  {
+    "name": "NotifChannelAction",
+    "eventType": 0,
+    "exported": false,
+    "documentation": "",
+    "fields": [
+      {
+        "name": "name",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false,
+        "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
+      },
+      {
+        "name": "type",
+        "type": {
+          "name": "ChannelType",
+          "typeFields": [
+            {
+              "name": "channel_name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "channel_type",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            }
+          ],
+          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "webhook",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().url()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "count",
+        "type": {
+          "name": "number",
+          "zodType": "z.number()"
+        },
+        "isOptional": false,
+        "documentation": "Number of notifications fired so far.\\n@min 0"
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tname: z.string(),\\n\\ttype: z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  }),\\n\\twebhook: z.string().url(),\\n\\tcount: z.number()\\n  })"
+  },
+  {
+    "name": "NotifChannelUpdated",
+    "eventType": 0,
+    "exported": true,
+    "documentation": "",
+    "fields": [
+      {
+        "name": "name",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false,
+        "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
+      },
+      {
+        "name": "type",
+        "type": {
+          "name": "ChannelType",
+          "typeFields": [
+            {
+              "name": "channel_name",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            },
+            {
+              "name": "channel_type",
+              "type": {
+                "name": "string",
+                "zodType": "z.string()"
+              },
+              "isOptional": false
+            }
+          ],
+          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "webhook",
+        "type": {
+          "name": "string",
+          "zodType": "z.string().url()"
+        },
+        "isOptional": false,
+        "documentation": ""
+      },
+      {
+        "name": "count",
+        "type": {
+          "name": "number",
+          "zodType": "z.number()"
+        },
+        "isOptional": false,
+        "documentation": "Number of notifications fired so far.\\n@min 0"
+      }
+    ],
+    "traits": [],
+    "zodType": "z.object({\\n    \\tname: z.string(),\\n\\ttype: z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  }),\\n\\twebhook: z.string().url(),\\n\\tcount: z.number()\\n  })"
+  }
+]"
+`;

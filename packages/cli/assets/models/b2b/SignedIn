@@ -1,0 +1,2 @@
+username	String	The username of the user signing in.
+context.groupId	String	The id of the account associated with the user signing in.
