@@ -59,7 +59,11 @@ export class AmplitudePlugin implements ISyftPlugin {
   }
 
   init(reflector: IReflector): void {
-    this.amplitude.add(new Plugin(reflector));
+    if (this.amplitude.add != null) {
+      this.amplitude.add(new Plugin(reflector));
+    } else {
+      console.warn('Failed to register reflector with Amplitude SDK');
+    }
   }
 
   isLoaded(): boolean {

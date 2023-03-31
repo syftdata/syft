@@ -89,7 +89,7 @@ export const LOG_VALIDATE_METHODS_TEMPLATE = `
 
 export const GENERATED_TS_TEMPLATE = `
 import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from './types'
-import { SyftEventType } from './types'
+import { SyftEventType, NamingCase } from './types'
 import BaseSyft from './base'
 import { z } from 'zod'
 

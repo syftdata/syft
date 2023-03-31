@@ -94,7 +94,11 @@ export class SegmentPlugin implements ISyftPlugin {
   }
 
   init(reflector: IReflector): void {
-    this.analytics.register(new Plugin(reflector));
+    if (this.analytics.register != null) {
+      this.analytics.register(new Plugin(reflector));
+    } else {
+      console.warn('Failed to register reflector with Segment SDK');
+    }
   }
 
   isLoaded(): boolean {

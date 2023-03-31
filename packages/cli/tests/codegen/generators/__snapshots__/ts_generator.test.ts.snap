@@ -3,7 +3,7 @@
 exports[`generate with ts parses an empty schema file 1`] = `
 "
 import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from './types'
-import { SyftEventType } from './types'
+import { SyftEventType, NamingCase } from './types'
 import BaseSyft from './base'
 import { z } from 'zod'
 
@@ -30,7 +30,7 @@ export default class Syft extends BaseSyft {
 exports[`generate with ts parses an event that is exported 1`] = `
 "
 import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from './types'
-import { SyftEventType } from './types'
+import { SyftEventType, NamingCase } from './types'
 import BaseSyft from './base'
 import { z } from 'zod'
 
@@ -111,7 +111,7 @@ export default class Syft extends BaseSyft {
 exports[`generate with ts parses an event that is not exported 1`] = `
 "
 import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from './types'
-import { SyftEventType } from './types'
+import { SyftEventType, NamingCase } from './types'
 import BaseSyft from './base'
 import { z } from 'zod'
 

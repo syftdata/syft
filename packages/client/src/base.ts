@@ -41,6 +41,11 @@ export default class BaseSyft implements IReflector {
     onLoadCallback(() => {
       this.batcher.loadPlugins(this);
     });
+    // if window is available, add ourselves on the window.
+    // useful for debugging / puppeteer etc.,
+    if (typeof window !== 'undefined') {
+      window.syft = this;
+    }
   }
 
   /**

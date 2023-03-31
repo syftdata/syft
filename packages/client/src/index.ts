@@ -32,7 +32,6 @@ if (typeof window !== 'undefined') {
   if (window?.syft !== undefined) {
     const stub = window.syft;
     const syft = new Syft(stub._options);
-    window.syft = syft;
     stub.forEach((event) => {
       syft.reflectEvent(event.name, event.fields);
     });
