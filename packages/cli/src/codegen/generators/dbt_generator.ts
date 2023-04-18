@@ -11,7 +11,7 @@ import {
   type BigQueryConfig,
   type ProviderConfig
 } from '../../config/sink_configs';
-import { SyftEventType } from '@syftdata/client';
+import { SyftEventType } from '../../client_types';
 
 // HACK: ignore user identity and index too. they don't exist in BQ yet.
 const EXCLUDED = ['UserIdentity', 'Index', 'TrackedEvent', 'PageEvent'];

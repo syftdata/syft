@@ -2,7 +2,7 @@ import { type AST, type EventSchema, type Field } from '../codegen/types';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { SyftEventType } from '@syftdata/client';
+import { SyftEventType } from '../client_types';
 import { capitalize, logVerbose } from '../utils';
 
 function getEventSchemasFromFolder(folder: string): EventSchema[] {

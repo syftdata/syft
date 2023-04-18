@@ -8,7 +8,7 @@ import { type AST } from '../types';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
 import { EVENT_MODELS_TEMPLATE } from '../templates/model_template';
-import { SyftEventType } from '@syftdata/client';
+import { SyftEventType } from '../../client_types';
 
 // TODO: Memoize
 function getEventModelsTemplate(): HandlebarsTemplateDelegate<any> {

@@ -1,4 +1,4 @@
-import type { StaticConfig } from '@syftdata/client';
+import type { StaticConfig } from '../client_types';
 import type { ObjectLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, PropertyAssignment } from 'ts-morph';
 import { createTSProject } from '../codegen/compiler';

@@ -80,8 +80,8 @@ async function main(): Promise<void> {
   }
 
   // await copyGeneratedFiles();
-  const localPath = getLocalPackagePath('@syftdata/cli');
   try {
+    const localPath = getLocalPackagePath('@syftdata/cli');
     if (localPath != null) {
       await run('node', [localPath, 'generate', 'ts']);
     } else {

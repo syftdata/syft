@@ -1,5 +1,5 @@
 import { type EventSchema, type Field, type TypeField } from './types';
-import { SyftEventType } from '@syftdata/client';
+import { SyftEventType } from '../client_types';
 import {
   JSDocTypeTag,
   type ClassDeclaration,
