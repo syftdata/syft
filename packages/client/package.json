@@ -39,11 +39,12 @@
   },
   "scripts": {
     "prebuild": "rm -rf ./lib",
-    "build": "tsc",
+    "build": "tsc && tsc --project tsconfig_scripts.json",
     "build-bundle": "npx webpack --config webpack.config.js",
     "test": "jest",
     "lint": "eslint --ext .ts src tests --fix",
     "prepublish": "npm run build",
+    "postinstall": "node ./lib/scripts/postinstall.js",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
