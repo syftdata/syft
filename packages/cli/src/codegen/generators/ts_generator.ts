@@ -119,11 +119,12 @@ export function generate(
     logDetail(`
 \`\`\`
 import Syft, { AmplitudePlugin } from '@syftdata/client'
+...
 const syft = new Syft({
-   appVersion: "1.0.0",
-    plugins: [new AmplitudePlugin()]
+  appVersion: "1.0.0",
+  plugins: [new AmplitudePlugin(amplitude)]
 })
-syft.pageEvent({name: 'index'});
+syft.pageViewed({name: 'index'});
 \`\`\``);
   } else {
     logVerbose('Skipping js generation to keep unit-tests faster');
