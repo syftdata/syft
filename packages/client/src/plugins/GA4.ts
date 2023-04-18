@@ -13,9 +13,6 @@ declare global {
   }
 }
 
-/**
- * Plugin added to Syft.
- */
 export class GA4Plugin implements ISyftPlugin {
   id = 'GA4';
   syft: Syft;
@@ -43,13 +40,13 @@ export class GA4Plugin implements ISyftPlugin {
   }
 
   logEvent(event: SyftEvent): boolean {
-    if (this.isBrowser) {
-      this.gtag = window.gtag;
+    if (!this.isBrowser) {
+      return true;
     }
+    this.gtag = window.gtag;
 
     const { syft, ...props } = event;
     const fullProps: Record<string, any> = { ...props, via_syft: true };
-    console.log('GA4 logEvent', syft.eventType, syft.eventName, fullProps);
     if (syft.eventType === SyftEventType.TRACK) {
       this.gtag('event', syft.eventName, fullProps);
     } else if (syft.eventType === SyftEventType.PAGE) {
