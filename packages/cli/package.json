@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLI to get event instrumentation right.",
   "keywords": [
     "syft",
