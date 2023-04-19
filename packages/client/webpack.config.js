@@ -1,26 +1,14 @@
 const path = require('path');
-const WebpackBundleAnalyzer = require('webpack-bundle-analyzer');
+// const WebpackBundleAnalyzer = require('webpack-bundle-analyzer');
 
-module.exports = {
-  entry: {
-    'syft.client': './src/index.ts'
-  },
+const generalConfig = {
   mode: 'production',
-  output: {
-    path: path.resolve(__dirname, 'lib-bundle'),
-    filename: '[name].min.js',
-    library: {
-      name: 'syft.client',
-      type: 'umd'
-    },
-    clean: true,
-    umdNamedDefine: true
-  },
   resolve: {
     extensions: ['.ts']
   },
-  devtool: 'source-map',
-  plugins: [new WebpackBundleAnalyzer.BundleAnalyzerPlugin()],
+  plugins: [
+    //  new WebpackBundleAnalyzer.BundleAnalyzerPlugin()
+  ],
   module: {
     rules: [
       {
@@ -30,4 +18,36 @@ module.exports = {
       }
     ]
   }
+};
+
+const nodeConfig = {
+  target: 'node',
+  output: {
+    filename: '[name].node.js',
+    path: path.resolve(__dirname, 'lib-bundle'),
+    library: {
+      type: 'module'
+    }
+  }
+};
+
+const browserConfig = {
+  target: 'web',
+  output: {
+    filename: '[name].web.js',
+    path: path.resolve(__dirname, 'lib-bundle'),
+    library: {
+      type: 'module'
+    }
+  }
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'development') {
+    generalConfig.mode = 'development';
+    generalConfig.devtool = 'source-map';
+  }
+  Object.assign(nodeConfig, generalConfig);
+  Object.assign(browserConfig, generalConfig);
+  return [nodeConfig, browserConfig];
 };
