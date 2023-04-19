@@ -44,7 +44,7 @@
     "test": "jest",
     "lint": "eslint --ext .ts src tests --fix",
     "prepublish": "npm run build",
-    "postinstall": "node ./lib/scripts/postinstall.js",
+    "postinstall": "node ./lib/scripts/postinstall.js || true",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
