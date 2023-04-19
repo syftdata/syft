@@ -18,9 +18,11 @@ import { convertCase } from './utils';
 import { PluginLoader } from './PluginLoader';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-let EnvClasses = require('./node');
+let EnvClasses;
 if (typeof window !== 'undefined') {
   EnvClasses = require('./browser');
+} else {
+  EnvClasses = require('./node');
 }
 
 export default class Batcher {
