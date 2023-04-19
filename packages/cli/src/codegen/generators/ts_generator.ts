@@ -8,7 +8,7 @@ import {
   logVerbose,
   lowerize
 } from '../../utils';
-import { SyftEventType } from '@syftdata/client';
+import { SyftEventType } from '../../client_types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';

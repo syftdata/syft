@@ -1,4 +1,3 @@
-import { exec } from 'child_process';
 import { logError, logFatal, logUnknownError } from '../utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -12,38 +11,39 @@ export interface PackageJson {
   json: any;
 }
 
+function getPackagePath(pkg: string): string | null {
+  try {
+    const pkgPath = require.resolve(`${pkg}/package.json`);
+    if (pkgPath != null) {
+      return path.dirname(pkgPath);
+    }
+  } catch (e) {} // eslint-disable-line no-empty
+  return null;
+}
+
 export async function getClientPackage(): Promise<PackageJson> {
   const json = await new Promise<PackageJson>((resolve, reject) => {
-    exec('npm ls @syftdata/client -p', (err, out) => {
-      if (err != null) {
-        logUnknownError(':warning: Failed to run npm command.', err);
-        reject(err);
-        return;
-      }
-      const dir = out.split('\n')[0].trim();
-      if (dir === '') {
-        logFatal(
-          ':warning: @syftdata/client package is not found. Please install it'
-        );
-        reject(new Error('no client package'));
-        return;
-      }
-      try {
-        const filepath = path.join(dir, 'package.json');
-        const json = JSON.parse(fs.readFileSync(filepath, 'utf8'));
-        resolve({
-          dir,
-          path: filepath,
-          json
-        });
-      } catch (e) {
-        logUnknownError(
-          ':star: Failed to read @syftdata/client package.json.',
-          e
-        );
-        reject(e);
-      }
-    });
+    const dir = getPackagePath('@syftdata/client');
+    if (dir === null) {
+      logFatal(':warning: @syftdata/client package is not found.');
+      reject(new Error('no @syftdata/client package'));
+      return;
+    }
+    try {
+      const filepath = path.join(dir, 'package.json');
+      const json = JSON.parse(fs.readFileSync(filepath, 'utf8'));
+      resolve({
+        dir,
+        path: filepath,
+        json
+      });
+    } catch (e) {
+      logUnknownError(
+        ':star: Failed to read @syftdata/client package.json.',
+        e
+      );
+      reject(e);
+    }
   });
   return json;
 }
