@@ -133,7 +133,7 @@ export function convertCase(val: string, to: NamingCase): string {
 
 export type Callback = () => void;
 export function onLoadCallback(callback: Callback): void {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || navigator.product === 'ReactNative') {
     callback();
     return;
   }

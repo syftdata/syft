@@ -8,6 +8,9 @@ declare global {
 
 class EventDispatcher implements IEventDispatcher {
   dispatch(event: ExternalEvent): void {
+    if (navigator.product === 'ReactNative') {
+      return;
+    }
     window.dispatchEvent(
       new CustomEvent(event.type, {
         detail: event.detail
