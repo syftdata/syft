@@ -81,7 +81,7 @@ export function generate(
       target: ScriptTarget.ES2015,
       declaration: true,
       declarationMap: true,
-      sourceMap: true,
+      sourceMap: false,
       strictNullChecks: true,
       module: ModuleKind.CommonJS,
       noImplicitAny: false,

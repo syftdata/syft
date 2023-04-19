@@ -9,7 +9,7 @@
       "experimentalDecorators": true,
       "strictNullChecks": true,
       "target": "ES2015",
-      "sourceMap": true,
+      "sourceMap": false,
       "lib": [
         "ES2015"
       ]
