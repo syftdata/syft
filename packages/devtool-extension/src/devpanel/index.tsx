@@ -4,10 +4,10 @@ import { SyftEvent, SyftEventInstrumentStatus } from '../types'
 import './index.css'
 import Panel from './events'
 import { Flex } from '../common/styles/common.styles'
-import { css } from '@emotion/css'
-import { Colors } from '../common/styles/colors'
-import { Heading } from '../common/styles/fonts'
-import Icon from '../common/core/Icon/Icon'
+import { IconButton } from '../recorder/Button'
+import Card from '../common/core/Card'
+import CardHeader from '../common/core/Card/CardHeader'
+import { Css } from '../common/styles/common.styles'
 
 function init(onNewEvent: (event: any) => void) {
   const listener = (message: any) => {
@@ -58,39 +58,27 @@ const App = () => {
     )
   }
   return (
-    <Flex.Col
-      className={css`
-        height: 100%;
-      `}
-    >
-      <Flex.Row
-        className={css`
-          padding: 10px;
-          background: ${Colors.Branding.V1};
-        `}
-        justifyContent="space-between"
-      >
-        <Heading.H14 color={Colors.Branding.DarkBlue}>Syft Events</Heading.H14>
-        <Flex.Row gap={3}>
-          <input
-            type="text"
-            className={
-              'text-md w-[150px] font-medium text-[#1c1e27] ' + (searchVisible ? '' : 'hidden')
-            }
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div onClick={toggleSearch}>
-            <Icon icon="code" size="small" />
-          </div>
-          <div onClick={() => setEvents([])}>
-            <Icon icon="close" size="small" />
-          </div>
-        </Flex.Row>
-      </Flex.Row>
+    <Card className={Css.height('100%')}>
+      <CardHeader
+        title="Syft Events"
+        rightItem={
+          <Flex.Row gap={3}>
+            <input
+              type="text"
+              className={
+                'text-md w-[150px] font-medium text-[#1c1e27] ' + (searchVisible ? '' : 'hidden')
+              }
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <IconButton onClick={toggleSearch} icon="search" />
+            <IconButton onClick={() => setEvents([])} icon="minus-circle" />
+          </Flex.Row>
+        }
+      />
       <Panel events={filteredEvents} />
-    </Flex.Col>
+    </Card>
   )
 }
 

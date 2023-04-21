@@ -2,15 +2,14 @@ import { defineConfig } from 'vite'
 import { crx } from '@crxjs/vite-plugin'
 import react from '@vitejs/plugin-react'
 
+// @ts-ignore-error
 import manifest from './src/manifest'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
-    define: {
-      global: {},
-    },
     build: {
+      chunkSizeWarningLimit: 1000,
       emptyOutDir: true,
       outDir: 'build',
       rollupOptions: {

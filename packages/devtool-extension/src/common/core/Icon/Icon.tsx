@@ -1,5 +1,6 @@
 import { css } from '@emotion/css'
 import {
+  ArrowLeftIcon,
   ArrowUpRightIcon,
   BellIcon,
   BookIcon,
@@ -21,14 +22,18 @@ import {
   HelpIcon,
   HomeIcon,
   LayersIcon,
+  MinusCircleIcon,
   PlusIcon,
   RefreshIcon,
+  SearchIcon,
   ServerIcon,
   SettingsIcon,
   SpinnerIcon,
   StarIcon,
   StickerIcon,
   TrashIcon,
+  VideoCameraIcon,
+  VideoCameraOffIcon,
   WarningTriangleIcon,
 } from '@iconicicons/react'
 import type { Size } from '../../constants/types'
@@ -36,6 +41,7 @@ import { Colors } from '../../styles/colors'
 import { iconStyles } from './icon.styles'
 
 export type IconName =
+  | 'arrow-left'
   | 'columnsHorizontal'
   | 'folder'
   | 'globe'
@@ -66,9 +72,15 @@ export type IconName =
   | 'book'
   | 'layers'
   | 'code'
+  | 'minus-circle'
+  | 'search'
+  | 'video-camera'
+  | 'video-camera-off'
 
 const getIcon = (icon: IconName) => {
   switch (icon) {
+    case 'arrow-left':
+      return <ArrowLeftIcon />
     case 'columnsHorizontal':
       return <ColumnsHorizontalIcon />
     case 'folder':
@@ -129,6 +141,14 @@ const getIcon = (icon: IconName) => {
       return <LayersIcon />
     case 'code':
       return <CodeIcon />
+    case 'minus-circle':
+      return <MinusCircleIcon />
+    case 'search':
+      return <SearchIcon />
+    case 'video-camera':
+      return <VideoCameraIcon />
+    case 'video-camera-off':
+      return <VideoCameraOffIcon />
   }
 }
 

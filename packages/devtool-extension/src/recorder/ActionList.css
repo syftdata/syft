@@ -1,0 +1,17 @@
+.ActionList {
+  height: 200px;
+  overflow-y: scroll;
+}
+.ActionListItem {
+  font-size: 16px;
+  padding: 0.75em 1em;
+}
+
+.ActionListItem .em-text {
+  font-weight: 400;
+}
+
+.ActionListItem .mono {
+  font-family: monospace;
+  font-size: 1em;
+}

@@ -1,11 +1,5 @@
-import {
-  SyftEvent,
-  SyftEventInstrumentStatus,
-  SyftEventTrackStatus,
-  SyftEventValidStatus,
-} from '../types'
-import { addDomEvents, isAutomaticEvent, isImplicitEvent, isSemiExplicitEvent } from './dom'
-import { getPathTo } from './xpath'
+import { SyftEvent } from '../types'
+import { initalizeBridge } from './bridge'
 
 // This method gets the properties of the element that triggered the event.
 function getFromSyftEvent(event: CustomEvent): SyftEvent {
@@ -19,55 +13,9 @@ function getFromSyftEvent(event: CustomEvent): SyftEvent {
   return syftevent
 }
 
-function getFromDomEvent(event: Event): SyftEvent {
-  const element = 'target' in event ? event.target : undefined
-  const syftevent: SyftEvent = {
-    name: event.type,
-    props: {},
-    createdAt: new Date(),
-    syft_status: {
-      tracked: SyftEventTrackStatus.NOT_TRACKED,
-      valid: SyftEventValidStatus.UNKNOWN,
-      instrumented: SyftEventInstrumentStatus.NOT_INSTRUMENTED,
-    },
-  }
+initalizeBridge()
 
-  if (element instanceof HTMLElement) {
-    if (syftevent.name === 'mousedown') {
-      syftevent.name = 'click' // HACK to make the demo look good.
-    }
-    let name = `${syftevent.name} on ${element.tagName.toLowerCase()}`
-    const props = {
-      tagName: element.tagName,
-      ...element.dataset,
-    } as Record<string, any>
-    if (element.className) {
-      name = `${syftevent.name} on ${element.tagName.toLowerCase()}@${element.className}`
-      props.className = element.className
-    }
-    if (element.id) {
-      name = `${syftevent.name} on ${element.tagName.toLowerCase()}#${element.id}`
-      props.id = element.id
-    }
-    syftevent.name = name
-    props.path = getPathTo(element)
-    syftevent.props = props
-  }
-  return syftevent
-}
-
-addDomEvents((event) => {
-  const syftevent = getFromDomEvent(event)
-  if (isAutomaticEvent(event) || isImplicitEvent(event)) {
-    // pass
-  } else if (isSemiExplicitEvent(event)) {
-    syftevent.syft_status.instrumented = SyftEventInstrumentStatus.NOT_INSTRUMENTED_VERBOSE
-    chrome.runtime.sendMessage(syftevent)
-  } else {
-    chrome.runtime.sendMessage(syftevent)
-  }
-})
-
+// Todo: Read from Syft object.
 window.addEventListener(
   'syft-event',
   (event) => {
@@ -78,12 +26,12 @@ window.addEventListener(
   true,
 )
 
-// inject script
-const delay = 200
-setTimeout(() => {
-  const script = document.createElement('script')
-  script.src = chrome.runtime.getURL('scripts/react_devtools_hook.js')
-  document.head.appendChild(script)
-}, delay)
+// // inject script
+// const delay = 200
+// setTimeout(() => {
+//   const script = document.createElement('script')
+//   script.src = chrome.runtime.getURL('scripts/react_devtools_hook.js')
+//   document.head.appendChild(script)
+// }, delay)
 
 export {}
