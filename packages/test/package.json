@@ -1,0 +1,57 @@
+{
+  "name": "@syftdata/test",
+  "version": "0.1.7",
+  "description": "A utility library to run unit and e2e tests for Syft clients",
+  "keywords": [
+    "syft",
+    "client",
+    "events",
+    "data",
+    "instrumentation",
+    "analytics"
+  ],
+  "author": "Nageswara Rao Mannem <nageswara@syftdata.com>",
+  "homepage": "https://syftdata.com",
+  "license": "Apache-2.0",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "directories": {
+    "src": "./src",
+    "test": "./tests"
+  },
+  "files": [
+    "./lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syftdata/syft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/syftdata/syft/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint --ext .ts src tests --fix",
+    "prepublish": "npm run build",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.32.3",
+    "@syftdata/client": "^0.1.7"
+  }
+}

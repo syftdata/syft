@@ -158,7 +158,7 @@ export default function ControlBar({ onExit }: { onExit: () => void }) {
         className={cx(
           Css.position("fixed!important"),
           Css.zIndex(2147483647),
-          showAllActions && Css.height(320),
+          showAllActions ? Css.height(320) : Css.height(80),
           barPosition === BarPosition.Bottom ? Css.bottom(35) : Css.top(35),
           Css.width(650),
           Css.margin("auto"),

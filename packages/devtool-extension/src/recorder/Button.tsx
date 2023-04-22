@@ -50,7 +50,7 @@ export const IconButton = ({
   const Comp = getLabel(defaultSize);
   return (
     <Flex.Row
-      gap={4}
+      gap={2}
       className={cx(
         Css.background(defaultBackgroundColor),
         Css.padding(4),

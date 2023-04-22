@@ -44,7 +44,7 @@ export default function RecordScriptView({
   const [copyCodeConfirm, setCopyCodeConfirm] = useState<boolean>(false);
 
   return (
-    <Card className={className}>
+    <Flex.Col className={className}>
       {header}
       <Flex.Row justifyContent="space-between" alignItems="center">
         {actionsMode === ActionsMode.Actions ? (
@@ -102,6 +102,6 @@ export default function RecordScriptView({
           <ActionList actions={actions} />
         )}
       </Flex.Col>
-    </Card>
+    </Flex.Col>
   );
 }

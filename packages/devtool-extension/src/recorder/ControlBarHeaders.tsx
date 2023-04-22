@@ -58,10 +58,10 @@ export function RecordingHeader({
   lastAction,
 }: RecordingHeaderProps) {
   return (
-    <Flex.Row gap={8} alignItems="center" justifyContent="start">
+    <Flex.Row gap={4} alignItems="center" justifyContent="start">
       <IconButton
-        label="End Rec"
-        icon="check-circle"
+        label="Stop Rec"
+        icon="video-camera-off"
         onClick={onEndRecording}
         size="large"
       />
@@ -73,19 +73,10 @@ export function RecordingHeader({
       />
       <Flex.Col
         gap={4}
-        className={cx(
-          Flex.grow(1),
-          Css.maxWidth(360),
-          Css.textTruncate(2),
-          Css.textOverflow("ellipsis")
-        )}
+        className={cx(Flex.grow(1), Css.maxWidth(290), Css.textEllipsisCss)}
       >
         <Label.L12>Last Action</Label.L12>
-        {lastAction && (
-          <Paragraph.P18>
-            <ActionText2 action={lastAction} />
-          </Paragraph.P18>
-        )}
+        {lastAction && <ActionText2 action={lastAction} />}
       </Flex.Col>
       <Flex.Col gap={4} alignItems="start">
         <IconButton

@@ -16,6 +16,8 @@ import { HomeView } from "./HomeView";
 import { RecordingView } from "./RecordingView";
 import { Css, Flex } from "../common/styles/common.styles";
 import { cx } from "@emotion/css";
+import Card from "../common/core/Card";
+import CardHeader from "../common/core/Card/CardHeader";
 
 const Popup = () => {
   const [_scriptType, setScriptType] = usePreferredLibrary();
@@ -52,12 +54,11 @@ const Popup = () => {
   const scriptType = _scriptType ?? ScriptType.Playwright;
   return (
     <>
-      <Flex.Col
+      <Card
         gap={14}
         alignItems="center"
-        className={cx(Css.padding(10), Css.width(650))}
+        className={cx(Css.padding(10), Css.width(520))}
       >
-        <Heading.H22>Syft</Heading.H22>
         {activePage === "recording" && (
           <RecordingView
             curretTabId={currentTabId}
@@ -90,7 +91,7 @@ const Popup = () => {
             }
           />
         )}
-      </Flex.Col>
+      </Card>
     </>
   );
 };

@@ -32,8 +32,8 @@ export const RecordingView = ({
       <PrimaryIconButton
         onClick={onEndRecording}
         size="large"
-        icon="check-circle"
-        label="End Recording"
+        icon="video-camera-off"
+        label="Stop Recording"
       />
     </Flex.Col>
   );
