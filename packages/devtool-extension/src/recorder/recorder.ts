@@ -391,11 +391,11 @@ class Recorder {
     this.appendToRecording(action);
   };
 
-  public assertSyftEvent = (event: SyftEvent): void => {
+  public assertSyftEvent = (name: string, data: Record<string, any>): void => {
     const action = {
       type: ActionType.SyftEvent,
-      name: event.name,
-      ...event.props,
+      name,
+      data,
     };
 
     this.appendToRecording(action);

@@ -62,9 +62,9 @@ export default function ControlBar({ onExit }: { onExit: () => void }) {
   const onInsertEvent = () => {
     // show UI to select an event and its props.
     // assume that it happened.
-
-    setShowAllActions(true);
-    setScriptType(ScriptType.Playwright);
+    recorderRef.current?.assertSyftEvent("TodoAdded", {
+      id: 1,
+    });
   };
 
   const onClose = () => {

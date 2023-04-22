@@ -129,6 +129,10 @@ export class ActionContext extends BaseAction {
         )} from (${this.action.sourceX}, ${this.action.sourceY}) to (${
           this.action.targetX
         }, ${this.action.targetY})`;
+      case ActionType.SyftEvent:
+        return `Expect Syft event ${
+          this.action.name
+        } with props ${JSON.stringify(this.action.data)}`;
       default:
         return "";
     }
@@ -444,7 +448,7 @@ export class PlaywrightScriptBuilder extends ScriptBuilder {
   };
 
   syftEvent = (name: string, data: Record<string, any>) => {
-    this.pushCodes(`await syft.hasEvent(${name}, ${JSON.stringify(data)});`);
+    this.pushCodes(`await syft.hasEvent("${name}", ${JSON.stringify(data)});`);
     return this;
   };
 

@@ -18,6 +18,21 @@ interface RecordScriptViewProps {
   className?: string;
 }
 
+function downloadScript(actions: Action[], scriptType: ScriptType): void {
+  // write code to show download dialog for a text.
+  const code = genCode(actions, true, scriptType);
+  const blob = new Blob([code], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.setProperty("display", "none");
+  a.href = url;
+  a.download = `syft_test.${scriptType}.js`;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+}
+
 export default function RecordScriptView({
   actions,
   header,
@@ -44,23 +59,11 @@ export default function RecordScriptView({
           />
         )}
         {actionsMode === ActionsMode.Code && (
-          <>
-            <ScriptTypeSelect value={scriptType} onChange={setScriptType} />
-            <IconButton
-              onClick={() => {
-                const element = document.createElement("a");
-                const file = new Blob([genCode(actions, true, scriptType)], {
-                  type: "text/plain",
-                });
-                element.href = URL.createObjectURL(file);
-                element.download = `recording_${scriptType}`;
-                document.body.appendChild(element);
-                element.click();
-              }}
-              label="Download"
-              icon="arrow-down"
-              reverseIcon={true}
-              size="medium"
+          <Flex.Row justifyContent="end" gap={6}>
+            <ScriptTypeSelect
+              value={scriptType}
+              onChange={setScriptType}
+              shortDescription={true}
             />
             <CopyToClipboard
               text={genCode(actions, true, scriptType)}
@@ -80,7 +83,15 @@ export default function RecordScriptView({
                 reverseIcon={true}
               />
             </CopyToClipboard>
-          </>
+            <IconButton
+              onClick={() => {
+                downloadScript(actions, scriptType);
+              }}
+              label="Download"
+              icon="arrow-down"
+              reverseIcon={true}
+            />
+          </Flex.Row>
         )}
       </Flex.Row>
       <Flex.Col className={cx(Css.height(240), Css.overflow("scroll"))}>
