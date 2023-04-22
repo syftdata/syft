@@ -1,26 +1,31 @@
-import React from 'react'
-import { css } from '@emotion/css'
-import { Colors } from '../../styles/colors'
-import { Css, Flex } from '../../styles/common.styles'
-import { Heading, Subheading } from '../../styles/fonts'
+import React from "react";
+import { css } from "@emotion/css";
+import { Colors } from "../../styles/colors";
+import { Css, Flex } from "../../styles/common.styles";
+import { Heading, Subheading } from "../../styles/fonts";
 
 interface PageHeaderProps {
-  title?: string
-  subTitle?: string
-  rightItem?: React.ReactNode
-  className?: string
+  title?: string;
+  subTitle?: string;
+  rightItem?: React.ReactNode;
+  className?: string;
 }
-const PageHeader = ({ title, subTitle, rightItem, className }: PageHeaderProps) => {
+const PageHeader = ({
+  title,
+  subTitle,
+  rightItem,
+  className,
+}: PageHeaderProps) => {
   return (
     <Flex.Row
       className={css(
-        Css.position('sticky'),
+        Css.position("sticky"),
         Css.top(0),
         Css.right(0),
-        Css.padding('22px 30px 12px'),
+        Css.padding("22px 30px 12px"),
         Css.background(Colors.Gray.Background),
         Css.zIndex(10),
-        className,
+        className
       )}
       justifyContent="space-between"
     >
@@ -30,7 +35,7 @@ const PageHeader = ({ title, subTitle, rightItem, className }: PageHeaderProps) 
       </Flex.Col>
       {rightItem}
     </Flex.Row>
-  )
-}
+  );
+};
 
-export default PageHeader
+export default PageHeader;

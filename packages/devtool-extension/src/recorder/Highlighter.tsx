@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import HighlighterStyle from './Highlighter.css';
+import HighlighterStyle from "./Highlighter.css";
 
 type Props = {
   rect: DOMRect;

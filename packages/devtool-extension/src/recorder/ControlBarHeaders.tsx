@@ -1,15 +1,14 @@
-import React from 'react'
-import { Css, Flex } from '../common/styles/common.styles'
-import { Heading, Label, Paragraph, Subheading } from '../common/styles/fonts'
-import { IconButton } from './Button'
-import { Action, BarPosition } from '../types'
-import ActionText from '../common/ActionText'
-import { cx } from '@emotion/css'
+import { Css, Flex } from "../common/styles/common.styles";
+import { Heading, Label, Paragraph, Subheading } from "../common/styles/fonts";
+import { IconButton } from "./Button";
+import { Action, BarPosition } from "../types";
+import { ActionText2 } from "../common/ActionText";
+import { cx } from "@emotion/css";
 
 export interface RecordDoneHeaderProps {
-  onClose: () => void
-  showActions: boolean
-  toggleShowActions: () => void
+  onClose: () => void;
+  showActions: boolean;
+  toggleShowActions: () => void;
 }
 
 export function RecordDoneHeader({
@@ -24,27 +23,29 @@ export function RecordDoneHeader({
         <IconButton onClick={onClose} icon="close" size="large" />
       </Flex.Row>
       <Flex.Row>
-        <Subheading.SH12>Below is the generated code for this recording.</Subheading.SH12>
+        <Subheading.SH12>
+          Below is the generated code for this recording.
+        </Subheading.SH12>
         <IconButton
-          icon={showActions ? 'chevron-up' : 'chevron-down'}
-          label={showActions ? 'Close Details' : 'Open Details'}
+          icon={showActions ? "chevron-up" : "chevron-down"}
+          label={showActions ? "Close Details" : "Open Details"}
           onClick={toggleShowActions}
           size="small"
           reverseIcon={true}
         />
       </Flex.Row>
     </Flex.Col>
-  )
+  );
 }
 
 export interface RecordingHeaderProps {
-  onEndRecording: () => void
-  onInsertEvent: () => void
-  barPosition: BarPosition | null
-  setBarPosition: (position: BarPosition) => void
-  showActions: boolean
-  toggleShowActions: () => void
-  lastAction: Action | null
+  onEndRecording: () => void;
+  onInsertEvent: () => void;
+  barPosition: BarPosition | null;
+  setBarPosition: (position: BarPosition) => void;
+  showActions: boolean;
+  toggleShowActions: () => void;
+  lastAction: Action | null;
 }
 
 export function RecordingHeader({
@@ -58,40 +59,54 @@ export function RecordingHeader({
 }: RecordingHeaderProps) {
   return (
     <Flex.Row gap={8} alignItems="center" justifyContent="start">
-      <IconButton label="End Rec" icon="check-circle" onClick={onEndRecording} size="large" />
-      <IconButton label="Event" icon="plus" onClick={onInsertEvent} size="large" />
+      <IconButton
+        label="End Rec"
+        icon="check-circle"
+        onClick={onEndRecording}
+        size="large"
+      />
+      <IconButton
+        label="Event"
+        icon="plus"
+        onClick={onInsertEvent}
+        size="large"
+      />
       <Flex.Col
         gap={4}
         className={cx(
           Flex.grow(1),
           Css.maxWidth(360),
           Css.textTruncate(2),
-          Css.textOverflow('ellipsis'),
+          Css.textOverflow("ellipsis")
         )}
       >
         <Label.L12>Last Action</Label.L12>
         {lastAction && (
           <Paragraph.P18>
-            <ActionText action={lastAction} />
+            <ActionText2 action={lastAction} />
           </Paragraph.P18>
         )}
       </Flex.Col>
       <Flex.Col gap={4} alignItems="start">
         <IconButton
-          label={`Move to ${barPosition === BarPosition.Bottom ? 'Top' : 'Bottom'}`}
+          label={`Move to ${
+            barPosition === BarPosition.Bottom ? "Top" : "Bottom"
+          }`}
           onClick={() =>
             setBarPosition(
-              barPosition === BarPosition.Bottom ? BarPosition.Top : BarPosition.Bottom,
+              barPosition === BarPosition.Bottom
+                ? BarPosition.Top
+                : BarPosition.Bottom
             )
           }
         />
         <IconButton
-          icon={showActions ? 'chevron-up' : 'chevron-down'}
-          label={showActions ? 'Close Details' : 'Open Details'}
+          icon={showActions ? "chevron-up" : "chevron-down"}
+          label={showActions ? "Close Details" : "Open Details"}
           onClick={toggleShowActions}
           reverseIcon={true}
         />
       </Flex.Col>
     </Flex.Row>
-  )
+  );
 }

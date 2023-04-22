@@ -1,5 +1,5 @@
-import { SyftEvent } from '../types'
-import { initalizeBridge } from './bridge'
+import { SyftEvent } from "../types";
+import { initalizeBridge } from "./bridge";
 
 // This method gets the properties of the element that triggered the event.
 function getFromSyftEvent(event: CustomEvent): SyftEvent {
@@ -8,23 +8,25 @@ function getFromSyftEvent(event: CustomEvent): SyftEvent {
     props: event.detail.props,
     syft_status: event.detail.syft_status,
     createdAt: event.detail.createdAt,
-  }
-  syftevent.createdAt = syftevent.props.time ? new Date(syftevent.props.time) : new Date()
-  return syftevent
+  };
+  syftevent.createdAt = syftevent.props.time
+    ? new Date(syftevent.props.time)
+    : new Date();
+  return syftevent;
 }
 
-initalizeBridge()
+initalizeBridge();
 
 // Todo: Read from Syft object.
 window.addEventListener(
-  'syft-event',
+  "syft-event",
   (event) => {
     chrome.runtime.sendMessage({
       ...getFromSyftEvent(event as CustomEvent),
-    })
+    });
   },
-  true,
-)
+  true
+);
 
 // // inject script
 // const delay = 200
@@ -34,4 +36,4 @@ window.addEventListener(
 //   document.head.appendChild(script)
 // }, delay)
 
-export {}
+export {};

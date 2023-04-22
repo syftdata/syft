@@ -1,14 +1,14 @@
-import { css } from '@emotion/css'
-import { Colors } from '../common/styles/colors'
-import { Flex } from '../common/styles/common.styles'
-import { Mono } from '../common/styles/fonts'
+import { css } from "@emotion/css";
+import { Colors } from "../common/styles/colors";
+import { Flex } from "../common/styles/common.styles";
+import { Mono } from "../common/styles/fonts";
 
 const PropRenderer = ({ keyStr, val }: { keyStr: string; val: any }) => {
-  let valString = val
+  let valString = val;
   if (val instanceof Date) {
-    valString = val.toISOString()
+    valString = val.toISOString();
   } else {
-    valString = JSON.stringify(val, null, 2)
+    valString = JSON.stringify(val, null, 2);
   }
   return (
     <Flex.Row
@@ -30,8 +30,8 @@ const PropRenderer = ({ keyStr, val }: { keyStr: string; val: any }) => {
         <pre>{valString}</pre>
       </Mono.M10>
     </Flex.Row>
-  )
-}
+  );
+};
 
 const EventPropsRenderer = ({ data }: { data: Record<string, any> }) => {
   return (
@@ -40,6 +40,6 @@ const EventPropsRenderer = ({ data }: { data: Record<string, any> }) => {
         <PropRenderer key={key} keyStr={key} val={val} />
       ))}
     </Flex.Col>
-  )
-}
-export default EventPropsRenderer
+  );
+};
+export default EventPropsRenderer;

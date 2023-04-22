@@ -1,16 +1,16 @@
-import { css } from '@emotion/css';
-import type { Size } from '../../constants/types';
-import { Transition } from '../../styles/animations';
+import { css } from "@emotion/css";
+import type { Size } from "../../constants/types";
+import { Transition } from "../../styles/animations";
 
 const getIconSize = (size: Size) => {
   switch (size) {
-    case 'xSmall':
+    case "xSmall":
       return 15;
-    case 'small':
+    case "small":
       return 20;
-    case 'medium':
+    case "medium":
       return 25;
-    case 'large':
+    case "large":
       return 30;
   }
 };
@@ -22,11 +22,11 @@ export const iconStyles = {
       height: getIconSize(size),
       width: getIconSize(size),
       transition: Transition.V1,
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       svg: {
-        height: '100%',
-        width: '100%',
+        height: "100%",
+        width: "100%",
         color: color,
       },
     }),

@@ -1,13 +1,16 @@
-import { Flex } from '../common/styles/common.styles'
-import { Subheading } from '../common/styles/fonts'
-import { IconButton, PrimaryIconButton } from '../recorder/Button'
+import { Flex } from "../common/styles/common.styles";
+import { Subheading } from "../common/styles/fonts";
+import { IconButton, PrimaryIconButton } from "../recorder/Button";
 
 interface HomeViewProps {
-  onStartRecording: () => void
-  onViewLastRecording: () => void
+  onStartRecording: () => void;
+  onViewLastRecording: () => void;
 }
 
-export const HomeView = ({ onStartRecording, onViewLastRecording }: HomeViewProps) => {
+export const HomeView = ({
+  onStartRecording,
+  onViewLastRecording,
+}: HomeViewProps) => {
   return (
     <Flex.Col alignItems="center" gap={8}>
       <Subheading.SH14>Generate Event Test Specs easily.</Subheading.SH14>
@@ -24,5 +27,5 @@ export const HomeView = ({ onStartRecording, onViewLastRecording }: HomeViewProp
         label="View Last Recording"
       />
     </Flex.Col>
-  )
-}
+  );
+};

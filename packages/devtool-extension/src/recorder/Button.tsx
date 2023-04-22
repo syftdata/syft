@@ -1,34 +1,38 @@
-import Icon, { IconName } from '../common/core/Icon/Icon'
-import { Css, Flex } from '../common/styles/common.styles'
-import { cx } from '@emotion/css'
-import { Colors } from '../common/styles/colors'
-import { Label, Paragraph } from '../common/styles/fonts'
+import Icon, { IconName } from "../common/core/Icon/Icon";
+import { Css, Flex } from "../common/styles/common.styles";
+import { cx } from "@emotion/css";
+import { Colors } from "../common/styles/colors";
+import { Label, Paragraph } from "../common/styles/fonts";
 
-function getLabel(size: 'small' | 'medium' | 'large'): any {
+function getLabel(size: "small" | "medium" | "large"): any {
   switch (size) {
-    case 'small':
-      return Label.L10
-    case 'medium':
-      return Label.L14
-    case 'large':
-      return Paragraph.P18 // for large buttons, show regular text.
+    case "small":
+      return Label.L10;
+    case "medium":
+      return Label.L14;
+    case "large":
+      return Paragraph.P18; // for large buttons, show regular text.
   }
 }
 
 export interface IconButtonProps {
-  onClick?: () => void
-  label?: String // label or icon is required.
-  icon?: IconName
-  size?: 'small' | 'medium' | 'large'
-  reverseIcon?: boolean // puts icon at the end.
-  className?: string
-  color?: string
-  backgroundColor?: string
+  onClick?: () => void;
+  label?: String; // label or icon is required.
+  icon?: IconName;
+  size?: "small" | "medium" | "large";
+  reverseIcon?: boolean; // puts icon at the end.
+  className?: string;
+  color?: string;
+  backgroundColor?: string;
 }
 
 export const PrimaryIconButton = (iconProps: IconButtonProps) => (
-  <IconButton {...iconProps} backgroundColor={Colors.Branding.DarkBlue} color={Colors.White} />
-)
+  <IconButton
+    {...iconProps}
+    backgroundColor={Colors.Branding.DarkBlue}
+    color={Colors.White}
+  />
+);
 
 export const IconButton = ({
   onClick,
@@ -40,10 +44,10 @@ export const IconButton = ({
   color,
   backgroundColor,
 }: IconButtonProps) => {
-  const defaultSize = size ?? 'small'
-  const defaultColor = color ?? Colors.Gray.V7
-  const defaultBackgroundColor = backgroundColor ?? Colors.Transparent.Light.V1
-  const Comp = getLabel(defaultSize)
+  const defaultSize = size ?? "small";
+  const defaultColor = color ?? Colors.Gray.V7;
+  const defaultBackgroundColor = backgroundColor ?? Colors.Transparent.Light.V1;
+  const Comp = getLabel(defaultSize);
   return (
     <Flex.Row
       gap={4}
@@ -51,8 +55,8 @@ export const IconButton = ({
         Css.background(defaultBackgroundColor),
         Css.padding(4),
         className,
-        Css.cursor('pointer'),
-        Css.flexDirection(reverseIcon ? 'row-reverse!important' : 'row'),
+        Css.cursor("pointer"),
+        Css.flexDirection(reverseIcon ? "row-reverse!important" : "row")
       )}
       onClick={onClick}
       alignItems="center"
@@ -60,5 +64,5 @@ export const IconButton = ({
       {icon ? <Icon icon={icon} size={size} color={defaultColor} /> : <></>}
       {label ? <Comp color={defaultColor}>{label}</Comp> : <></>}
     </Flex.Row>
-  )
-}
+  );
+};

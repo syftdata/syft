@@ -37,7 +37,7 @@
     "styled-components": "^5.3.9"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^1.0.12",
+    "@crxjs/vite-plugin": "^1.0.14",
     "@types/chrome": "^0.0.219",
     "@types/firefox": "^0.0.31",
     "@types/lodash.debounce": "^4.0.7",

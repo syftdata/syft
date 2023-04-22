@@ -1,1 +1,1 @@
-declare module 'optimal-select/lib'
+declare module "optimal-select/lib";

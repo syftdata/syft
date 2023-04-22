@@ -1,7 +1,7 @@
-import finder from './finder';
+import finder from "./finder";
 
-import type { Action } from '../types';
-import { ActionType, ScriptType, TagName } from '../types';
+import type { Action } from "../types";
+import { ActionType, ScriptType, TagName } from "../types";
 
 function genAttributeSet(element: HTMLElement, attributes: string[]) {
   return new Set(
@@ -47,7 +47,7 @@ export default function genSelectors(element: HTMLElement | null) {
     return null;
   }
 
-  const href = element.getAttribute('href');
+  const href = element.getAttribute("href");
 
   let generalSelector = null;
   try {
@@ -59,36 +59,36 @@ export default function genSelectors(element: HTMLElement | null) {
     attrSelector = finder(element, { attr: () => true });
   } catch (e) {}
 
-  const hrefSelector = genSelectorForAttributes(element, ['href']);
+  const hrefSelector = genSelectorForAttributes(element, ["href"]);
   const formSelector = genSelectorForAttributes(element, [
-    'name',
-    'placeholder',
-    'for',
+    "name",
+    "placeholder",
+    "for",
   ]);
   const accessibilitySelector = genSelectorForAttributes(element, [
-    'aria-label',
-    'alt',
-    'title',
+    "aria-label",
+    "alt",
+    "title",
   ]);
 
   const testIdSelector = genSelectorForAttributes(element, [
-    'data-testid',
-    'data-test-id',
-    'data-testing',
-    'data-test',
-    'data-qa',
-    'data-cy',
+    "data-testid",
+    "data-test-id",
+    "data-testing",
+    "data-test",
+    "data-qa",
+    "data-cy",
   ]);
 
   // We won't use an id selector if the id is invalid (starts with a number)
   let idSelector = null;
   try {
     idSelector =
-      isAttributesDefined(element, ['id']) &&
+      isAttributesDefined(element, ["id"]) &&
       !isCharacterNumber(element.id?.[0])
         ? // Certain apps don't have unique ids (ex. youtube)
           finder(element, {
-            attr: (name) => name === 'id',
+            attr: (name) => name === "id",
           })
         : null;
   } catch (e) {}

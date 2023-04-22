@@ -1,10 +1,10 @@
-import { css } from '@emotion/css'
-import styled from 'styled-components'
+import { css } from "@emotion/css";
+import styled from "styled-components";
 
 export interface FlexProps {
-  gap?: number
-  justifyContent?: string
-  alignItems?: string
+  gap?: number;
+  justifyContent?: string;
+  alignItems?: string;
 }
 
 export const Flex = {
@@ -46,7 +46,7 @@ export const Flex = {
     css({
       flexDirection: direction,
     }),
-}
+};
 
 export const Css = {
   width: (width?: number | string) =>
@@ -171,27 +171,27 @@ export const Css = {
     }),
   textTruncate: (lines?: number) =>
     css({
-      '-webkit-box-orient': 'vertical',
-      display: '-webkit-box',
-      '-webkit-line-clamp': `${lines ?? 1}`,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'normal',
+      "-webkit-box-orient": "vertical",
+      display: "-webkit-box",
+      "-webkit-line-clamp": `${lines ?? 1}`,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "normal",
     }),
   imgCoverFitCss: css({
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
   }),
   centerCss: css({
-    position: 'relative',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "relative",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
   }),
   textEllipsisCss: css({
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   }),
-}
+};

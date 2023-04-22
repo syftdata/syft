@@ -35,8 +35,8 @@ export default function finder(input: Element, options?: Partial<Options>) {
     throw new Error(`Can't generate CSS selector for non-element node type.`);
   }
 
-  if ('html' === input.tagName.toLowerCase()) {
-    return 'html';
+  if ("html" === input.tagName.toLowerCase()) {
+    return "html";
   }
 
   const defaults: Options = {
@@ -200,10 +200,10 @@ function unique(path: Path) {
 }
 
 function id(input: Element): Node | null {
-  const elementId = input.getAttribute('id');
+  const elementId = input.getAttribute("id");
   if (elementId && config.idName(elementId)) {
     return {
-      name: '#' + cssesc(elementId, { isIdentifier: true }),
+      name: "#" + cssesc(elementId, { isIdentifier: true }),
       penalty: 0,
     };
   }
@@ -218,7 +218,7 @@ function attr(input: Element): Node[] {
   return attrs.map(
     (attr): Node => ({
       name:
-        '[' +
+        "[" +
         cssesc(attr.name, { isIdentifier: true }) +
         '="' +
         cssesc(attr.value) +
@@ -233,7 +233,7 @@ function classNames(input: Element): Node[] {
 
   return names.map(
     (name): Node => ({
-      name: '.' + cssesc(name, { isIdentifier: true }),
+      name: "." + cssesc(name, { isIdentifier: true }),
       penalty: 1,
     })
   );
@@ -252,7 +252,7 @@ function tagName(input: Element): Node | null {
 
 function any(): Node {
   return {
-    name: '*',
+    name: "*",
     penalty: 3,
   };
 }
@@ -292,7 +292,7 @@ function nthChild(node: Node, i: number): Node {
 }
 
 function dispensableNth(node: Node) {
-  return node.name !== 'html' && !node.name.startsWith('#');
+  return node.name !== "html" && !node.name.startsWith("#");
 }
 
 function maybe(...level: (Node | null)[]): Node[] | null {
@@ -367,20 +367,20 @@ const regexExcessiveSpaces =
 const defaultOptions = {
   escapeEverything: false,
   isIdentifier: false,
-  quotes: 'single',
+  quotes: "single",
   wrap: false,
 };
 
 function cssesc(string: string, opt: Partial<typeof defaultOptions> = {}) {
   const options = { ...defaultOptions, ...opt };
-  if (options.quotes != 'single' && options.quotes != 'double') {
-    options.quotes = 'single';
+  if (options.quotes != "single" && options.quotes != "double") {
+    options.quotes = "single";
   }
-  const quote = options.quotes == 'double' ? '"' : "'";
+  const quote = options.quotes == "double" ? '"' : "'";
   const isIdentifier = options.isIdentifier;
 
   const firstChar = string.charAt(0);
-  let output = '';
+  let output = "";
   let counter = 0;
   const length = string.length;
   while (counter < length) {
@@ -401,24 +401,24 @@ function cssesc(string: string, opt: Partial<typeof defaultOptions> = {}) {
           counter--;
         }
       }
-      value = '\\' + codePoint.toString(16).toUpperCase() + ' ';
+      value = "\\" + codePoint.toString(16).toUpperCase() + " ";
     } else {
       if (options.escapeEverything) {
         if (regexAnySingleEscape.test(character)) {
-          value = '\\' + character;
+          value = "\\" + character;
         } else {
-          value = '\\' + codePoint.toString(16).toUpperCase() + ' ';
+          value = "\\" + codePoint.toString(16).toUpperCase() + " ";
         }
       } else if (/[\t\n\f\r\x0B]/.test(character)) {
-        value = '\\' + codePoint.toString(16).toUpperCase() + ' ';
+        value = "\\" + codePoint.toString(16).toUpperCase() + " ";
       } else if (
-        character == '\\' ||
+        character == "\\" ||
         (!isIdentifier &&
           ((character == '"' && quote == character) ||
             (character == "'" && quote == character))) ||
         (isIdentifier && regexSingleEscape.test(character))
       ) {
-        value = '\\' + character;
+        value = "\\" + character;
       } else {
         value = character;
       }
@@ -428,9 +428,9 @@ function cssesc(string: string, opt: Partial<typeof defaultOptions> = {}) {
 
   if (isIdentifier) {
     if (/^-[-\d]/.test(output)) {
-      output = '\\-' + output.slice(1);
+      output = "\\-" + output.slice(1);
     } else if (/\d/.test(firstChar)) {
-      output = '\\3' + firstChar + ' ' + output.slice(1);
+      output = "\\3" + firstChar + " " + output.slice(1);
     }
   }
 
@@ -443,7 +443,7 @@ function cssesc(string: string, opt: Partial<typeof defaultOptions> = {}) {
       return $0;
     }
     // Strip the space.
-    return ($1 || '') + $2;
+    return ($1 || "") + $2;
   });
 
   if (!isIdentifier && options.wrap) {
