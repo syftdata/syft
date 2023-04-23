@@ -1,6 +1,6 @@
 import { Flex } from "../common/styles/common.styles";
 import { Subheading } from "../common/styles/fonts";
-import { IconButton, PrimaryIconButton } from "../recorder/Button";
+import { IconButton, PrimaryIconButton } from "../common/core/Button";
 
 interface RecordingViewProps {
   onEndRecording: () => void;

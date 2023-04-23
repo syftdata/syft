@@ -8,16 +8,14 @@ import {
 } from "../common/utils";
 import { usePreferredLibrary, useRecordingState } from "../common/hooks";
 
-import { Heading } from "../common/styles/fonts";
-import RecordScriptView from "../recorder/RecordScriptView";
+import RecordScriptView from "../recorderapp/RecordScriptView";
 import { ScriptType } from "../types";
-import { IconButton } from "../recorder/Button";
+import { IconButton } from "../common/core/Button";
 import { HomeView } from "./HomeView";
 import { RecordingView } from "./RecordingView";
-import { Css, Flex } from "../common/styles/common.styles";
+import { Css } from "../common/styles/common.styles";
 import { cx } from "@emotion/css";
 import Card from "../common/core/Card";
-import CardHeader from "../common/core/Card/CardHeader";
 
 const Popup = () => {
   const [_scriptType, setScriptType] = usePreferredLibrary();

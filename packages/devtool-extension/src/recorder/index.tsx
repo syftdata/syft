@@ -1,7 +1,7 @@
 import React from "react";
 import { unmountComponentAtNode } from "react-dom";
 import ReactDOM from "react-dom/client";
-import ControlBar from "./ControlBar";
+import InjectedRecorderApp from "./InjectedRecorderApp";
 
 // TODO: Move to shadow-root when it's supported in all browsers
 // Emotion doesnt like shadow-root.
@@ -40,7 +40,7 @@ if (window.__SYFT_SCRIPT == null) {
   }
   ReactDOM.createRoot(target as HTMLElement).render(
     <React.StrictMode>
-      <ControlBar onExit={cleanUp} />
+      <InjectedRecorderApp />
     </React.StrictMode>
   );
 }

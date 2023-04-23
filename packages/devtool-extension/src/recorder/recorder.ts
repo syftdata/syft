@@ -3,13 +3,7 @@ import debounce from "lodash.debounce";
 import genSelectors from "../builders/selector";
 import { localStorageGet } from "../common/utils";
 
-import {
-  ActionType,
-  BaseAction,
-  ResizeAction,
-  SyftEvent,
-  TagName,
-} from "../types";
+import { ActionType, BaseAction, ResizeAction, TagName } from "../types";
 
 function isEventFromOverlay(event: Event) {
   return (

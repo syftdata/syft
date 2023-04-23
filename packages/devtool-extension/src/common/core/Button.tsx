@@ -1,8 +1,8 @@
-import Icon, { IconName } from "../common/core/Icon/Icon";
-import { Css, Flex } from "../common/styles/common.styles";
+import Icon, { IconName } from "./Icon/Icon";
+import { Css, Flex } from "../styles/common.styles";
 import { cx } from "@emotion/css";
-import { Colors } from "../common/styles/colors";
-import { Label, Paragraph } from "../common/styles/fonts";
+import { Colors } from "../styles/colors";
+import { Label, Paragraph } from "../styles/fonts";
 
 function getLabel(size: "small" | "medium" | "large"): any {
   switch (size) {

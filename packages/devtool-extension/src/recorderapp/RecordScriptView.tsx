@@ -7,7 +7,7 @@ import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
 import { cx } from "@emotion/css";
 import { genCode } from "../builders";
-import { IconButton } from "./Button";
+import { IconButton } from "../common/core/Button";
 import { Colors } from "../common/styles/colors";
 import Card from "../common/core/Card";
 interface RecordScriptViewProps {

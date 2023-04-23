@@ -1,4 +1,4 @@
-import { SyftEvent } from "../types";
+import { MessageType, SyftEvent } from "../types";
 import { initalizeBridge } from "./bridge";
 
 // This method gets the properties of the element that triggered the event.
@@ -22,18 +22,11 @@ window.addEventListener(
   "syft-event",
   (event) => {
     chrome.runtime.sendMessage({
-      ...getFromSyftEvent(event as CustomEvent),
+      type: MessageType.SyftEvent,
+      data: getFromSyftEvent(event as CustomEvent),
     });
   },
   true
 );
-
-// // inject script
-// const delay = 200
-// setTimeout(() => {
-//   const script = document.createElement('script')
-//   script.src = chrome.runtime.getURL('scripts/react_devtools_hook.js')
-//   document.head.appendChild(script)
-// }, delay)
 
 export {};

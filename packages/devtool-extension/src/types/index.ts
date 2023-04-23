@@ -3,11 +3,6 @@ export enum ActionsMode {
   Code = "code",
 }
 
-export enum BarPosition {
-  Top = "top",
-  Bottom = "bottom",
-}
-
 export enum ScriptType {
   Puppeteer = "puppeteer",
   Playwright = "playwright",
@@ -175,4 +170,11 @@ export interface SyftEvent {
     valid: SyftEventValidStatus;
     instrumented: SyftEventInstrumentStatus;
   };
+}
+
+export enum MessageType {
+  SyftEvent = "syft-event",
+  RecordedStep = "recorded-step",
+  StartRecord = "start-record",
+  StopRecord = "stop-record",
 }
