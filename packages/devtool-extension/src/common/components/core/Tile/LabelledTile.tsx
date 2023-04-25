@@ -1,8 +1,8 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Colors } from "../../styles/colors";
-import { Flex } from "../../styles/common.styles";
-import { Label } from "../../styles/fonts";
+import { Colors } from "../../../styles/colors";
+import { Flex } from "../../../styles/common.styles";
+import { Label } from "../../../styles/fonts";
 
 interface LabelledTileProps {
   label: string;

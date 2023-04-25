@@ -1,7 +1,7 @@
 import { ColumnsType } from "antd/es/table";
-import SyftTable from "../common/core/Table/SyftTable";
+import SyftTable from "../common/components/core/Table/SyftTable";
 import { SyftEvent } from "../types";
-import TableCell from "../common/core/Table/TableCell";
+import TableCell from "../common/components/core/Table/TableCell";
 import { css } from "@emotion/css";
 import EventPropsRenderer from "./event";
 type PanelProps = { events: SyftEvent[] }; /* could also use interface */

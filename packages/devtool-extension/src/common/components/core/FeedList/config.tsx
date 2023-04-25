@@ -1,7 +1,6 @@
-import React from "react";
-import { Colors } from "../../styles/colors";
-import { Css, Flex } from "../../styles/common.styles";
-import { Subheading } from "../../styles/fonts";
+import { Colors } from "../../../styles/colors";
+import { Css, Flex } from "../../../styles/common.styles";
+import { Subheading } from "../../../styles/fonts";
 import Icon, { IconName } from "../Icon/Icon";
 import type { DoubleRowCellValue } from "../Table/TableCell";
 import TableCell from "../Table/TableCell";

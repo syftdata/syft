@@ -1,6 +1,6 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Css, Flex } from "../../styles/common.styles";
+import { Css, Flex } from "../../../styles/common.styles";
 
 interface PageBodyProps {
   children?: React.ReactNode;

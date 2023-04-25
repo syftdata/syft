@@ -1,8 +1,8 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Colors } from "../../styles/colors";
-import { Css, Flex } from "../../styles/common.styles";
-import { Label, Mono, Paragraph, Subheading } from "../../styles/fonts";
+import { Colors } from "../../../styles/colors";
+import { Css, Flex } from "../../../styles/common.styles";
+import { Label, Mono, Paragraph, Subheading } from "../../../styles/fonts";
 
 type TableCellType = "default" | "mono" | "enum" | "header" | "custom";
 export interface DoubleRowCellValue {

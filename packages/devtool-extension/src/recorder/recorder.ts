@@ -4,15 +4,7 @@ import genSelectors from "../builders/selector";
 import { localStorageGet } from "../common/utils";
 
 import { ActionType, BaseAction, ResizeAction, TagName } from "../types";
-
-function isEventFromOverlay(event: Event) {
-  return (
-    event
-      .composedPath()
-      .find((element) => (element as HTMLElement).id === "overlay-controls") !=
-    null
-  );
-}
+import { Action } from "../types";
 
 /**
  * This is directly derived from:
@@ -57,18 +49,15 @@ function buildBaseAction(
 }
 
 class Recorder {
-  private _recording: any[];
+  private _recording: Action[];
   private currentEventHandleType: string | null = null;
-  private onAction: any;
+  private onAction: (actions: Action[]) => void;
   private lastContextMenuEvent: MouseEvent | null = null;
 
   private appendToRecording = (action: any) => {
     this._recording.push(action);
     chrome.storage.local.set({ recording: this._recording });
-
-    if (this.onAction != null) {
-      this.onAction(action, this._recording);
-    }
+    this.onAction(this._recording);
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {
@@ -80,10 +69,7 @@ class Recorder {
 
     this._recording[this._recording.length - 1] = newAction;
     chrome.storage.local.set({ recording: this._recording });
-
-    if (this.onAction != null) {
-      this.onAction(newAction, this._recording);
-    }
+    this.onAction(this._recording);
   };
 
   /**
@@ -103,13 +89,7 @@ class Recorder {
     return false; // This was not a duplicate handle
   };
 
-  constructor({
-    onInitialized,
-    onAction,
-  }: {
-    onInitialized?: any;
-    onAction?: any;
-  }) {
+  constructor({ onAction }: { onAction: (actions: Action[]) => void }) {
     this.onAction = onAction;
     this._recording = [];
     localStorageGet(["recording"]).then(({ recording }) => {
@@ -136,17 +116,9 @@ class Recorder {
 
       // We listen to a context menu action
       chrome.runtime.onMessage.addListener(this.onBackgroundMessage);
-
       // Try capturing on start
       // Note: some browsers will fire 'resize' event on load
       this.onResize();
-
-      if (onInitialized != null) {
-        onInitialized(
-          this._recording?.[this._recording.length - 1],
-          this._recording
-        );
-      }
     });
   }
 
@@ -162,10 +134,6 @@ class Recorder {
   }
 
   private onMouseWheel = (event: WheelEvent) => {
-    if (isEventFromOverlay(event)) {
-      return;
-    }
-
     const lastAction = this._recording[this._recording.length - 1];
 
     const { pageXOffset, pageYOffset } = window;
@@ -199,9 +167,6 @@ class Recorder {
       // Ignore synthetic events
       return;
     }
-    if (isEventFromOverlay(event)) {
-      return;
-    }
     if (this.checkAndSetDuplicateEventHandle(event)) {
       return;
     }
@@ -222,10 +187,6 @@ class Recorder {
   };
 
   private onDrag = (event: DragEvent) => {
-    if (isEventFromOverlay(event)) {
-      return;
-    }
-
     const lastAction = this._recording[this._recording.length - 1];
 
     if (event.type === "dragstart") {
@@ -247,9 +208,6 @@ class Recorder {
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
-    if (isEventFromOverlay(event)) {
-      return;
-    }
     if (!_shouldGenerateKeyPressFor(event)) {
       return;
     }
@@ -268,58 +226,46 @@ class Recorder {
   };
 
   private onContextMenu = (event: MouseEvent) => {
-    if (isEventFromOverlay(event)) {
-      return;
-    }
-
     this.lastContextMenuEvent = event;
   };
 
   private onBackgroundMessage = (request: any) => {
     // Context menu was clicked, pull last context menu element
-    if (
-      request != null &&
-      request.type === "onHoverCtxMenu" &&
-      this.lastContextMenuEvent != null
-    ) {
-      const action = {
-        ...buildBaseAction(this.lastContextMenuEvent),
-        type: "hover",
-        selectors: genSelectors(
-          this.lastContextMenuEvent.target as HTMLElement
-        ),
-      };
-      this.appendToRecording(action);
-    }
-    if (
-      request != null &&
-      request.type === "onAwaitTextCtxMenu" &&
-      this.lastContextMenuEvent != null
-    ) {
-      const action = {
-        ...buildBaseAction(this.lastContextMenuEvent),
-        type: "awaitText",
-        text: request.selectionText,
-        selectors: genSelectors(
-          this.lastContextMenuEvent.target as HTMLElement
-        ),
-      };
-      this.appendToRecording(action);
-    }
-    if (
-      request != null &&
-      request.type === "onAwaitSyftEventCtxMenu" &&
-      this.lastContextMenuEvent != null
-    ) {
-      console.log(">>>>>> show the syft input bar");
+    if (request === null) return;
+    if (this.lastContextMenuEvent != null) {
+      let action: Action | undefined;
+      switch (request.type) {
+        case "onHoverCtxMenu":
+          action = {
+            ...buildBaseAction(this.lastContextMenuEvent),
+            type: ActionType.Hover,
+            selectors:
+              genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
+              {},
+          };
+          break;
+        case "onAwaitTextCtxMenu":
+          action = {
+            ...buildBaseAction(this.lastContextMenuEvent),
+            type: ActionType.AwaitText,
+            text: request.selectionText,
+            selectors:
+              genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
+              {},
+          };
+          this.appendToRecording(action);
+          break;
+        case "onAwaitSyftEventCtxMenu":
+          console.log(">>>>>> show the syft input bar");
+          break;
+      }
+      if (action != null) {
+        this.appendToRecording(action);
+      }
     }
   };
 
   private onInput = (event: Event) => {
-    if (isEventFromOverlay(event)) {
-      return;
-    }
-
     if (this.checkAndSetDuplicateEventHandle(event)) {
       return;
     }
@@ -365,14 +311,9 @@ class Recorder {
   };
 
   private getLastResizeAction = (): ResizeAction => {
-    return this._recording.reduceRight((p, v) => {
-      if (p != null) {
-        return p;
-      }
-      if (v.type === "resize") {
-        return v;
-      }
-    }, null);
+    return this._recording.findLast(
+      (v) => v.type === ActionType.Resize
+    ) as ResizeAction;
   };
 
   private debouncedOnResize = debounce(this.onResize, 300);

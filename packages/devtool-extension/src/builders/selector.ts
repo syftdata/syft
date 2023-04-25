@@ -104,7 +104,7 @@ export default function genSelectors(element: HTMLElement | null) {
     hrefSelector,
     accessibilitySelector,
     formSelector,
-  };
+  } as { [key: string]: string | null };
 }
 
 export function getBestSelectorForAction(action: Action, library: ScriptType) {

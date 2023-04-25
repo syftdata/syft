@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 
-import {
-  setPreferredLibraryStorage,
-  setPreferredBarPositionStorage,
-  localStorageGet,
-} from "./utils";
-import { ScriptType, BarPosition } from "../types";
+import { setPreferredLibraryStorage, localStorageGet } from "./utils";
+import { ScriptType } from "../types";
 
 import type { Action } from "../types";
 
@@ -28,26 +24,6 @@ export function usePreferredLibrary() {
   };
 
   return [preferredLibrary, setPreferredLibraryWithStorage] as const;
-}
-
-export function usePreferredBarPosition(defaultPosition: BarPosition) {
-  const [preferredBarPosition, setPreferredBarPosition] =
-    useState<BarPosition | null>(defaultPosition);
-
-  useEffect(() => {
-    localStorageGet(["preferredBarPosition"]).then(
-      ({ preferredBarPosition: storedPreferredBarPosition }) => {
-        setPreferredBarPosition(storedPreferredBarPosition ?? defaultPosition);
-      }
-    );
-  }, []);
-
-  const setPreferredBarPositionWithStorage = (barPosition: BarPosition) => {
-    setPreferredBarPosition(barPosition);
-    setPreferredBarPositionStorage(barPosition);
-  };
-
-  return [preferredBarPosition, setPreferredBarPositionWithStorage] as const;
 }
 
 export function useRecordingState() {

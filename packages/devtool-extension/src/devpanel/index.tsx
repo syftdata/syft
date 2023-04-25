@@ -1,64 +1,128 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { Action, MessageType, SyftEvent } from "../types";
+import {
+  Action,
+  ActionType,
+  MessageType,
+  SyftAction,
+  SyftEvent,
+} from "../types";
 import "./index.css";
-import Card from "../common/core/Card";
+import Card from "../common/components/core/Card";
 import { Css } from "../common/styles/common.styles";
 import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
+import { insertNewAction } from "../common/utils";
 
+let existingConnection: chrome.runtime.Port | undefined;
 function init(
   onNewEvent: (event: SyftEvent) => void,
   onActions: (actions: Action[]) => void
 ) {
-  const listener = (message: any) => {
-    // change createdAt
+  if (existingConnection) {
+    return;
+  }
+  const listener = (message: any, port: chrome.runtime.Port) => {
+    console.debug("[Syft][Devtools] Received data ", message);
     if (message.type === MessageType.SyftEvent) {
+      // change createdAt
       const event = message.data as SyftEvent;
-      event.createdAt = new Date(message.createdAt);
+      if (event.syft_status.track !== "TRACKED") {
+        return;
+      }
+      event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.RecordedStep) {
       // insert actions.
+      console.debug("[Syft][Devtools] Received actions", message.data);
       onActions(message.data as Action[]);
     }
   };
-  //Create a connection to the service worker
-  const backgroundPageConnection = chrome.runtime.connect({
-    name: "devtools",
-  });
-  backgroundPageConnection.onDisconnect.addListener(() => {
-    backgroundPageConnection.onMessage.removeListener(listener);
-  });
-  backgroundPageConnection.postMessage({
-    name: "init",
+
+  const refreshConnection = () => {
+    if (existingConnection) {
+      existingConnection.disconnect();
+    }
+    const tabId = chrome.devtools.inspectedWindow.tabId;
+    //Create a connection to the service worker
+    existingConnection = chrome.runtime.connect({
+      name: "syft-devtools",
+    });
+    existingConnection.onDisconnect.addListener((port) => {
+      port.onMessage.removeListener(listener);
+    });
+    existingConnection.onMessage.addListener(listener);
+    console.debug("[Syft][Devtools] Initializing tab ", tabId);
+    existingConnection.postMessage({
+      type: MessageType.InitDevTools,
+      tabId,
+    });
+    return existingConnection;
+  };
+  refreshConnection();
+  chrome.devtools.network.onNavigated.addListener(refreshConnection);
+}
+
+const startRecording = () => {
+  // console.log(
+  //   "[Syft][Devtools] Sending Start Record",
+  //   chrome.devtools.inspectedWindow.tabId
+  // );
+  existingConnection?.postMessage({
+    type: MessageType.StartRecord,
     tabId: chrome.devtools.inspectedWindow.tabId,
   });
-  backgroundPageConnection.onMessage.addListener(listener);
-}
+};
+
+const endRecording = () => {
+  // console.log(
+  //   "[Syft][Devtools] Sending Stop Record",
+  //   chrome.devtools.inspectedWindow.tabId
+  // );
+  existingConnection?.postMessage({
+    type: MessageType.StopRecord,
+    tabId: chrome.devtools.inspectedWindow.tabId,
+  });
+};
 
 const App = () => {
   const [events, setEvents] = React.useState<Array<SyftEvent>>([]);
   const [actions, setActions] = React.useState<Array<Action>>([]);
+  useEffect(() => init(insertEvent, setActions), []);
 
-  useEffect(() => {
-    init(
-      (event) => {
-        setEvents((events) => [event, ...events]);
-      },
-      (actions) => {
-        setActions(actions);
-      }
-    );
-  }, []);
+  const insertEvent = (event: SyftEvent) => {
+    setEvents((events) => [event, ...events]);
+  };
+  const insertEventAfterAction = (action: Action) => {
+    // find index of the action.
+    const index = actions.findIndex((a) => a === action);
+    if (index !== -1) {
+      insertNewAction(
+        {
+          type: ActionType.SyftEvent,
+          name: "TodoAdded",
+          data: {},
+        } as SyftAction,
+        index + 1
+      );
+    } else {
+      throw new Error("Action not found");
+    }
+  };
   return (
-    <Card className={Css.height("100%")}>
+    <Card className={Css.height("100vh")}>
+      <RecorderApp
+        startRecording={startRecording}
+        endRecording={endRecording}
+        addEvent={insertEventAfterAction}
+        actions={actions}
+      />
       <EventApp events={events} clear={() => setEvents([])} />
-      <RecorderApp actions={actions} />
     </Card>
   );
 };
-
-ReactDOM.createRoot(document.getElementById("app") as HTMLElement).render(
+let target = document.getElementById("app") as HTMLElement;
+ReactDOM.createRoot(target).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

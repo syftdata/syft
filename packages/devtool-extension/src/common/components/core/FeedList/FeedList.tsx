@@ -1,4 +1,3 @@
-import React from "react";
 import SyftTable from "../Table/SyftTable";
 import type { FeedListConfig } from "./config";
 import { FeedListColumns } from "./config";

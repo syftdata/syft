@@ -1,7 +1,7 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Colors } from "../../styles/colors";
-import { Css } from "../../styles/common.styles";
+import { Colors } from "../../../styles/colors";
+import { Css } from "../../../styles/common.styles";
 
 interface TileBodyProps {
   children?: React.ReactNode;

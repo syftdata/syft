@@ -1,12 +1,11 @@
 import React from "react";
-import { SyftEvent, SyftEventInstrumentStatus } from "../types";
+import { SyftEvent } from "../types";
 import "./index.css";
 import Panel from "./events";
 import { Flex } from "../common/styles/common.styles";
-import { IconButton } from "../common/core/Button";
-import Card from "../common/core/Card";
-import CardHeader from "../common/core/Card/CardHeader";
-import { Css } from "../common/styles/common.styles";
+import { IconButton } from "../common/components/core/Button";
+import Card from "../common/components/core/Card";
+import CardHeader from "../common/components/core/Card/CardHeader";
 
 const EventApp = ({
   events,
@@ -21,12 +20,7 @@ const EventApp = ({
   const toggleSearch = () => {
     setSearchVisible(!searchVisible);
   };
-  let filteredEvents = events.filter(
-    (event) =>
-      event.syft_status.instrumented !==
-      SyftEventInstrumentStatus.NOT_INSTRUMENTED_VERBOSE
-  );
-
+  let filteredEvents = events;
   const searchStr = search.trim().toLowerCase();
   if (searchStr !== "") {
     filteredEvents = filteredEvents.filter(
@@ -36,9 +30,9 @@ const EventApp = ({
     );
   }
   return (
-    <Card className={Css.height("100%")}>
+    <Card className={Flex.grow(1)}>
       <CardHeader
-        title="Syft Events"
+        title="Events"
         rightItem={
           <Flex.Row gap={3}>
             <input

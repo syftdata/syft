@@ -20,15 +20,10 @@ export function setPreferredLibraryStorage(library: string) {
   chrome.storage.local.set({ preferredLibrary: library });
 }
 
-export function setPreferredBarPositionStorage(position: string) {
-  chrome.storage.local.set({ preferredBarPosition: position });
-}
-
 export function setStartRecordingStorage(
   tabId: number,
   frameId: number,
-  newUrl: string,
-  returnTabId?: number
+  newUrl: string
 ) {
   const storage = {
     recordingState: "active",
@@ -40,20 +35,12 @@ export function setStartRecordingStorage(
         url: newUrl,
       },
     ],
-    ...(returnTabId != null
-      ? {
-          returnTabId,
-        }
-      : {}),
   };
   chrome.storage.local.set(storage);
 }
 
 export async function createTab(url: string) {
-  // This is because we're straddling v2 and v3 manifest
-  const api = typeof browser === "object" ? browser : chrome;
-
-  const tab = await api.tabs.create({
+  const tab = await chrome.tabs.create({
     url,
   });
 
@@ -81,10 +68,7 @@ export async function getRandomInstallId() {
 }
 
 export async function getCurrentTab(): Promise<chrome.tabs.Tab> {
-  // This is because we're straddling v2 and v3 manifest
-  const api = typeof browser === "object" ? browser : chrome;
-
-  const [tab] = await api.tabs.query({
+  const [tab] = await chrome.tabs.query({
     active: true,
     currentWindow: true,
   });
@@ -97,65 +81,48 @@ export async function executeScript(
   frameId: number,
   file: string
 ) {
-  if (typeof browser === "object") {
-    await browser.tabs.executeScript(tabId, { file, frameId });
-  } else {
-    await chrome.scripting.executeScript({
-      target: { tabId, frameIds: [frameId] },
-      files: [file],
-    });
-  }
+  await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    files: [file],
+  });
 }
 
 // @ts-ignore-error - CRXJS needs injected scripts to be this way.
 // https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
 import scriptPath from "../recorder?script";
+import { Action, ActionType, NavigateAction } from "../types";
 
 export async function executeContentScript(tabId: number, frameId: number) {
   executeScript(tabId, frameId, scriptPath);
 }
 
 export async function executeCleanUp(tabId: number, frameId: number) {
-  if (typeof browser === "object") {
-    await browser.tabs.executeScript(tabId, {
-      frameId,
-      code: `
-        if (typeof window?.__SYFT_CLEAN_UP === 'function') {
-          window.__SYFT_CLEAN_UP();
-        }
-      `,
-    });
-  } else {
-    await chrome.scripting.executeScript({
-      target: { tabId, frameIds: [frameId] },
-      func: () => {
-        if (typeof window?.__SYFT_CLEAN_UP === "function") {
-          window.__SYFT_CLEAN_UP();
-        }
-      },
-    });
-  }
+  await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    func: () => {
+      if (typeof window?.__SYFT_CLEAN_UP === "function") {
+        window.__SYFT_CLEAN_UP();
+      }
+    },
+  });
 }
 
 export async function recordNavigationEvent(
   url: string,
-  transitionType: string,
-  transitionQualifiers: string[],
-  recording: any[]
+  transitionType: string
 ) {
   const navigationEvent = {
-    type: "navigate",
+    type: ActionType.Navigate,
     url,
-    transitionType,
-    transitionQualifiers,
-  };
+    source: transitionType,
+  } as NavigateAction;
+  await insertNewAction(navigationEvent);
+}
 
-  const newRecording = [
-    ...recording,
-    {
-      ...navigationEvent,
-    },
-  ];
-
+export async function insertNewAction(action: Action, index?: number) {
+  const { recording } = await localStorageGet(["recording"]);
+  console.log("[Syft][Unknown] Modifying the recording directly");
+  const newRecording = [...recording];
+  newRecording.splice(index ?? newRecording.length, 0, action);
   await chrome.storage.local.set({ recording: newRecording });
 }

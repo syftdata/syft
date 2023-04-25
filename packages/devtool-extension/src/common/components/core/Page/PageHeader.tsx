@@ -1,8 +1,8 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Colors } from "../../styles/colors";
-import { Css, Flex } from "../../styles/common.styles";
-import { Heading, Subheading } from "../../styles/fonts";
+import { Colors } from "../../../styles/colors";
+import { Css, Flex } from "../../../styles/common.styles";
+import { Heading, Subheading } from "../../../styles/fonts";
 
 interface PageHeaderProps {
   title?: string;

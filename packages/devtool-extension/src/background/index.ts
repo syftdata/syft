@@ -6,44 +6,17 @@ import {
   recordNavigationEvent,
   executeContentScript,
 } from "../common/utils";
-
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
-  if (request.type === "start-recording") {
-    const testEditorTabId = sender.tab?.id;
-
-    const newUrl = request.url;
-    const newTab = await createTab(newUrl);
-    const tabId = newTab.id;
-
-    if (tabId == null) {
-      throw new Error("New tab id not defined");
-    }
-
-    setStartRecordingStorage(tabId, 0, newUrl, testEditorTabId);
-  } else if (request.type === "forward-recording") {
-    chrome.tabs.update(request.tabId, { active: true });
-
-    chrome.tabs.sendMessage(request.tabId, {
-      type: "playwright-test-recording",
-      code: request.code,
-      actions: request.actions,
-    });
-  }
-});
+import { MessageType } from "../types";
+import { startRecording, stopRecording } from "./bridge";
 
 /// *** Navigation Events *** ///
 
 async function onNavEvent(
   details: chrome.webNavigation.WebNavigationTransitionCallbackDetails
 ) {
-  const { tabId, url, transitionType, transitionQualifiers, frameId } = details;
-  const { recording, recordingTabId, recordingFrameId, recordingState } =
+  const { tabId, url, transitionType, frameId } = details;
+  const { recordingTabId, recordingFrameId, recordingState } =
     await localStorageGet([
-      "recording",
       "recordingState",
       "recordingTabId",
       "recordingFrameId",
@@ -58,12 +31,7 @@ async function onNavEvent(
     return;
   }
 
-  await recordNavigationEvent(
-    url,
-    transitionType,
-    transitionQualifiers,
-    recording
-  );
+  await recordNavigationEvent(url, transitionType);
 }
 
 // Set recording as ended when the recording tab is closed
@@ -181,26 +149,47 @@ chrome.storage.onChanged.addListener((changes) => {
 /// *** Devtools Panel Communication *** ///
 
 const connections: Record<string, chrome.runtime.Port> = {};
-
-chrome.runtime.onConnect.addListener(function (port) {
-  const extensionListener = function (message: any, port: chrome.runtime.Port) {
-    // The original connection event doesn't include the tab ID of the
-    // DevTools page, so we need to send it explicitly.
-    if (message.name === "init") {
+async function handleMessageAsync(
+  message: any,
+  port: chrome.runtime.Port
+): Promise<boolean> {
+  console.debug("[Syft][Background] Received a message from Devtools", message);
+  switch (message.type) {
+    case MessageType.InitDevTools:
       connections[message.tabId] = port;
-      return;
-    }
-    console.debug("message is ", message);
+      break;
+    case MessageType.StartRecord:
+      await startRecording(message.tabId);
+      break;
+    case MessageType.StopRecord:
+      await stopRecording(message.tabId);
+      break;
+  }
+  return true;
+}
+
+// this handles the connections from devtools page.
+chrome.runtime.onConnect.addListener(async function (port) {
+  console.debug("[Syft][Background] Received a connection", port);
+  if (port.name !== "syft-devtools") {
+    return;
+  }
+
+  const extensionListener = function (message: any, port: chrome.runtime.Port) {
+    if (message.type == null) return true;
+    handleMessageAsync(message, port).catch((err) => {
+      console.error("[Syft] Error handling message", err);
+    });
+    return true;
   };
 
   // Listen to messages sent from the DevTools page
   port.onMessage.addListener(extensionListener);
-
-  port.onDisconnect.addListener(function (port) {
+  port.onDisconnect.addListener((port) => {
     port.onMessage.removeListener(extensionListener);
-    const tabs = Object.keys(connections);
+    var tabs = Object.keys(connections);
     for (var i = 0, len = tabs.length; i < len; i++) {
-      if (connections[tabs[i]] === port) {
+      if (connections[tabs[i]] == port) {
         delete connections[tabs[i]];
         break;
       }
@@ -214,13 +203,19 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // Messages from content scripts should have sender.tab set
   if (sender.tab) {
     var tabId = sender.tab.id?.toString();
+    console.debug(
+      "[Syft][Background] Received a message from Content",
+      request
+    );
     if (tabId != null && tabId in connections) {
       connections[tabId].postMessage(request);
     } else {
-      console.warn("Tab not found in connection list.");
+      console.error(
+        "Tab not found in connection list.",
+        tabId,
+        Object.keys(connections)
+      );
     }
-  } else {
-    console.warn("sender.tab not defined.");
   }
   return true;
 });

@@ -29,6 +29,10 @@ export default function InjectedRecorderApp() {
   };
 
   useEffect(() => {
+    if (recorderRef.current != null) {
+      // only inject once.
+      return;
+    }
     handleMouseMoveRef.current = throttle((event: MouseEvent) => {
       const x = event.clientX,
         y = event.clientY,
@@ -47,19 +51,15 @@ export default function InjectedRecorderApp() {
     document.addEventListener("mousemove", handleMouseMoveRef.current, true);
 
     recorderRef.current = new Recorder({
-      onAction: (action: Action, actions: Action[]) => {
+      onAction: (actions: Action[]) => {
+        console.debug("[Syft][Content] Got a modified recording ", actions);
         chrome.runtime.sendMessage({
           type: MessageType.RecordedStep,
           data: actions,
         });
       },
-      onInitialized: (lastAction: Action, recording: Action[]) => {
-        chrome.runtime.sendMessage({
-          type: MessageType.RecordedStep,
-          data: recording,
-        });
-      },
     });
+    console.debug("[Syft][Content] Injecting the recorder listeners");
 
     // Set recording to be finished if somewhere else (ex. popup) the state has been set to be finished
     chrome.storage.onChanged.addListener((changes) => {

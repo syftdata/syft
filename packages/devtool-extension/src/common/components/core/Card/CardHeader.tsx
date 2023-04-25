@@ -1,8 +1,8 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { Colors } from "../../styles/colors";
-import { Css, Flex } from "../../styles/common.styles";
-import { Heading, Subheading } from "../../styles/fonts";
+import { Colors } from "../../../styles/colors";
+import { Css, Flex } from "../../../styles/common.styles";
+import { Heading, Subheading } from "../../../styles/fonts";
 
 export interface CardHeaderProps {
   title?: string;
@@ -18,11 +18,7 @@ const CardHeader = ({
 }: CardHeaderProps) => {
   return (
     <Flex.Row
-      className={css(
-        Css.padding(10),
-        Css.background(Colors.Branding.V1),
-        className
-      )}
+      className={css(Css.padding(4), Css.background(Colors.Gray.V1), className)}
       justifyContent="space-between"
     >
       <Flex.Col gap={2}>

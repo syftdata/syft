@@ -37,8 +37,8 @@ import {
   VideoCameraOffIcon,
   WarningTriangleIcon,
 } from "@iconicicons/react";
-import type { Size } from "../../constants/types";
-import { Colors } from "../../styles/colors";
+import type { Size } from "../../../constants/types";
+import { Colors } from "../../../styles/colors";
 import { iconStyles } from "./icon.styles";
 
 export type IconName =

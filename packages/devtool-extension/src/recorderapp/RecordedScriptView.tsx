@@ -2,19 +2,16 @@ import { useState } from "react";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Action, ActionsMode, ScriptType } from "../types";
 import ScriptTypeSelect from "../common/ScriptTypeSelect";
-import CopyToClipboard from "react-copy-to-clipboard";
 import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
 import { cx } from "@emotion/css";
 import { genCode } from "../builders";
-import { IconButton } from "../common/core/Button";
-import { Colors } from "../common/styles/colors";
-import Card from "../common/core/Card";
+import { IconButton } from "../common/components/core/Button";
+
 interface RecordScriptViewProps {
   actions: Action[];
   scriptType: ScriptType;
   setScriptType: (scriptType: ScriptType) => void;
-  header?: React.ReactNode;
   className?: string;
 }
 
@@ -35,29 +32,28 @@ function downloadScript(actions: Action[], scriptType: ScriptType): void {
 
 export default function RecordScriptView({
   actions,
-  header,
   scriptType,
   setScriptType,
   className,
 }: RecordScriptViewProps) {
   const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
-  const [copyCodeConfirm, setCopyCodeConfirm] = useState<boolean>(false);
 
   return (
-    <Flex.Col className={className}>
-      {header}
-      <Flex.Row justifyContent="space-between" alignItems="center">
-        {actionsMode === ActionsMode.Actions ? (
-          <IconButton
-            onClick={() => setActionsMode(ActionsMode.Code)}
-            label="Show Code"
-          />
-        ) : (
-          <IconButton
-            onClick={() => setActionsMode(ActionsMode.Actions)}
-            label="Show Actions"
-          />
-        )}
+    <Flex.Col className={cx(Css.width("100%"), className)}>
+      <Flex.Row alignItems="center">
+        <Flex.Row className={Flex.grow(1)}>
+          {actionsMode === ActionsMode.Actions ? (
+            <IconButton
+              onClick={() => setActionsMode(ActionsMode.Code)}
+              label="Show Code"
+            />
+          ) : (
+            <IconButton
+              onClick={() => setActionsMode(ActionsMode.Actions)}
+              label="Show Actions"
+            />
+          )}
+        </Flex.Row>
         {actionsMode === ActionsMode.Code && (
           <Flex.Row justifyContent="end" gap={6}>
             <ScriptTypeSelect
@@ -65,24 +61,6 @@ export default function RecordScriptView({
               onChange={setScriptType}
               shortDescription={true}
             />
-            <CopyToClipboard
-              text={genCode(actions, true, scriptType)}
-              onCopy={() => {
-                setCopyCodeConfirm(true);
-                setTimeout(() => {
-                  setCopyCodeConfirm(false);
-                }, 2000);
-              }}
-            >
-              <IconButton
-                className={
-                  copyCodeConfirm ? Css.color(Colors.Secondary.Green) : ""
-                }
-                label="Copy Code"
-                icon={copyCodeConfirm ? "check" : "folder"}
-                reverseIcon={true}
-              />
-            </CopyToClipboard>
             <IconButton
               onClick={() => {
                 downloadScript(actions, scriptType);
@@ -94,7 +72,13 @@ export default function RecordScriptView({
           </Flex.Row>
         )}
       </Flex.Row>
-      <Flex.Col className={cx(Css.height(240), Css.overflow("scroll"))}>
+      <Flex.Col
+        className={cx(
+          Css.minHeight(240),
+          Css.height("50vh"),
+          Css.overflow("scroll")
+        )}
+      >
         {actionsMode === ActionsMode.Code && (
           <CodeGen actions={actions} library={scriptType} />
         )}

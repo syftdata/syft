@@ -1,59 +1,71 @@
-import { useState, useEffect } from "react";
-import { cx } from "@emotion/css";
+import { useState } from "react";
+import { usePreferredLibrary } from "../common/hooks";
 
-import { usePreferredLibrary, usePreferredBarPosition } from "../common/hooks";
-
-import { Action, MessageType } from "../types";
+import { Action } from "../types";
 import { ScriptType } from "../types";
 
-import { endRecording } from "../common/endRecording";
-import { Css } from "../common/styles/common.styles";
-import { RecordDoneHeader, RecordingHeader } from "./ControlBarHeaders";
-import RecordScriptView from "./RecordScriptView";
-import Card from "../common/core/Card";
+import RecordScriptView from "./RecordedScriptView";
+import Card from "../common/components/core/Card";
+import { IconButton } from "../common/components/core/Button";
+import { Subheading } from "../common/styles/fonts";
+import { Flex } from "../common/styles/common.styles";
+import ActionList from "./ActionList";
 
-export default function RecorderApp({ actions }: { actions: Action[] }) {
+export default function RecorderApp({
+  startRecording,
+  endRecording,
+  addEvent,
+  actions,
+}: {
+  actions: Action[];
+  startRecording: () => void;
+  endRecording: () => void;
+  addEvent: (action: Action) => void;
+}) {
   const [_scriptType, setScriptType] = usePreferredLibrary();
+  const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
-  const onEndRecording = () => {
-    // TODO: Fire an event.
+  const onStartRecording = () => {
+    startRecording();
+    setIsRecording(true);
+    setIsFinished(false);
   };
-
-  const onInsertEvent = () => {
-    // show UI to select an event and its props.
-    // assume that it happened.
+  const onStopRecording = () => {
+    endRecording();
+    setIsRecording(false);
+    setIsFinished(true);
   };
 
   const scriptType = _scriptType ?? ScriptType.Playwright;
 
   return (
     <>
-      <Card
-        gap={8}
-        className={cx(
-          Css.position("fixed!important"),
-          Css.zIndex(2147483647),
-          Css.width(650),
-          Css.margin("auto"),
-          Css.left(0),
-          Css.right(0),
-          Css.padding(10)
-        )}
-      >
-        {isFinished ? (
-          <RecordDoneHeader />
+      <Card gap={8}>
+        {!isRecording ? (
+          <IconButton
+            onClick={onStartRecording}
+            icon="video-camera"
+            label="Start Recording"
+          />
         ) : (
-          <RecordingHeader
-            onEndRecording={onEndRecording}
-            onInsertEvent={onInsertEvent}
+          <IconButton
+            label="Stop Recording"
+            icon="video-camera-off"
+            onClick={onStopRecording}
           />
         )}
-        <RecordScriptView
-          actions={actions}
-          scriptType={scriptType}
-          setScriptType={setScriptType}
-        />
+        {isRecording && <ActionList actions={actions} onAddEvent={addEvent} />}
+        {isFinished && (
+          <Flex.Col alignItems="center" gap={8}>
+            <Subheading.SH14>Recording Finished!</Subheading.SH14>
+            <RecordScriptView
+              actions={actions}
+              scriptType={scriptType}
+              setScriptType={setScriptType}
+            />
+          </Flex.Col>
+        )}
       </Card>
     </>
   );

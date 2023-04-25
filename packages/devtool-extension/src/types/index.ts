@@ -94,7 +94,7 @@ class LoadAction extends BaseAction {
   url: string;
 }
 
-class NavigateAction extends BaseAction {
+export class NavigateAction extends BaseAction {
   declare type: ActionType.Navigate;
   url: string;
   source: string;
@@ -166,9 +166,8 @@ export interface SyftEvent {
   name: string;
   props: Record<string, any>;
   syft_status: {
-    tracked: SyftEventTrackStatus;
-    valid: SyftEventValidStatus;
-    instrumented: SyftEventInstrumentStatus;
+    track: string;
+    valid: string;
   };
 }
 
@@ -177,4 +176,5 @@ export enum MessageType {
   RecordedStep = "recorded-step",
   StartRecord = "start-record",
   StopRecord = "stop-record",
+  InitDevTools = "init-devtools",
 }

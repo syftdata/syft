@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
-import type { Size } from "../../constants/types";
-import { Transition } from "../../styles/animations";
+import type { Size } from "../../../constants/types";
+import { Transition } from "../../../styles/animations";
 
 const getIconSize = (size: Size) => {
   switch (size) {
