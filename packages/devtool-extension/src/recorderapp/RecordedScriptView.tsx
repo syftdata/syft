@@ -72,13 +72,7 @@ export default function RecordScriptView({
           </Flex.Row>
         )}
       </Flex.Row>
-      <Flex.Col
-        className={cx(
-          Css.minHeight(240),
-          Css.height("50vh"),
-          Css.overflow("scroll")
-        )}
-      >
+      <Flex.Col className={cx(Css.minHeight(240), Css.overflow("scroll"))}>
         {actionsMode === ActionsMode.Code && (
           <CodeGen actions={actions} library={scriptType} />
         )}

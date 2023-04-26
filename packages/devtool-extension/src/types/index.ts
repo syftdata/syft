@@ -37,21 +37,8 @@ export enum TagName {
 }
 
 // (TODO) -> move to utils
-export const isSupportedActionType = (actionType: any) => {
-  return [
-    ActionType.AwaitText,
-    ActionType.Click,
-    ActionType.DragAndDrop,
-    ActionType.FullScreenshot,
-    ActionType.Hover,
-    ActionType.Input,
-    ActionType.Keydown,
-    ActionType.Load,
-    ActionType.Resize,
-    ActionType.Wheel,
-    ActionType.SyftEvent,
-  ].includes(actionType);
-};
+export const isSupportedActionType = (actionType: ActionType) =>
+  actionType != null;
 
 export class BaseAction {
   type: ActionType;
@@ -177,4 +164,21 @@ export enum MessageType {
   StartRecord = "start-record",
   StopRecord = "stop-record",
   InitDevTools = "init-devtools",
+}
+
+export interface EventField {
+  name: string;
+  documentation: string;
+  type: any;
+  isOptional: boolean;
+  defaultValue?: string;
+}
+
+export interface EventSchema {
+  name: string;
+  eventType?: number;
+  zodType?: string;
+  traits?: any;
+  documentation: string;
+  fields: Array<EventField>;
 }

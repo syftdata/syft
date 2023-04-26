@@ -1,117 +1,140 @@
+import { css, cx } from "@emotion/css";
 import { getBestSelectorForAction } from "../builders/selector";
 import { Action, ActionType, ScriptType } from "../types";
-import { Flex } from "./styles/common.styles";
+import { Css, Flex } from "./styles/common.styles";
 import { Mono } from "./styles/fonts";
-import { Paragraph } from "./styles/fonts";
 
-export function ActionText({ action }: { action: Action }) {
+const LongTextCss = css(
+  Css.whiteSpace("normal"),
+  Css.wordBreak("break-all"),
+  Flex.grow(1)
+);
+const svg = (
+  <div className={Css.width(10)}>
+    <svg
+      width="7"
+      height="7"
+      viewBox="0 0 7 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M6 3.5L0.75 6.53109V0.468911L6 3.5Z" fill="#83848A" />
+    </svg>
+  </div>
+);
+export function ActionText({
+  action,
+  className,
+}: {
+  action: Action;
+  className?: string;
+}) {
   if (!action) {
     return <></>;
   }
   return (
-    <Flex.Row gap={4} alignItems="center" justifyContent="start">
+    <Flex.Row
+      gap={8}
+      alignItems="center"
+      justifyContent="start"
+      className={cx(Css.whiteSpace("nowrap"), className)}
+    >
       {action.type === ActionType.Click ? (
         <>
-          <Paragraph.P12>Click</Paragraph.P12>
-          <Paragraph.P10>on</Paragraph.P10>
-          <Mono.M12>
-            {action.tagName === "A" ? "link" : action.tagName.toLowerCase()}
+          <Mono.M12>Click</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>
+            {getBestSelectorForAction(action, ScriptType.Playwright)}
           </Mono.M12>
-          {(action.selectors.text?.length ?? -1) > 0 &&
-          (action.selectors.text?.length ?? -1) < 75 ? (
-            <Paragraph.P10>"{action.selectors.text}"</Paragraph.P10>
-          ) : (
-            <Mono.M12>
-              {getBestSelectorForAction(action, ScriptType.Playwright)}
-            </Mono.M12>
-          )}
         </>
       ) : action.type === ActionType.Hover ? (
         <>
-          <Paragraph.P12>Hover</Paragraph.P12> over
-          <Mono.M12>
-            {action.tagName === "A" ? "link" : action.tagName.toLowerCase()}
+          <Mono.M12>Hover</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>
+            {getBestSelectorForAction(action, ScriptType.Playwright)}
           </Mono.M12>
-          {(action.selectors.text?.length ?? -1) > 0 &&
-          (action.selectors.text?.length ?? -1) < 75 ? (
-            <Paragraph.P10>"{action.selectors.text}"</Paragraph.P10>
-          ) : (
-            <Mono.M12>
-              {getBestSelectorForAction(action, ScriptType.Playwright)}
-            </Mono.M12>
-          )}
         </>
       ) : action.type === ActionType.Load ? (
         <>
-          <Paragraph.P12>Load</Paragraph.P12>
-          <Mono.M12>"{action.url}"</Mono.M12>
+          <Mono.M12>Load</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>{action.url}</Mono.M12>
         </>
       ) : action.type === ActionType.Input ? (
         <>
-          <Paragraph.P12>Fill</Paragraph.P12>
+          <Mono.M12>Fill</Mono.M12>
           <Mono.M12>
-            "
             {action.isPassword
               ? "*".repeat(action?.value?.length ?? 0)
               : action.value}
-            "
           </Mono.M12>
-          <Paragraph.P10>on</Paragraph.P10>
-          <Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>
             {getBestSelectorForAction(action, ScriptType.Playwright)}
           </Mono.M12>
         </>
       ) : action.type === ActionType.Keydown ? (
         <>
-          <Paragraph.P12>Press</Paragraph.P12>
-          <Mono.M12>"{action.key}"</Mono.M12>
-          <Paragraph.P10>on</Paragraph.P10>
-          <Mono.M12>
+          <Mono.M12>Press</Mono.M12>
+          <Mono.M12>{action.key}</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>
             {getBestSelectorForAction(action, ScriptType.Playwright)}
           </Mono.M12>
         </>
       ) : action.type === ActionType.Resize ? (
         <>
-          <Paragraph.P12>Resize</Paragraph.P12>
-          <Paragraph.P10>window to</Paragraph.P10>
+          <Mono.M12>Resize Window</Mono.M12>
+          {svg}
           <Mono.M12>
             {action.width} x {action.height}
           </Mono.M12>
         </>
       ) : action.type === ActionType.Wheel ? (
         <>
-          <Paragraph.P12>Scroll wheel by</Paragraph.P12>
+          <Mono.M12>Scroll wheel</Mono.M12>
+          {svg}
           <Mono.M12>
             X:{action.deltaX}, Y:{action.deltaY}
           </Mono.M12>
         </>
       ) : action.type === ActionType.FullScreenshot ? (
         <>
-          <Paragraph.P12>Take page screenshot</Paragraph.P12>
+          <Mono.M12>Take page screenshot</Mono.M12>
         </>
       ) : action.type === ActionType.AwaitText ? (
         <>
-          <Paragraph.P12>Wait for text</Paragraph.P12>
-          <Paragraph.P10>"{action.text}"</Paragraph.P10>
+          <Mono.M12>Wait for</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>"{action.text}"</Mono.M12>
         </>
       ) : action.type === ActionType.DragAndDrop ? (
         <>
-          <Paragraph.P12>Drag n Drop</Paragraph.P12>
-          <Paragraph.P10>from</Paragraph.P10>
+          <Mono.M12>Drag n Drop</Mono.M12>
+          <Mono.M10>from</Mono.M10>
           <Mono.M12>
             ({action.sourceX}, {action.sourceY})
           </Mono.M12>
-          <Paragraph.P10>to</Paragraph.P10>
+          <Mono.M10>to</Mono.M10>
           <Mono.M12>
             ({action.targetX}, {action.targetY})
           </Mono.M12>
         </>
       ) : action.type === ActionType.SyftEvent ? (
         <>
-          <Paragraph.P12>Expect Syft</Paragraph.P12>
+          <Mono.M12>Expect Syft</Mono.M12>
           <Mono.M12>{action.name}</Mono.M12>
-          <Paragraph.P10>with</Paragraph.P10>
-          <Mono.M12>({JSON.stringify(action.data)})</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>
+            ({JSON.stringify(action.data)})
+          </Mono.M12>
+        </>
+      ) : action.type === ActionType.Navigate ? (
+        <>
+          <Mono.M12>Expect URL</Mono.M12>
+          {svg}
+          <Mono.M12 className={LongTextCss}>{action.url}</Mono.M12>
         </>
       ) : (
         <></>

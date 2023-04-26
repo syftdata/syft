@@ -116,6 +116,7 @@ export async function recordNavigationEvent(
     url,
     source: transitionType,
   } as NavigateAction;
+  console.log("[Syft][Unknown] Recording navigation event", navigationEvent);
   await insertNewAction(navigationEvent);
 }
 

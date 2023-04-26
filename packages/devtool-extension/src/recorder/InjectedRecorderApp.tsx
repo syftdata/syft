@@ -52,7 +52,6 @@ export default function InjectedRecorderApp() {
 
     recorderRef.current = new Recorder({
       onAction: (actions: Action[]) => {
-        console.debug("[Syft][Content] Got a modified recording ", actions);
         chrome.runtime.sendMessage({
           type: MessageType.RecordedStep,
           data: actions,

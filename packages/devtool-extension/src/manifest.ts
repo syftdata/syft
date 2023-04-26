@@ -32,6 +32,7 @@ export default defineManifest({
     {
       matches: ["<all_urls>"],
       js: ["src/content/index.ts"],
+      run_at: "document_start",
     },
   ],
 });

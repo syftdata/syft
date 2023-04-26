@@ -194,4 +194,6 @@ export const Css = {
     overflow: "hidden",
     whiteSpace: "nowrap",
   }),
+  wordBreak: (wordBreak: any) => css({ wordBreak }),
+  whiteSpace: (whiteSpace: any) => css({ whiteSpace }),
 };

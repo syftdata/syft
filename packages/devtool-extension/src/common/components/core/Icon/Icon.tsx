@@ -2,6 +2,7 @@ import { css } from "@emotion/css";
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
+  ArrowRightIcon,
   ArrowUpRightIcon,
   BellIcon,
   BookIcon,
@@ -24,6 +25,7 @@ import {
   HomeIcon,
   LayersIcon,
   MinusCircleIcon,
+  PlayIcon,
   PlusIcon,
   RefreshIcon,
   SearchIcon,
@@ -43,6 +45,7 @@ import { iconStyles } from "./icon.styles";
 
 export type IconName =
   | "arrow-left"
+  | "arrow-right"
   | "arrow-down"
   | "columnsHorizontal"
   | "folder"
@@ -77,12 +80,15 @@ export type IconName =
   | "minus-circle"
   | "search"
   | "video-camera"
-  | "video-camera-off";
+  | "video-camera-off"
+  | "play";
 
 const getIcon = (icon: IconName) => {
   switch (icon) {
     case "arrow-left":
       return <ArrowLeftIcon />;
+    case "arrow-right":
+      return <ArrowRightIcon />;
     case "arrow-down":
       return <ArrowDownIcon />;
     case "columnsHorizontal":
@@ -153,6 +159,8 @@ const getIcon = (icon: IconName) => {
       return <VideoCameraIcon />;
     case "video-camera-off":
       return <VideoCameraOffIcon />;
+    case "play":
+      return <PlayIcon />;
   }
 };
 

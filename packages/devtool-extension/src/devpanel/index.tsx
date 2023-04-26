@@ -8,11 +8,11 @@ import {
   SyftEvent,
 } from "../types";
 import "./index.css";
-import Card from "../common/components/core/Card";
 import { Css } from "../common/styles/common.styles";
 import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
 import { insertNewAction } from "../common/utils";
+import Tabs, { TabsProps } from "antd/es/tabs";
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -64,10 +64,6 @@ function init(
 }
 
 const startRecording = () => {
-  // console.log(
-  //   "[Syft][Devtools] Sending Start Record",
-  //   chrome.devtools.inspectedWindow.tabId
-  // );
   existingConnection?.postMessage({
     type: MessageType.StartRecord,
     tabId: chrome.devtools.inspectedWindow.tabId,
@@ -75,10 +71,6 @@ const startRecording = () => {
 };
 
 const endRecording = () => {
-  // console.log(
-  //   "[Syft][Devtools] Sending Stop Record",
-  //   chrome.devtools.inspectedWindow.tabId
-  // );
   existingConnection?.postMessage({
     type: MessageType.StopRecord,
     tabId: chrome.devtools.inspectedWindow.tabId,
@@ -109,16 +101,34 @@ const App = () => {
       throw new Error("Action not found");
     }
   };
+
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: `Recorder`,
+      children: (
+        <RecorderApp
+          startRecording={startRecording}
+          endRecording={endRecording}
+          addEvent={insertEventAfterAction}
+          actions={actions}
+        />
+      ),
+    },
+    {
+      key: "2",
+      label: `Events`,
+      children: <EventApp events={events} clear={() => setEvents([])} />,
+    },
+  ];
   return (
-    <Card className={Css.height("100vh")}>
-      <RecorderApp
-        startRecording={startRecording}
-        endRecording={endRecording}
-        addEvent={insertEventAfterAction}
-        actions={actions}
-      />
-      <EventApp events={events} clear={() => setEvents([])} />
-    </Card>
+    <Tabs
+      defaultActiveKey="1"
+      items={items}
+      className={Css.height("100vh")}
+      size="small"
+      style={{ marginLeft: 4 }}
+    />
   );
 };
 let target = document.getElementById("app") as HTMLElement;

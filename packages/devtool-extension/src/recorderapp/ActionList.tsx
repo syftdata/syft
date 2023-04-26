@@ -1,46 +1,9 @@
 import { Action, isSupportedActionType } from "../types";
 import { ActionText } from "../common/ActionText";
-import { ColumnsType } from "antd/es/table";
-import SyftTable from "../common/components/core/Table/SyftTable";
-import TableCell from "../common/components/core/Table/TableCell";
 import { css } from "@emotion/css";
 import { Css, Flex } from "../common/styles/common.styles";
 import { IconButton } from "../common/components/core/Button";
-
-const BaseSyftActionColumns = [
-  {
-    title: "Object",
-    dataIndex: "action",
-    key: "action",
-    render: (value, record, index) => (
-      <TableCell key={index} type="custom" className={Css.padding("2px 0")}>
-        <ActionText action={value} />
-      </TableCell>
-    ),
-  },
-] as ColumnsType<Action>;
-export const SyftActionColumns = (onAddEvent?: (action: Action) => void) => {
-  if (!onAddEvent) return BaseSyftActionColumns;
-  return [
-    ...BaseSyftActionColumns,
-    {
-      title: "Actions",
-      dataIndex: "action",
-      key: "action",
-      render: (value, record, index) => (
-        <TableCell key={index} type="custom" className={Css.padding("2px 0")}>
-          <Flex.Row>
-            <IconButton
-              label="Add Event"
-              icon="plus"
-              onClick={() => onAddEvent(value)}
-            />
-          </Flex.Row>
-        </TableCell>
-      ),
-    },
-  ] as ColumnsType<Action>;
-};
+import { useState } from "react";
 
 export default function ActionList({
   actions,
@@ -49,18 +12,28 @@ export default function ActionList({
   actions: Action[];
   onAddEvent?: (action: Action) => void;
 }) {
-  const keyedActions = actions
-    .filter((action) => isSupportedActionType(action.type))
-    .map((action, key) => ({ action, key }));
+  const [syftSelector, setSyftSelector] = useState<boolean>(false);
+  const _actions = actions.filter((action) =>
+    isSupportedActionType(action.type)
+  );
   return (
-    <SyftTable
-      className={css`
-        height: 100%;
-        padding: 0px;
-      `}
-      showHeader={false}
-      columns={SyftActionColumns(onAddEvent)}
-      data={keyedActions}
-    />
+    <Flex.Col className={Css.height("100%")}>
+      <Flex.Col>
+        {_actions.map((action) => (
+          <Flex.Row
+            className={css(
+              Css.padding("2px 6px"),
+              Css.border("1px solid #E7EAF6")
+            )}
+          >
+            <ActionText action={action} className={Flex.grow(1)} />
+            {onAddEvent && (
+              <IconButton icon="edit" onClick={() => onAddEvent(action)} />
+            )}
+          </Flex.Row>
+        ))}
+      </Flex.Col>
+      <Flex.Col></Flex.Col>
+    </Flex.Col>
   );
 }

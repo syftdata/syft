@@ -8,6 +8,7 @@ function getFromSyftEvent(event: CustomEvent): SyftEvent {
   return syftevent;
 }
 
+console.debug("[Syft][Content] Injected content script, listening for events");
 // Todo: Read from Syft object.
 window.addEventListener(
   "syft-event",

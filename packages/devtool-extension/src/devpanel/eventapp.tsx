@@ -1,11 +1,11 @@
 import React from "react";
 import { SyftEvent } from "../types";
 import "./index.css";
-import Panel from "./events";
 import { Flex } from "../common/styles/common.styles";
-import { IconButton } from "../common/components/core/Button";
 import Card from "../common/components/core/Card";
-import CardHeader from "../common/components/core/Card/CardHeader";
+import List from "../common/components/core/List";
+import { Mono } from "../common/styles/fonts";
+import EventPropsRenderer from "./event";
 
 const EventApp = ({
   events,
@@ -15,11 +15,6 @@ const EventApp = ({
   clear: () => void;
 }) => {
   const [search, setSearch] = React.useState("");
-  const [searchVisible, setSearchVisible] = React.useState(false);
-
-  const toggleSearch = () => {
-    setSearchVisible(!searchVisible);
-  };
   let filteredEvents = events;
   const searchStr = search.trim().toLowerCase();
   if (searchStr !== "") {
@@ -31,26 +26,27 @@ const EventApp = ({
   }
   return (
     <Card className={Flex.grow(1)}>
-      <CardHeader
-        title="Events"
-        rightItem={
-          <Flex.Row gap={3}>
-            <input
-              type="text"
-              className={
-                "text-md w-[150px] font-medium text-[#1c1e27] " +
-                (searchVisible ? "" : "hidden")
-              }
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <IconButton onClick={toggleSearch} icon="search" />
-            <IconButton onClick={clear} icon="minus-circle" />
+      <List<SyftEvent>
+        data={filteredEvents}
+        renderItem={(event) => (
+          <Flex.Row alignItems="center" justifyContent="space-between">
+            <Mono.M12 className={Flex.grow(1)}>{event.name}</Mono.M12>
+            <Mono.M10>
+              {event.createdAt
+                ? event.createdAt.toLocaleTimeString("en-US")
+                : ""}
+            </Mono.M10>
           </Flex.Row>
-        }
+        )}
+        search={{
+          searchPlaceHolder: "Search",
+          setSearch,
+          search,
+        }}
+        expandable={{
+          renderItem: (item) => <EventPropsRenderer data={item.props} />,
+        }}
       />
-      <Panel events={filteredEvents} />
     </Card>
   );
 };
