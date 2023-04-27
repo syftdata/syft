@@ -16,5 +16,6 @@ export async function startRecording(tabId: number) {
 }
 
 export async function stopRecording(tabId: number) {
+  console.debug("[Syft][Background] stoping recording on ", tabId);
   await endRecording();
 }

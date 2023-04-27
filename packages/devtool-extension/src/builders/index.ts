@@ -1,6 +1,6 @@
 import { getBestSelectorForAction } from "./selector";
 
-import type { Action } from "../types";
+import type { Action, SyftEvent } from "../types";
 import {
   ActionType,
   BaseAction,
@@ -129,10 +129,6 @@ export class ActionContext extends BaseAction {
         )} from (${this.action.sourceX}, ${this.action.sourceY}) to (${
           this.action.targetX
         }, ${this.action.targetY})`;
-      case ActionType.SyftEvent:
-        return `Expect Syft event ${
-          this.action.name
-        } with props ${JSON.stringify(this.action.data)}`;
       default:
         return "";
     }
@@ -206,9 +202,9 @@ export abstract class ScriptBuilder {
 
   abstract awaitText: (test: string) => this;
 
-  abstract syftEvent: (name: string, data: Record<string, any>) => this;
-
   abstract buildScript: () => string;
+
+  abstract syftEvent: (event: SyftEvent) => this;
 
   private transformActionIntoCodes = (actionContext: ActionContext) => {
     if (this.showComments) {
@@ -284,11 +280,15 @@ export abstract class ScriptBuilder {
           action.targetY
         );
         break;
-      case ActionType.SyftEvent:
-        this.syftEvent(action.name, action.data);
-        break;
       default:
         break;
+    }
+
+    const typedAction = actionContext.getAction();
+    if (typedAction.events) {
+      for (const event of typedAction.events) {
+        this.syftEvent(event);
+      }
     }
   };
 
@@ -429,6 +429,11 @@ export class PlaywrightScriptBuilder extends ScriptBuilder {
     this.pushCodes(`await page.waitForSelector('text=${text}');`);
     return this;
   };
+  
+  syftEvent = (event: SyftEvent) => {
+    this.pushCodes(`await syft.hasEvent("${event.name}", ${JSON.stringify(event.props)});`);
+    return this;
+  }
 
   dragAndDrop = (
     sourceX: number,
@@ -444,11 +449,6 @@ export class PlaywrightScriptBuilder extends ScriptBuilder {
         "  await page.mouse.up();",
       ].join("\n")
     );
-    return this;
-  };
-
-  syftEvent = (name: string, data: Record<string, any>) => {
-    this.pushCodes(`await syft.hasEvent("${name}", ${JSON.stringify(data)});`);
     return this;
   };
 
@@ -609,11 +609,11 @@ export class PuppeteerScriptBuilder extends ScriptBuilder {
     return this;
   };
 
-  syftEvent = (name: string, data: Record<string, any>) => {
+  syftEvent = (event: SyftEvent) => {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;
-  };
+  }
 
   buildScript = () => {
     return `const puppeteer = require('puppeteer');
@@ -705,11 +705,11 @@ export class CypressScriptBuilder extends ScriptBuilder {
     return this;
   };
 
-  syftEvent = (name: string, data: Record<string, any>) => {
+  syftEvent = (event: SyftEvent) => {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;
-  };
+  }
 
   buildScript = () => {
     return `it('Written with Syft Studio', () => {${this.codes.join("")}});`;

@@ -6,20 +6,24 @@ import { Css, Flex } from "../../../styles/common.styles";
 import { css } from "@emotion/css";
 import Icon from "../Icon/Icon";
 import { Colors } from "../../../styles/colors";
+import { IconButton } from "../Button";
+import { Input } from '../Form/input';
 
 export interface SearchProps {
   searchPlaceHolder: string;
   search: string;
   setSearch: (val: string) => void;
+  actions?: React.ReactNode[];
 }
 
 export interface ExpandableProps<T> {
+  isExpanded?: (item: T) => boolean;
   renderItem: (item: T) => React.ReactNode;
 }
 
 export interface ListProps<T> {
   data: T[];
-  renderItem: (item: T) => React.ReactNode;
+  renderItem: (item: T, index: number) => React.ReactNode;
   className?: string;
   search?: SearchProps;
   expandable?: ExpandableProps<T>;
@@ -32,7 +36,7 @@ interface ListItemProps<T> {
 }
 
 function ListItem<T>({ item, renderItem, expandable }: ListItemProps<T>) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandable?.isExpanded?.(item));
   if (!expandable) {
     return <>{renderItem(item)}</>;
   }
@@ -40,9 +44,12 @@ function ListItem<T>({ item, renderItem, expandable }: ListItemProps<T>) {
     setExpanded(!expanded);
   };
   return (
-    <Flex.Col>
-      <Flex.Row onClick={toggleExpanded} gap={4} alignItems="center">
-        <Icon icon={expanded ? "chevron-down" : "chevron-right"} />
+    <Flex.Col className={Flex.grow(1)} gap={8}>
+      <Flex.Row gap={4} alignItems="center">
+        <IconButton
+          onClick={toggleExpanded}
+          icon={expanded ? "chevron-down" : "chevron-right"}
+        />
         {renderItem(item)}
       </Flex.Row>
       <Flex.Row className={expanded ? "" : Css.display("none !important")}>
@@ -63,15 +70,26 @@ function List<T>({
   return (
     <Flex.Col className={className}>
       {search && (
-        <Flex.Row gap={8} className={Css.padding(4)} alignItems="center">
+        <Flex.Row
+          gap={8}
+          className={css(Css.padding(4), Css.background(Colors.Gray.V1))}
+          alignItems="center"
+        >
           <Icon icon="search" />
-          <input
+          <Input.L12
             type="text"
-            className={"text-md w-[150px] font-medium text-[#1c1e27]"}
+            className={css(
+              Css.background(Colors.Gray.V1),
+              Css.border("none"),
+              Flex.grow(1)
+            )}
             placeholder={search.searchPlaceHolder}
             value={search.search}
             onChange={(e) => search.setSearch(e.target.value)}
           />
+          {search.actions?.map((action, index) => (
+            <React.Fragment key={index}>{action}</React.Fragment>
+          ))}
         </Flex.Row>
       )}
       {data.map((item, index) => {
@@ -79,13 +97,14 @@ function List<T>({
           <Flex.Row
             key={index}
             className={css(
+              Flex.grow(1),
               Css.border(`1px solid ${Colors.Gray.V1}`),
               Css.padding("2px 6px")
             )}
           >
             <TypedListItem
               item={item}
-              renderItem={renderItem}
+              renderItem={(item) => renderItem(item, index)}
               expandable={expandable}
             />
           </Flex.Row>

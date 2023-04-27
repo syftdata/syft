@@ -19,6 +19,6 @@
 
     "strictPropertyInitialization": false
   },
-  "include": ["src", "tailwind.config.cjs"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

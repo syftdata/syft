@@ -6,7 +6,10 @@ import { ScriptType } from "../types";
 
 import RecordScriptView from "./RecordedScriptView";
 import Card from "../common/components/core/Card";
-import { IconButton } from "../common/components/core/Button";
+import {
+  IconButton,
+  PrimaryIconButton,
+} from "../common/components/core/Button";
 import { Subheading } from "../common/styles/fonts";
 import { Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
@@ -14,13 +17,13 @@ import ActionList from "./ActionList";
 export default function RecorderApp({
   startRecording,
   endRecording,
-  addEvent,
+  onUpdateAction,
   actions,
 }: {
   actions: Action[];
   startRecording: () => void;
   endRecording: () => void;
-  addEvent: (action: Action) => void;
+  onUpdateAction: (index: number, action: Action) => void;
 }) {
   const [_scriptType, setScriptType] = usePreferredLibrary();
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -42,20 +45,22 @@ export default function RecorderApp({
   return (
     <>
       <Card gap={8}>
-        {!isRecording ? (
-          <IconButton
-            onClick={onStartRecording}
-            icon="video-camera"
-            label="Start Recording"
-          />
-        ) : (
-          <IconButton
-            label="Stop Recording"
-            icon="video-camera-off"
-            onClick={onStopRecording}
-          />
-        )}
-        {isRecording && <ActionList actions={actions} onAddEvent={addEvent} />}
+        <Flex.Row className={Flex.grow(0)}>
+          {!isRecording ? (
+            <IconButton
+              onClick={onStartRecording}
+              icon="video-camera"
+              label="Start Recording"
+            />
+          ) : (
+            <PrimaryIconButton
+              label="Stop Recording"
+              icon="video-camera-off"
+              onClick={onStopRecording}
+            />
+          )}
+        </Flex.Row>
+        {isRecording && <ActionList actions={actions} onUpdateAction={onUpdateAction} />}
         {isFinished && (
           <Flex.Col alignItems="center" gap={8}>
             <Subheading.SH14>Recording Finished!</Subheading.SH14>

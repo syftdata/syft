@@ -1,10 +1,9 @@
 import {
   setEndRecordingStorage,
-  setStartRecordingStorage,
   localStorageGet,
-  createTab,
   recordNavigationEvent,
   executeContentScript,
+  replaceAction,
 } from "../common/utils";
 import { MessageType } from "../types";
 import { startRecording, stopRecording } from "./bridge";
@@ -164,6 +163,13 @@ async function handleMessageAsync(
     case MessageType.StopRecord:
       await stopRecording(message.tabId);
       break;
+    case MessageType.ReplaceStep:
+      const actions = await replaceAction(message.index, message.action);
+      await port.postMessage({
+        type: MessageType.RecordedStep,
+        data: actions,
+      });
+      break;      
   }
   return true;
 }
@@ -178,7 +184,7 @@ chrome.runtime.onConnect.addListener(async function (port) {
   const extensionListener = function (message: any, port: chrome.runtime.Port) {
     if (message.type == null) return true;
     handleMessageAsync(message, port).catch((err) => {
-      console.error("[Syft] Error handling message", err);
+      console.error("[Syft][Background] Error handling message! ", err);
     });
     return true;
   };

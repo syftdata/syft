@@ -2,16 +2,11 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import {
   Action,
-  ActionType,
   MessageType,
-  SyftAction,
   SyftEvent,
 } from "../types";
-import "./index.css";
-import { Css } from "../common/styles/common.styles";
 import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
-import { insertNewAction } from "../common/utils";
 import Tabs, { TabsProps } from "antd/es/tabs";
 
 let existingConnection: chrome.runtime.Port | undefined;
@@ -77,6 +72,15 @@ const endRecording = () => {
   });
 };
 
+const replaceAction = (index: number, action?: Action) => {
+  existingConnection?.postMessage({
+    type: MessageType.ReplaceStep,
+    index,
+    action,
+    tabId: chrome.devtools.inspectedWindow.tabId,
+  });
+};
+
 const App = () => {
   const [events, setEvents] = React.useState<Array<SyftEvent>>([]);
   const [actions, setActions] = React.useState<Array<Action>>([]);
@@ -85,49 +89,32 @@ const App = () => {
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);
   };
-  const insertEventAfterAction = (action: Action) => {
-    // find index of the action.
-    const index = actions.findIndex((a) => a === action);
-    if (index !== -1) {
-      insertNewAction(
-        {
-          type: ActionType.SyftEvent,
-          name: "TodoAdded",
-          data: {},
-        } as SyftAction,
-        index + 1
-      );
-    } else {
-      throw new Error("Action not found");
-    }
-  };
 
   const items: TabsProps["items"] = [
     {
       key: "1",
+      label: `Events`,
+      children: <EventApp events={events} clear={() => setEvents([])} />,
+    },
+    {
+      key: "2",
       label: `Recorder`,
       children: (
         <RecorderApp
           startRecording={startRecording}
           endRecording={endRecording}
-          addEvent={insertEventAfterAction}
+          onUpdateAction={replaceAction}
           actions={actions}
         />
       ),
     },
-    {
-      key: "2",
-      label: `Events`,
-      children: <EventApp events={events} clear={() => setEvents([])} />,
-    },
   ];
   return (
     <Tabs
-      defaultActiveKey="1"
+      defaultActiveKey="2"
       items={items}
-      className={Css.height("100vh")}
       size="small"
-      style={{ marginLeft: 4 }}
+      style={{ marginLeft: 4, marginBottom: 0, height: "100vh" }}
     />
   );
 };

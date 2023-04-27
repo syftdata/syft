@@ -29,7 +29,7 @@ export interface IconButtonProps {
 export const PrimaryIconButton = (iconProps: IconButtonProps) => (
   <IconButton
     {...iconProps}
-    backgroundColor={Colors.Branding.DarkBlue}
+    backgroundColor={Colors.Branding.Blue}
     color={Colors.White}
   />
 );

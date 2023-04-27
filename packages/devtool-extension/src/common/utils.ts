@@ -90,7 +90,7 @@ export async function executeScript(
 // @ts-ignore-error - CRXJS needs injected scripts to be this way.
 // https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
 import scriptPath from "../recorder?script";
-import { Action, ActionType, NavigateAction } from "../types";
+import { Action, ActionType, MessageType, NavigateAction } from "../types";
 
 export async function executeContentScript(tabId: number, frameId: number) {
   executeScript(tabId, frameId, scriptPath);
@@ -116,14 +116,34 @@ export async function recordNavigationEvent(
     url,
     source: transitionType,
   } as NavigateAction;
-  console.log("[Syft][Unknown] Recording navigation event", navigationEvent);
   await insertNewAction(navigationEvent);
 }
 
 export async function insertNewAction(action: Action, index?: number) {
   const { recording } = await localStorageGet(["recording"]);
-  console.log("[Syft][Unknown] Modifying the recording directly");
   const newRecording = [...recording];
   newRecording.splice(index ?? newRecording.length, 0, action);
   await chrome.storage.local.set({ recording: newRecording });
+}
+
+export async function replaceAction(index: number, newAction?: Action): Promise<Action[]> {
+  const { recording } = await localStorageGet(["recording"]);
+  const newRecording = [...recording];
+  if (newAction != null) {
+    newRecording.splice(index, 1, newAction);
+  } else {
+    newRecording.splice(index, 1);
+  }   
+  await chrome.storage.local.set({ recording: newRecording });
+  return newRecording;
+}
+
+export function isArrayEqual(array?: any[], other?: any[]) {
+  if (array == other) return true;
+  if (!array && !other) return true;
+  if (!array || !other) return false;
+  return (
+    array.length === other.length &&
+    array.every((value, index) => value === other[index])
+  );
 }

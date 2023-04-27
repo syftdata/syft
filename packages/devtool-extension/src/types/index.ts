@@ -49,6 +49,8 @@ export class BaseAction {
   timestamp: number;
   isPassword: boolean;
   hasOnlyText: boolean; // If the element only has text content inside (hint to use text selector)
+
+  events?: SyftEvent[];
 }
 
 class KeydownAction extends BaseAction {
@@ -159,11 +161,15 @@ export interface SyftEvent {
 }
 
 export enum MessageType {
+  // Background to Extension.
   SyftEvent = "syft-event",
   RecordedStep = "recorded-step",
+  
+  // Other way round. Extension to background
+  InitDevTools = "init-devtools",  
   StartRecord = "start-record",
   StopRecord = "stop-record",
-  InitDevTools = "init-devtools",
+  ReplaceStep = "replace-step",  
 }
 
 export interface EventField {

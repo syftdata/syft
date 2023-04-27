@@ -1,39 +1,67 @@
 import { Action, isSupportedActionType } from "../types";
 import { ActionText } from "../common/ActionText";
-import { css } from "@emotion/css";
-import { Css, Flex } from "../common/styles/common.styles";
+import { Flex } from "../common/styles/common.styles";
 import { IconButton } from "../common/components/core/Button";
 import { useState } from "react";
+import List from "../common/components/core/List";
+import SchemaSelector, { TodoSchemas } from "../schemaselector";
+import { Mono } from '../common/styles/fonts';
 
 export default function ActionList({
   actions,
-  onAddEvent,
+  onUpdateAction,
 }: {
   actions: Action[];
-  onAddEvent?: (action: Action) => void;
+  onUpdateAction?: (index: number, action: Action) => void;
 }) {
-  const [syftSelector, setSyftSelector] = useState<boolean>(false);
+  // select the last action by default.
+  const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
   const _actions = actions.filter((action) =>
     isSupportedActionType(action.type)
   );
+  const selectedAction = selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
   return (
-    <Flex.Col className={Css.height("100%")}>
-      <Flex.Col>
-        {_actions.map((action) => (
-          <Flex.Row
-            className={css(
-              Css.padding("2px 6px"),
-              Css.border("1px solid #E7EAF6")
-            )}
-          >
-            <ActionText action={action} className={Flex.grow(1)} />
-            {onAddEvent && (
-              <IconButton icon="edit" onClick={() => onAddEvent(action)} />
-            )}
-          </Flex.Row>
-        ))}
-      </Flex.Col>
-      <Flex.Col></Flex.Col>
+    <Flex.Col className={Flex.grow(1)}>
+      <List<Action>
+        data={_actions}
+        renderItem={(action, index) => {
+          const eventCount = action.events?.length ?? 0;
+          return (
+            <Flex.Row gap={4} alignItems='center' className={Flex.grow(1)}>
+              <ActionText action={action} className={Flex.grow(1)} />
+              {<Mono.M10>{eventCount} Events</Mono.M10>}
+              {onUpdateAction && (
+                <IconButton
+                  icon="edit"
+                  onClick={() => {
+                    if (selectedActionIndex !== index) {
+                      setSelectedActionIndex(index);
+                    } else {
+                      setSelectedActionIndex(-1);
+                    }
+                  }}
+                />
+              )}
+            </Flex.Row>
+          );
+        }}
+      />
+      {
+        selectedAction && (
+        <SchemaSelector 
+          key={selectedActionIndex}
+          action={selectedAction}
+          setEvents={(events) => {
+            onUpdateAction && onUpdateAction(selectedActionIndex, {
+              ...selectedAction,
+              events
+            });
+            setSelectedActionIndex(-1);
+          }}
+          schemas={TodoSchemas} 
+        />
+        )
+      }
     </Flex.Col>
   );
 }
