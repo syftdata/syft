@@ -74,7 +74,6 @@ export default function InjectedRecorderApp() {
       }
     });
   }, []);
-
   const rect = hoveredElement?.getBoundingClientRect();
   const displayedSelector = getBestSelectorForAction(
     {

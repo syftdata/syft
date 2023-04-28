@@ -1,14 +1,10 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import {
-  Action,
-  MessageType,
-  SyftEvent,
-} from "../types";
+import { Action, MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
-import { Colors } from '../common/styles/colors';
+import { Colors } from "../common/styles/colors";
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -114,10 +110,10 @@ const App = () => {
       items={items}
       size="small"
       style={{ height: "100vh" }}
-      tabBarStyle={{ 
-        marginBottom: 0, 
-        backgroundColor: Colors.Gray.V1, 
-        paddingLeft: 8
+      tabBarStyle={{
+        marginBottom: 0,
+        backgroundColor: Colors.Gray.V1,
+        paddingLeft: 8,
       }}
     />
   );

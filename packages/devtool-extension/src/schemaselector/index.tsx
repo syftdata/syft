@@ -4,12 +4,16 @@ import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer, { SchemaAndEvents } from "./schema";
-import { IconButton, PrimaryIconButton, SecondaryIconButton } from "../common/components/core/Button";
-import { isArrayEqual } from '../common/utils';
-import { ActionText } from '../common/ActionText';
-import { css } from '@emotion/css';
-import { Tabs } from 'antd';
-import { Colors } from '../common/styles/colors';
+import {
+  IconButton,
+  PrimaryIconButton,
+  SecondaryIconButton,
+} from "../common/components/core/Button";
+import { isArrayEqual } from "../common/utils";
+import { ActionText } from "../common/ActionText";
+import { css } from "@emotion/css";
+import { Tabs } from "antd";
+import { Colors } from "../common/styles/colors";
 
 export const TodoSchemas: EventSchema[] = [
   {
@@ -145,10 +149,12 @@ const SchemaSelector = ({
   setEvents,
   action,
   schemas,
-  className
+  className,
 }: SchemaSelectorProps) => {
   const [search, setSearch] = React.useState("");
-  const [expectedEvents, setExpectedEvents] = React.useState<SyftEvent[]>(action?.events ?? []);
+  const [expectedEvents, setExpectedEvents] = React.useState<SyftEvent[]>(
+    action?.events ?? []
+  );
 
   const schemaAndEvents = React.useMemo(() => {
     const map = new Map<string, SyftEvent>();
@@ -156,26 +162,29 @@ const SchemaSelector = ({
       map.set(event.name, event);
     });
     return schemas.map((schema) => {
-      return {schema, event: map.get(schema.name)} as SchemaAndEvents;
+      return { schema, event: map.get(schema.name) } as SchemaAndEvents;
     });
   }, [schemas, expectedEvents]);
 
   if (!action) {
     return null;
   }
-  
+
   const didWeModify = !isArrayEqual(action.events, expectedEvents);
   const save = () => {
     setEvents(expectedEvents);
-  }
+  };
 
   const addSchema = (schema: EventSchema) => {
-    const expectedEvents1 = [...expectedEvents, {
-      name: schema.name,
-      props: {},
-      createdAt: new Date(),
-      syft_status: { valid: "valid", track: "" },
-    }];
+    const expectedEvents1 = [
+      ...expectedEvents,
+      {
+        name: schema.name,
+        props: {},
+        createdAt: new Date(),
+        syft_status: { valid: "valid", track: "" },
+      },
+    ];
     setExpectedEvents(expectedEvents1);
   };
 
@@ -184,17 +193,17 @@ const SchemaSelector = ({
     if (index > -1) {
       const expectedEvents1 = [...expectedEvents];
       expectedEvents1.splice(index, 1);
-      setExpectedEvents(expectedEvents1); 
+      setExpectedEvents(expectedEvents1);
     }
   };
 
-  const updateSchema = (schema: SchemaAndEvents) => {    
+  const updateSchema = (schema: SchemaAndEvents) => {
     const events = [...expectedEvents];
     const index = events.findIndex((i) => i.name === schema.schema.name);
     if (index > -1 && schema.event) {
       events[index] = schema.event;
       setExpectedEvents(events);
-    }    
+    }
   };
 
   let filteredSchemas = schemaAndEvents;
@@ -213,18 +222,25 @@ const SchemaSelector = ({
         data={filteredSchemas}
         renderItem={(item) => {
           return (
-            <Flex.Row 
-              alignItems="center" 
-              justifyContent="space-between" 
-              className={css(Flex.grow(1), Css.margin('0px 6px') )}>
+            <Flex.Row
+              alignItems="center"
+              justifyContent="space-between"
+              className={css(Flex.grow(1), Css.margin("0px 6px"))}
+            >
               <Flex.Col gap={4}>
                 <Mono.M14>{item.schema.name}</Mono.M14>
                 <Mono.M10>{item.schema.documentation}</Mono.M10>
               </Flex.Col>
               {item.event ? (
-                <SecondaryIconButton label="remove" onClick={() => removeSchema(item.schema)} />
+                <SecondaryIconButton
+                  label="remove"
+                  onClick={() => removeSchema(item.schema)}
+                />
               ) : (
-                <IconButton icon="plus" onClick={() => addSchema(item.schema)} />
+                <IconButton
+                  icon="plus"
+                  onClick={() => addSchema(item.schema)}
+                />
               )}
             </Flex.Row>
           );
@@ -234,12 +250,18 @@ const SchemaSelector = ({
           search,
           setSearch,
           actions: [
-            didWeModify ? <PrimaryIconButton label="save" onClick={save} /> : <></>
-          ]
+            didWeModify ? (
+              <PrimaryIconButton label="save" onClick={save} />
+            ) : (
+              <></>
+            ),
+          ],
         }}
         expandable={{
           isExpanded: (item) => item.event != null,
-          renderItem: (item) => <SchemaPropsRenderer data={item} onUpdate={updateSchema} />,
+          renderItem: (item) => (
+            <SchemaPropsRenderer data={item} onUpdate={updateSchema} />
+          ),
         }}
       />
     </Flex.Col>
@@ -248,19 +270,23 @@ const SchemaSelector = ({
 
 const SchemaSelectorContainer = (props: SchemaSelectorProps) => {
   return (
-      <Tabs
-        defaultActiveKey="1"
-        items={[{key: "1", label: `Edit Events`, 
-          children: (<SchemaSelector {...props} />)
-        }]}
-        size="small"
-        tabBarStyle={{ 
-          marginBottom: 0, 
-          backgroundColor: Colors.Gray.V1, 
-          paddingLeft: 8
-        }}
-        className={Flex.grow(1)}
-      />    
+    <Tabs
+      defaultActiveKey="1"
+      items={[
+        {
+          key: "1",
+          label: `Edit Events`,
+          children: <SchemaSelector {...props} />,
+        },
+      ]}
+      size="small"
+      tabBarStyle={{
+        marginBottom: 0,
+        backgroundColor: Colors.Gray.V1,
+        paddingLeft: 8,
+      }}
+      className={Flex.grow(1)}
+    />
   );
 };
 export default SchemaSelectorContainer;

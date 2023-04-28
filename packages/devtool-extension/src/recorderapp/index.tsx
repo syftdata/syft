@@ -11,7 +11,7 @@ import {
 } from "../common/components/core/Button";
 import { Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
-import { genCode } from '../builders';
+import { genCode } from "../builders";
 
 function downloadScript(actions: Action[], scriptType: ScriptType): void {
   // write code to show download dialog for a text.
@@ -59,33 +59,33 @@ export default function RecorderApp({
   const getRecordingView = () => {
     return (
       <>
-            <PrimaryIconButton
-              label="Stop Recording"
-              icon="video-camera-off"
-              onClick={onStopRecording}
-            />
-            <ActionList actions={actions} onUpdateAction={onUpdateAction} />
+        <PrimaryIconButton
+          label="Stop Recording"
+          icon="video-camera-off"
+          onClick={onStopRecording}
+        />
+        <ActionList actions={actions} onUpdateAction={onUpdateAction} />
       </>
-    )
-  }
+    );
+  };
 
   const getFreshView = () => {
     return (
       <>
-            <PrimaryIconButton
-              onClick={onStartRecording}
-              icon="video-camera"
-              label="Start Recording"
-            />
-            <ActionList actions={[]} />
+        <PrimaryIconButton
+          onClick={onStartRecording}
+          icon="video-camera"
+          label="Start Recording"
+        />
+        <ActionList actions={[]} />
       </>
-    )
-  }
+    );
+  };
 
   const getRecordOverView = () => {
     return (
       <>
-        <Flex.Row gap={4} justifyContent='space-between'>
+        <Flex.Row gap={4} justifyContent="space-between">
           <SecondaryIconButton
             onClick={onStartRecording}
             icon="video-camera"
@@ -105,18 +105,16 @@ export default function RecorderApp({
           setScriptType={setScriptType}
         />
       </>
-    );  
-  }
-
-
+    );
+  };
   return (
     <>
       <Flex.Col>
-        {
-          isRecording ? getRecordingView() : (
-            isFinished ? getRecordOverView() : getFreshView()
-          )
-        }
+        {isRecording
+          ? getRecordingView()
+          : isFinished
+          ? getRecordOverView()
+          : getFreshView()}
       </Flex.Col>
     </>
   );
