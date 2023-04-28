@@ -8,6 +8,7 @@ import {
 import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
+import { Colors } from '../common/styles/colors';
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -28,8 +29,6 @@ function init(
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.RecordedStep) {
-      // insert actions.
-      console.debug("[Syft][Devtools] Received actions", message.data);
       onActions(message.data as Action[]);
     }
   };
@@ -114,7 +113,12 @@ const App = () => {
       defaultActiveKey="2"
       items={items}
       size="small"
-      style={{ marginLeft: 4, marginBottom: 0, height: "100vh" }}
+      style={{ height: "100vh" }}
+      tabBarStyle={{ 
+        marginBottom: 0, 
+        backgroundColor: Colors.Gray.V1, 
+        paddingLeft: 8
+      }}
     />
   );
 };

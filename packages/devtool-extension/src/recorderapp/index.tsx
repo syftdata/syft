@@ -5,14 +5,28 @@ import { Action } from "../types";
 import { ScriptType } from "../types";
 
 import RecordScriptView from "./RecordedScriptView";
-import Card from "../common/components/core/Card";
 import {
-  IconButton,
   PrimaryIconButton,
+  SecondaryIconButton,
 } from "../common/components/core/Button";
-import { Subheading } from "../common/styles/fonts";
 import { Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
+import { genCode } from '../builders';
+
+function downloadScript(actions: Action[], scriptType: ScriptType): void {
+  // write code to show download dialog for a text.
+  const code = genCode(actions, true, scriptType);
+  const blob = new Blob([code], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.setProperty("display", "none");
+  a.href = url;
+  a.download = `syft_test.${scriptType}.js`;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+}
 
 export default function RecorderApp({
   startRecording,
@@ -23,7 +37,7 @@ export default function RecorderApp({
   actions: Action[];
   startRecording: () => void;
   endRecording: () => void;
-  onUpdateAction: (index: number, action: Action) => void;
+  onUpdateAction: (index: number, action?: Action) => void;
 }) {
   const [_scriptType, setScriptType] = usePreferredLibrary();
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -42,36 +56,68 @@ export default function RecorderApp({
 
   const scriptType = _scriptType ?? ScriptType.Playwright;
 
-  return (
-    <>
-      <Card gap={8}>
-        <Flex.Row className={Flex.grow(0)}>
-          {!isRecording ? (
-            <IconButton
-              onClick={onStartRecording}
-              icon="video-camera"
-              label="Start Recording"
-            />
-          ) : (
+  const getRecordingView = () => {
+    return (
+      <>
             <PrimaryIconButton
               label="Stop Recording"
               icon="video-camera-off"
               onClick={onStopRecording}
             />
-          )}
-        </Flex.Row>
-        {isRecording && <ActionList actions={actions} onUpdateAction={onUpdateAction} />}
-        {isFinished && (
-          <Flex.Col alignItems="center" gap={8}>
-            <Subheading.SH14>Recording Finished!</Subheading.SH14>
-            <RecordScriptView
-              actions={actions}
-              scriptType={scriptType}
-              setScriptType={setScriptType}
+            <ActionList actions={actions} onUpdateAction={onUpdateAction} />
+      </>
+    )
+  }
+
+  const getFreshView = () => {
+    return (
+      <>
+            <PrimaryIconButton
+              onClick={onStartRecording}
+              icon="video-camera"
+              label="Start Recording"
             />
-          </Flex.Col>
-        )}
-      </Card>
+            <ActionList actions={[]} />
+      </>
+    )
+  }
+
+  const getRecordOverView = () => {
+    return (
+      <>
+        <Flex.Row gap={4} justifyContent='space-between'>
+          <SecondaryIconButton
+            onClick={onStartRecording}
+            icon="video-camera"
+            label="Start new Recording"
+          />
+          <PrimaryIconButton
+            onClick={() => {
+              downloadScript(actions, scriptType);
+            }}
+            icon="arrow-down"
+            label="Download Script"
+          />
+        </Flex.Row>
+        <RecordScriptView
+          actions={actions}
+          scriptType={scriptType}
+          setScriptType={setScriptType}
+        />
+      </>
+    );  
+  }
+
+
+  return (
+    <>
+      <Flex.Col>
+        {
+          isRecording ? getRecordingView() : (
+            isFinished ? getRecordOverView() : getFreshView()
+          )
+        }
+      </Flex.Col>
     </>
   );
 }

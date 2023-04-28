@@ -1,6 +1,6 @@
 import { getBestSelectorForAction } from "./selector";
 
-import type { Action, SyftEvent } from "../types";
+import type { Action, SyftEventSource, SyftEvent } from "../types";
 import {
   ActionType,
   BaseAction,
@@ -204,7 +204,7 @@ export abstract class ScriptBuilder {
 
   abstract buildScript: () => string;
 
-  abstract syftEvent: (event: SyftEvent) => this;
+  abstract syftEvent: (event: SyftEvent, source?: SyftEventSource) => this;
 
   private transformActionIntoCodes = (actionContext: ActionContext) => {
     if (this.showComments) {
@@ -287,7 +287,7 @@ export abstract class ScriptBuilder {
     const typedAction = actionContext.getAction();
     if (typedAction.events) {
       for (const event of typedAction.events) {
-        this.syftEvent(event);
+        this.syftEvent(event, typedAction.eventSource);
       }
     }
   };
@@ -430,8 +430,9 @@ export class PlaywrightScriptBuilder extends ScriptBuilder {
     return this;
   };
   
-  syftEvent = (event: SyftEvent) => {
-    this.pushCodes(`await syft.hasEvent("${event.name}", ${JSON.stringify(event.props)});`);
+  syftEvent = (event: SyftEvent, source?: SyftEventSource) => {
+    this.pushCodes(`await syft.hasEvent("${event.name}", ${JSON.stringify(event.props)}, 
+${JSON.stringify(source, null, 2)});`);
     return this;
   }
 
@@ -609,7 +610,7 @@ export class PuppeteerScriptBuilder extends ScriptBuilder {
     return this;
   };
 
-  syftEvent = (event: SyftEvent) => {
+  syftEvent = (event: SyftEvent, source?: SyftEventSource) => {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;
@@ -705,7 +706,7 @@ export class CypressScriptBuilder extends ScriptBuilder {
     return this;
   };
 
-  syftEvent = (event: SyftEvent) => {
+  syftEvent = (event: SyftEvent, source?: SyftEventSource) => {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;

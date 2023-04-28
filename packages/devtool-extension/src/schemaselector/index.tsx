@@ -135,12 +135,14 @@ export interface SchemaSelectorProps {
   setEvents: (events: SyftEvent[]) => void;
   action?: Action;
   schemas: EventSchema[];
+  className?: string;
 }
 
 const SchemaSelector = ({
   setEvents,
   action,
-  schemas
+  schemas,
+  className
 }: SchemaSelectorProps) => {
   const [search, setSearch] = React.useState("");
   const [expectedEvents, setExpectedEvents] = React.useState<SyftEvent[]>(action?.events ?? []);
@@ -202,14 +204,14 @@ const SchemaSelector = ({
 
   // TODO: show selected items at the top.
   return (
-    <Flex.Col className={Flex.grow(1)}>
+    <Flex.Col className={className}>
       {/* <ActionText action={action} /> */}
       <List<SchemaAndEvents>
         data={filteredSchemas}
         renderItem={(item) => {
           return (
             <Flex.Row alignItems="center" justifyContent="space-between" className={Flex.grow(1)}>
-              <Flex.Col gap={4}>
+              <Flex.Col gap={4} className={Flex.grow(1)}>
                 <Mono.M14>{item.schema.name}</Mono.M14>
                 <Mono.M10>{item.schema.documentation}</Mono.M10>
               </Flex.Col>

@@ -34,12 +34,19 @@ export const PrimaryIconButton = (iconProps: IconButtonProps) => (
   />
 );
 
+export const SecondaryIconButton = (iconProps: IconButtonProps) => (
+  <IconButton
+    {...iconProps}
+    backgroundColor={Colors.Gray.V1}
+    color={Colors.Black}
+  />
+);
+
 export const IconButton = ({
   onClick,
   icon,
   label,
   size,
-  reverseIcon,
   className,
   color,
   backgroundColor,
@@ -54,12 +61,14 @@ export const IconButton = ({
       className={cx(
         Css.background(defaultBackgroundColor),
         Css.padding(4),
-        className,
         Css.cursor("pointer"),
-        Css.flexDirection(reverseIcon ? "row-reverse!important" : "row")
+        Css.width("fit-content"),
+        Css.borderRadius(2),
+        className,
       )}
       onClick={onClick}
       alignItems="center"
+      justifyContent='start'
     >
       {icon ? <Icon icon={icon} size={size} color={defaultColor} /> : <></>}
       {label ? <Comp color={defaultColor}>{label}</Comp> : <></>}

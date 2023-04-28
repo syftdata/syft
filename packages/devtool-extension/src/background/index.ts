@@ -70,19 +70,12 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
 
 const HOVER_CTX_MENU_ID = "syft-menu-hover-id";
 const AWAIT_TEXT_CTX_MENU_ID = "syft-menu-await-text-id";
-const AWAIT_EVENT_CTX_MENU_ID = "syft-menu-await-event-id";
 
 chrome.contextMenus.removeAll();
 chrome.contextMenus.create({
   title: "Record hover over element",
   contexts: ["all"],
   id: HOVER_CTX_MENU_ID,
-  enabled: false,
-});
-chrome.contextMenus.create({
-  title: "Assert for Syft event",
-  contexts: ["selection"],
-  id: AWAIT_EVENT_CTX_MENU_ID,
   enabled: false,
 });
 chrome.contextMenus.create({
@@ -100,7 +93,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (tab.id != recordingTabId) {
     return;
   }
-  let type = "onAwaitSyftEventCtxMenu";
+  let type = "onHoverCtxMenu";
   if (info.menuItemId === HOVER_CTX_MENU_ID) {
     type = "onHoverCtxMenu";
   } else if (info.menuItemId === AWAIT_TEXT_CTX_MENU_ID) {
@@ -117,9 +110,6 @@ function updateContextMenuItems({ enabled }: { enabled: boolean }) {
     enabled,
   });
   chrome.contextMenus.update(AWAIT_TEXT_CTX_MENU_ID, {
-    enabled,
-  });
-  chrome.contextMenus.update(AWAIT_EVENT_CTX_MENU_ID, {
     enabled,
   });
 }

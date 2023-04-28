@@ -90,7 +90,7 @@ export async function executeScript(
 // @ts-ignore-error - CRXJS needs injected scripts to be this way.
 // https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
 import scriptPath from "../recorder?script";
-import { Action, ActionType, MessageType, NavigateAction } from "../types";
+import { Action, ActionType, NavigateAction } from "../types";
 
 export async function executeContentScript(tabId: number, frameId: number) {
   executeScript(tabId, frameId, scriptPath);
@@ -138,9 +138,13 @@ export async function replaceAction(index: number, newAction?: Action): Promise<
   return newRecording;
 }
 
+function isEmptyArray(array?: any[]) {
+  return array == null || array.length === 0;
+}
+
 export function isArrayEqual(array?: any[], other?: any[]) {
   if (array == other) return true;
-  if (!array && !other) return true;
+  if (isEmptyArray(array) && isEmptyArray(other)) return true;
   if (!array || !other) return false;
   return (
     array.length === other.length &&

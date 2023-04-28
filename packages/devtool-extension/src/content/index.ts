@@ -22,4 +22,14 @@ window.addEventListener(
   true
 );
 
+(function() {
+  const b = typeof browser !== 'undefined' ? browser : chrome
+  const script = document.createElement('script');
+  script.type="module"
+  // @ts-expect-error
+  script.src = b.runtime.getURL('src/content/devtools_source.ts.js');
+  document.documentElement.appendChild(script);  
+})()
+
+
 export {};

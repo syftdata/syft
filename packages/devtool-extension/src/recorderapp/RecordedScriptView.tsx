@@ -6,28 +6,13 @@ import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
 import { cx } from "@emotion/css";
 import { genCode } from "../builders";
-import { IconButton } from "../common/components/core/Button";
+import { IconButton, PrimaryIconButton } from "../common/components/core/Button";
 
 interface RecordScriptViewProps {
   actions: Action[];
   scriptType: ScriptType;
   setScriptType: (scriptType: ScriptType) => void;
   className?: string;
-}
-
-function downloadScript(actions: Action[], scriptType: ScriptType): void {
-  // write code to show download dialog for a text.
-  const code = genCode(actions, true, scriptType);
-  const blob = new Blob([code], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.style.setProperty("display", "none");
-  a.href = url;
-  a.download = `syft_test.${scriptType}.js`;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  a.remove();
 }
 
 export default function RecordScriptView({
@@ -40,7 +25,7 @@ export default function RecordScriptView({
 
   return (
     <Flex.Col className={cx(Css.width("100%"), className)}>
-      <Flex.Row alignItems="center">
+      {/* <Flex.Row alignItems="center">
         <Flex.Row className={Flex.grow(1)}>
           {actionsMode === ActionsMode.Actions ? (
             <IconButton
@@ -61,17 +46,16 @@ export default function RecordScriptView({
               onChange={setScriptType}
               shortDescription={true}
             />
-            <IconButton
+            <PrimaryIconButton
               onClick={() => {
                 downloadScript(actions, scriptType);
               }}
               label="Download"
               icon="arrow-down"
-              reverseIcon={true}
             />
           </Flex.Row>
         )}
-      </Flex.Row>
+      </Flex.Row> */}
       <Flex.Col className={cx(Css.minHeight(240), Css.overflow("scroll"))}>
         {actionsMode === ActionsMode.Code && (
           <CodeGen actions={actions} library={scriptType} />

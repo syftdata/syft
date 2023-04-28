@@ -40,6 +40,13 @@ export enum TagName {
 export const isSupportedActionType = (actionType: ActionType) =>
   actionType != null;
 
+export class SyftEventSource {
+  name: string;
+  source: string;
+  owner: string;
+  ownerSource: string;
+}
+
 export class BaseAction {
   type: ActionType;
   tagName: TagName;
@@ -51,22 +58,23 @@ export class BaseAction {
   hasOnlyText: boolean; // If the element only has text content inside (hint to use text selector)
 
   events?: SyftEvent[];
+  eventSource?: SyftEventSource;
 }
 
-class KeydownAction extends BaseAction {
+export class KeydownAction extends BaseAction {
   declare type: ActionType.Keydown;
   key: string;
 }
 
-class InputAction extends BaseAction {
+export class InputAction extends BaseAction {
   declare type: ActionType.Input;
 }
 
-class ClickAction extends BaseAction {
+export class ClickAction extends BaseAction {
   declare type: ActionType.Click;
 }
 
-class DragAndDropAction extends BaseAction {
+export class DragAndDropAction extends BaseAction {
   declare type: ActionType.DragAndDrop;
   sourceX: number;
   sourceY: number;
@@ -74,11 +82,11 @@ class DragAndDropAction extends BaseAction {
   targetY: number;
 }
 
-class HoverAction extends BaseAction {
+export class HoverAction extends BaseAction {
   declare type: ActionType.Hover;
 }
 
-class LoadAction extends BaseAction {
+export class LoadAction extends BaseAction {
   declare type: ActionType.Load;
   url: string;
 }
@@ -89,7 +97,7 @@ export class NavigateAction extends BaseAction {
   source: string;
 }
 
-class WheelAction extends BaseAction {
+export class WheelAction extends BaseAction {
   declare type: ActionType.Wheel;
   deltaX: number;
   deltaY: number;
@@ -97,11 +105,11 @@ class WheelAction extends BaseAction {
   pageYOffset: number;
 }
 
-class FullScreenshotAction extends BaseAction {
+export class FullScreenshotAction extends BaseAction {
   declare type: ActionType.FullScreenshot;
 }
 
-class AwaitTextAction extends BaseAction {
+export class AwaitTextAction extends BaseAction {
   declare type: ActionType.AwaitText;
   text: string;
 }
@@ -129,8 +137,7 @@ export type Action =
   | WheelAction
   | FullScreenshotAction
   | AwaitTextAction
-  | ResizeAction
-  | SyftAction;
+  | ResizeAction;
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.
@@ -170,6 +177,10 @@ export enum MessageType {
   StartRecord = "start-record",
   StopRecord = "stop-record",
   ReplaceStep = "replace-step",  
+
+  // Background to Content Script.
+  GetSourceFile = "get-source-file",
+  GetSourceFileResponse = "get-source-file-response",
 }
 
 export interface EventField {

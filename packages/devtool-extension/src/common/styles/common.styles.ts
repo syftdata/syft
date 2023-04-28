@@ -42,6 +42,10 @@ export const Flex = {
     css({
       flexGrow,
     }),
+  shrink: (flexShrink: string | number) =>
+    css({
+      flexShrink,
+    }),
   direction: (direction: any) =>
     css({
       flexDirection: direction,

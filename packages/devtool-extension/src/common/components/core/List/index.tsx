@@ -99,7 +99,6 @@ function List<T>({
             className={css(
               Flex.grow(1),
               Css.border(`1px solid ${Colors.Gray.V1}`),
-              Css.padding("2px 6px")
             )}
           >
             <TypedListItem

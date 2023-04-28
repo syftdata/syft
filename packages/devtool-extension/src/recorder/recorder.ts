@@ -3,8 +3,7 @@ import debounce from "lodash.debounce";
 import genSelectors from "../builders/selector";
 import { localStorageGet } from "../common/utils";
 
-import { ActionType, BaseAction, ResizeAction, TagName } from "../types";
-import { Action } from "../types";
+import { Action, ActionType, BaseAction, ClickAction, DragAndDropAction, FullScreenshotAction, InputAction, KeydownAction, MessageType, ResizeAction, SyftEventSource, TagName, WheelAction } from "../types";
 
 /**
  * This is directly derived from:
@@ -38,7 +37,7 @@ function buildBaseAction(
     isPassword:
       target instanceof HTMLInputElement &&
       target.type.toLowerCase() === "password",
-    type: event.type as ActionType,
+    type: ActionType.Click, // UNKNOWN
     tagName: target.tagName as TagName,
     inputType: target instanceof HTMLInputElement ? target.type : undefined,
     selectors: genSelectors(target) ?? {},
@@ -48,16 +47,56 @@ function buildBaseAction(
   };
 }
 
+async function getSourceFileOfAction(action: Action): Promise<SyftEventSource | undefined> {
+    let doSomethingResolveCallback: any;
+    let doSomethingRejectCallback: any;
+
+    const handleSourceFile = (source: SyftEventSource | undefined) => {
+      console.debug('>>>>>>>>>>> [Syft][Content] handleSourceFile ', source);
+      if (doSomethingResolveCallback == null) return;      
+      doSomethingResolveCallback(source);
+      doSomethingRejectCallback = null;
+      doSomethingResolveCallback = null;
+      window.removeEventListener("message", handleSourceFileEvent);
+    };
+
+    const handleSourceFileEvent = (event: MessageEvent) => {
+      if (event.data.type !== MessageType.GetSourceFileResponse) return;
+      handleSourceFile(event.data.data as (SyftEventSource | undefined));
+      return true;
+    };
+
+    return new Promise((resolve, reject) => {
+      doSomethingResolveCallback = resolve;
+      doSomethingRejectCallback = reject;
+      window.addEventListener("message", handleSourceFileEvent);
+      // if we dont get the message back in 100ms, we will just give up.
+      setTimeout(() => {
+        handleSourceFile(undefined);
+      }, 1000);
+      window.postMessage({
+        type: MessageType.GetSourceFile,
+        data: action.selectors,
+      });
+    });
+}
+
 class Recorder {
   private _recording: Action[];
   private currentEventHandleType: string | null = null;
   private onAction: (actions: Action[]) => void;
   private lastContextMenuEvent: MouseEvent | null = null;
 
-  private appendToRecording = (action: any) => {
+  private appendToRecording = (action: Action) => {
     this._recording.push(action);
-    chrome.storage.local.set({ recording: this._recording });
-    this.onAction(this._recording);
+    getSourceFileOfAction(action).then((source) => {        
+      action.eventSource = source;
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      chrome.storage.local.set({ recording: this._recording });
+      this.onAction(this._recording);
+    });
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {
@@ -152,12 +191,12 @@ class Recorder {
       });
     } else {
       const action = {
-        type: "wheel",
+        type: ActionType.Wheel,
         deltaX: Math.floor(event.deltaX),
         deltaY: Math.floor(event.deltaY),
         pageXOffset,
         pageYOffset,
-      };
+      } as WheelAction;
       this.appendToRecording(action);
     }
   };
@@ -178,11 +217,11 @@ class Recorder {
     const predictedTarget =
       parentElement?.tagName === "A" ? parentElement : target;
 
-    const action = {
+    const action: ClickAction = {      
       ...buildBaseAction(event, predictedTarget),
+      type: ActionType.Click
     };
 
-    // @ts-ignore
     this.appendToRecording(action);
   };
 
@@ -195,7 +234,7 @@ class Recorder {
         type: ActionType.DragAndDrop,
         sourceX: event.x,
         sourceY: event.y,
-      });
+      } as DragAndDropAction);
     } else if (
       event.type === "drop" &&
       lastAction.type === ActionType.DragAndDrop
@@ -217,8 +256,9 @@ class Recorder {
       return;
     }
 
-    const action = {
+    const action: KeydownAction = {
       ...buildBaseAction(event),
+      type: ActionType.Keydown,
       key: event.key,
     };
 
@@ -253,10 +293,6 @@ class Recorder {
               genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
               {},
           };
-          this.appendToRecording(action);
-          break;
-        case "onAwaitSyftEventCtxMenu":
-          console.log(">>>>>> show the syft input bar");
           break;
       }
       if (action != null) {
@@ -283,9 +319,9 @@ class Recorder {
         timestamp: event.timeStamp,
       });
     } else {
-      const action = {
+      const action: InputAction = {
         ...buildBaseAction(event),
-        // @ts-ignore
+        type: ActionType.Input,
         value: target?.value,
       };
       this.appendToRecording(action);
@@ -304,8 +340,7 @@ class Recorder {
         type: ActionType.Resize,
         width,
         height,
-      };
-
+      } as ResizeAction;
       this.appendToRecording(action);
     }
   };
@@ -321,18 +356,7 @@ class Recorder {
   public onFullScreenshot = (): void => {
     const action = {
       type: ActionType.FullScreenshot,
-    };
-
-    this.appendToRecording(action);
-  };
-
-  public assertSyftEvent = (name: string, data: Record<string, any>): void => {
-    const action = {
-      type: ActionType.SyftEvent,
-      name,
-      data,
-    };
-
+    } as FullScreenshotAction;
     this.appendToRecording(action);
   };
 }

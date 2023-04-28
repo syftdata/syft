@@ -121,15 +121,6 @@ export function ActionText({
             ({action.targetX}, {action.targetY})
           </Mono.M12>
         </>
-      ) : action.type === ActionType.SyftEvent ? (
-        <>
-          <Mono.M12>Expect Syft</Mono.M12>
-          <Mono.M12>{action.name}</Mono.M12>
-          {svg}
-          <Mono.M12 className={LongTextCss}>
-            ({JSON.stringify(action.data)})
-          </Mono.M12>
-        </>
       ) : action.type === ActionType.Navigate ? (
         <>
           <Mono.M12>Expect URL</Mono.M12>
