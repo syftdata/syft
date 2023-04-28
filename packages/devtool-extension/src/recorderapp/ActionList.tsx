@@ -38,7 +38,7 @@ function ActionList({
         const eventCount = action.events?.length ?? 0;
         return (
           <Flex.Row gap={4} alignItems='center' className={css(Flex.grow(1), selectedIndex === index && backgroundCss(Colors.Branding.V1))}>
-            <ActionText action={action} className={Flex.grow(1)} />
+            <ActionText action={action} className={css(Flex.grow(1), Css.margin('0px 6px'))} />
             {eventCount > 0 && <Mono.M10>{eventCount} Events</Mono.M10>}
             <IconButton
               icon="edit"
@@ -80,7 +80,11 @@ export default function ActionListContainer({
           children: (<ActionList actions={actions} 
                     selectedIndex={selectedActionIndex}
                     onSelect={(index) => {
-                      setSelectedActionIndex(index);
+                      if (index === selectedActionIndex) {
+                        setSelectedActionIndex(-1);
+                      } else {
+                        setSelectedActionIndex(index);
+                      }
                     }}
                     onDelete={(index) => {
                       onUpdateAction && onUpdateAction(index);
@@ -108,7 +112,7 @@ export default function ActionListContainer({
             setSelectedActionIndex(-1);
           }}
           schemas={TodoSchemas} 
-          className={Flex.grow(1)}
+          className={css(Flex.grow(1), Css.maxHeight(300))}
         />
         )
       }

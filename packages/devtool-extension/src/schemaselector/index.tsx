@@ -1,12 +1,15 @@
 import React from "react";
 import { Action, EventSchema, SyftEvent } from "../types";
 import List from "../common/components/core/List";
-import { Flex } from "../common/styles/common.styles";
+import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer, { SchemaAndEvents } from "./schema";
-import { IconButton, PrimaryIconButton } from "../common/components/core/Button";
+import { IconButton, PrimaryIconButton, SecondaryIconButton } from "../common/components/core/Button";
 import { isArrayEqual } from '../common/utils';
 import { ActionText } from '../common/ActionText';
+import { css } from '@emotion/css';
+import { Tabs } from 'antd';
+import { Colors } from '../common/styles/colors';
 
 export const TodoSchemas: EventSchema[] = [
   {
@@ -210,13 +213,16 @@ const SchemaSelector = ({
         data={filteredSchemas}
         renderItem={(item) => {
           return (
-            <Flex.Row alignItems="center" justifyContent="space-between" className={Flex.grow(1)}>
-              <Flex.Col gap={4} className={Flex.grow(1)}>
+            <Flex.Row 
+              alignItems="center" 
+              justifyContent="space-between" 
+              className={css(Flex.grow(1), Css.margin('0px 6px') )}>
+              <Flex.Col gap={4}>
                 <Mono.M14>{item.schema.name}</Mono.M14>
                 <Mono.M10>{item.schema.documentation}</Mono.M10>
               </Flex.Col>
               {item.event ? (
-                <IconButton label="remove" onClick={() => removeSchema(item.schema)} />
+                <SecondaryIconButton label="remove" onClick={() => removeSchema(item.schema)} />
               ) : (
                 <IconButton icon="plus" onClick={() => addSchema(item.schema)} />
               )}
@@ -239,4 +245,22 @@ const SchemaSelector = ({
     </Flex.Col>
   );
 };
-export default SchemaSelector;
+
+const SchemaSelectorContainer = (props: SchemaSelectorProps) => {
+  return (
+      <Tabs
+        defaultActiveKey="1"
+        items={[{key: "1", label: `Edit Events`, 
+          children: (<SchemaSelector {...props} />)
+        }]}
+        size="small"
+        tabBarStyle={{ 
+          marginBottom: 0, 
+          backgroundColor: Colors.Gray.V1, 
+          paddingLeft: 8
+        }}
+        className={Flex.grow(1)}
+      />    
+  );
+};
+export default SchemaSelectorContainer;
