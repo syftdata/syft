@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
-import { Flex } from "../common/styles/common.styles";
+import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
 
 const PropRenderer = ({ keyStr, val }: { keyStr: string; val: any }) => {
@@ -13,9 +13,9 @@ const PropRenderer = ({ keyStr, val }: { keyStr: string; val: any }) => {
   return (
     <Flex.Row
       gap={2}
+      alignItems="center"
       className={css`
-        padding-left: 48px;
-        padding-right: 10px;
+        padding-left: 32px;
       `}
     >
       <Mono.M10
@@ -26,16 +26,14 @@ const PropRenderer = ({ keyStr, val }: { keyStr: string; val: any }) => {
       >
         {keyStr}
       </Mono.M10>
-      <Mono.M10 color={Colors.Secondary.Orange}>
-        <pre>{valString}</pre>
-      </Mono.M10>
+      <Mono.M10 color={Colors.Secondary.Orange}>{valString}</Mono.M10>
     </Flex.Row>
   );
 };
 
 const EventPropsRenderer = ({ data }: { data: Record<string, any> }) => {
   return (
-    <Flex.Col gap={4}>
+    <Flex.Col gap={4} className={Css.margin("0px 0px 4px")}>
       {Object.entries(data).map(([key, val]) => (
         <PropRenderer key={key} keyStr={key} val={val} />
       ))}

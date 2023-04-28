@@ -11,11 +11,11 @@ import {
 } from "../common/components/core/Button";
 import { Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
-import { genCode } from "../builders";
+import { genCode, genJson } from "../builders";
 
 function downloadScript(actions: Action[], scriptType: ScriptType): void {
   // write code to show download dialog for a text.
-  const code = genCode(actions, true, scriptType);
+  const code = genJson(actions);
   const blob = new Blob([code], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

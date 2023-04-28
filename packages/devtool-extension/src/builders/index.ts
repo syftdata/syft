@@ -1,6 +1,12 @@
 import { getBestSelectorForAction } from "./selector";
 
-import type { Action, SyftEventSource, SyftEvent } from "../types";
+import type {
+  Action,
+  SyftEventSource,
+  SyftEvent,
+  InputAction,
+  KeydownAction,
+} from "../types";
 import {
   ActionType,
   BaseAction,
@@ -8,6 +14,8 @@ import {
   TagName,
   isSupportedActionType,
 } from "../types";
+import { ResizeAction } from "../types";
+import { NavigateAction } from "../types";
 
 const FILLABLE_INPUT_TYPES = [
   "",
@@ -429,12 +437,14 @@ export class PlaywrightScriptBuilder extends ScriptBuilder {
     this.pushCodes(`await page.waitForSelector('text=${text}');`);
     return this;
   };
-  
+
   syftEvent = (event: SyftEvent, source?: SyftEventSource) => {
-    this.pushCodes(`await syft.hasEvent("${event.name}", ${JSON.stringify(event.props)}, 
+    this.pushCodes(`await syft.hasEvent("${event.name}", ${JSON.stringify(
+      event.props
+    )}, 
 ${JSON.stringify(source, null, 2)});`);
     return this;
-  }
+  };
 
   dragAndDrop = (
     sourceX: number,
@@ -614,7 +624,7 @@ export class PuppeteerScriptBuilder extends ScriptBuilder {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;
-  }
+  };
 
   buildScript = () => {
     return `const puppeteer = require('puppeteer');
@@ -710,7 +720,7 @@ export class CypressScriptBuilder extends ScriptBuilder {
     // TODO -> IMPLEMENT ME
     this.pushCodes(`// Syft is building Puppeteer support soon!`);
     return this;
-  }
+  };
 
   buildScript = () => {
     return `it('Written with Syft Studio', () => {${this.codes.join("")}});`;
@@ -757,4 +767,89 @@ export const genCode = (
   }
 
   return scriptBuilder.buildCodes().buildScript();
+};
+
+const SupportedJSONActionTypes = new Set([
+  ActionType.Navigate,
+  ActionType.Click,
+  ActionType.Input,
+  ActionType.Keydown,
+  ActionType.Resize,
+]);
+function getSelectors(action: BaseAction): string[] {
+  return Object.values(action.selectors).filter((s) => s != null) as string[];
+}
+export const genJson = (actions: Action[]): string => {
+  const transformedSteps: Record<string, any>[] = [];
+  for (let i = 0; i < actions.length; i++) {
+    const action: BaseAction = actions[i];
+    if (!SupportedJSONActionTypes.has(action.type)) {
+      continue;
+    }
+    switch (action.type) {
+      case ActionType.Navigate:
+        transformedSteps.push({
+          type: "navigate",
+          url: (action as NavigateAction).url,
+          assertedEvents: [
+            {
+              type: "navigation",
+              url: (action as NavigateAction).url,
+            },
+          ],
+        });
+        break;
+      case ActionType.Click:
+        transformedSteps.push({
+          type: "click",
+          target: "main",
+          selectors: getSelectors(action),
+          offsetX: 1,
+          offsetY: 1,
+        });
+        break;
+      case ActionType.Input:
+        transformedSteps.push({
+          type: "change",
+          value: (action as InputAction).value,
+          target: "main",
+          selectors: getSelectors(action),
+        });
+        break;
+      case ActionType.Keydown:
+        transformedSteps.push({
+          type: "keyDown",
+          key: (action as KeydownAction).key,
+          target: "main",
+          selectors: getSelectors(action),
+        });
+        transformedSteps.push({
+          type: "keyUp",
+          key: (action as KeydownAction).key,
+          target: "main",
+          selectors: getSelectors(action),
+        });
+        break;
+      case ActionType.Resize:
+        transformedSteps.push({
+          type: "setViewport",
+          width: (action as ResizeAction).width,
+          height: (action as ResizeAction).height,
+          deviceScaleFactor: 1,
+          isMobile: false,
+          hasTouch: false,
+          isLandscape: false,
+        });
+        break;
+    }
+  }
+
+  return JSON.stringify(
+    {
+      title: "Syft Studio",
+      steps: transformedSteps,
+    },
+    null,
+    2
+  );
 };

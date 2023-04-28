@@ -68,7 +68,6 @@ async function getSourceFileOfAction(
   let doSomethingRejectCallback: any;
 
   const handleSourceFile = (source: SyftEventSource | undefined) => {
-    console.debug(">>>>>>>>>>> [Syft][Content] handleSourceFile ", source);
     if (doSomethingResolveCallback == null) return;
     doSomethingResolveCallback(source);
     doSomethingRejectCallback = null;

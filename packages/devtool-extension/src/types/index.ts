@@ -171,12 +171,12 @@ export enum MessageType {
   // Background to Extension.
   SyftEvent = "syft-event",
   RecordedStep = "recorded-step",
-  
+
   // Other way round. Extension to background
-  InitDevTools = "init-devtools",  
+  InitDevTools = "init-devtools",
   StartRecord = "start-record",
   StopRecord = "stop-record",
-  ReplaceStep = "replace-step",  
+  ReplaceStep = "replace-step",
 
   // Background to Content Script.
   GetSourceFile = "get-source-file",

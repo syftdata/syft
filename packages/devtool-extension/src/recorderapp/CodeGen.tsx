@@ -2,7 +2,7 @@ import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { genCode } from "../builders";
+import { genCode, genJson } from "../builders";
 
 import type { Action } from "../types";
 import { ScriptType } from "../types";
@@ -18,7 +18,7 @@ export default function CodeGen({
 }) {
   return (
     <SyntaxHighlighter
-      language="javascript"
+      language="json"
       style={vscDarkPlus}
       customStyle={{
         background: "none",
@@ -27,7 +27,7 @@ export default function CodeGen({
       }}
       data-testid="code-block"
     >
-      {genCode(actions, true, library)}
+      {genJson(actions)}
     </SyntaxHighlighter>
   );
 }
