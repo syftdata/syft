@@ -1,9 +1,10 @@
-import { endRecording } from "../common/endRecording";
 import {
   executeCleanUp,
   executeContentScript,
+  setEndRecordingStorage,
   setStartRecordingStorage,
 } from "../common/utils";
+import { MessageType } from "../types";
 
 export async function startRecording(tabId: number) {
   console.debug("[Syft][Background] starting recording on ", tabId);
@@ -17,5 +18,19 @@ export async function startRecording(tabId: number) {
 
 export async function stopRecording(tabId: number) {
   console.debug("[Syft][Background] stoping recording on ", tabId);
-  await endRecording();
+  await setEndRecordingStorage();
 }
+
+///// Listen from Webapp
+chrome.runtime.onMessageExternal.addListener(
+  (request, sender, sendResponse) => {
+    if (request.type === MessageType.LoggedIn) {
+      if (request.jwt) {
+        console.log("Token ::: ", request.jwt);
+        sendResponse({ success: true, message: "Token has been received" });
+      } else {
+        sendResponse({ success: false, message: "Token not found" });
+      }
+    }
+  }
+);

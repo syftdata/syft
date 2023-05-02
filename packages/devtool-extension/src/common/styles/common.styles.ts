@@ -1,5 +1,6 @@
 import { css } from "@emotion/css";
 import styled from "styled-components";
+import { Colors } from "./colors";
 
 export interface FlexProps {
   gap?: number;
@@ -21,6 +22,14 @@ export const Flex = {
     gap: ${({ gap }) => gap && `${gap}px`};
     justify-content: ${({ justifyContent }) => justifyContent};
     align-items: ${({ alignItems }) => alignItems};
+  `,
+  RowWithDivider: styled.div<FlexProps>`
+    display: flex;
+    flex-direction: row;
+    gap: ${({ gap }) => gap && `${gap}px`};
+    justify-content: ${({ justifyContent }) => justifyContent};
+    align-items: ${({ alignItems }) => alignItems};
+    border-bottom: 1px solid ${Colors.Gray.V3};
   `,
   gap: (gap: number) =>
     css({

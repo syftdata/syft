@@ -7,7 +7,7 @@ import { css } from "@emotion/css";
 import Icon from "../Icon/Icon";
 import { Colors } from "../../../styles/colors";
 import { IconButton } from "../Button";
-import { Input } from '../Form/input';
+import { Input } from "../Form/input";
 
 export interface SearchProps {
   searchPlaceHolder: string;
@@ -70,7 +70,7 @@ function List<T>({
   return (
     <Flex.Col className={className}>
       {search && (
-        <Flex.Row
+        <Flex.RowWithDivider
           gap={8}
           className={css(Css.padding(4), Css.background(Colors.Gray.V1))}
           alignItems="center"
@@ -78,11 +78,9 @@ function List<T>({
           <Icon icon="search" />
           <Input.L12
             type="text"
-            className={css(
-              Css.background(Colors.Gray.V1),
-              Css.border("none"),
-              Flex.grow(1)
-            )}
+            noBorder={true}
+            background={Colors.Gray.V1}
+            className={Flex.grow(1)}
             placeholder={search.searchPlaceHolder}
             value={search.search}
             onChange={(e) => search.setSearch(e.target.value)}
@@ -90,7 +88,7 @@ function List<T>({
           {search.actions?.map((action, index) => (
             <React.Fragment key={index}>{action}</React.Fragment>
           ))}
-        </Flex.Row>
+        </Flex.RowWithDivider>
       )}
       {data.map((item, index) => {
         return (
@@ -98,7 +96,7 @@ function List<T>({
             key={index}
             className={css(
               Flex.grow(1),
-              Css.border(`1px solid ${Colors.Gray.V1}`),
+              Css.border(`1px solid ${Colors.Gray.V1}`)
             )}
           >
             <TypedListItem

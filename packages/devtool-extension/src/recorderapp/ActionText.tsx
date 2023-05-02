@@ -1,8 +1,8 @@
 import { css, cx } from "@emotion/css";
 import { getBestSelectorForAction } from "../builders/selector";
 import { Action, ActionType, ScriptType } from "../types";
-import { Css, Flex } from "./styles/common.styles";
-import { Mono } from "./styles/fonts";
+import { Css, Flex } from "../common/styles/common.styles";
+import { Mono } from "../common/styles/fonts";
 
 const LongTextCss = css(
   Css.whiteSpace("normal"),

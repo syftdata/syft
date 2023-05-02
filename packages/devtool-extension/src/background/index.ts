@@ -159,7 +159,7 @@ async function handleMessageAsync(
         type: MessageType.RecordedStep,
         data: actions,
       });
-      break;      
+      break;
   }
   return true;
 }

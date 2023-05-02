@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
-import { Flex } from "../common/styles/common.styles";
+import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
 import { EventField, EventSchema, SyftEvent } from "../types";
 import { Input } from "../common/components/core/Form/input";
@@ -20,18 +20,10 @@ const EditableFieldRenderer = ({
   setVal: (val: string) => void;
 }) => {
   return (
-    <Flex.Row
-      gap={2}
-      className={css`
-        padding-left: 24px;
-        padding-right: 10px;
-      `}
-      alignItems="center"
-      justifyContent="space-between"
-    >
-      <Flex.Col gap={4}>
+    <Flex.Row gap={2} className={Css.padding("0px 36px")} alignItems="center">
+      <Flex.Col gap={4} className={Flex.grow(1)}>
         <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-        <Mono.M10>{field.documentation}</Mono.M10>
+        <Mono.M10>{field.documentation}..</Mono.M10>
       </Flex.Col>
       <Input.L12
         type="text"
@@ -44,19 +36,10 @@ const EditableFieldRenderer = ({
 
 const FieldRenderer = ({ field }: { field: EventField }) => {
   return (
-    <Flex.Row
-      gap={2}
-      className={css`
-        padding-left: 24px;
-        padding-right: 10px;
-      `}
-      alignItems="center"
-    >
-      <Flex.Col gap={4}>
-        <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-        <Mono.M10>{field.documentation}</Mono.M10>
-      </Flex.Col>
-    </Flex.Row>
+    <Flex.Col gap={4} className={Css.padding("0px 36px")}>
+      <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
+      <Mono.M10>{field.documentation}</Mono.M10>
+    </Flex.Col>
   );
 };
 
@@ -65,13 +48,13 @@ const SchemaPropsRenderer = ({
   onUpdate,
 }: {
   data: SchemaAndEvents;
-  onUpdate: (data: SchemaAndEvents) => void;
+  onUpdate?: (data: SchemaAndEvents) => void;
 }) => {
   const event = data.event;
   return (
     <Flex.Col gap={4}>
       {data.schema.fields.map((field, index) =>
-        event ? (
+        event && onUpdate ? (
           <EditableFieldRenderer
             key={index}
             field={field}

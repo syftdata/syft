@@ -20,6 +20,7 @@ import {
   ColumnsHorizontalIcon,
   EditIcon,
   FolderIcon,
+  FloppyDiscIcon,
   GlobeIcon,
   HelpIcon,
   HomeIcon,
@@ -27,6 +28,7 @@ import {
   MinusCircleIcon,
   PlayIcon,
   PlusIcon,
+  PlusCircleIcon,
   RefreshIcon,
   SearchIcon,
   ServerIcon,
@@ -81,7 +83,9 @@ export type IconName =
   | "search"
   | "video-camera"
   | "video-camera-off"
-  | "play";
+  | "play"
+  | "floppy-disc"
+  | "plus-circle";
 
 const getIcon = (icon: IconName) => {
   switch (icon) {
@@ -161,6 +165,10 @@ const getIcon = (icon: IconName) => {
       return <VideoCameraOffIcon />;
     case "play":
       return <PlayIcon />;
+    case "floppy-disc":
+      return <FloppyDiscIcon />;
+    case "plus-circle":
+      return <PlusCircleIcon />;
   }
 };
 

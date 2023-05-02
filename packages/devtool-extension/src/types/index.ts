@@ -181,6 +181,10 @@ export enum MessageType {
   // Background to Content Script.
   GetSourceFile = "get-source-file",
   GetSourceFileResponse = "get-source-file-response",
+
+  // Webapp to Background
+  LoggedIn = "logged-in",
+  LoggedOut = "logged-out",
 }
 
 export interface EventField {
@@ -198,4 +202,16 @@ export interface EventSchema {
   traits?: any;
   documentation: string;
   fields: Array<EventField>;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+}
+
+export interface LoginSession {
+  jwt: string;
+  user: User;
 }

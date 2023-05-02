@@ -1,14 +1,15 @@
-import { Action, isSupportedActionType } from "../types";
-import { ActionText } from "../common/ActionText";
+import { Action, EventSchema, isSupportedActionType } from "../types";
+import { ActionText } from "./ActionText";
 import { Css, Flex } from "../common/styles/common.styles";
 import { IconButton } from "../common/components/core/Button";
 import { useState } from "react";
 import List from "../common/components/core/List";
-import SchemaSelector, { TodoSchemas } from "../schemaselector";
 import { Mono } from "../common/styles/fonts";
-import { Tabs, TabsProps } from "antd";
-import { Colors, backgroundCss, colorCss } from "../common/styles/colors";
+import { Colors, backgroundCss } from "../common/styles/colors";
 import { css } from "@emotion/css";
+import { TodoSchemas } from "../schemaapp/mockdata";
+import Section from "../common/components/core/Section";
+import SchemaSelector from "../schemaapp/selector";
 
 interface ActionListProps {
   actions: Action[];
@@ -82,58 +83,62 @@ export default function ActionListContainer({
 }: ActionListContainerProps) {
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
+  const [schemas, setSchemas] = useState<EventSchema[]>([]);
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
 
+  const loadSchemas = () => {
+    setSchemas(TodoSchemas);
+    // // Fetching data from FaceBook Jest Repo
+    // fetch("http://127.0.0.1:8085/", {
+    //   method: "GET",
+    //   headers: new Headers({
+    //     Accept: "application/json",
+    //   }),
+    // })
+    //   .then((res) => res.json())
+    //   .then((response) => setSchemas(response.schemas))
+    //   .catch((error) => console.log(error));
+  };
+
   return (
     <Flex.Col className={Flex.grow(1)}>
-      <Tabs
-        defaultActiveKey="1"
-        items={[
-          {
-            key: "1",
-            label: `Recorded Steps`,
-            children: (
-              <ActionList
-                actions={actions}
-                selectedIndex={selectedActionIndex}
-                onSelect={(index) => {
-                  if (index === selectedActionIndex) {
-                    setSelectedActionIndex(-1);
-                  } else {
-                    setSelectedActionIndex(index);
-                  }
-                }}
-                onDelete={(index) => {
-                  onUpdateAction && onUpdateAction(index);
-                }}
-              />
-            ),
-          },
-        ]}
-        size="small"
-        tabBarStyle={{
-          marginBottom: 0,
-          backgroundColor: Colors.Gray.V1,
-          paddingLeft: 8,
-        }}
-        className={Flex.grow(1)}
-      />
-      {selectedAction && (
-        <SchemaSelector
-          key={selectedActionIndex}
-          action={selectedAction}
-          setEvents={(events) => {
-            onUpdateAction &&
-              onUpdateAction(selectedActionIndex, {
-                ...selectedAction,
-                events,
-              });
-            setSelectedActionIndex(-1);
+      <Section title="Recorded Steps" className={Flex.grow(1)}>
+        <ActionList
+          actions={actions}
+          selectedIndex={selectedActionIndex}
+          onSelect={(index) => {
+            if (index === selectedActionIndex) {
+              setSelectedActionIndex(-1);
+            } else {
+              loadSchemas();
+              setSelectedActionIndex(index);
+            }
           }}
-          schemas={TodoSchemas}
-          className={css(Flex.grow(1), Css.maxHeight(300))}
+          onDelete={(index) => {
+            onUpdateAction && onUpdateAction(index);
+          }}
         />
+      </Section>
+      {selectedAction && (
+        <Section
+          title="Attach Events"
+          className={css(Flex.grow(1), Css.maxHeight(300))}
+        >
+          <SchemaSelector
+            key={selectedActionIndex}
+            action={selectedAction}
+            setEvents={(events) => {
+              onUpdateAction &&
+                onUpdateAction(selectedActionIndex, {
+                  ...selectedAction,
+                  events,
+                });
+              setSelectedActionIndex(-1);
+            }}
+            schemas={schemas}
+          />
+        </Section>
       )}
     </Flex.Col>
   );

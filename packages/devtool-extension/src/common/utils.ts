@@ -1,3 +1,9 @@
+import { getConstants } from "../constants";
+// @ts-ignore-error - CRXJS needs injected scripts to be this way.
+// https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
+import scriptPath from "../recorder?script";
+import { Action, ActionType, LoginSession, NavigateAction } from "../types";
+
 // TODO: nages added this global to resolve compilation issues.
 declare global {
   namespace browser {
@@ -14,10 +20,6 @@ export function setEndRecordingStorage() {
     recordingFrameId: null,
     returnTabId: null,
   });
-}
-
-export function setPreferredLibraryStorage(library: string) {
-  chrome.storage.local.set({ preferredLibrary: library });
 }
 
 export function setStartRecordingStorage(
@@ -37,6 +39,15 @@ export function setStartRecordingStorage(
     ],
   };
   chrome.storage.local.set(storage);
+}
+
+export function setPreferredLibraryStorage(library: string) {
+  chrome.storage.local.set({ preferredLibrary: library });
+}
+
+export function setLoginSessionStorage(session: LoginSession) {
+  // store this only for 1 hr.
+  chrome.storage.local.set({ loginSession: session });
 }
 
 export async function createTab(url: string) {
@@ -87,11 +98,6 @@ export async function executeScript(
   });
 }
 
-// @ts-ignore-error - CRXJS needs injected scripts to be this way.
-// https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
-import scriptPath from "../recorder?script";
-import { Action, ActionType, NavigateAction } from "../types";
-
 export async function executeContentScript(tabId: number, frameId: number) {
   executeScript(tabId, frameId, scriptPath);
 }
@@ -126,19 +132,22 @@ export async function insertNewAction(action: Action, index?: number) {
   await chrome.storage.local.set({ recording: newRecording });
 }
 
-export async function replaceAction(index: number, newAction?: Action): Promise<Action[]> {
+export async function replaceAction(
+  index: number,
+  newAction?: Action
+): Promise<Action[]> {
   const { recording } = await localStorageGet(["recording"]);
   const newRecording = [...recording];
   if (newAction != null) {
     newRecording.splice(index, 1, newAction);
   } else {
     newRecording.splice(index, 1);
-  }   
+  }
   await chrome.storage.local.set({ recording: newRecording });
   return newRecording;
 }
 
-function isEmptyArray(array?: any[]) {
+export function isEmptyArray(array?: any[]) {
   return array == null || array.length === 0;
 }
 
@@ -150,4 +159,84 @@ export function isArrayEqual(array?: any[], other?: any[]) {
     array.length === other.length &&
     array.every((value, index) => value === other[index])
   );
+}
+
+export async function retrieveLoginSession(): Promise<
+  LoginSession | undefined
+> {
+  const { loginSession } = await localStorageGet(["loginSession"]);
+  if (loginSession) {
+    return loginSession;
+  }
+  const constants = await getConstants();
+  const response = await fetch(`${constants.WebAppUrl}/api/auth/session`, {
+    mode: "cors",
+  });
+  console.log(
+    "[Syft][Devtools] loginSession not found. Retrieving from server."
+  );
+  const session = await response.json();
+  console.log("[Syft][Devtools] session", session);
+  if (Object.keys(session).length > 0) {
+    console.log("[Syft][Devtools] setting loginSession in storage");
+    setLoginSessionStorage(session);
+    return session;
+  }
+  return;
+}
+
+let loginCheckInterval: NodeJS.Timer | null = null;
+export async function initiateLoginFlow(): Promise<LoginSession> {
+  const session = await retrieveLoginSession();
+  if (session) {
+    return session;
+  } else {
+    const constants = await getConstants();
+    // TODO: clearing old interval. This is a hack. Need to fix this.
+    if (loginCheckInterval) clearInterval(loginCheckInterval);
+    return new Promise((resolve, reject) => {
+      createTab(constants.WebAppUrl);
+      loginCheckInterval = setInterval(async () => {
+        const session = await retrieveLoginSession();
+        if (session) {
+          resolve(session);
+          if (loginCheckInterval) clearInterval(loginCheckInterval);
+        }
+      }, 1000);
+    });
+  }
+}
+
+export function downloadFile(name: string, contents: string): void {
+  // write code to show download dialog for a text.
+  const blob = new Blob([contents], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.setProperty("display", "none");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+}
+
+export async function saveFile(name: string, contents: string): Promise<void> {
+  const session = await retrieveLoginSession();
+  if (session) {
+    const constants = await getConstants();
+    const response = await fetch(`${constants.WebAppUrl}/api/authed/file`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.jwt}`,
+      },
+      body: JSON.stringify({
+        name,
+        contents,
+      }),
+    });
+    const data = await response.json();
+    console.log("[Syft][Devtools] saveFile response", data);
+  }
 }

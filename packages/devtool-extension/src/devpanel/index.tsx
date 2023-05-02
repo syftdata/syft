@@ -5,6 +5,7 @@ import EventApp from "./eventapp";
 import RecorderApp from "../recorderapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
+import SchemaApp from "../schemaapp";
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -88,11 +89,6 @@ const App = () => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: `Events`,
-      children: <EventApp events={events} clear={() => setEvents([])} />,
-    },
-    {
-      key: "2",
       label: `Recorder`,
       children: (
         <RecorderApp
@@ -103,10 +99,20 @@ const App = () => {
         />
       ),
     },
+    {
+      key: "2",
+      label: `Event Models`,
+      children: <SchemaApp />,
+    },
+    {
+      key: "3",
+      label: `Debugger`,
+      children: <EventApp events={events} clear={() => setEvents([])} />,
+    },
   ];
   return (
     <Tabs
-      defaultActiveKey="2"
+      defaultActiveKey="1"
       items={items}
       size="small"
       style={{ height: "100vh" }}
@@ -114,6 +120,7 @@ const App = () => {
         marginBottom: 0,
         backgroundColor: Colors.Gray.V1,
         paddingLeft: 8,
+        borderBottom: `1px solid ${Colors.Gray.V3}`,
       }}
     />
   );

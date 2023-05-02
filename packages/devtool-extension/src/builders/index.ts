@@ -6,6 +6,7 @@ import type {
   SyftEvent,
   InputAction,
   KeydownAction,
+  WheelAction,
 } from "../types";
 import {
   ActionType,
@@ -841,6 +842,25 @@ export const genJson = (actions: Action[]): string => {
           isLandscape: false,
         });
         break;
+      case ActionType.Wheel:
+        transformedSteps.push({
+          type: "scroll",
+          deltaX: (action as WheelAction).pageXOffset,
+          deltaY: (action as WheelAction).pageYOffset,
+        });
+        break;
+    }
+    if (action.events != null) {
+      action.events.forEach((event) => {
+        transformedSteps.push({
+          type: "customStep",
+          name: "syft",
+          parameters: {
+            name: event.name,
+            props: event.props,
+          },
+        });
+      });
     }
   }
 

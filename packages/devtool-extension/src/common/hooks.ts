@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { setPreferredLibraryStorage, localStorageGet } from "./utils";
-import { ScriptType } from "../types";
+import {
+  setPreferredLibraryStorage,
+  localStorageGet,
+  setLoginSessionStorage,
+} from "./utils";
+import { LoginSession, ScriptType } from "../types";
 
 import type { Action } from "../types";
 
@@ -24,6 +28,27 @@ export function usePreferredLibrary() {
   };
 
   return [preferredLibrary, setPreferredLibraryWithStorage] as const;
+}
+
+export function useLoginSessionState() {
+  const [loginSession, setLoginSession] = useState<LoginSession | null>(null);
+
+  useEffect(() => {
+    localStorageGet(["loginSession"]).then(
+      ({ loginSession: storedLoginSession }) => {
+        setLoginSession(storedLoginSession);
+      }
+    );
+  }, []);
+  chrome.storage.onChanged.addListener((changes) => {
+    if (
+      changes.loginSession != null &&
+      changes.loginSession.newValue != changes.loginSession.oldValue
+    ) {
+      setLoginSession(changes.loginSession.newValue);
+    }
+  });
+  return [loginSession] as const;
 }
 
 export function useRecordingState() {

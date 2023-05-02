@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { usePreferredLibrary } from "../common/hooks";
+import { useLoginSessionState, usePreferredLibrary } from "../common/hooks";
 
 import { Action } from "../types";
 import { ScriptType } from "../types";
@@ -11,21 +11,20 @@ import {
 } from "../common/components/core/Button";
 import { Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
-import { genCode, genJson } from "../builders";
+import { genJson } from "../builders";
+import { downloadFile, initiateLoginFlow, saveFile } from "../common/utils";
 
 function downloadScript(actions: Action[], scriptType: ScriptType): void {
-  // write code to show download dialog for a text.
   const code = genJson(actions);
-  const blob = new Blob([code], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.style.setProperty("display", "none");
-  a.href = url;
-  a.download = `syft_test.${scriptType}.js`;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  a.remove();
+  downloadFile(`syft_test.${scriptType}.js`, code);
+}
+
+async function saveScript(
+  actions: Action[],
+  scriptType: ScriptType
+): Promise<void> {
+  const code = genJson(actions);
+  await saveFile(`syft_test.${scriptType}.js`, code);
 }
 
 export default function RecorderApp({
@@ -39,9 +38,12 @@ export default function RecorderApp({
   endRecording: () => void;
   onUpdateAction: (index: number, action?: Action) => void;
 }) {
+  const [loginSession] = useLoginSessionState();
   const [_scriptType, setScriptType] = usePreferredLibrary();
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  // const [recordingTabId, _actions] = useRecordingState();
+  // console.log(">>>>> recordingTabId", recordingTabId, _actions);
 
   const onStartRecording = () => {
     startRecording();
@@ -58,64 +60,79 @@ export default function RecorderApp({
 
   const getRecordingView = () => {
     return (
-      <>
-        <PrimaryIconButton
-          label="Stop Recording"
-          icon="video-camera-off"
-          onClick={onStopRecording}
-        />
+      <Flex.Col>
+        <Flex.RowWithDivider>
+          <PrimaryIconButton
+            label="Stop Recording"
+            icon="video-camera-off"
+            onClick={onStopRecording}
+          />
+        </Flex.RowWithDivider>
         <ActionList actions={actions} onUpdateAction={onUpdateAction} />
-      </>
+      </Flex.Col>
     );
   };
 
   const getFreshView = () => {
     return (
-      <>
-        <PrimaryIconButton
-          onClick={onStartRecording}
-          icon="video-camera"
-          label="Start Recording"
-        />
+      <Flex.Col>
+        <Flex.RowWithDivider>
+          <PrimaryIconButton
+            onClick={onStartRecording}
+            icon="video-camera"
+            label="Start Recording"
+          />
+        </Flex.RowWithDivider>
         <ActionList actions={[]} />
-      </>
+      </Flex.Col>
     );
   };
 
   const getRecordOverView = () => {
     return (
-      <>
-        <Flex.Row gap={4} justifyContent="space-between">
+      <Flex.Col>
+        <Flex.RowWithDivider gap={4} justifyContent="space-between">
           <SecondaryIconButton
             onClick={onStartRecording}
             icon="video-camera"
             label="Start new Recording"
           />
-          <PrimaryIconButton
-            onClick={() => {
-              downloadScript(actions, scriptType);
-            }}
-            icon="arrow-down"
-            label="Download Script"
-          />
-        </Flex.Row>
+          <Flex.Row gap={4}>
+            {/* <SecondaryIconButton
+              onClick={() => {
+                downloadScript(actions, scriptType);
+              }}
+              icon="arrow-down"
+              label="Download"
+            /> */}
+            <PrimaryIconButton
+              onClick={() => saveScript(actions, scriptType)}
+              icon="floppy-disc"
+              label="Commit"
+            />
+          </Flex.Row>
+        </Flex.RowWithDivider>
         <RecordScriptView
           actions={actions}
           scriptType={scriptType}
           setScriptType={setScriptType}
         />
-      </>
+      </Flex.Col>
     );
+  };
+
+  const getLoginView = () => {
+    return <PrimaryIconButton label="Login" onClick={initiateLoginFlow} />;
   };
   return (
     <>
-      <Flex.Col>
-        {isRecording
-          ? getRecordingView()
-          : isFinished
-          ? getRecordOverView()
-          : getFreshView()}
-      </Flex.Col>
+      {!loginSession
+        ? getLoginView()
+        : isRecording
+        ? getRecordingView()
+        : isFinished
+        ? getRecordOverView()
+        : getFreshView()}
     </>
   );
 }
