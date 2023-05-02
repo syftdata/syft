@@ -363,10 +363,12 @@ class Recorder {
     }
   };
 
-  private getLastResizeAction = (): ResizeAction => {
-    return this._recording.findLast(
-      (v) => v.type === ActionType.Resize
-    ) as ResizeAction;
+  private getLastResizeAction = (): ResizeAction | undefined => {
+    for (let i = this._recording.length - 1; i >= 0; i--) {
+      if (this._recording[i].type === ActionType.Resize) {
+        return this._recording[i] as ResizeAction;
+      }
+    }
   };
 
   private debouncedOnResize = debounce(this.onResize, 300);

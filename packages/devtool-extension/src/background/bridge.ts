@@ -1,9 +1,8 @@
 import {
-  executeCleanUp,
-  executeContentScript,
   setEndRecordingStorage,
   setStartRecordingStorage,
 } from "../common/utils";
+import { executeCleanUp, executeContentScript } from "../common/scripting";
 import { MessageType } from "../types";
 
 export async function startRecording(tabId: number) {

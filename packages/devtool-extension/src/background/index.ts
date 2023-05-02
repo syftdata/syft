@@ -2,9 +2,9 @@ import {
   setEndRecordingStorage,
   localStorageGet,
   recordNavigationEvent,
-  executeContentScript,
   replaceAction,
 } from "../common/utils";
+import { executeContentScript } from "../common/scripting";
 import { MessageType } from "../types";
 import { startRecording, stopRecording } from "./bridge";
 

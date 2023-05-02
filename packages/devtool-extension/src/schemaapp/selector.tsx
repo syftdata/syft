@@ -11,8 +11,6 @@ import {
 } from "../common/components/core/Button";
 import { isArrayEqual } from "../common/utils";
 import { css } from "@emotion/css";
-import { Tabs } from "antd";
-import { Colors } from "../common/styles/colors";
 
 export interface SchemaSelectorProps {
   setEvents: (events: SyftEvent[]) => void;

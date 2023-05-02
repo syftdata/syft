@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import Tabs from "antd/es/tabs";
 import { Colors } from "../../styles/colors";
 
 export interface SectionProps {

@@ -1,18 +1,23 @@
 {
-  "name": "Syft Dev Extension",
-  "description": "Syft Developer Extension to record and validate events.",
-  "version": "0.0.1",
+  "name": "Syft Studio",
+  "description": "Syft Studio lets you record, test and instrument your web apps.",
+  "version": "0.0.3",
   "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "contextMenus",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "icons": {
     "32": "img/logo-32.png",
     "48": "img/logo-48.png",
     "128": "img/logo-128.png"
   },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": "img/logo-48.png"
-  },
-  "options_page": "options.html",
   "background": {
     "service_worker": "service-worker-loader.js",
     "type": "module"
@@ -21,22 +26,33 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content-script-loader.chunk-5170fccf.9f2433c2.js"
+        "assets/index.ts-loader.e7a6c7e8.js"
       ],
       "matches": [
-        "http://*/*",
-        "https://*/*"
+        "<all_urls>"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "js": [
+        "assets/devtools_source.ts-loader.98ecd687.js"
+      ],
+      "matches": [
+        "<all_urls>"
       ]
     }
   ],
   "web_accessible_resources": [
     {
-      "matches": [],
-      "resources": [
-        "img/*.png",
-        "scripts/*.js"
+      "matches": [
+        "<all_urls>"
       ],
-      "use_dynamic_url": false
+      "resources": [
+        "assets/chunk-8ba139f3.js",
+        "assets/chunk-cbbc8866.js",
+        "assets/chunk-4630ab10.js"
+      ],
+      "use_dynamic_url": true
     },
     {
       "matches": [
@@ -44,14 +60,13 @@
         "https://*/*"
       ],
       "resources": [
-        "assets/chunk-f66e8549.js",
-        "assets/chunk-5170fccf.js"
+        "assets/chunk-34b209c4.js",
+        "assets/chunk-9311e3ec.js",
+        "assets/chunk-8ba139f3.js",
+        "assets/chunk-0c80b952.js",
+        "assets/index.2ab409f4.css"
       ],
-      "use_dynamic_url": true
+      "use_dynamic_url": false
     }
-  ],
-  "permissions": [
-    "activeTab",
-    "storage"
   ]
 }

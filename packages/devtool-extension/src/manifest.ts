@@ -4,9 +4,8 @@ export default defineManifest({
   name: "Syft Studio",
   description:
     "Syft Studio lets you record, test and instrument your web apps.",
-  version: "0.0.2",
+  version: "0.0.3",
   manifest_version: 3,
-
   permissions: [
     "activeTab",
     "scripting",
@@ -25,9 +24,7 @@ export default defineManifest({
     service_worker: "src/background/index.ts",
     type: "module",
   },
-
   devtools_page: "devtools.html",
-
   content_scripts: [
     {
       matches: ["<all_urls>"],
@@ -37,6 +34,6 @@ export default defineManifest({
     {
       matches: ["<all_urls>"],
       js: ["src/content/devtools_source.ts"],
-    },    
+    },
   ],
 });
