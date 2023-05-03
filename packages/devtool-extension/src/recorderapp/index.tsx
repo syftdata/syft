@@ -16,6 +16,7 @@ import { genJson } from "../builders";
 import { downloadFile, initiateLoginFlow, saveFile } from "../common/utils";
 import { Mono } from "../common/styles/fonts";
 import GitInfo from "../cloud/gitinfo";
+import { css } from "@emotion/css";
 
 export interface RecorderAppProps {
   actions: Action[];
@@ -53,7 +54,7 @@ export default function RecorderApp({
 
   const getRecordingView = () => {
     return (
-      <Flex.Col>
+      <>
         <Flex.RowWithDivider>
           <PrimaryIconButton
             label="Stop Recording"
@@ -62,13 +63,13 @@ export default function RecorderApp({
           />
         </Flex.RowWithDivider>
         <ActionList actions={actions} onUpdateAction={onUpdateAction} />
-      </Flex.Col>
+      </>
     );
   };
 
   const getFreshView = () => {
     return (
-      <Flex.Col>
+      <>
         <Flex.RowWithDivider>
           <PrimaryIconButton
             onClick={onStartRecording}
@@ -78,53 +79,23 @@ export default function RecorderApp({
         </Flex.RowWithDivider>
         {/* <GitInfo loginResponse={loginSession} /> */}
         <ActionList actions={[]} />
-      </Flex.Col>
+      </>
     );
   };
 
   const getRecordOverView = () => {
     return (
-      <Flex.Col>
-        <Flex.RowWithDivider gap={4} justifyContent="space-between">
-          <SecondaryIconButton
-            onClick={onStartRecording}
-            icon="video-camera"
-            label="Start new Recording"
-          />
-          <Flex.Row gap={4}>
-            {/* <SecondaryIconButton
-              onClick={() => {
-                const code = genJson(actions);
-                downloadFile(`${scriptTitle}.json`, code);
-              }}
-              icon="arrow-down"
-              label="Download"
-            /> */}
-            <PrimaryIconButton
-              onClick={async () => {
-                const code = genJson(actions);
-                await saveFile(`${scriptTitle}.json`, code);
-              }}
-              icon="floppy-disc"
-              label="Commit"
-            />
-            <IconButton
-              onClick={() => {
-                setIsFinished(false);
-                setIsRecording(false);
-              }}
-              icon="close"
-            />
-          </Flex.Row>
-        </Flex.RowWithDivider>
-        <RecordScriptView
-          actions={actions}
-          scriptType={scriptType}
-          setScriptType={setScriptType}
-          scriptTitle={scriptTitle}
-          setScriptTitle={setScriptTitle}
-        />
-      </Flex.Col>
+      <RecordScriptView
+        actions={actions}
+        scriptType={scriptType}
+        setScriptType={setScriptType}
+        scriptTitle={scriptTitle}
+        setScriptTitle={setScriptTitle}
+        onClose={() => {
+          setIsFinished(false);
+          setIsRecording(false);
+        }}
+      />
     );
   };
 
@@ -139,7 +110,7 @@ export default function RecorderApp({
     );
   };
   return (
-    <>
+    <Flex.Col className={Css.height("calc(100vh - 40px)")}>
       {!loginSession
         ? getLoginView()
         : isRecording
@@ -147,6 +118,6 @@ export default function RecorderApp({
         : isFinished
         ? getRecordOverView()
         : getFreshView()}
-    </>
+    </Flex.Col>
   );
 }

@@ -9,19 +9,21 @@ import { Colors, backgroundCss } from "../common/styles/colors";
 import { css } from "@emotion/css";
 import { TodoSchemas } from "../schemaapp/mockdata";
 import Section from "../common/components/core/Section";
-import SchemaSelector from "../schemaapp/selector";
+import SchemaSelector, { SelectedSchemaView } from "../schemaapp/selector";
 
 interface ActionListProps {
   actions: Action[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   onDelete: (index: number) => void;
+  className?: string;
 }
 function ActionList({
   actions,
   selectedIndex,
   onSelect,
   onDelete,
+  className,
 }: ActionListProps) {
   const _actions = actions.filter((action) =>
     isSupportedActionType(action.type)
@@ -41,11 +43,17 @@ function ActionList({
               selectedIndex === index && backgroundCss(Colors.Branding.V1)
             )}
           >
-            <ActionText
-              action={action}
-              className={css(Flex.grow(1), Css.margin("0px 6px"))}
-            />
-            {eventCount > 0 && <Mono.M10>{eventCount} Events</Mono.M10>}
+            <Flex.Row
+              className={Flex.grow(1)}
+              alignItems="center"
+              justifyContent="space-between"
+              onClick={() => {
+                onSelect(index);
+              }}
+            >
+              <ActionText action={action} className={Css.margin("0px 6px")} />
+              {eventCount > 0 && <Mono.M10>{eventCount} Events</Mono.M10>}
+            </Flex.Row>
             <IconButton
               icon="edit"
               onClick={() => {
@@ -61,6 +69,7 @@ function ActionList({
           </Flex.Row>
         );
       }}
+      className={className}
     />
   );
 }
@@ -94,6 +103,8 @@ export default function ActionListContainer({
     //   .catch((error) => console.log(error));
   };
 
+  // selected attached schemas and unattached schemas.
+
   return (
     <Flex.Col className={Flex.grow(1)}>
       <Section title="Recorded Steps" className={Flex.grow(1)}>
@@ -111,27 +122,43 @@ export default function ActionListContainer({
           onDelete={(index) => {
             onUpdateAction && onUpdateAction(index);
           }}
+          className={Flex.grow(1)}
         />
       </Section>
       {selectedAction && (
-        <Section
-          title="Attach Events"
-          className={css(Flex.grow(1), Css.maxHeight(300))}
-        >
-          <SchemaSelector
-            key={selectedActionIndex}
-            action={selectedAction}
-            setEvents={(events) => {
-              onUpdateAction &&
-                onUpdateAction(selectedActionIndex, {
-                  ...selectedAction,
-                  events,
-                });
-              setSelectedActionIndex(-1);
-            }}
-            schemas={schemas}
-          />
-        </Section>
+        <>
+          {selectedAction.events && selectedAction.events.length > 0 && (
+            <Section title="Attached Events">
+              <SelectedSchemaView
+                key={selectedActionIndex}
+                action={selectedAction}
+                setEvents={(events) => {
+                  onUpdateAction &&
+                    onUpdateAction(selectedActionIndex, {
+                      ...selectedAction,
+                      events,
+                    });
+                }}
+                schemas={schemas}
+              />
+            </Section>
+          )}
+          <Section title="Event Models">
+            <SchemaSelector
+              key={selectedActionIndex}
+              action={selectedAction}
+              setEvents={(events) => {
+                onUpdateAction &&
+                  onUpdateAction(selectedActionIndex, {
+                    ...selectedAction,
+                    events,
+                  });
+              }}
+              schemas={schemas}
+              className={Css.maxHeight(300)}
+            />
+          </Section>
+        </>
       )}
     </Flex.Col>
   );

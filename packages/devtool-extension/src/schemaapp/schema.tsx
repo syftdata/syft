@@ -20,7 +20,11 @@ const EditableFieldRenderer = ({
   setVal: (val: string) => void;
 }) => {
   return (
-    <Flex.Row gap={2} className={Css.padding("0px 36px")} alignItems="center">
+    <Flex.Row
+      gap={2}
+      className={css(Flex.grow(1), Css.padding("0px 36px"))}
+      alignItems="center"
+    >
       <Flex.Col gap={4} className={Flex.grow(1)}>
         <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
         <Mono.M10>{field.documentation}..</Mono.M10>
@@ -52,7 +56,7 @@ const SchemaPropsRenderer = ({
 }) => {
   const event = data.event;
   return (
-    <Flex.Col gap={4}>
+    <Flex.Col gap={4} className={Flex.grow(1)}>
       {data.schema.fields.map((field, index) =>
         event && onUpdate ? (
           <EditableFieldRenderer

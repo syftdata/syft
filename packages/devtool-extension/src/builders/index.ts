@@ -777,10 +777,14 @@ const SupportedJSONActionTypes = new Set([
   ActionType.Keydown,
   ActionType.Resize,
 ]);
-function getSelectors(action: BaseAction): string[] {
-  return Object.values(action.selectors).filter((s) => s != null) as string[];
+function getSelectors(action: BaseAction): string[][] {
+  const selectors = Object.values(action.selectors).filter(
+    (s) => s != null && s !== ""
+  ) as string[];
+  const deDuped = [...new Set(selectors)];
+  return deDuped.map((selector) => [selector]);
 }
-export const genJson = (actions: Action[]): string => {
+export const genJson = (title: string, actions: Action[]): string => {
   const transformedSteps: Record<string, any>[] = [];
   for (let i = 0; i < actions.length; i++) {
     const action: BaseAction = actions[i];
@@ -796,6 +800,7 @@ export const genJson = (actions: Action[]): string => {
             {
               type: "navigation",
               url: (action as NavigateAction).url,
+              title: "React App",
             },
           ],
         });
@@ -832,15 +837,16 @@ export const genJson = (actions: Action[]): string => {
         });
         break;
       case ActionType.Resize:
-        transformedSteps.push({
-          type: "setViewport",
-          width: (action as ResizeAction).width,
-          height: (action as ResizeAction).height,
-          deviceScaleFactor: 1,
-          isMobile: false,
-          hasTouch: false,
-          isLandscape: false,
-        });
+        // TODO: hiding this for demo. uncomment to enable
+        // transformedSteps.push({
+        //   type: "setViewport",
+        //   width: (action as ResizeAction).width,
+        //   height: (action as ResizeAction).height,
+        //   deviceScaleFactor: 1,
+        //   isMobile: false,
+        //   hasTouch: false,
+        //   isLandscape: false,
+        // });
         break;
       case ActionType.Wheel:
         transformedSteps.push({
@@ -848,6 +854,8 @@ export const genJson = (actions: Action[]): string => {
           deltaX: (action as WheelAction).pageXOffset,
           deltaY: (action as WheelAction).pageYOffset,
         });
+        break;
+      default:
         break;
     }
     if (action.events != null) {
@@ -866,10 +874,10 @@ export const genJson = (actions: Action[]): string => {
 
   return JSON.stringify(
     {
-      title: "Syft Studio",
+      title,
       steps: transformedSteps,
     },
     null,
-    2
+    4
   );
 };

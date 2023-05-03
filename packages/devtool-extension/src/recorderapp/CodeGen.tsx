@@ -8,10 +8,12 @@ import type { Action } from "../types";
 import { ScriptType } from "../types";
 
 export default function CodeGen({
+  title,
   actions,
   library,
   styles,
 }: {
+  title: string;
   actions: Action[];
   library: ScriptType;
   styles?: React.CSSProperties;
@@ -27,7 +29,7 @@ export default function CodeGen({
       }}
       data-testid="code-block"
     >
-      {genJson(actions)}
+      {genJson(title, actions)}
     </SyntaxHighlighter>
   );
 }

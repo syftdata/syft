@@ -11,11 +11,12 @@ const BaseInput = styled.input<InputProps>`
   background: ${({ background }) => background ?? Colors.White};
   border: ${({ noBorder }) =>
     !noBorder ? `1px solid ${Colors.Gray.V3}` : "none"};
+  border-radius: 4px;
   placeholder: ${({ placeholder }) => placeholder};
   &:focus {
     outline: none;
   }
-  padding: 3px 4px;
+  padding: 4px 4px;
 `;
 
 export const Input = {

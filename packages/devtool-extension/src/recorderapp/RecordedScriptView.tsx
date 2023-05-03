@@ -7,6 +7,12 @@ import { Input } from "../common/components/core/Form/input";
 import { Label, Mono, Paragraph, Subheading } from "../common/styles/fonts";
 import Section from "../common/components/core/Section";
 import { css } from "@emotion/css";
+import {
+  IconButton,
+  PrimaryIconButton,
+} from "../common/components/core/Button";
+import { genJson } from "../builders";
+import { saveFile } from "../common/utils";
 
 interface RecordScriptViewProps {
   actions: Action[];
@@ -14,6 +20,7 @@ interface RecordScriptViewProps {
   setScriptType: (scriptType: ScriptType) => void;
   scriptTitle: string;
   setScriptTitle: (title: string) => void;
+  onClose: () => void;
   className?: string;
 }
 
@@ -23,16 +30,17 @@ export default function RecordScriptView({
   setScriptType,
   scriptTitle,
   setScriptTitle,
+  onClose,
   className,
 }: RecordScriptViewProps) {
   const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
 
   return (
     <Flex.Col className={className}>
-      <Section title="Test Details">
-        <Flex.Col gap={8} className={Css.padding("8px 8px")}>
-          <Flex.Row gap={4} alignItems="center" justifyContent="space-between">
-            <Subheading.SH12>Title</Subheading.SH12>
+      <Flex.RowWithDivider gap={4} alignItems="center">
+        <Flex.Col gap={8} className={css(Flex.grow(1), Css.padding("8px 8px"))}>
+          <Flex.Row gap={8} alignItems="center">
+            <Label.L12>Title</Label.L12>
             <Input.L12
               type="text"
               placeholder="recording title"
@@ -41,16 +49,29 @@ export default function RecordScriptView({
             />
           </Flex.Row>
         </Flex.Col>
-      </Section>
+        <PrimaryIconButton
+          onClick={async () => {
+            const code = genJson(scriptTitle, actions);
+            await saveFile(`${scriptTitle}.json`, code);
+          }}
+          icon="floppy-disc"
+          label="Save"
+        />
+        <IconButton onClick={onClose} icon="close" />
+      </Flex.RowWithDivider>
       <Section title="Recorded Script">
         <Flex.Col
           className={css(
             Css.overflow("scroll"),
-            Css.maxHeight("calc(100vh - 200px)")
+            Css.maxHeight("calc(100vh - 130px)")
           )}
         >
           {actionsMode === ActionsMode.Code && (
-            <CodeGen actions={actions} library={scriptType} />
+            <CodeGen
+              title={scriptTitle}
+              actions={actions}
+              library={scriptType}
+            />
           )}
           {actionsMode === ActionsMode.Actions && (
             <ActionList actions={actions} />
