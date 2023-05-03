@@ -9,7 +9,7 @@ import {
   IconButton,
   PrimaryIconButton,
   SecondaryIconButton,
-} from "../common/components/core/Button";
+} from "../common/components/core/Button/IconButton";
 import { Css, Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
 import { genJson } from "../builders";
@@ -77,7 +77,7 @@ export default function RecorderApp({
             label="Start Recording"
           />
         </Flex.RowWithDivider>
-        {/* <GitInfo loginResponse={loginSession} /> */}
+        <GitInfo loginResponse={loginSession} />
         <ActionList actions={[]} />
       </>
     );

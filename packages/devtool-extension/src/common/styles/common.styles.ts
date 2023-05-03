@@ -23,14 +23,6 @@ export const Flex = {
     justify-content: ${({ justifyContent }) => justifyContent};
     align-items: ${({ alignItems }) => alignItems};
   `,
-  RowWithDivider: styled.div<FlexProps>`
-    display: flex;
-    flex-direction: row;
-    gap: ${({ gap }) => gap && `${gap}px`};
-    justify-content: ${({ justifyContent }) => justifyContent};
-    align-items: ${({ alignItems }) => alignItems};
-    border-bottom: 1px solid ${Colors.Gray.V3};
-  `,
   gap: (gap: number) =>
     css({
       gap,
@@ -51,14 +43,16 @@ export const Flex = {
     css({
       flexGrow,
     }),
-  shrink: (flexShrink: string | number) =>
-    css({
-      flexShrink,
-    }),
   direction: (direction: any) =>
     css({
       flexDirection: direction,
     }),
+};
+
+export const FlexExtra = {
+  RowWithDivider: styled(Flex.Row)`
+    border-bottom: 1px solid ${Colors.Gray.V3};
+  `,
 };
 
 export const Css = {
@@ -182,6 +176,8 @@ export const Css = {
     css({
       color,
     }),
+  wordBreak: (wordBreak: any) => css({ wordBreak }),
+  whiteSpace: (whiteSpace: any) => css({ whiteSpace }),
   textTruncate: (lines?: number) =>
     css({
       "-webkit-box-orient": "vertical",
@@ -196,6 +192,11 @@ export const Css = {
     height: "100%",
     objectFit: "cover",
   }),
+  imgContainFit: css({
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+  }),
   centerCss: css({
     position: "relative",
     top: "50%",
@@ -207,6 +208,7 @@ export const Css = {
     overflow: "hidden",
     whiteSpace: "nowrap",
   }),
-  wordBreak: (wordBreak: any) => css({ wordBreak }),
-  whiteSpace: (whiteSpace: any) => css({ whiteSpace }),
+  brandingFont: css({
+    fontFamily: "Montserrat",
+  }),
 };

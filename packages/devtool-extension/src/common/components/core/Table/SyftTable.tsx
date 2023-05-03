@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import Table from "antd/es/table";
+import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
@@ -7,10 +7,11 @@ import { ExpandableConfig } from "antd/es/table/interface";
 
 interface SyftTableProps {
   columns: ColumnsType<any>;
-  data: any[];
+  data?: any[];
   showHeader?: boolean;
   className?: string;
   expandable?: ExpandableConfig<any>;
+  onRowClick?: (data: any, index?: number) => void;
 }
 const SyftTable = ({
   columns,
@@ -18,6 +19,7 @@ const SyftTable = ({
   showHeader = true,
   className,
   expandable,
+  onRowClick,
 }: SyftTableProps) => {
   return (
     <Flex.Col
@@ -40,6 +42,12 @@ const SyftTable = ({
           sticky
           size="small"
           showHeader={showHeader}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: () => onRowClick?.(record, rowIndex),
+              // onClick: onRowClick,
+            };
+          }}
         />
       </Flex.Col>
     </Flex.Col>

@@ -7,7 +7,7 @@ import SchemaPropsRenderer, { SchemaAndEvents } from "./schema";
 import {
   IconButton,
   SecondaryIconButton,
-} from "../common/components/core/Button";
+} from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 
 export interface SchemaSelectorProps {

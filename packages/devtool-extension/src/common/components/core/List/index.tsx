@@ -6,7 +6,7 @@ import { Css, Flex } from "../../../styles/common.styles";
 import { css } from "@emotion/css";
 import Icon from "../Icon/Icon";
 import { Colors } from "../../../styles/colors";
-import { IconButton } from "../Button";
+import { IconButton } from "../Button/IconButton";
 import { Input } from "../Form/input";
 import { Mono } from "../../../styles/fonts";
 

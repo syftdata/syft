@@ -6,12 +6,13 @@ import { Css } from "../../../styles/common.styles";
 interface TileBodyProps {
   children?: React.ReactNode;
   className?: string;
+  color?: string;
 }
-const TileBody = ({ children, className }: TileBodyProps) => {
+const TileBody = ({ children, className, color }: TileBodyProps) => {
   return (
     <div
       className={css(
-        Css.background(Colors.White),
+        Css.background(color ?? Colors.White),
         Css.border(`1px solid ${Colors.Gray.V1}`),
         Css.padding("12px 16px"),
         Css.overflow("scroll"),

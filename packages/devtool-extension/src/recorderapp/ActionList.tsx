@@ -1,7 +1,7 @@
 import { Action, EventSchema, isSupportedActionType } from "../types";
 import { ActionText } from "./ActionText";
 import { Css, Flex } from "../common/styles/common.styles";
-import { IconButton } from "../common/components/core/Button";
+import { IconButton } from "../common/components/core/Button/IconButton";
 import { useState } from "react";
 import List from "../common/components/core/List";
 import { Mono } from "../common/styles/fonts";

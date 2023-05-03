@@ -10,7 +10,7 @@ import { css } from "@emotion/css";
 import {
   IconButton,
   PrimaryIconButton,
-} from "../common/components/core/Button";
+} from "../common/components/core/Button/IconButton";
 import { genJson } from "../builders";
 import { saveFile } from "../common/utils";
 

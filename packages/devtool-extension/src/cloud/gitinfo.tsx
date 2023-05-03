@@ -3,7 +3,7 @@ import { EventSchema, LoginResponse } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
-import { IconButton } from "../common/components/core/Button";
+import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
 
