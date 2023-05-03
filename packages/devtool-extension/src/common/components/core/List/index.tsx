@@ -8,6 +8,7 @@ import Icon from "../Icon/Icon";
 import { Colors } from "../../../styles/colors";
 import { IconButton } from "../Button";
 import { Input } from "../Form/input";
+import { Mono } from "../../../styles/fonts";
 
 export interface SearchProps {
   searchPlaceHolder: string;
@@ -23,6 +24,7 @@ export interface ExpandableProps<T> {
 
 export interface ListProps<T> {
   data: T[];
+  emptyMessage?: string;
   renderItem: (item: T, index: number) => React.ReactNode;
   className?: string;
   search?: SearchProps;
@@ -65,11 +67,13 @@ function List<T>({
   renderItem,
   className,
   search,
+  emptyMessage,
 }: ListProps<T>) {
   const TypedListItem = ListItem<T>;
+  const showSearch = search && data.length > 1;
   return (
     <Flex.Col className={className}>
-      {search && (
+      {showSearch && (
         <Flex.RowWithDivider
           gap={8}
           className={css(Css.padding(4), Css.background(Colors.Gray.V1))}
@@ -90,23 +94,29 @@ function List<T>({
           ))}
         </Flex.RowWithDivider>
       )}
-      {data.map((item, index) => {
-        return (
-          <Flex.Row
-            key={index}
-            className={css(
-              Flex.grow(1),
-              Css.border(`1px solid ${Colors.Gray.V1}`)
-            )}
-          >
-            <TypedListItem
-              item={item}
-              renderItem={(item) => renderItem(item, index)}
-              expandable={expandable}
-            />
-          </Flex.Row>
-        );
-      })}
+      {data.length > 0
+        ? data.map((item, index) => {
+            return (
+              <Flex.Row
+                key={index}
+                className={css(
+                  Flex.grow(1),
+                  Css.border(`1px solid ${Colors.Gray.V1}`)
+                )}
+              >
+                <TypedListItem
+                  item={item}
+                  renderItem={(item) => renderItem(item, index)}
+                  expandable={expandable}
+                />
+              </Flex.Row>
+            );
+          })
+        : emptyMessage && (
+            <Flex.Col alignItems="center" className={Css.margin("4px 4px")}>
+              <Mono.M14>{emptyMessage}</Mono.M14>
+            </Flex.Col>
+          )}
     </Flex.Col>
   );
 }

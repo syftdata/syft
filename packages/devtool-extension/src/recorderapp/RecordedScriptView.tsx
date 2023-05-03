@@ -12,6 +12,8 @@ interface RecordScriptViewProps {
   actions: Action[];
   scriptType: ScriptType;
   setScriptType: (scriptType: ScriptType) => void;
+  scriptTitle: string;
+  setScriptTitle: (title: string) => void;
   className?: string;
 }
 
@@ -19,6 +21,8 @@ export default function RecordScriptView({
   actions,
   scriptType,
   setScriptType,
+  scriptTitle,
+  setScriptTitle,
   className,
 }: RecordScriptViewProps) {
   const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
@@ -29,11 +33,16 @@ export default function RecordScriptView({
         <Flex.Col gap={8} className={Css.padding("8px 8px")}>
           <Flex.Row gap={4} alignItems="center" justifyContent="space-between">
             <Subheading.SH12>Title</Subheading.SH12>
-            <Input.L12 type="text" placeholder="value" />
+            <Input.L12
+              type="text"
+              placeholder="recording title"
+              value={scriptTitle}
+              onChange={(e) => setScriptTitle(e.target.value)}
+            />
           </Flex.Row>
         </Flex.Col>
       </Section>
-      <Section title="Recording">
+      <Section title="Recorded Script">
         <Flex.Col
           className={css(
             Css.overflow("scroll"),

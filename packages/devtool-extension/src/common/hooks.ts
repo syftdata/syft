@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 
-import {
-  setPreferredLibraryStorage,
-  localStorageGet,
-  setLoginSessionStorage,
-} from "./utils";
-import { LoginSession, ScriptType } from "../types";
+import { setPreferredLibraryStorage, localStorageGet } from "./utils";
+import { LoginResponse, ScriptType } from "../types";
 
 import type { Action } from "../types";
 
@@ -31,7 +27,7 @@ export function usePreferredLibrary() {
 }
 
 export function useLoginSessionState() {
-  const [loginSession, setLoginSession] = useState<LoginSession | null>(null);
+  const [loginSession, setLoginSession] = useState<LoginResponse | null>(null);
 
   useEffect(() => {
     localStorageGet(["loginSession"]).then(
@@ -48,7 +44,20 @@ export function useLoginSessionState() {
       setLoginSession(changes.loginSession.newValue);
     }
   });
-  return [loginSession] as const;
+  return [
+    loginSession ??
+      ({
+        files: [],
+        activeBranch: "main",
+        session: {
+          jwt: "",
+          user: {
+            id: "",
+            name: "Not Logged In",
+          },
+        },
+      } as LoginResponse),
+  ] as const;
 }
 
 export function useRecordingState() {

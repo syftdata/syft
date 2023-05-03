@@ -206,12 +206,18 @@ export interface EventSchema {
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
-  image: string;
+  name?: string;
+  email?: string;
+  image?: string;
 }
 
-export interface LoginSession {
+export interface Session {
   jwt: string;
   user: User;
+}
+
+export interface LoginResponse {
+  files: string[];
+  activeBranch: string;
+  session: Session;
 }

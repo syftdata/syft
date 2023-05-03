@@ -1,5 +1,5 @@
 import { getConstants } from "../constants";
-import { Action, ActionType, LoginSession, NavigateAction } from "../types";
+import { Action, ActionType, LoginResponse, NavigateAction } from "../types";
 
 // TODO: nages added this global to resolve compilation issues.
 declare global {
@@ -42,7 +42,7 @@ export function setPreferredLibraryStorage(library: string) {
   chrome.storage.local.set({ preferredLibrary: library });
 }
 
-export function setLoginSessionStorage(session: LoginSession) {
+export function setLoginSessionStorage(session: LoginResponse) {
   // store this only for 1 hr.
   chrome.storage.local.set({ loginSession: session });
 }
@@ -133,31 +133,31 @@ export function isArrayEqual(array?: any[], other?: any[]) {
 }
 
 export async function retrieveLoginSession(): Promise<
-  LoginSession | undefined
+  LoginResponse | undefined
 > {
   const { loginSession } = await localStorageGet(["loginSession"]);
   if (loginSession) {
     return loginSession;
   }
   const constants = await getConstants();
-  const response = await fetch(`${constants.WebAppUrl}/api/auth/session`, {
+  const response = await fetch(`${constants.WebAppUrl}/api/authed/extension`, {
     mode: "cors",
   });
   console.log(
     "[Syft][Devtools] loginSession not found. Retrieving from server."
   );
-  const session = await response.json();
-  console.log("[Syft][Devtools] session", session);
-  if (Object.keys(session).length > 0) {
+  const loginResponse: LoginResponse = await response.json();
+  console.log("[Syft][Devtools] session", loginResponse);
+  if (loginResponse != null) {
     console.log("[Syft][Devtools] setting loginSession in storage");
-    setLoginSessionStorage(session);
-    return session;
+    setLoginSessionStorage(loginResponse);
+    return loginResponse;
   }
   return;
 }
 
 let loginCheckInterval: NodeJS.Timer | null = null;
-export async function initiateLoginFlow(): Promise<LoginSession> {
+export async function initiateLoginFlow(): Promise<LoginResponse> {
   const session = await retrieveLoginSession();
   if (session) {
     return session;
@@ -193,21 +193,24 @@ export function downloadFile(name: string, contents: string): void {
 }
 
 export async function saveFile(name: string, contents: string): Promise<void> {
-  const session = await retrieveLoginSession();
-  if (session) {
+  const login = await retrieveLoginSession();
+  if (login && login.session) {
     const constants = await getConstants();
     const response = await fetch(`${constants.WebAppUrl}/api/authed/file`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.jwt}`,
+        Authorization: `Bearer ${login.session.jwt}`,
       },
       body: JSON.stringify({
+        activeBranch: login.activeBranch,
         name,
         contents,
       }),
     });
     const data = await response.json();
     console.log("[Syft][Devtools] saveFile response", data);
+  } else {
+    console.error("Not logged in");
   }
 }

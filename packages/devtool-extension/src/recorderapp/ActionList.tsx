@@ -26,17 +26,10 @@ function ActionList({
   const _actions = actions.filter((action) =>
     isSupportedActionType(action.type)
   );
-  if (!_actions.length) {
-    return (
-      <Flex.Col alignItems="center" className={Css.margin("4px 4px")}>
-        <Mono.M14>Steps will show up here once you start recording.</Mono.M14>
-      </Flex.Col>
-    );
-  }
-
   return (
     <List<Action>
       data={_actions}
+      emptyMessage="Steps will show up here once you start recording."
       renderItem={(action, index) => {
         const eventCount = action.events?.length ?? 0;
         return (

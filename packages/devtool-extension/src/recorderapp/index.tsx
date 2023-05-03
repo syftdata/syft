@@ -1,30 +1,27 @@
 import { useState } from "react";
 import { useLoginSessionState, usePreferredLibrary } from "../common/hooks";
 
-import { Action } from "../types";
+import { Action, LoginResponse } from "../types";
 import { ScriptType } from "../types";
 
 import RecordScriptView from "./RecordedScriptView";
 import {
+  IconButton,
   PrimaryIconButton,
   SecondaryIconButton,
 } from "../common/components/core/Button";
-import { Flex } from "../common/styles/common.styles";
+import { Css, Flex } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
 import { genJson } from "../builders";
 import { downloadFile, initiateLoginFlow, saveFile } from "../common/utils";
+import { Mono } from "../common/styles/fonts";
+import GitInfo from "../cloud/gitinfo";
 
-function downloadScript(actions: Action[], scriptType: ScriptType): void {
-  const code = genJson(actions);
-  downloadFile(`syft_test.${scriptType}.js`, code);
-}
-
-async function saveScript(
-  actions: Action[],
-  scriptType: ScriptType
-): Promise<void> {
-  const code = genJson(actions);
-  await saveFile(`syft_test.${scriptType}.js`, code);
+export interface RecorderAppProps {
+  actions: Action[];
+  startRecording: () => void;
+  endRecording: () => void;
+  onUpdateAction: (index: number, action?: Action) => void;
 }
 
 export default function RecorderApp({
@@ -32,14 +29,10 @@ export default function RecorderApp({
   endRecording,
   onUpdateAction,
   actions,
-}: {
-  actions: Action[];
-  startRecording: () => void;
-  endRecording: () => void;
-  onUpdateAction: (index: number, action?: Action) => void;
-}) {
+}: RecorderAppProps) {
   const [loginSession] = useLoginSessionState();
   const [_scriptType, setScriptType] = usePreferredLibrary();
+  const [scriptTitle, setScriptTitle] = useState(`syft_test_todo_app_may_2nd`);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   // const [recordingTabId, _actions] = useRecordingState();
@@ -83,6 +76,7 @@ export default function RecorderApp({
             label="Start Recording"
           />
         </Flex.RowWithDivider>
+        {/* <GitInfo loginResponse={loginSession} /> */}
         <ActionList actions={[]} />
       </Flex.Col>
     );
@@ -100,15 +94,26 @@ export default function RecorderApp({
           <Flex.Row gap={4}>
             {/* <SecondaryIconButton
               onClick={() => {
-                downloadScript(actions, scriptType);
+                const code = genJson(actions);
+                downloadFile(`${scriptTitle}.json`, code);
               }}
               icon="arrow-down"
               label="Download"
             /> */}
             <PrimaryIconButton
-              onClick={() => saveScript(actions, scriptType)}
+              onClick={async () => {
+                const code = genJson(actions);
+                await saveFile(`${scriptTitle}.json`, code);
+              }}
               icon="floppy-disc"
               label="Commit"
+            />
+            <IconButton
+              onClick={() => {
+                setIsFinished(false);
+                setIsRecording(false);
+              }}
+              icon="close"
             />
           </Flex.Row>
         </Flex.RowWithDivider>
@@ -116,13 +121,22 @@ export default function RecorderApp({
           actions={actions}
           scriptType={scriptType}
           setScriptType={setScriptType}
+          scriptTitle={scriptTitle}
+          setScriptTitle={setScriptTitle}
         />
       </Flex.Col>
     );
   };
 
   const getLoginView = () => {
-    return <PrimaryIconButton label="Login" onClick={initiateLoginFlow} />;
+    return (
+      <Flex.Col alignItems="center" className={Css.margin("36px 0px")}>
+        <PrimaryIconButton label="Login" onClick={initiateLoginFlow} />
+        <Mono.M14>
+          Login gives you ability to save recordings to your account.
+        </Mono.M14>
+      </Flex.Col>
+    );
   };
   return (
     <>

@@ -64,11 +64,11 @@ export const IconButton = ({
         Css.cursor("pointer"),
         Css.width("fit-content"),
         Css.borderRadius(2),
-        className,
+        className
       )}
       onClick={onClick}
       alignItems="center"
-      justifyContent='start'
+      justifyContent="start"
     >
       {icon ? <Icon icon={icon} size={size} color={defaultColor} /> : <></>}
       {label ? <Comp color={defaultColor}>{label}</Comp> : <></>}
