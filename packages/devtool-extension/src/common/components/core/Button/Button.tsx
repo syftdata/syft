@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import Link from "next/link";
+//import Link from "next/link";
 import type { Size } from "../../../constants/types";
 import { Colors } from "../../../styles/colors";
 import { buttonStyles, getButtonSize } from "./button.styles";
@@ -17,7 +17,13 @@ export interface ButtonProps {
   size?: Size;
   padding?: string;
   className?: string;
+
+  linkClass?: any;
 }
+
+const AnchorLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+  <a {...props} />
+);
 
 const Button = (props: ButtonProps) => {
   const {
@@ -30,6 +36,7 @@ const Button = (props: ButtonProps) => {
     type = "Secondary",
     size = "small",
     className,
+    linkClass,
   } = props;
   const onButtonClick = () => {
     // TODO: add tracking
@@ -38,9 +45,11 @@ const Button = (props: ButtonProps) => {
   if (!to) {
     return <ShellButton {...props} />;
   }
+
+  const LinkClass = linkClass ?? AnchorLink;
   if (type === "Primary") {
     return (
-      <Link
+      <LinkClass
         href={to ?? ""}
         onClick={onButtonClick}
         target={newTab ? "_blank" : undefined}
@@ -52,12 +61,12 @@ const Button = (props: ButtonProps) => {
         )}
       >
         {children}
-      </Link>
+      </LinkClass>
     );
   }
   if (type === "Clear") {
     return (
-      <Link
+      <LinkClass
         href={to ?? ""}
         onClick={onButtonClick}
         className={css(
@@ -67,11 +76,11 @@ const Button = (props: ButtonProps) => {
         )}
       >
         {children}
-      </Link>
+      </LinkClass>
     );
   }
   return (
-    <Link
+    <LinkClass
       href={to ?? ""}
       onClick={onButtonClick}
       target={newTab ? "_blank" : undefined}
@@ -83,7 +92,7 @@ const Button = (props: ButtonProps) => {
       )}
     >
       {children}
-    </Link>
+    </LinkClass>
   );
 };
 

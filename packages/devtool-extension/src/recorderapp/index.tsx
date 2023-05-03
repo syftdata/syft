@@ -10,7 +10,7 @@ import {
   PrimaryIconButton,
   SecondaryIconButton,
 } from "../common/components/core/Button/IconButton";
-import { Css, Flex } from "../common/styles/common.styles";
+import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
 import { genJson } from "../builders";
 import { downloadFile, initiateLoginFlow, saveFile } from "../common/utils";
@@ -55,13 +55,13 @@ export default function RecorderApp({
   const getRecordingView = () => {
     return (
       <>
-        <Flex.RowWithDivider>
+        <FlexExtra.RowWithDivider>
           <PrimaryIconButton
             label="Stop Recording"
             icon="video-camera-off"
             onClick={onStopRecording}
           />
-        </Flex.RowWithDivider>
+        </FlexExtra.RowWithDivider>
         <ActionList actions={actions} onUpdateAction={onUpdateAction} />
       </>
     );
@@ -70,13 +70,13 @@ export default function RecorderApp({
   const getFreshView = () => {
     return (
       <>
-        <Flex.RowWithDivider>
+        <FlexExtra.RowWithDivider>
           <PrimaryIconButton
             onClick={onStartRecording}
             icon="video-camera"
             label="Start Recording"
           />
-        </Flex.RowWithDivider>
+        </FlexExtra.RowWithDivider>
         <GitInfo loginResponse={loginSession} />
         <ActionList actions={[]} />
       </>

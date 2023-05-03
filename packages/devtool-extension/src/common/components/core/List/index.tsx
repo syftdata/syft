@@ -2,7 +2,7 @@
 // gives a method to render each component.
 
 import React, { useState } from "react";
-import { Css, Flex } from "../../../styles/common.styles";
+import { Css, Flex, FlexExtra } from "../../../styles/common.styles";
 import { css } from "@emotion/css";
 import Icon from "../Icon/Icon";
 import { Colors } from "../../../styles/colors";
@@ -74,7 +74,7 @@ function List<T>({
   return (
     <Flex.Col className={className}>
       {showSearch && (
-        <Flex.RowWithDivider
+        <FlexExtra.RowWithDivider
           gap={8}
           className={css(Css.padding(4), Css.background(Colors.Gray.V1))}
           alignItems="center"
@@ -92,7 +92,7 @@ function List<T>({
           {search.actions?.map((action, index) => (
             <React.Fragment key={index}>{action}</React.Fragment>
           ))}
-        </Flex.RowWithDivider>
+        </FlexExtra.RowWithDivider>
       )}
       {data.length > 0
         ? data.map((item, index) => {

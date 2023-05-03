@@ -3,7 +3,7 @@ import { Colors } from "../common/styles/colors";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
 import { EventField, EventSchema, SyftEvent } from "../types";
-import { Input } from "../common/components/core/Form/input";
+import Input from "../common/components/core/Input/Input";
 
 export interface SchemaAndEvents {
   schema: EventSchema;
@@ -29,11 +29,7 @@ const EditableFieldRenderer = ({
         <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
         <Mono.M10>{field.documentation}..</Mono.M10>
       </Flex.Col>
-      <Input.L12
-        type="text"
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
-      />
+      <Input value={val} onChange={(e) => setVal(e.target.value)} />
     </Flex.Row>
   );
 };

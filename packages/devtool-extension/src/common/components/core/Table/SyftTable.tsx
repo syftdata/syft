@@ -1,6 +1,5 @@
 import { css } from "@emotion/css";
-import { Table } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import Table, { type ColumnsType } from "antd/es/table";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
 import { ExpandableConfig } from "antd/es/table/interface";

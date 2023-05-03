@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Css, Flex } from "../common/styles/common.styles";
+import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import { Action, ActionsMode, ScriptType } from "../types";
 import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
-import { Input } from "../common/components/core/Form/input";
-import { Label, Mono, Paragraph, Subheading } from "../common/styles/fonts";
+import Input from "../common/components/core/Input/Input";
+import { Label } from "../common/styles/fonts";
 import Section from "../common/components/core/Section";
 import { css } from "@emotion/css";
 import {
@@ -37,12 +37,11 @@ export default function RecordScriptView({
 
   return (
     <Flex.Col className={className}>
-      <Flex.RowWithDivider gap={4} alignItems="center">
+      <FlexExtra.RowWithDivider gap={4} alignItems="center">
         <Flex.Col gap={8} className={css(Flex.grow(1), Css.padding("8px 8px"))}>
           <Flex.Row gap={8} alignItems="center">
             <Label.L12>Title</Label.L12>
-            <Input.L12
-              type="text"
+            <Input
               placeholder="recording title"
               value={scriptTitle}
               onChange={(e) => setScriptTitle(e.target.value)}
@@ -58,7 +57,7 @@ export default function RecordScriptView({
           label="Save"
         />
         <IconButton onClick={onClose} icon="close" />
-      </Flex.RowWithDivider>
+      </FlexExtra.RowWithDivider>
       <Section title="Recorded Script">
         <Flex.Col
           className={css(
