@@ -27,6 +27,7 @@
     "@emotion/css": "^11.10.6",
     "@iconicicons/react": "^1.5.1",
     "antd": "^5.4.3",
+    "framer-motion": "^10.12.7",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "optimal-select": "^4.0.1",

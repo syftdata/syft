@@ -118,20 +118,6 @@ export async function replaceAction(
   return newRecording;
 }
 
-export function isEmptyArray(array?: any[]) {
-  return array == null || array.length === 0;
-}
-
-export function isArrayEqual(array?: any[], other?: any[]) {
-  if (array == other) return true;
-  if (isEmptyArray(array) && isEmptyArray(other)) return true;
-  if (!array || !other) return false;
-  return (
-    array.length === other.length &&
-    array.every((value, index) => value === other[index])
-  );
-}
-
 export async function retrieveLoginSession(): Promise<
   LoginResponse | undefined
 > {
@@ -146,6 +132,9 @@ export async function retrieveLoginSession(): Promise<
   console.log(
     "[Syft][Devtools] loginSession not found. Retrieving from server."
   );
+  if (response.status !== 200) {
+    return;
+  }
   const loginResponse: LoginResponse = await response.json();
   console.log("[Syft][Devtools] session", loginResponse);
   if (loginResponse != null) {
@@ -176,6 +165,10 @@ export async function initiateLoginFlow(): Promise<LoginResponse> {
       }, 1000);
     });
   }
+}
+
+export async function signOut() {
+  await chrome.storage.local.remove(["loginSession"]);
 }
 
 export function downloadFile(name: string, contents: string): void {

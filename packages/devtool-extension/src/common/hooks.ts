@@ -45,18 +45,20 @@ export function useLoginSessionState() {
     }
   });
   return [
-    loginSession ??
-      ({
-        files: [],
-        activeBranch: "main",
-        session: {
-          jwt: "",
-          user: {
-            id: "",
-            name: "Not Logged In",
-          },
-        },
-      } as LoginResponse),
+    loginSession,
+    // ??
+    //   ({
+    //     sources: [],
+    //     branches: [],
+    //     files: [],
+    //     session: {
+    //       jwt: "",
+    //       user: {
+    //         id: "",
+    //         name: "Not Logged In",
+    //       },
+    //     },
+    //   } as LoginResponse),
   ] as const;
 }
 

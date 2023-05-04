@@ -6,6 +6,7 @@ import RecorderApp from "../recorderapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
 import SchemaApp from "../schemaapp";
+import SettingsApp from "../settingsapp";
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -108,6 +109,11 @@ const App = () => {
       key: "3",
       label: `Debugger`,
       children: <EventApp events={events} clear={() => setEvents([])} />,
+    },
+    {
+      key: "4",
+      label: `Settings`,
+      children: <SettingsApp />,
     },
   ];
   return (

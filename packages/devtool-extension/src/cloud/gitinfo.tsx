@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import { EventSchema, LoginResponse } from "../types";
-import List from "../common/components/core/List";
-import { Css, Flex } from "../common/styles/common.styles";
-import { Mono } from "../common/styles/fonts";
-import { IconButton } from "../common/components/core/Button/IconButton";
-import { css } from "@emotion/css";
-import Section from "../common/components/core/Section";
+import { LoginResponse } from "../types";
+import { GitView } from "../common/components/gitview";
+import { EventSource } from "../types";
 
 export interface GitInfoProps {
   className?: string;
@@ -13,40 +9,67 @@ export interface GitInfoProps {
 }
 
 const GitInfo = ({ className, loginResponse }: GitInfoProps) => {
-  const [search, setSearch] = useState("");
+  const sources = loginResponse?.sources;
+  const branches = loginResponse?.branches;
+  const files = loginResponse?.files ?? [];
+
+  const [activeSource, setActiveSource] = useState<EventSource | undefined>();
+  const [branch, setBranch] = useState<string>("");
+
+  const setActiveSourceById = (sourceId: string) => {
+    if (loginResponse == null) {
+      return;
+    }
+    loginResponse.activeSourceId = sourceId;
+    const source = sources?.find((source) => source.id == sourceId);
+    setActiveSource(source);
+  };
+
+  const setActiveBranch = (branch: string) => {
+    if (loginResponse == null) {
+      return;
+    }
+    loginResponse.activeBranch = branch;
+    setBranch(branch);
+  };
+
+  useEffect(() => {
+    if (activeSource == null && loginResponse?.activeSourceId != null) {
+      setActiveSourceById(loginResponse.activeSourceId);
+    }
+  }, [loginResponse]);
+  useEffect(() => {
+    if (sources?.length) {
+      setActiveSource(sources[0]);
+    }
+  }, [sources]);
+  useEffect(() => {
+    if (branch == "" && branches != null && branches.length > 0) {
+      setBranch(branches[0]!);
+    }
+  }, [branch, branches]);
+
   // TODO: show selected items at the top.
   if (!loginResponse) {
     return <div>Not Logged in</div>;
   }
-  const files = loginResponse.files.filter((file) => file.includes(search));
+
+  const createBranch = (branch: string) => {};
+
+  const deleteBranch = (branch: string) => {};
+
   return (
-    <Section title="Git Info" className={className}>
-      <Flex.Col>
-        <Mono.M14>Branch: {loginResponse.activeBranch}</Mono.M14>
-        <List<string>
-          data={files}
-          renderItem={(item) => {
-            return (
-              <Flex.Row
-                alignItems="center"
-                justifyContent="space-between"
-                className={css(Flex.grow(1), Css.margin("0px 6px"))}
-              >
-                <Flex.Col gap={4}>
-                  <Mono.M12>{item}</Mono.M12>
-                </Flex.Col>
-                <IconButton icon="edit" onClick={() => {}} />
-              </Flex.Row>
-            );
-          }}
-          search={{
-            searchPlaceHolder: "Search scripts",
-            search,
-            setSearch,
-          }}
-        />
-      </Flex.Col>
-    </Section>
+    <GitView
+      sources={loginResponse.sources}
+      activeSource={activeSource}
+      setActiveSourceById={setActiveSourceById}
+      branches={branches}
+      branch={branch}
+      setBranch={setActiveBranch}
+      files={files}
+      deleteBranch={deleteBranch}
+      createBranch={createBranch}
+    />
   );
 };
 

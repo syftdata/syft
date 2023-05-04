@@ -216,8 +216,24 @@ export interface Session {
   user: User;
 }
 
+export interface EventSource {
+  id: string;
+  name: string;
+}
+
+export interface FileInfo {
+  name: string;
+  size: number;
+  created?: Date;
+  updated?: Date;
+  updatedBy?: string;
+}
+
 export interface LoginResponse {
-  files: string[];
-  activeBranch: string;
   session: Session;
+  sources: EventSource[];
+  activeSourceId?: string;
+  branches: string[];
+  activeBranch?: string;
+  files: FileInfo[];
 }
