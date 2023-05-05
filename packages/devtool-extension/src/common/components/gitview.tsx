@@ -29,27 +29,28 @@ export interface GitEventSource {
 
 export interface GitViewProps {
   sources?: GitEventSource[];
+  activeSource: GitEventSource | undefined;
+  setActiveSourceById: (sourceId: string) => void;
+
   branches?: string[];
-  files: FileInfo[];
-  branch: string;
-  setBranch: (branch: string) => void;
+  activeBranch: string;
+  setActiveBranch: (branch: string) => void;
   createBranch: (branch: string) => void;
   deleteBranch: (branch: string) => void;
 
-  activeSource: GitEventSource | undefined;
-  setActiveSourceById: (sourceId: string) => void;
+  files: FileInfo[];
 }
 
 export function GitView({
   sources,
-  branches,
-  files,
-  branch,
-  setBranch,
-  createBranch,
-  deleteBranch,
   activeSource,
   setActiveSourceById,
+  branches,
+  activeBranch,
+  setActiveBranch,
+  createBranch,
+  deleteBranch,
+  files,
 }: GitViewProps) {
   const [newBranch, setNewBranch] = useState("");
   return (
@@ -71,21 +72,24 @@ export function GitView({
           </Flex.Row>
           <Flex.Row alignItems="center" gap={8}>
             <Label.L10 color={Colors.Gray.V5}>Branch</Label.L10>
-            <select value={branch} onChange={(e) => setBranch(e.target.value)}>
+            <select
+              value={activeBranch}
+              onChange={(e) => setActiveBranch(e.target.value)}
+            >
               {branches?.map((branch, key) => (
                 <option key={key} value={branch}>
                   {branch}
                 </option>
               ))}
             </select>
-            <Button onClick={() => deleteBranch(branch)} size="small">
+            <Button onClick={() => deleteBranch(activeBranch)} size="small">
               Delete
             </Button>
           </Flex.Row>
         </Flex.Col>
       </LabelledTile>
       <LabelledTile label="Scripts" className={Flex.grow(1)}>
-        <SyftTable columns={FileInfoColumns} data={files} />
+        <SyftTable columns={FileInfoColumns} data={files} rowKey="name" />
       </LabelledTile>
       <LabelledTile label="Create Branch" className={Flex.grow(1)}>
         <Flex.Col gap={10}>

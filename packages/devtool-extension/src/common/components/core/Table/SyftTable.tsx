@@ -10,6 +10,7 @@ interface SyftTableProps {
   showHeader?: boolean;
   className?: string;
   expandable?: ExpandableConfig<any>;
+  rowKey?: string;
   onRowClick?: (data: any, index?: number) => void;
 }
 const SyftTable = ({
@@ -18,6 +19,7 @@ const SyftTable = ({
   showHeader = true,
   className,
   expandable,
+  rowKey,
   onRowClick,
 }: SyftTableProps) => {
   return (
@@ -41,6 +43,7 @@ const SyftTable = ({
           sticky
           size="small"
           showHeader={showHeader}
+          rowKey={rowKey}
           onRow={(record, rowIndex) => {
             return {
               onClick: () => onRowClick?.(record, rowIndex),

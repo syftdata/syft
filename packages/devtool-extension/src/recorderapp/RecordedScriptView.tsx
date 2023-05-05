@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
-import { Action, ActionsMode, ScriptType } from "../types";
+import {
+  Action,
+  ActionsMode,
+  GitInfo,
+  ScriptType,
+  UserSession,
+} from "../types";
 import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
 import Input from "../common/components/core/Input/Input";
@@ -12,9 +18,10 @@ import {
   PrimaryIconButton,
 } from "../common/components/core/Button/IconButton";
 import { genJson } from "../builders";
-import { saveFile } from "../common/utils";
+import { createFile } from "../cloud/api/git";
 
 interface RecordScriptViewProps {
+  userSession: UserSession;
   actions: Action[];
   scriptType: ScriptType;
   setScriptType: (scriptType: ScriptType) => void;
@@ -25,6 +32,7 @@ interface RecordScriptViewProps {
 }
 
 export default function RecordScriptView({
+  userSession,
   actions,
   scriptType,
   setScriptType,
@@ -51,7 +59,7 @@ export default function RecordScriptView({
         <PrimaryIconButton
           onClick={async () => {
             const code = genJson(scriptTitle, actions);
-            await saveFile(`${scriptTitle}.json`, code);
+            await createFile(`${scriptTitle}.json`, code, userSession);
           }}
           icon="floppy-disc"
           label="Save"

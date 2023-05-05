@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoginSessionState, usePreferredLibrary } from "../common/hooks";
+import { usePreferredLibrary } from "../common/hooks";
 
 import { Action } from "../types";
 import { ScriptType } from "../types";
@@ -8,7 +8,8 @@ import RecordScriptView from "./RecordedScriptView";
 import { PrimaryIconButton } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
-import LoginView from "../cloud/LoginView";
+import LoginView from "../cloud/views/LoginView";
+import { useUserSession } from "../cloud/state/usersession";
 
 export interface RecorderAppProps {
   actions: Action[];
@@ -23,7 +24,7 @@ export default function RecorderApp({
   onUpdateAction,
   actions,
 }: RecorderAppProps) {
-  const [loginSession] = useLoginSessionState();
+  const [userSession] = useUserSession();
   const [_scriptType, setScriptType] = usePreferredLibrary();
   const [scriptTitle, setScriptTitle] = useState(`syft_test_todo_app_may_2nd`);
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -78,6 +79,7 @@ export default function RecorderApp({
     return (
       <RecordScriptView
         actions={actions}
+        userSession={userSession!}
         scriptType={scriptType}
         setScriptType={setScriptType}
         scriptTitle={scriptTitle}
@@ -92,7 +94,7 @@ export default function RecorderApp({
 
   return (
     <Flex.Col className={Css.height("calc(100vh - 40px)")}>
-      {!loginSession ? (
+      {!userSession ? (
         <LoginView />
       ) : isRecording ? (
         getRecordingView()

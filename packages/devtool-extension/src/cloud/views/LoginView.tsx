@@ -1,7 +1,7 @@
-import { Css, Flex } from "../common/styles/common.styles";
-import { Mono } from "../common/styles/fonts";
-import { initiateLoginFlow } from "../common/utils";
-import Button from "../common/components/core/Button/Button";
+import { Css, Flex } from "../../common/styles/common.styles";
+import { Mono } from "../../common/styles/fonts";
+import { initiateLoginFlow } from "../api/auth";
+import Button from "../../common/components/core/Button/Button";
 
 const LoginView = () => {
   return (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { setPreferredLibraryStorage, localStorageGet } from "./utils";
-import { LoginResponse, ScriptType } from "../types";
+import { ScriptType } from "../types";
 
 import type { Action } from "../types";
 
@@ -24,42 +24,6 @@ export function usePreferredLibrary() {
   };
 
   return [preferredLibrary, setPreferredLibraryWithStorage] as const;
-}
-
-export function useLoginSessionState() {
-  const [loginSession, setLoginSession] = useState<LoginResponse | null>(null);
-
-  useEffect(() => {
-    localStorageGet(["loginSession"]).then(
-      ({ loginSession: storedLoginSession }) => {
-        setLoginSession(storedLoginSession);
-      }
-    );
-  }, []);
-  chrome.storage.onChanged.addListener((changes) => {
-    if (
-      changes.loginSession != null &&
-      changes.loginSession.newValue != changes.loginSession.oldValue
-    ) {
-      setLoginSession(changes.loginSession.newValue);
-    }
-  });
-  return [
-    loginSession,
-    // ??
-    //   ({
-    //     sources: [],
-    //     branches: [],
-    //     files: [],
-    //     session: {
-    //       jwt: "",
-    //       user: {
-    //         id: "",
-    //         name: "Not Logged In",
-    //       },
-    //     },
-    //   } as LoginResponse),
-  ] as const;
 }
 
 export function useRecordingState() {

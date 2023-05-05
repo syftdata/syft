@@ -211,7 +211,7 @@ export interface User {
   image?: string;
 }
 
-export interface Session {
+export interface UserSession {
   jwt: string;
   user: User;
 }
@@ -229,8 +229,8 @@ export interface FileInfo {
   updatedBy?: string;
 }
 
-export interface LoginResponse {
-  session: Session;
+export interface GitInfo {
+  session: UserSession;
   sources: EventSource[];
   activeSourceId?: string;
   branches: string[];

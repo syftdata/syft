@@ -1,22 +1,32 @@
-import GitInfo from "../cloud/gitinfo";
-import { useLoginSessionState } from "../common/hooks";
-import LoginView from "../cloud/LoginView";
+import GitInfo from "../cloud/views/gitinfo";
+import LoginView from "../cloud/views/LoginView";
 import { Css, Flex } from "../common/styles/common.styles";
-import LoginInfo from "../cloud/logininfo";
+import LoginInfo from "../cloud/views/logininfo";
 import PageBody from "../common/components/core/Page/PageBody";
 import { Colors } from "../common/styles/colors";
+import { useUserSession } from "../cloud/state/usersession";
+import { useEffect } from "react";
+import { fetchGitInfo } from "../cloud/api/git";
 
 const SettingsApp = () => {
-  const [loginSession] = useLoginSessionState();
+  const [userSession] = useUserSession();
+
+  useEffect(() => {
+    console.log(">>>>> userSession", userSession);
+    if (userSession != null) {
+      fetchGitInfo(userSession);
+    }
+  }, [userSession]);
+
   return (
     <Flex.Col>
       <PageBody className={Css.background(Colors.White)}>
-        {!loginSession ? (
+        {!userSession ? (
           <LoginView />
         ) : (
           <Flex.Col gap={20}>
-            <GitInfo loginResponse={loginSession} />
-            <LoginInfo loginResponse={loginSession} />
+            <GitInfo />
+            <LoginInfo />
           </Flex.Col>
         )}
       </PageBody>
