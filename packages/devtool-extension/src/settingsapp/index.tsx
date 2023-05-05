@@ -1,4 +1,3 @@
-import GitInfo from "../cloud/views/gitinfo";
 import LoginView from "../cloud/views/LoginView";
 import { Css, Flex } from "../common/styles/common.styles";
 import LoginInfo from "../cloud/views/logininfo";
@@ -7,12 +6,12 @@ import { Colors } from "../common/styles/colors";
 import { useUserSession } from "../cloud/state/usersession";
 import { useEffect } from "react";
 import { fetchGitInfo } from "../cloud/api/git";
+import { GitView } from "../cloud/views/gitview";
 
 const SettingsApp = () => {
   const [userSession] = useUserSession();
 
   useEffect(() => {
-    console.log(">>>>> userSession", userSession);
     if (userSession != null) {
       fetchGitInfo(userSession);
     }
@@ -24,8 +23,7 @@ const SettingsApp = () => {
         {!userSession ? (
           <LoginView />
         ) : (
-          <Flex.Col gap={20}>
-            <GitInfo />
+          <Flex.Col gap={10}>
             <LoginInfo />
           </Flex.Col>
         )}

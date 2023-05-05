@@ -1,27 +1,13 @@
-import { useEffect } from "react";
-import { GitView } from "../../common/components/gitview";
-import { EventSource, UserSession } from "../../types";
-import { createBranch, deleteBranch, fetchGitInfo } from "../api/git";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useGitInfo } from "../state/gitinfo";
 import { useUserSession } from "../state/usersession";
+import { SimpleGitView } from "../../common/components/simplegitview";
+import { Css, Flex } from "../../common/styles/common.styles";
+import { createBranch, deleteBranch, fetchGitInfo } from "../api/git";
 
-const GitInfo = () => {
+export function GitView() {
   const [userSession] = useUserSession();
   const [gitInfo, setGitInfo] = useGitInfo();
-
-  let activeSource: EventSource | undefined;
-  const branch: string = gitInfo?.activeBranch ?? "";
-
-  useEffect(() => {
-    if (gitInfo == null) {
-      return;
-    }
-    if (gitInfo.activeSourceId != null) {
-      activeSource = gitInfo.sources.find(
-        (source) => source.id === gitInfo.activeSourceId
-      );
-    }
-  }, [gitInfo]);
 
   const setActiveSourceById = (sourceId: string) => {
     if (userSession == null || gitInfo == null) {
@@ -56,10 +42,6 @@ const GitInfo = () => {
     return <></>;
   }
 
-  const sources = gitInfo?.sources;
-  const branches = gitInfo?.branches;
-  const files = gitInfo?.files ?? [];
-
   const _createBranch = (branch: string) => {
     createBranch(branch, userSession);
   };
@@ -68,19 +50,27 @@ const GitInfo = () => {
     deleteBranch(branch, userSession);
   };
 
-  return (
-    <GitView
-      sources={sources}
-      activeSource={activeSource}
-      setActiveSourceById={setActiveSourceById}
-      branches={branches}
-      activeBranch={branch}
-      setActiveBranch={setActiveBranch}
-      deleteBranch={_deleteBranch}
-      createBranch={_createBranch}
-      files={files}
-    />
-  );
-};
+  const activeSource =
+    gitInfo.sources.find((source) => source.id === gitInfo.activeSourceId) ??
+    gitInfo.sources[0];
 
-export default GitInfo;
+  return (
+    <Flex.Row
+      gap={8}
+      alignItems="center"
+      justifyContent="start"
+      className={Css.padding("0px 8px")}
+    >
+      <SimpleGitView
+        sources={gitInfo.sources}
+        activeSource={activeSource}
+        setActiveSourceById={setActiveSourceById}
+        branches={gitInfo.branches}
+        activeBranch={gitInfo.activeBranch ?? ""}
+        setActiveBranch={setActiveBranch}
+        createBranch={_createBranch}
+        rowWise={true}
+      />
+    </Flex.Row>
+  );
+}

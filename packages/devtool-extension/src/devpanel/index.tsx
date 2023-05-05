@@ -7,6 +7,7 @@ import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
 import SchemaApp from "../schemaapp";
 import SettingsApp from "../settingsapp";
+import { GitView } from "../cloud/views/gitview";
 
 let existingConnection: chrome.runtime.Port | undefined;
 function init(
@@ -117,18 +118,21 @@ const App = () => {
     },
   ];
   return (
-    <Tabs
-      defaultActiveKey="1"
-      items={items}
-      size="small"
-      style={{ height: "100vh" }}
-      tabBarStyle={{
-        marginBottom: 0,
-        backgroundColor: Colors.Gray.V1,
-        paddingLeft: 8,
-        borderBottom: `1px solid ${Colors.Gray.V3}`,
-      }}
-    />
+    <>
+      <GitView />
+      <Tabs
+        defaultActiveKey="1"
+        items={items}
+        size="small"
+        style={{ height: "100vh" }}
+        tabBarStyle={{
+          marginBottom: 0,
+          backgroundColor: Colors.Gray.V1,
+          paddingLeft: 8,
+          borderBottom: `1px solid ${Colors.Gray.V3}`,
+        }}
+      />
+    </>
   );
 };
 let target = document.getElementById("app") as HTMLElement;

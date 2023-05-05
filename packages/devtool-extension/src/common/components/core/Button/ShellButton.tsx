@@ -1,10 +1,9 @@
 import { css } from "@emotion/css";
-import { Blur, Colors } from "../../../styles/colors";
+import { Colors } from "../../../styles/colors";
 import type { ButtonProps } from "./Button";
 import { buttonStyles, getButtonSize } from "./button.styles";
 
 const ShellButton = ({
-  id,
   onClick,
   children,
   padding,
@@ -12,9 +11,9 @@ const ShellButton = ({
   size = "small",
   className,
 }: ButtonProps) => {
-  const onButtonClick = () => {
+  const onButtonClick = (e: any) => {
     // TODO: add tracking
-    onClick?.();
+    onClick?.(e);
   };
 
   if (type === "Primary") {
@@ -39,6 +38,7 @@ const ShellButton = ({
         className={css(
           getButtonSize(size, padding),
           buttonStyles.button(),
+          buttonStyles.clear,
           className
         )}
       >

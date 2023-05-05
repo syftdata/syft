@@ -1,8 +1,8 @@
 import { css } from "@emotion/css";
-import Table, { type ColumnsType } from "antd/es/table";
+import Table, { type ColumnsType } from "antd/lib/table";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
-import { ExpandableConfig } from "antd/es/table/interface";
+import { type ExpandableConfig } from "antd/lib/table/interface";
 
 interface SyftTableProps {
   columns: ColumnsType<any>;

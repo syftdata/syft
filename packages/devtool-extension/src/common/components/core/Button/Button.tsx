@@ -8,9 +8,8 @@ import ShellButton from "./ShellButton";
 type ButtonType = "Primary" | "Secondary" | "Clear";
 
 export interface ButtonProps {
-  id?: string;
   to?: any;
-  onClick?: () => void;
+  onClick?: (e: any) => void;
   newTab?: boolean;
   children?: React.ReactNode;
   type?: ButtonType;
@@ -27,7 +26,6 @@ const AnchorLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
 
 const Button = (props: ButtonProps) => {
   const {
-    id,
     to,
     onClick,
     newTab = false,
@@ -38,9 +36,9 @@ const Button = (props: ButtonProps) => {
     className,
     linkClass,
   } = props;
-  const onButtonClick = () => {
+  const onButtonClick = (e: any) => {
     // TODO: add tracking
-    onClick?.();
+    onClick?.(e);
   };
   if (!to) {
     return <ShellButton {...props} />;
@@ -72,6 +70,7 @@ const Button = (props: ButtonProps) => {
         className={css(
           getButtonSize(size, padding),
           buttonStyles.button(),
+          buttonStyles.clear,
           className
         )}
       >
