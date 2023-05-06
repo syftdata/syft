@@ -1,4 +1,4 @@
-import { Action, EventSchema, isSupportedActionType } from "../types";
+import { Action, Event, isSupportedActionType } from "../types";
 import { ActionText } from "./ActionText";
 import { Css, Flex } from "../common/styles/common.styles";
 import { IconButton } from "../common/components/core/Button/IconButton";
@@ -85,7 +85,7 @@ export default function ActionListContainer({
 }: ActionListContainerProps) {
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
-  const [schemas, setSchemas] = useState<EventSchema[]>([]);
+  const [schemas, setSchemas] = useState<Event[]>([]);
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
 

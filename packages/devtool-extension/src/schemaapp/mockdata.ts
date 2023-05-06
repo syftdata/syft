@@ -1,6 +1,6 @@
-import { EventSchema } from "../types";
+import { Event } from "../types";
 
-export const TodoSchemas: EventSchema[] = [
+export const TodoSchemas: Event[] = [
   {
     name: "TodoAdded",
     documentation: "Logged when a ToDo is created.",

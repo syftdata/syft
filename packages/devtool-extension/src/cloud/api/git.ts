@@ -37,8 +37,8 @@ export async function fetchGitInfo(
   handleGitInfoResponse(response);
 }
 
-export async function createFile(
-  path: string,
+export async function createTestSpec(
+  name: string,
   content: string,
   user: UserSession
 ): Promise<void> {
@@ -46,11 +46,27 @@ export async function createFile(
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
-  const response = await post("/api/files", user, {
+  const response = await post("/api/testspecs", user, {
     sourceId: gitInfo.activeSourceId,
     branch: gitInfo.activeBranch,
-    path,
+    name,
     content,
+  });
+  handleGitInfoResponse(response);
+}
+
+export async function deleteTestSpec(
+  name: string,
+  user: UserSession
+): Promise<void> {
+  const gitInfo = await getGitInfo();
+  if (!gitInfo) {
+    throw new Error("GitInfo not found");
+  }
+  const response = await post("/api/testspec/delete", user, {
+    sourceId: gitInfo.activeSourceId,
+    branch: gitInfo.activeBranch,
+    name,
   });
   handleGitInfoResponse(response);
 }
@@ -80,7 +96,7 @@ export async function deleteBranch(
     throw new Error("GitInfo not found");
   }
 
-  const response = await post("/api/branches/delete", user, {
+  const response = await post("/api/branch/delete", user, {
     sourceId: gitInfo.activeSourceId,
     branch,
   });

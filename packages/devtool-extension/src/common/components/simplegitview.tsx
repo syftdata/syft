@@ -4,7 +4,7 @@ import Button from "./core/Button/Button";
 import Input from "./core/Input/Input";
 import Modal from "../components/core/Modal/Modal";
 import Select, { SelectOption } from "../components/core/Input/Select";
-import { Paragraph } from "../styles/fonts";
+import { Label, Paragraph } from "../styles/fonts";
 
 export interface GitEventSource {
   id: string;
@@ -80,7 +80,7 @@ export function SimpleGitView({
         ))}
       </Select>
       <Button onClick={showModal} type="Clear" size="small">
-        <Paragraph.P12>+ Add Branch</Paragraph.P12>
+        <Label.L12>+ Add Branch</Label.L12>
       </Button>
       <Modal
         open={isModalOpen}

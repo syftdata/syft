@@ -70,7 +70,7 @@ function List<T>({
   emptyMessage,
 }: ListProps<T>) {
   const TypedListItem = ListItem<T>;
-  const showSearch = search && data.length > 1;
+  const showSearch = search && (data.length > 1 || search.search !== "");
   return (
     <Flex.Col className={className}>
       {showSearch && (

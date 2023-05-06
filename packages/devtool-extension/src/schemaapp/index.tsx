@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { EventSchema } from "../types";
+import { Event } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
@@ -7,6 +7,7 @@ import SchemaPropsRenderer from "./schema";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import { TodoSchemas } from "./mockdata";
+import { useGitInfo } from "../cloud/state/gitinfo";
 
 export interface SchemaAppProps {
   className?: string;
@@ -14,30 +15,12 @@ export interface SchemaAppProps {
 
 const SchemaApp = ({ className }: SchemaAppProps) => {
   const [search, setSearch] = useState("");
-  const [schemas, setSchemas] = useState<EventSchema[]>([]);
+  const [gitInfo] = useGitInfo();
 
-  const loadSchemas = () => {
-    setSchemas(TodoSchemas);
-    // // Fetching data from FaceBook Jest Repo
-    // fetch("http://127.0.0.1:8085/", {
-    //   method: "GET",
-    //   headers: new Headers({
-    //     Accept: "application/json",
-    //   }),
-    // })
-    //   .then((res) => res.json())
-    //   .then((response) => setSchemas(response.schemas))
-    //   .catch((error) => console.log(error));
-  };
-
-  useEffect(() => {
-    loadSchemas();
-  }, []);
-
-  let filteredSchemas = schemas;
+  let filteredSchemas = gitInfo?.eventSchema?.events ?? [];
   const searchStr = search.trim().toLowerCase();
   if (searchStr !== "") {
-    filteredSchemas = schemas.filter((schema) =>
+    filteredSchemas = filteredSchemas.filter((schema) =>
       schema.name.toLowerCase().includes(searchStr)
     );
   }
@@ -45,7 +28,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   // TODO: show selected items at the top.
   return (
     <Flex.Col className={className}>
-      <List<EventSchema>
+      <List<Event>
         data={filteredSchemas}
         renderItem={(item) => {
           return (
@@ -56,7 +39,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
             >
               <Flex.Col gap={4}>
                 <Mono.M14>{item.name}</Mono.M14>
-                <Mono.M10>{item.documentation}</Mono.M10>
+                <Mono.M10>{item.description}</Mono.M10>
               </Flex.Col>
               <IconButton icon="edit" onClick={() => {}} />
             </Flex.Row>

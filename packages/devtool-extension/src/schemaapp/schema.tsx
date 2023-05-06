@@ -2,11 +2,11 @@ import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
-import { EventField, EventSchema, SyftEvent } from "../types";
+import { EventField, Event, SyftEvent } from "../types";
 import Input from "../common/components/core/Input/Input";
 
 export interface SchemaAndEvents {
-  schema: EventSchema;
+  schema: Event;
   event?: SyftEvent;
 }
 
@@ -27,7 +27,7 @@ const EditableFieldRenderer = ({
     >
       <Flex.Col gap={4} className={Flex.grow(1)}>
         <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-        <Mono.M10>{field.documentation}..</Mono.M10>
+        <Mono.M10>{field.description}..</Mono.M10>
       </Flex.Col>
       <Input value={val} onChange={(e) => setVal(e.target.value)} />
     </Flex.Row>
@@ -38,7 +38,7 @@ const FieldRenderer = ({ field }: { field: EventField }) => {
   return (
     <Flex.Col gap={4} className={Css.padding("0px 36px")}>
       <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-      <Mono.M10>{field.documentation}</Mono.M10>
+      <Mono.M10>{field.description}</Mono.M10>
     </Flex.Col>
   );
 };

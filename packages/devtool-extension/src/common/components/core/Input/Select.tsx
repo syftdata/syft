@@ -17,12 +17,7 @@ const InnerSelect = ({ label, ...otherSelectProps }: SelectProps) => {
       <Subheading.SH12 color={Colors.Gray.V7}>{label}</Subheading.SH12>
       <AntdSelect
         {...otherSelectProps}
-        className={css(
-          Css.border(`1px solid ${Colors.Gray.V1}`),
-          Css.borderRadius(4),
-          Css.brandingFont,
-          Css.fontSize(12)
-        )}
+        className={css(Css.borderRadius(4), Css.brandingFont, Css.fontSize(12))}
       />
     </>
   );

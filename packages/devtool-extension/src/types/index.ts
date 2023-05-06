@@ -187,21 +187,43 @@ export enum MessageType {
   LoggedOut = "logged-out",
 }
 
+export enum FieldType {
+  STRING = "STRING",
+  INT = "INT",
+  POSITIVE_INT = "POSITIVE_INT",
+  FLOAT = "FLOAT",
+  BOOLEAN = "BOOLEAN",
+  NUMBER = "NUMBER",
+  ARRAY = "ARRAY",
+  OBJECT = "OBJECT",
+  DATE = "DATE",
+  CUID = "CUID",
+  CUID2 = "CUID2",
+  UUID = "UUID",
+  EMAIL = "EMAIL",
+  URL = "URL",
+  COUNTRYCODE = "COUNTRYCODE",
+}
+
+export interface EventSchemas {
+  appName: string;
+  appVersion: string;
+  events: Event[];
+}
+
 export interface EventField {
   name: string;
-  documentation: string;
-  type: any;
+  type: FieldType;
+  description?: string;
   isOptional: boolean;
   defaultValue?: string;
 }
 
-export interface EventSchema {
+export interface Event {
   name: string;
-  eventType?: number;
-  zodType?: string;
-  traits?: any;
-  documentation: string;
-  fields: Array<EventField>;
+  description?: string;
+  updatedAt?: Date;
+  fields: EventField[];
 }
 
 export interface User {
@@ -227,13 +249,16 @@ export interface FileInfo {
   created?: Date;
   updated?: Date;
   updatedBy?: string;
+  sha: string;
 }
 
 export interface GitInfo {
-  session: UserSession;
-  sources: EventSource[];
   activeSourceId?: string;
-  branches: string[];
   activeBranch?: string;
+  sources: EventSource[];
+  branches: string[];
   files: FileInfo[];
+
+  eventSchemaSha?: string; // used to update the file without overwriting others changes.
+  eventSchema: EventSchemas;
 }

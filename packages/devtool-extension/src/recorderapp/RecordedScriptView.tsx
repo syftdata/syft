@@ -18,7 +18,7 @@ import {
   PrimaryIconButton,
 } from "../common/components/core/Button/IconButton";
 import { genJson } from "../builders";
-import { createFile } from "../cloud/api/git";
+import { createTestSpec } from "../cloud/api/git";
 
 interface RecordScriptViewProps {
   userSession: UserSession;
@@ -59,7 +59,7 @@ export default function RecordScriptView({
         <PrimaryIconButton
           onClick={async () => {
             const code = genJson(scriptTitle, actions);
-            await createFile(`${scriptTitle}.json`, code, userSession);
+            await createTestSpec(`${scriptTitle}.json`, code, userSession);
           }}
           icon="floppy-disc"
           label="Save"
