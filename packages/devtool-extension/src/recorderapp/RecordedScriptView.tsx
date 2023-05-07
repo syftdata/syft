@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
-import {
-  Action,
-  ActionsMode,
-  GitInfo,
-  ScriptType,
-  UserSession,
-} from "../types";
+import { Action, ActionsMode, ScriptType, UserSession } from "../types";
 import CodeGen from "./CodeGen";
 import ActionList from "./ActionList";
 import Input from "../common/components/core/Input/Input";
@@ -42,6 +36,21 @@ export default function RecordScriptView({
   className,
 }: RecordScriptViewProps) {
   const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const code = genJson(scriptTitle, actions);
+    createTestSpec(`${scriptTitle}.json`, code, userSession)
+      .then(() => onClose())
+      .catch((err) => {
+        alert("Failed to save script");
+        console.log(err);
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
 
   return (
     <Flex.Col className={className}>
@@ -57,11 +66,9 @@ export default function RecordScriptView({
           </Flex.Row>
         </Flex.Col>
         <PrimaryIconButton
-          onClick={async () => {
-            const code = genJson(scriptTitle, actions);
-            await createTestSpec(`${scriptTitle}.json`, code, userSession);
-          }}
-          icon="floppy-disc"
+          onClick={save}
+          disabled={saving}
+          icon={saving ? "spinner" : "floppy-disc"}
           label="Save"
         />
         <IconButton onClick={onClose} icon="close" />

@@ -103,7 +103,7 @@ const App = () => {
     },
     {
       key: "2",
-      label: `Event Models`,
+      label: `Catalog`,
       children: <SchemaApp />,
     },
     {

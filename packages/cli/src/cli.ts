@@ -23,31 +23,29 @@ const handleVerbosity = ({ verbose }: Params): void => {
 };
 
 export function setupCLICommonParams(cli: Argv): Argv {
-  return (
-    cli
-      // .option('remote', {
-      //   describe: 'Remote Server Base Url',
-      //   type: 'string',
-      //   default: 'https://app.syftdata.com',
-      //   hidden: true
-      // })
-      .option('force', {
-        describe: 'Force an operation without exiting early.',
-        type: 'boolean',
-        default: false,
-        hidden: true
-      })
-      .option('verbose', {
-        describe: 'Enable verbose mode',
-        default: false,
-        type: 'boolean'
-      })
-      .middleware(handleVerbosity)
-      .config(config)
-      .pkgConf('syft')
-      .fail((msg, e) => {
-        logUnknownError(msg, e);
-        process.exit(1);
-      })
-  );
+  return cli
+    .option('remote', {
+      describe: 'Remote Server Base Url',
+      type: 'string',
+      default: 'https://studio.syftdata.com',
+      hidden: true
+    })
+    .option('force', {
+      describe: 'Force an operation without exiting early.',
+      type: 'boolean',
+      default: false,
+      hidden: true
+    })
+    .option('verbose', {
+      describe: 'Enable verbose mode',
+      default: false,
+      type: 'boolean'
+    })
+    .middleware(handleVerbosity)
+    .config(config)
+    .pkgConf('syft')
+    .fail((msg, e) => {
+      logUnknownError(msg, e);
+      process.exit(1);
+    });
 }

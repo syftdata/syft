@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { handler as generateFromDir } from './generate';
 import { generate as schemaGenerate } from '../codegen/generators/model_generator';
-import { getRemoteEventShemas } from '../init/destination';
+import { type FileInfo, getRemoteEventShemas } from '../init/destination';
 import type { AST } from '../codegen/types';
 import { getEventShemas } from '../init/local';
 
@@ -26,30 +26,28 @@ export interface Params {
 export const command = 'init [platform] [product]';
 export const desc = 'Initialize Syft project. Generates Event models.';
 export const builder = (y: yargs.Argv): yargs.Argv => {
-  return (
-    y
-      // .option('apikey', {
-      //   describe:
-      //     'Syft API key. If provided, existing events are fetched from the server',
-      //   type: 'string'
-      // })
-      .positional('platform', {
-        choices: ['web', 'mobile'] as const,
-        default: 'web',
-        describe: 'events are auto generated for this platform',
-        type: 'string'
-      })
-      .positional('product', {
-        choices: ['ecommerce', 'b2b'] as const,
-        describe: 'events are auto generated for the product',
-        type: 'string'
-      })
-      .option('outDir', {
-        describe: 'Directory to place model files',
-        default: getSchemaFolder(),
-        type: 'string'
-      })
-  );
+  return y
+    .option('apikey', {
+      describe:
+        'Syft API key. If provided, event models are fetched from the remote server',
+      type: 'string'
+    })
+    .positional('platform', {
+      choices: ['web', 'mobile'] as const,
+      default: 'web',
+      describe: 'events are auto generated for this platform',
+      type: 'string'
+    })
+    .positional('product', {
+      choices: ['ecommerce', 'b2b'] as const,
+      describe: 'events are auto generated for the product',
+      type: 'string'
+    })
+    .option('outDir', {
+      describe: 'Directory to place model files',
+      default: getSchemaFolder(),
+      type: 'string'
+    });
 };
 
 function initalizeSchemaFolder(folder: string, force: boolean): boolean {
@@ -65,6 +63,22 @@ function initalizeSchemaFolder(folder: string, force: boolean): boolean {
     }
   }
   return true;
+}
+
+function writeTestSpecs(testFiles: FileInfo[], outDir: string): void {
+  // generate basic assets.
+  testFiles.forEach((file) => {
+    if (file.content === undefined) {
+      logError(`:warning: Test file ${file.name} is empty. Skipping..`);
+      return;
+    }
+    const filePath = path.join(outDir, file.name);
+    const fileDir = path.dirname(filePath);
+    if (!fs.existsSync(fileDir)) {
+      fs.mkdirSync(fileDir, { recursive: true });
+    }
+    fs.writeFileSync(filePath, file.content);
+  });
 }
 
 function generateSchemasFrom(ast: AST, folder: string): void {
@@ -109,21 +123,20 @@ export async function handler({
 }: Params): Promise<void> {
   logVerbose(`Initializing Syft in ${outDir}..`);
   let ast: AST;
+  let testFiles: FileInfo[] = [];
   if (apikey !== undefined) {
     logVerbose(`Syncing from ${remote}`);
-    ast = await getRemoteEventShemas(remote, apikey);
+    const remoteData = await getRemoteEventShemas(remote, apikey);
+    ast = remoteData.ast;
+    testFiles = remoteData.tests;
   } else {
     logVerbose(`Generating models for ${platform}`);
     ast = getEventShemas(platform, product);
   }
 
-  // add useridentity, groupidentity
-
-  if (!initalizeSchemaFolder(outDir, force)) {
-    logVerbose("Couldn't create the syft folder. Exiting..");
-    return;
-  }
+  initalizeSchemaFolder(outDir, force);
   generateSchemasFrom(ast, outDir);
+  writeTestSpecs(testFiles, outDir);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
     await runSyftGenerator(outDir);

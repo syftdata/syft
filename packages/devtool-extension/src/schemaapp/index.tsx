@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Event } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
@@ -6,8 +6,8 @@ import { Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer from "./schema";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
-import { TodoSchemas } from "./mockdata";
 import { useGitInfo } from "../cloud/state/gitinfo";
+import NoSchemasView from "./noschemasview";
 
 export interface SchemaAppProps {
   className?: string;
@@ -18,6 +18,11 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   const [gitInfo] = useGitInfo();
 
   let filteredSchemas = gitInfo?.eventSchema?.events ?? [];
+
+  if (filteredSchemas.length === 0) {
+    return <NoSchemasView />;
+  }
+
   const searchStr = search.trim().toLowerCase();
   if (searchStr !== "") {
     filteredSchemas = filteredSchemas.filter((schema) =>
@@ -30,6 +35,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     <Flex.Col className={className}>
       <List<Event>
         data={filteredSchemas}
+        emptyMessage="No Event Models found."
         renderItem={(item) => {
           return (
             <Flex.Row

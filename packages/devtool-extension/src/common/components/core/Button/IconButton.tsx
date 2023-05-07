@@ -24,6 +24,7 @@ export interface IconButtonProps {
   className?: string;
   color?: string;
   backgroundColor?: string;
+  disabled?: boolean;
 }
 
 export const PrimaryIconButton = (iconProps: IconButtonProps) => (
@@ -50,6 +51,7 @@ export const IconButton = ({
   className,
   color,
   backgroundColor,
+  disabled,
 }: IconButtonProps) => {
   const defaultSize = size ?? "small";
   const defaultColor = color ?? Colors.Gray.V7;
@@ -66,7 +68,7 @@ export const IconButton = ({
         Css.borderRadius(2),
         className
       )}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       alignItems="center"
       justifyContent="start"
     >

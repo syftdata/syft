@@ -13,7 +13,7 @@ interface ApiField {
   name: string;
   alias?: string;
   type: string;
-  documentation?: string;
+  description?: string;
   defaultValue?: string;
   isOptional: boolean;
   zodType?: string;
@@ -23,7 +23,7 @@ interface ApiEvent {
   eventType: string; // type of the event
   name: string;
   alias?: string;
-  documentation?: string;
+  description?: string;
   fields: ApiField[];
 }
 
@@ -37,10 +37,31 @@ interface ApiCall {
   events: ApiEvent[];
 }
 
-interface ApiResponse {
+interface EventSchemas {
   appName: string;
   appVersion: string;
   events: ApiEvent[];
+}
+
+export interface FileInfo {
+  name: string;
+  size: number;
+  created?: Date;
+  updated?: Date;
+  updatedBy?: string;
+  sha: string;
+  content?: string;
+}
+
+interface ApiResponse {
+  activeSourceId?: string; // active source sent down
+  activeBranch?: string; // active branch sent down
+
+  branches: string[]; // all branches
+  files: FileInfo[]; // tests in those branches
+
+  eventSchemaSha?: string; // used to update the file without overwriting others changes.
+  eventSchema: EventSchemas; // event catalog
 }
 
 function getEventSchema(event: ApiEvent): EventSchema {
@@ -62,7 +83,7 @@ function getEventSchema(event: ApiEvent): EventSchema {
     name: event.alias ?? event.name,
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     documentation:
-      event.documentation ??
+      event.description ??
       `Auto generated schema by syft-cli for ${event.name}`,
     fields,
     zodType: '',
@@ -77,7 +98,7 @@ function getApiEvent(schema: EventSchema): ApiEvent {
     const val: ApiField = {
       type: field.type.name,
       name: field.name,
-      documentation: field.documentation,
+      description: field.documentation,
       zodType: field.type.zodType,
       isOptional: field.isOptional,
       defaultValue: field.defaultValue
@@ -86,7 +107,7 @@ function getApiEvent(schema: EventSchema): ApiEvent {
   });
   const result: ApiEvent = {
     name: schema.name,
-    documentation: schema.documentation,
+    description: schema.documentation,
     fields: properties,
     eventType: schema.eventType.toString()
   };
@@ -96,15 +117,16 @@ function getApiEvent(schema: EventSchema): ApiEvent {
 export async function getRemoteEventShemas(
   baseUrl: string,
   apikey: string
-): Promise<AST> {
-  const fullUrl = `${baseUrl}/api/get_catalog`;
+): Promise<{ ast: AST; tests: FileInfo[] }> {
+  const fullUrl = `${baseUrl}/api/cliinfo`;
   const payloadData = JSON.stringify({ apikey });
 
   const options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': payloadData.length
+      'Content-Length': payloadData.length,
+      'syft-cli-auth': apikey
     }
   };
   let protocol: Pick<typeof http, 'request'> = http;
@@ -125,14 +147,17 @@ export async function getRemoteEventShemas(
             const responseData = JSON.parse(
               Buffer.concat(body).toString()
             ) as ApiResponse;
-            const events = responseData.events;
+            const events = responseData.eventSchema.events;
             const eventSchemas = events.map(getEventSchema);
             resolve({
-              config: {
-                version: responseData.appVersion,
-                projectName: responseData.appName
+              ast: {
+                config: {
+                  version: responseData.eventSchema.appVersion,
+                  projectName: responseData.eventSchema.appName
+                },
+                eventSchemas
               },
-              eventSchemas
+              tests: responseData.files
             });
           } catch (e) {
             reject(e);
