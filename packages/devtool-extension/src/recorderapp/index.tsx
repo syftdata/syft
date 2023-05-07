@@ -96,7 +96,7 @@ export default function RecorderApp({
   };
 
   return (
-    <Flex.Col className={Css.height("calc(100vh - 40px)")}>
+    <Flex.Col className={Css.height("calc(100vh - 80px)")}>
       {!userSession ? (
         <LoginView />
       ) : isRecording ? (

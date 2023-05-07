@@ -77,7 +77,7 @@ export default function RecordScriptView({
         <Flex.Col
           className={css(
             Css.overflow("scroll"),
-            Css.maxHeight("calc(100vh - 130px)")
+            Css.maxHeight("calc(100vh - 170px)")
           )}
         >
           {actionsMode === ActionsMode.Code && (

@@ -7,9 +7,9 @@ import List from "../common/components/core/List";
 import { Mono } from "../common/styles/fonts";
 import { Colors, backgroundCss } from "../common/styles/colors";
 import { css } from "@emotion/css";
-import { TodoSchemas } from "../schemaapp/mockdata";
 import Section from "../common/components/core/Section";
 import SchemaSelector, { SelectedSchemaView } from "../schemaapp/selector";
+import { useGitInfo } from "../cloud/state/gitinfo";
 
 interface ActionListProps {
   actions: Action[];
@@ -85,26 +85,11 @@ export default function ActionListContainer({
 }: ActionListContainerProps) {
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
-  const [schemas, setSchemas] = useState<Event[]>([]);
+  const [gitInfo] = useGitInfo();
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
 
-  const loadSchemas = () => {
-    setSchemas(TodoSchemas);
-    // // Fetching data from FaceBook Jest Repo
-    // fetch("http://127.0.0.1:8085/", {
-    //   method: "GET",
-    //   headers: new Headers({
-    //     Accept: "application/json",
-    //   }),
-    // })
-    //   .then((res) => res.json())
-    //   .then((response) => setSchemas(response.schemas))
-    //   .catch((error) => console.log(error));
-  };
-
-  // selected attached schemas and unattached schemas.
-
+  const schemas = gitInfo?.eventSchema?.events ?? [];
   return (
     <Flex.Col className={Flex.grow(1)}>
       <Section title="Recorded Steps" className={Flex.grow(1)}>
@@ -115,7 +100,6 @@ export default function ActionListContainer({
             if (index === selectedActionIndex) {
               setSelectedActionIndex(-1);
             } else {
-              loadSchemas();
               setSelectedActionIndex(index);
             }
           }}
