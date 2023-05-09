@@ -82,7 +82,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
               size="small"
               className={Css.padding(0)}
             >
-              <Label.L10 color={Colors.Branding.DarkBlue}>+ Add</Label.L10>
+              <Label.L10 color={Colors.Branding.Blue}>+ Add</Label.L10>
             </Button>,
           ],
         }}

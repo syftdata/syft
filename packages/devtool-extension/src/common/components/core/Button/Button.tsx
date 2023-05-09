@@ -70,7 +70,6 @@ const Button = (props: ButtonProps) => {
         className={css(
           getButtonSize(size, padding),
           buttonStyles.button(),
-          buttonStyles.clear,
           className
         )}
       >

@@ -18,11 +18,7 @@ const LoginInfo = () => {
         <LabelledValue label="Name" value={user.name ?? "Unknown"} />
         <LabelledValue label="Email" value={user.email ?? "Unknown"} />
         <Flex.Row justifyContent="end">
-          <Button
-            type="Primary"
-            onClick={() => setUserSession(undefined)}
-            size="small"
-          >
+          <Button type="Primary" onClick={() => setUserSession(undefined)}>
             <Subheading.SH12>Sign out</Subheading.SH12>
           </Button>
         </Flex.Row>

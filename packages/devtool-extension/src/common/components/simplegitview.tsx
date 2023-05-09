@@ -83,7 +83,7 @@ export function SimpleGitView({
         size="small"
         className={Css.padding(0)}
       >
-        <Label.L12 color={Colors.Branding.DarkBlue}>+ Add Branch</Label.L12>
+        <Label.L12 color={Colors.Branding.Blue}>+ Add Branch</Label.L12>
       </Button>
       <Modal
         open={isModalOpen}

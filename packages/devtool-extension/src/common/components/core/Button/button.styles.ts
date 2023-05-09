@@ -22,11 +22,6 @@ export const buttonStyles = {
       color: `${Colors.White} !important`,
     },
   }),
-  clear: css({
-    ">*": {
-      color: `${Colors.Branding.Blue} !important`,
-    },
-  }),
 };
 
 export const getButtonSize = (size: Size, padding?: string) => {
