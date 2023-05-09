@@ -10,7 +10,6 @@ import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import ActionList from "./ActionList";
 import LoginView from "../cloud/views/LoginView";
 import { useUserSession } from "../cloud/state/usersession";
-import { GitView } from "../cloud/views/gitview";
 import GitFileList from "../cloud/views/GitFileList";
 
 export interface RecorderAppProps {

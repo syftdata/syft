@@ -4,7 +4,7 @@ export default defineManifest({
   name: "Syft Studio",
   description:
     "Syft Studio lets you record, test and instrument your web apps.",
-  version: "0.0.4",
+  version: "0.0.6",
   manifest_version: 3,
   permissions: [
     "activeTab",
@@ -12,6 +12,8 @@ export default defineManifest({
     "storage",
     "contextMenus",
     "webNavigation",
+    "debugger",
+    "tabs",
   ],
   host_permissions: ["<all_urls>"],
 

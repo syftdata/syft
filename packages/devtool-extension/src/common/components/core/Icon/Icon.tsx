@@ -40,6 +40,7 @@ import {
   VideoCameraIcon,
   VideoCameraOffIcon,
   WarningTriangleIcon,
+  PauseIcon,
 } from "@iconicicons/react";
 import type { Size } from "../../../constants/types";
 import { Colors } from "../../../styles/colors";
@@ -84,6 +85,7 @@ export type IconName =
   | "video-camera"
   | "video-camera-off"
   | "play"
+  | "pause"
   | "floppy-disc"
   | "plus-circle";
 
@@ -165,6 +167,8 @@ const getIcon = (icon: IconName) => {
       return <VideoCameraOffIcon />;
     case "play":
       return <PlayIcon />;
+    case "pause":
+      return <PauseIcon />;
     case "floppy-disc":
       return <FloppyDiscIcon />;
     case "plus-circle":

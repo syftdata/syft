@@ -3,8 +3,10 @@ import { useState } from "react";
 import Button from "./core/Button/Button";
 import Input from "./core/Input/Input";
 import Modal from "../components/core/Modal/Modal";
-import Select, { SelectOption } from "../components/core/Input/Select";
-import { Label, Paragraph } from "../styles/fonts";
+import Select from "../components/core/Input/Select";
+import { Label } from "../styles/fonts";
+import { Colors } from "../styles/colors";
+import { Css, Flex } from "../styles/common.styles";
 
 export interface GitEventSource {
   id: string;
@@ -59,28 +61,29 @@ export function SimpleGitView({
         label="Source"
         value={activeSource?.id}
         rowWise={rowWise}
+        options={sources?.map((source) => ({
+          value: source.id,
+          label: source.name,
+        }))}
         onChange={(e) => setActiveSourceById(e as string)}
-      >
-        {sources?.map((source, key) => (
-          <SelectOption key={key} value={source.id}>
-            {source.name}
-          </SelectOption>
-        ))}
-      </Select>
+      />
       <Select
         label="Branch"
         value={activeBranch}
         rowWise={rowWise}
+        options={branches?.map((branch) => ({
+          value: branch,
+          label: branch,
+        }))}
         onChange={(e) => setActiveBranch(e as string)}
+      />
+      <Button
+        onClick={showModal}
+        type="Clear"
+        size="small"
+        className={Css.padding(0)}
       >
-        {branches?.map((branch, key) => (
-          <SelectOption key={key} value={branch}>
-            {branch}
-          </SelectOption>
-        ))}
-      </Select>
-      <Button onClick={showModal} type="Clear" size="small">
-        <Label.L12>+ Add Branch</Label.L12>
+        <Label.L12 color={Colors.Branding.DarkBlue}>+ Add Branch</Label.L12>
       </Button>
       <Modal
         open={isModalOpen}

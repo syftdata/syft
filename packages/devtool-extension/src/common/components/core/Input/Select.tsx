@@ -26,7 +26,7 @@ const InnerSelect = ({ label, ...otherSelectProps }: SelectProps) => {
 const Select = ({ rowWise, ...otherProps }: SelectProps) => {
   if (rowWise) {
     return (
-      <Flex.Row gap={4} alignItems="center">
+      <Flex.Row gap={4}>
         <InnerSelect {...otherProps} />
       </Flex.Row>
     );

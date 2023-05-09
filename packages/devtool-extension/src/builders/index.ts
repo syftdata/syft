@@ -17,6 +17,8 @@ import {
 } from "../types";
 import { ResizeAction } from "../types";
 import { NavigateAction } from "../types";
+import { Step } from "@puppeteer/replay";
+import memoizeOne from "memoize-one";
 
 const FILLABLE_INPUT_TYPES = [
   "",
@@ -784,7 +786,8 @@ function getSelectors(action: BaseAction): string[][] {
   const deDuped = [...new Set(selectors)];
   return deDuped.map((selector) => [selector]);
 }
-export const genJson = (title: string, actions: Action[]): string => {
+
+const __genPuppeteerSteps = (actions: Action[]): Step[] => {
   const transformedSteps: Record<string, any>[] = [];
   for (let i = 0; i < actions.length; i++) {
     const action: BaseAction = actions[i];
@@ -800,7 +803,6 @@ export const genJson = (title: string, actions: Action[]): string => {
             {
               type: "navigation",
               url: (action as NavigateAction).url,
-              title: "React App",
             },
           ],
         });
@@ -837,16 +839,15 @@ export const genJson = (title: string, actions: Action[]): string => {
         });
         break;
       case ActionType.Resize:
-        // TODO: hiding this for demo. uncomment to enable
-        // transformedSteps.push({
-        //   type: "setViewport",
-        //   width: (action as ResizeAction).width,
-        //   height: (action as ResizeAction).height,
-        //   deviceScaleFactor: 1,
-        //   isMobile: false,
-        //   hasTouch: false,
-        //   isLandscape: false,
-        // });
+        transformedSteps.push({
+          type: "setViewport",
+          width: (action as ResizeAction).width,
+          height: (action as ResizeAction).height,
+          deviceScaleFactor: 1,
+          isMobile: false,
+          hasTouch: false,
+          isLandscape: false,
+        });
         break;
       case ActionType.Wheel:
         transformedSteps.push({
@@ -871,13 +872,14 @@ export const genJson = (title: string, actions: Action[]): string => {
       });
     }
   }
+  return transformedSteps as Step[];
+};
+export const genPuppeteerSteps = memoizeOne(__genPuppeteerSteps);
 
-  return JSON.stringify(
-    {
-      title,
-      steps: transformedSteps,
-    },
-    null,
-    4
-  );
+export const genPuppeteerScript = (title: string, steps: Step[]): string => {
+  const script = {
+    title,
+    steps,
+  };
+  return JSON.stringify(script, null, 4);
 };

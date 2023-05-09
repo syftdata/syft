@@ -245,10 +245,12 @@ export interface EventSource {
 
 export interface FileInfo {
   name: string;
+  path: string;
   size: number;
   created?: Date;
   updated?: Date;
   updatedBy?: string;
+  content?: string;
   sha: string;
 }
 

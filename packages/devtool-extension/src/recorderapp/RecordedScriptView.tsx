@@ -11,8 +11,9 @@ import {
   IconButton,
   PrimaryIconButton,
 } from "../common/components/core/Button/IconButton";
-import { genJson } from "../builders";
+import { genPuppeteerSteps } from "../builders";
 import { createTestSpec } from "../cloud/api/git";
+import { runScriptSteps } from "../replay";
 
 interface RecordScriptViewProps {
   userSession: UserSession;
@@ -37,11 +38,12 @@ export default function RecordScriptView({
 }: RecordScriptViewProps) {
   const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
   const [saving, setSaving] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
-  const save = async () => {
+  const onSave = async () => {
     setSaving(true);
-    const code = genJson(scriptTitle, actions);
-    createTestSpec(`${scriptTitle}.json`, code, userSession)
+    const steps = genPuppeteerSteps(actions);
+    createTestSpec(scriptTitle, steps, userSession)
       .then(() => onClose())
       .catch((err) => {
         alert("Failed to save script");
@@ -50,6 +52,14 @@ export default function RecordScriptView({
       .finally(() => {
         setSaving(false);
       });
+  };
+
+  const togglePlayPause = async () => {
+    if (!playing) {
+      setPlaying(true);
+      await runScriptSteps(genPuppeteerSteps(actions));
+      setPlaying(false);
+    }
   };
 
   return (
@@ -65,8 +75,13 @@ export default function RecordScriptView({
             />
           </Flex.Row>
         </Flex.Col>
+        <IconButton
+          onClick={togglePlayPause}
+          icon={playing ? "pause" : "play"}
+          label="Preview"
+        />
         <PrimaryIconButton
-          onClick={save}
+          onClick={onSave}
           disabled={saving}
           icon={saving ? "spinner" : "floppy-disc"}
           label="Save"

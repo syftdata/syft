@@ -2,7 +2,7 @@ import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import { genCode, genJson } from "../builders";
+import { genPuppeteerScript, genPuppeteerSteps } from "../builders";
 
 import type { Action } from "../types";
 import { ScriptType } from "../types";
@@ -29,7 +29,7 @@ export default function CodeGen({
       }}
       data-testid="code-block"
     >
-      {genJson(title, actions)}
+      {genPuppeteerScript(title, genPuppeteerSteps(actions))}
     </SyntaxHighlighter>
   );
 }

@@ -1,6 +1,8 @@
 import { GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
 import { getGitInfo, setGitInfo } from "../state/gitinfo";
+import { Step } from "@puppeteer/replay";
+import { genPuppeteerScript } from "../../builders";
 
 export function downloadFile(name: string, contents: string): void {
   // write code to show download dialog for a text.
@@ -39,13 +41,14 @@ export async function fetchGitInfo(
 
 export async function createTestSpec(
   name: string,
-  content: string,
+  steps: Step[],
   user: UserSession
 ): Promise<void> {
   const gitInfo = await getGitInfo();
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
+  const content = genPuppeteerScript(name, steps);
   const response = await post("/api/testspecs", user, {
     sourceId: gitInfo.activeSourceId,
     branch: gitInfo.activeBranch,
@@ -57,6 +60,7 @@ export async function createTestSpec(
 
 export async function deleteTestSpec(
   name: string,
+  sha: string,
   user: UserSession
 ): Promise<void> {
   const gitInfo = await getGitInfo();
@@ -67,6 +71,7 @@ export async function deleteTestSpec(
     sourceId: gitInfo.activeSourceId,
     branch: gitInfo.activeBranch,
     name,
+    sha,
   });
   handleGitInfoResponse(response);
 }
@@ -95,7 +100,6 @@ export async function deleteBranch(
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
-
   const response = await post("/api/branch/delete", user, {
     sourceId: gitInfo.activeSourceId,
     branch,
