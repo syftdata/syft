@@ -7,15 +7,17 @@ interface LabelledValueProps {
   value?: string;
   children?: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 const LabelledValue = ({
   label,
   value,
   children,
   className,
+  onClick,
 }: LabelledValueProps) => {
   return (
-    <Flex.Col gap={4} className={className}>
+    <Flex.Col gap={4} className={className} onClick={onClick}>
       <Label.L10 color={Colors.Gray.V5}>{label}</Label.L10>
       {value && <Mono.M10>{value}</Mono.M10>}
       {children}

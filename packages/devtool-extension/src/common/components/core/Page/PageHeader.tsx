@@ -27,6 +27,7 @@ const PageHeader = ({
         Css.zIndex(10),
         className
       )}
+      alignItems="center"
       justifyContent="space-between"
     >
       <Flex.Col gap={2}>

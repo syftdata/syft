@@ -1,4 +1,4 @@
-import Icon, { IconName } from "../Icon/Icon";
+import Icon, { type IconName } from "../Icon/Icon";
 import { Css, Flex } from "../../../styles/common.styles";
 import { cx } from "@emotion/css";
 import { Colors } from "../../../styles/colors";

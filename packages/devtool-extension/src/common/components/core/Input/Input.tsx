@@ -3,11 +3,14 @@ import AntdInput, { type InputProps as AntdInputProps } from "antd/lib/input";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
 import { Subheading } from "../../../styles/fonts";
+import { getInputSize } from "~/components/core/Input/input.styles";
+import { type Size } from "~/constants/types";
 
-interface InputProps extends AntdInputProps {
+interface InputProps extends Omit<AntdInputProps, "size"> {
   label?: string;
+  size?: Size;
 }
-const Input = ({ label, ...otherInputProps }: InputProps) => {
+const Input = ({ label, size = "small", ...otherInputProps }: InputProps) => {
   return (
     <Flex.Col gap={4}>
       <Subheading.SH12 color={Colors.Gray.V7}>{label}</Subheading.SH12>
@@ -17,8 +20,7 @@ const Input = ({ label, ...otherInputProps }: InputProps) => {
           Css.border(`1px solid ${Colors.Gray.V1}`),
           Css.borderRadius(4),
           Css.brandingFont,
-          Css.fontSize(12),
-          Css.padding("6px 10px")
+          getInputSize(size)
         )}
       />
     </Flex.Col>

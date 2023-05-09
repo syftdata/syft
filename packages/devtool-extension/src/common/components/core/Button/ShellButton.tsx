@@ -38,7 +38,6 @@ const ShellButton = ({
         className={css(
           getButtonSize(size, padding),
           buttonStyles.button(),
-          buttonStyles.clear,
           className
         )}
       >
@@ -52,7 +51,6 @@ const ShellButton = ({
       className={css(
         getButtonSize(size, padding),
         buttonStyles.button(Colors.Branding.V1),
-        buttonStyles.primary,
         className
       )}
     >
