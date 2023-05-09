@@ -62,11 +62,10 @@
         "https://*/*"
       ],
       "resources": [
-        "assets/chunk-8a47ec5d.js",
-        "assets/chunk-f78c4627.js",
+        "assets/chunk-cfd3f0b9.js",
         "assets/chunk-30aba9a8.js",
         "assets/chunk-c834524c.js",
-        "assets/chunk-c9f59bec.js",
+        "assets/chunk-5caacc2e.js",
         "assets/index.2ab409f4.css"
       ],
       "use_dynamic_url": false

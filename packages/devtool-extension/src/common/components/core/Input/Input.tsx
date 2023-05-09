@@ -3,8 +3,8 @@ import AntdInput, { type InputProps as AntdInputProps } from "antd/lib/input";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
 import { Subheading } from "../../../styles/fonts";
-import { getInputSize } from "~/components/core/Input/input.styles";
-import { type Size } from "~/constants/types";
+import { getInputSize } from "./input.styles";
+import { type Size } from "../../../constants/types";
 
 interface InputProps extends Omit<AntdInputProps, "size"> {
   label?: string;
