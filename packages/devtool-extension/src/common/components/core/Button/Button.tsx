@@ -8,7 +8,7 @@ import ShellButton from "./ShellButton";
 type ButtonType = "Primary" | "Secondary" | "Clear";
 
 export interface ButtonProps {
-  to?: any;
+  to?: string;
   onClick?: (e: any) => void;
   newTab?: boolean;
   children?: React.ReactNode;
@@ -34,6 +34,7 @@ const Button = (props: ButtonProps) => {
     type = "Secondary",
     size = "small",
     className,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     linkClass,
   } = props;
   const onButtonClick = (e: any) => {
@@ -44,7 +45,8 @@ const Button = (props: ButtonProps) => {
     return <ShellButton {...props} />;
   }
 
-  const LinkClass = linkClass ?? AnchorLink;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const LinkClass: any = linkClass != null ? linkClass : AnchorLink;
   if (type === "Primary") {
     return (
       <LinkClass

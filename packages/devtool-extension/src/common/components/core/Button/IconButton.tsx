@@ -17,7 +17,7 @@ function getLabel(size: "small" | "medium" | "large"): any {
 
 export interface IconButtonProps {
   onClick?: () => void;
-  label?: String; // label or icon is required.
+  label?: string; // label or icon is required.
   icon?: IconName;
   size?: "small" | "medium" | "large";
   reverseIcon?: boolean; // puts icon at the end.
@@ -56,6 +56,7 @@ export const IconButton = ({
   const defaultSize = size ?? "small";
   const defaultColor = color ?? Colors.Gray.V7;
   const defaultBackgroundColor = backgroundColor ?? Colors.Transparent.Light.V1;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const Comp = getLabel(defaultSize);
   return (
     <Flex.Row

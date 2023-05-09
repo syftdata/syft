@@ -4,7 +4,7 @@ import TableCell from "../../common/components/core/Table/TableCell";
 import { useGitInfo } from "../state/gitinfo";
 import { FileInfo } from "../../types";
 import Section from "../../common/components/core/Section";
-import { IconButton } from "../../common/components/core/Button";
+import { IconButton } from "../../common/components/core/Button/IconButton";
 import { deleteTestSpec } from "../api/git";
 import { useUserSession } from "../state/usersession";
 import { runScriptSteps } from "../../replay";
