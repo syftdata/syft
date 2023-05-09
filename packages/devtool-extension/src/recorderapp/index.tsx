@@ -27,7 +27,9 @@ export default function RecorderApp({
 }: RecorderAppProps) {
   const [userSession] = useUserSession();
   const [_scriptType, setScriptType] = usePreferredLibrary();
-  const [scriptTitle, setScriptTitle] = useState(`syft_test_todo_app_may_2nd`);
+  const [scriptTitle, setScriptTitle] = useState(
+    `Test Spec - ${new Date().toLocaleString()}`
+  );
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   // const [recordingTabId, _actions] = useRecordingState();

@@ -1,14 +1,16 @@
 {
   "name": "Syft Studio",
   "description": "Syft Studio lets you record, test and instrument your web apps.",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "manifest_version": 3,
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
     "contextMenus",
-    "webNavigation"
+    "webNavigation",
+    "debugger",
+    "tabs"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -26,7 +28,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/index.ts-loader.e7a6c7e8.js"
+        "assets/index.ts-loader.cbe0060d.js"
       ],
       "matches": [
         "<all_urls>"
@@ -35,7 +37,7 @@
     },
     {
       "js": [
-        "assets/devtools_source.ts-loader.98ecd687.js"
+        "assets/devtools_source.ts-loader.2adcd399.js"
       ],
       "matches": [
         "<all_urls>"
@@ -48,9 +50,9 @@
         "<all_urls>"
       ],
       "resources": [
-        "assets/chunk-8ba139f3.js",
-        "assets/chunk-cbbc8866.js",
-        "assets/chunk-4630ab10.js"
+        "assets/chunk-c834524c.js",
+        "assets/chunk-e7be4601.js",
+        "assets/chunk-7f06edce.js"
       ],
       "use_dynamic_url": true
     },
@@ -60,10 +62,11 @@
         "https://*/*"
       ],
       "resources": [
-        "assets/chunk-34b209c4.js",
-        "assets/chunk-1bea96a2.js",
-        "assets/chunk-8ba139f3.js",
-        "assets/chunk-86576fac.js",
+        "assets/chunk-8a47ec5d.js",
+        "assets/chunk-f78c4627.js",
+        "assets/chunk-30aba9a8.js",
+        "assets/chunk-c834524c.js",
+        "assets/chunk-c9f59bec.js",
         "assets/index.2ab409f4.css"
       ],
       "use_dynamic_url": false

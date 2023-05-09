@@ -1,5 +1,5 @@
 import { createTab } from "../../common/utils";
-import { getConstants } from "../../constants";
+import { constants } from "../../constants";
 import { UserSession } from "../../types";
 import { getUserSession, setUserSession } from "../state/usersession";
 import { getUnauthorized } from "./utils";
@@ -34,9 +34,8 @@ export async function initiateLoginFlow(): Promise<UserSession> {
   } else {
     // TODO: clearing old interval. This is a hack. Need to fix this.
     if (loginCheckInterval) clearInterval(loginCheckInterval);
-    const constants = await getConstants();
+    createTab(`${constants.LoginUrl}`);
     return new Promise((resolve, reject) => {
-      createTab(constants.WebAppUrl);
       loginCheckInterval = setInterval(async () => {
         const session = await fetchUserSession();
         if (session) {

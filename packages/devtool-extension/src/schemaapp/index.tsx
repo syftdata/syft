@@ -2,27 +2,40 @@ import { useState } from "react";
 import { Event } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
-import { Mono } from "../common/styles/fonts";
+import { Label, Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer from "./schema";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import { useGitInfo } from "../cloud/state/gitinfo";
 import NoSchemasView from "./noschemasview";
+import Button from "../common/components/core/Button/Button";
+import { createTab } from "../common/utils";
+import { Colors } from "../common/styles/colors";
+import { constants } from "../constants";
+import Spinner from "../common/components/core/Spinner/Spinner";
+import { useUserSession } from "../cloud/state/usersession";
+import LoginView from "../cloud/views/LoginView";
 
 export interface SchemaAppProps {
   className?: string;
 }
 
 const SchemaApp = ({ className }: SchemaAppProps) => {
+  const [userSession] = useUserSession();
   const [search, setSearch] = useState("");
   const [gitInfo] = useGitInfo();
 
-  let filteredSchemas = gitInfo?.eventSchema?.events ?? [];
+  if (!userSession) {
+    return <LoginView />;
+  }
+  if (!gitInfo) {
+    return <Spinner />;
+  }
 
+  let filteredSchemas = gitInfo.eventSchema.events;
   if (filteredSchemas.length === 0) {
     return <NoSchemasView />;
   }
-
   const searchStr = search.trim().toLowerCase();
   if (searchStr !== "") {
     filteredSchemas = filteredSchemas.filter((schema) =>
@@ -35,7 +48,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     <Flex.Col className={className}>
       <List<Event>
         data={filteredSchemas}
-        emptyMessage="No Event Models found."
+        emptyMessage={<NoSchemasView />}
         renderItem={(item) => {
           return (
             <Flex.Row
@@ -47,7 +60,12 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
                 <Mono.M14>{item.name}</Mono.M14>
                 <Mono.M10>{item.description}</Mono.M10>
               </Flex.Col>
-              <IconButton icon="edit" onClick={() => {}} />
+              <IconButton
+                icon="edit"
+                onClick={() => {
+                  createTab(constants.EditSchemaUrl(item.id));
+                }}
+              />
             </Flex.Row>
           );
         }}
@@ -55,7 +73,18 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
           searchPlaceHolder: "Search for Event Models",
           search,
           setSearch,
-          actions: [<IconButton icon="plus" label="Add" />],
+          actions: [
+            <Button
+              onClick={() => {
+                createTab(constants.AddSchemaUrl);
+              }}
+              type="Clear"
+              size="small"
+              className={Css.padding(0)}
+            >
+              <Label.L10 color={Colors.Branding.DarkBlue}>+ Add</Label.L10>
+            </Button>,
+          ],
         }}
         expandable={{
           renderItem: (item) => <SchemaPropsRenderer data={{ schema: item }} />,

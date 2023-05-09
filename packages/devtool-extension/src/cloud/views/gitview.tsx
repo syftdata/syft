@@ -56,7 +56,7 @@ export function GitView() {
 
   return (
     <Flex.Row
-      gap={8}
+      gap={16}
       alignItems="center"
       justifyContent="start"
       className={Css.padding("0px 8px")}

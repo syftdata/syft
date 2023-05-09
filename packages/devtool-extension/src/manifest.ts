@@ -1,7 +1,7 @@
 import { defineManifest } from "@crxjs/vite-plugin";
 
-export default defineManifest({
-  name: "Syft Studio",
+export default defineManifest(async (env) => ({
+  name: env.mode === "production" ? "Syft Studio" : "[Dev] Syft Studio",
   description:
     "Syft Studio lets you record, test and instrument your web apps.",
   version: "0.0.6",
@@ -38,4 +38,4 @@ export default defineManifest({
       js: ["src/content/devtools_source.ts"],
     },
   ],
-});
+}));

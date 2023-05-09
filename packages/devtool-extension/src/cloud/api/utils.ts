@@ -1,8 +1,7 @@
-import { getConstants } from "../../constants";
+import { constants } from "../../constants";
 import { UserSession } from "../../types";
 
 export async function getUnauthorized(path: string) {
-  const constants = await getConstants();
   return await fetch(`${constants.WebAppUrl}/${path}`, {
     method: "GET",
     headers: {
@@ -17,8 +16,6 @@ export async function get(
   session: UserSession,
   params?: Record<string, string | undefined | number | boolean>
 ) {
-  const constants = await getConstants();
-
   let queryParams = "";
   if (params) {
     queryParams = Object.keys(params)
@@ -36,37 +33,8 @@ export async function get(
 }
 
 export async function post(path: string, session: UserSession, body: any) {
-  const constants = await getConstants();
   return await fetch(`${constants.WebAppUrl}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.jwt}`,
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-export async function deleteV(path: string, id: string, session: UserSession) {
-  const constants = await getConstants();
-  return fetch(`${constants.WebAppUrl}${path}/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.jwt}`,
-    },
-  });
-}
-
-export async function put(
-  path: string,
-  id: string,
-  session: UserSession,
-  body: any
-) {
-  const constants = await getConstants();
-  return fetch(`${constants.WebAppUrl}${path}/${id}`, {
-    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.jwt}`,

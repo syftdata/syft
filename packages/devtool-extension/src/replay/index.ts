@@ -1,4 +1,4 @@
-import { getCurrentTab } from "../common/utils";
+import { getCurrentTabId } from "../common/utils";
 
 import { ExtensionDebuggerTransport } from "puppeteer-extension-transport";
 import puppeteer from "puppeteer-core/lib/cjs/puppeteer/web";
@@ -9,13 +9,7 @@ import {
 } from "@puppeteer/replay";
 
 export async function runScriptSteps(steps: Step[]) {
-  const tab = await getCurrentTab();
-  const tabId = tab.id;
-  if (!tabId) {
-    console.error("No tab id found");
-    return;
-  }
-
+  const tabId = getCurrentTabId();
   try {
     const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
     extensionTransport.delay = 10;

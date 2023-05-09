@@ -1,4 +1,3 @@
-import { getConstants } from "../constants";
 import { Action, ActionType, GitInfo, NavigateAction } from "../types";
 
 // TODO: nages added this global to resolve compilation issues.
@@ -75,13 +74,17 @@ export async function getRandomInstallId() {
   });
 }
 
-export async function getCurrentTab(): Promise<chrome.tabs.Tab> {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
+// export async function getCurrentTab(): Promise<chrome.tabs.Tab> {
+//   const [tab] = await chrome.tabs.query({
+//     active: true,
+//     currentWindow: true,
+//   });
 
-  return tab;
+//   return tab;
+// }
+
+export function getCurrentTabId() {
+  return chrome.devtools.inspectedWindow.tabId;
 }
 
 export async function recordNavigationEvent(

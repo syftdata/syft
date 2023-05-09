@@ -1,19 +1,18 @@
 export interface Constants {
   WebAppUrl: string;
+  LoginUrl: string;
+  AddSchemaUrl: string;
+  EditSchemaUrl: (schemaId: string) => string;
 }
 
-const ProdConstants: Constants = {
-  WebAppUrl: "https://syft.dev",
-};
+function createConstants(url: string): Constants {
+  return {
+    WebAppUrl: url,
+    LoginUrl: url,
+    AddSchemaUrl: `${url}/catalog?action=add`,
+    EditSchemaUrl: (schemaId: string) =>
+      `${url}/catalog?action=edit&active=${schemaId}`,
+  };
+}
 
-const DevConstants: Constants = {
-  WebAppUrl: "http://localhost:3000",
-};
-
-export const getConstants = async () => {
-  const self = await chrome.management.getSelf();
-  if (self.installType === "development") {
-    return DevConstants;
-  }
-  return ProdConstants;
-};
+export const constants = createConstants(import.meta.env.VITE_CLOUD_URL);

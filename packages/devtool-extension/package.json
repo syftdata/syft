@@ -32,7 +32,6 @@
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "memoize-one": "^6.0.0",
-    "optimal-select": "^4.0.1",
     "puppeteer-core": "^13.7.0",
     "puppeteer-extension-transport": "^0.0.6",
     "react": "^18.2.0",

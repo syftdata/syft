@@ -86,6 +86,7 @@ export default function ActionListContainer({
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
   const [gitInfo] = useGitInfo();
+
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
 

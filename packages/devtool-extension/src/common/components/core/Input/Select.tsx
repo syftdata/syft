@@ -4,7 +4,7 @@ import AntdSelect, {
 } from "antd/lib/select";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
-import { Subheading } from "../../../styles/fonts";
+import { Paragraph } from "../../../styles/fonts";
 
 interface SelectProps extends AntdSelectProps {
   label?: string;
@@ -14,7 +14,7 @@ interface SelectProps extends AntdSelectProps {
 const InnerSelect = ({ label, ...otherSelectProps }: SelectProps) => {
   return (
     <>
-      <Subheading.SH12 color={Colors.Gray.V7}>{label}</Subheading.SH12>
+      <Paragraph.P14 color={Colors.Gray.V7}>{label}</Paragraph.P14>
       <AntdSelect
         {...otherSelectProps}
         className={css(Css.borderRadius(4), Css.brandingFont, Css.fontSize(12))}
@@ -26,7 +26,7 @@ const InnerSelect = ({ label, ...otherSelectProps }: SelectProps) => {
 const Select = ({ rowWise, ...otherProps }: SelectProps) => {
   if (rowWise) {
     return (
-      <Flex.Row gap={4}>
+      <Flex.Row gap={4} alignItems="center">
         <InnerSelect {...otherProps} />
       </Flex.Row>
     );

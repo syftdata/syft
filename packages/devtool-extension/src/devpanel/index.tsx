@@ -8,8 +8,12 @@ import { Colors } from "../common/styles/colors";
 import SchemaApp from "../schemaapp";
 import SettingsApp from "../settingsapp";
 import { GitView } from "../cloud/views/gitview";
+import { getCurrentTabId } from "../common/utils";
+import { fetchGitInfo } from "../cloud/api/git";
+import { getUserSession } from "../cloud/state/usersession";
 
 let existingConnection: chrome.runtime.Port | undefined;
+
 function init(
   onNewEvent: (event: SyftEvent) => void,
   onActions: (actions: Action[]) => void
@@ -18,17 +22,26 @@ function init(
     return;
   }
   const listener = (message: any, port: chrome.runtime.Port) => {
-    console.debug("[Syft][Devtools] Received data ", message);
     if (message.type === MessageType.SyftEvent) {
-      // change createdAt
       const event = message.data as SyftEvent;
       if (event.syft_status.track !== "TRACKED") {
+        console.warn("[Syft][Devtools] Received untracked event ", event);
         return;
       }
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.RecordedStep) {
       onActions(message.data as Action[]);
+    } else if (message.type === MessageType.OnShown) {
+      // refresh connection and re-fetch git info.
+      refreshConnection();
+      getUserSession().then((userSession) => {
+        if (userSession != null) {
+          fetchGitInfo(userSession).then((gitInfo) => {});
+        }
+      });
+    } else {
+      console.warn("[Syft][Devtools] Received unknown message ", message);
     }
   };
 
@@ -36,7 +49,8 @@ function init(
     if (existingConnection) {
       existingConnection.disconnect();
     }
-    const tabId = chrome.devtools.inspectedWindow.tabId;
+    const tabId = getCurrentTabId();
+    console.debug("[Syft][Devtools] Initializing/Refreshing tab ", tabId);
     //Create a connection to the service worker
     existingConnection = chrome.runtime.connect({
       name: "syft-devtools",
@@ -45,7 +59,6 @@ function init(
       port.onMessage.removeListener(listener);
     });
     existingConnection.onMessage.addListener(listener);
-    console.debug("[Syft][Devtools] Initializing tab ", tabId);
     existingConnection.postMessage({
       type: MessageType.InitDevTools,
       tabId,

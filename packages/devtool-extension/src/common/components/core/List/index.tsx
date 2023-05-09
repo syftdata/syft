@@ -24,7 +24,7 @@ export interface ExpandableProps<T> {
 
 export interface ListProps<T> {
   data: T[];
-  emptyMessage?: string;
+  emptyMessage?: string | React.ReactNode;
   renderItem: (item: T, index: number) => React.ReactNode;
   className?: string;
   search?: SearchProps;

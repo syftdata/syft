@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
         output: {
           chunkFileNames: "assets/chunk-[hash].js",
         },
+        manualChunks: {
+          antd: ["antd"],
+        },
       },
     },
 

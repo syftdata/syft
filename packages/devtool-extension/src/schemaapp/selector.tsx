@@ -9,6 +9,7 @@ import {
   SecondaryIconButton,
 } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
+import NoSchemasView from "./noschemasview";
 
 export interface SchemaSelectorProps {
   setEvents: (events: SyftEvent[]) => void;
@@ -115,7 +116,7 @@ const SchemaSelector = ({
     return null;
   }
 
-  const addSchema = (schema: Event) => {
+  const attachEvent = (schema: Event) => {
     const expectedEvents1 = [
       ...expectedEvents,
       {
@@ -139,6 +140,7 @@ const SchemaSelector = ({
     <Flex.Col className={className}>
       <List<SchemaAndEvents>
         data={filteredSchemas}
+        emptyMessage={<NoSchemasView />}
         renderItem={(item) => {
           return (
             <Flex.Row
@@ -152,7 +154,7 @@ const SchemaSelector = ({
               </Flex.Col>
               <IconButton
                 icon="plus-circle"
-                onClick={() => addSchema(item.schema)}
+                onClick={() => attachEvent(item.schema)}
               />
             </Flex.Row>
           );

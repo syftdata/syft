@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Icon from "../Icon/Icon";
+import { Css } from "../../../styles/common.styles";
 
 interface SpinnerProps {
   color?: string;
@@ -11,7 +12,7 @@ const Spinner = ({ color }: SpinnerProps) => {
         transform: ["rotate(0deg)", "rotate(360deg)"],
       }}
       transition={{ repeat: Infinity, duration: 2 }}
-      className="w-fit"
+      className={Css.width("fit-content")}
     >
       <Icon icon="spinner" size="medium" color={color} />
     </motion.div>

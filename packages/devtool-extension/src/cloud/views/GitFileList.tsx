@@ -8,12 +8,13 @@ import { IconButton } from "../../common/components/core/Button";
 import { deleteTestSpec } from "../api/git";
 import { useUserSession } from "../state/usersession";
 import { runScriptSteps } from "../../replay";
+import Spinner from "../../common/components/core/Spinner/Spinner";
 
 const GitFileList = () => {
   const [gitInfo] = useGitInfo();
   const [userSession] = useUserSession();
   if (gitInfo == null || userSession == null) {
-    return <></>;
+    return <Spinner />;
   }
   const columns = FileInfoColumns;
   columns[1].onCell = (record) => {

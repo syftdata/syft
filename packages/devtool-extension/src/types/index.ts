@@ -168,11 +168,11 @@ export interface SyftEvent {
 }
 
 export enum MessageType {
-  // Background to Extension.
+  // Background to DevTools.
   SyftEvent = "syft-event",
   RecordedStep = "recorded-step",
 
-  // Other way round. Extension to background
+  // Other way round. DevTools to background
   InitDevTools = "init-devtools",
   StartRecord = "start-record",
   StopRecord = "stop-record",
@@ -181,6 +181,10 @@ export enum MessageType {
   // Background to Content Script.
   GetSourceFile = "get-source-file",
   GetSourceFileResponse = "get-source-file-response",
+
+  // Extension UI to DevTools.
+  OnSearch = "on-search",
+  OnShown = "on-shown",
 
   // Webapp to Background
   LoggedIn = "logged-in",
@@ -220,6 +224,7 @@ export interface EventField {
 }
 
 export interface Event {
+  id: string;
   name: string;
   description?: string;
   updatedAt?: Date;

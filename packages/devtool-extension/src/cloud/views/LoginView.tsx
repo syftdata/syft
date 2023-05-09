@@ -1,17 +1,15 @@
 import { Css, Flex } from "../../common/styles/common.styles";
-import { Mono } from "../../common/styles/fonts";
+import { Paragraph } from "../../common/styles/fonts";
 import { initiateLoginFlow } from "../api/auth";
 import Button from "../../common/components/core/Button/Button";
 
 const LoginView = () => {
   return (
-    <Flex.Col alignItems="center" className={Css.margin("36px 0px")}>
+    <Flex.Col gap={10} alignItems="center" className={Css.margin("36px 0px")}>
+      <Paragraph.P14>Please Login to collaborate with your team.</Paragraph.P14>
       <Button onClick={initiateLoginFlow} type="Primary" size="large">
         Sign In
       </Button>
-      <Mono.M14>
-        Login gives you ability to save recordings to your account.
-      </Mono.M14>
     </Flex.Col>
   );
 };

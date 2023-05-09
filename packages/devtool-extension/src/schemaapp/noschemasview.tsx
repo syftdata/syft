@@ -1,20 +1,19 @@
 import Button from "../common/components/core/Button/Button";
 import { Css, Flex } from "../common/styles/common.styles";
-import { Mono } from "../common/styles/fonts";
+import { Paragraph } from "../common/styles/fonts";
 import { createTab } from "../common/utils";
-import { getConstants } from "../constants";
+import { constants } from "../constants";
 
 const NoSchemasView = () => {
   const addEventModel = async () => {
-    const constants = await getConstants();
-    await createTab(constants.WebAppUrl);
+    await createTab(constants.AddSchemaUrl);
   };
   return (
-    <Flex.Col alignItems="center" className={Css.margin("36px 0px")}>
+    <Flex.Col gap={8} alignItems="center" className={Css.margin("36px 0px")}>
+      <Paragraph.P14>No Event Models found in your Catalog.</Paragraph.P14>
       <Button onClick={addEventModel} type="Primary" size="large">
         Add Event Model
       </Button>
-      <Mono.M14>No Event Models found in your Catalog.</Mono.M14>
     </Flex.Col>
   );
 };

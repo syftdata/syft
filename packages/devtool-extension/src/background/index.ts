@@ -171,10 +171,16 @@ chrome.runtime.onConnect.addListener(async function (port) {
     return;
   }
 
-  const extensionListener = function (message: any, port: chrome.runtime.Port) {
-    if (message.type == null) return true;
+  const extensionListener = (message: any, port: chrome.runtime.Port) => {
+    if (message.type == null) {
+      console.warn(
+        '[Syft][Background] Received a message without a "type" field',
+        message
+      );
+      return;
+    }
     handleMessageAsync(message, port).catch((err) => {
-      console.error("[Syft][Background] Error handling message! ", err);
+      console.warn("[Syft][Background] Error handling message! ", err);
     });
     return true;
   };
@@ -195,25 +201,40 @@ chrome.runtime.onConnect.addListener(async function (port) {
 
 // Receive message from content script and relay to the devTools page for the
 // current tab
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Messages from content scripts should have sender.tab set
   if (sender.tab) {
-    var tabId = sender.tab.id?.toString();
-    console.debug(
-      "[Syft][Background] Received a message from Content",
-      request
-    );
+    const tabId = sender.tab.id?.toString();
     if (tabId != null && tabId in connections) {
       connections[tabId].postMessage(request);
+      sendResponse(true);
     } else {
-      console.error(
+      console.warn(
         "Tab not found in connection list.",
+        request,
         tabId,
         Object.keys(connections)
       );
     }
+  } else if (request.tabId != null) {
+    const tabId = request.tabId.toString();
+    if (tabId in connections) {
+      connections[tabId].postMessage(request);
+      sendResponse(true);
+    } else {
+      console.warn(
+        "Tab not found in connection list.",
+        request,
+        tabId,
+        Object.keys(connections)
+      );
+    }
+  } else {
+    console.warn(
+      "[Syft][Background] Received a message from Devtools?",
+      request
+    );
   }
-  return true;
 });
 
 export {};
