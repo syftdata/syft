@@ -7,6 +7,10 @@ import type {
   InputAction,
   KeydownAction,
   WheelAction,
+  ClickAction,
+  HoverAction,
+  LoadAction,
+  AwaitTextAction,
 } from "../types";
 import {
   ActionType,
@@ -17,7 +21,7 @@ import {
 } from "../types";
 import { ResizeAction } from "../types";
 import { NavigateAction } from "../types";
-import { Step } from "@puppeteer/replay";
+import { AssertedEventType, Step, StepType } from "@puppeteer/replay";
 import memoizeOne from "memoize-one";
 
 const FILLABLE_INPUT_TYPES = [
@@ -773,11 +777,14 @@ export const genCode = (
 };
 
 const SupportedJSONActionTypes = new Set([
+  ActionType.Load,
   ActionType.Navigate,
   ActionType.Click,
   ActionType.Input,
   ActionType.Keydown,
   ActionType.Resize,
+  ActionType.Hover,
+  ActionType.AwaitText,
 ]);
 function getSelectors(action: BaseAction): string[][] {
   const selectors = Object.values(action.selectors).filter(
@@ -794,53 +801,69 @@ const __genPuppeteerSteps = (actions: Action[]): Step[] => {
     if (!SupportedJSONActionTypes.has(action.type)) {
       continue;
     }
+    const target = "main";
     switch (action.type) {
-      case ActionType.Navigate:
+      case ActionType.Load:
         transformedSteps.push({
-          type: "navigate",
-          url: (action as NavigateAction).url,
-          assertedEvents: [
-            {
-              type: "navigation",
-              url: (action as NavigateAction).url,
-            },
-          ],
+          type: StepType.Navigate,
+          url: (action as LoadAction).url,
+          assertedEvents: [],
         });
         break;
+      case ActionType.Navigate:
+        const previousStep = transformedSteps[transformedSteps.length - 1];
+        if (previousStep && previousStep.type === StepType.Navigate) {
+          previousStep.assertedEvents.push({
+            type: AssertedEventType.Navigation,
+            url: (action as NavigateAction).url,
+          });
+        }
+        break;
       case ActionType.Click:
+        const clickAction = action as ClickAction;
         transformedSteps.push({
-          type: "click",
-          target: "main",
-          selectors: getSelectors(action),
-          offsetX: 1,
-          offsetY: 1,
+          type: StepType.Click,
+          target,
+          selectors: getSelectors(clickAction),
+          offsetX: clickAction.offsetX,
+          offsetY: clickAction.offsetY,
+        });
+        break;
+      case ActionType.Hover:
+        const hoverAction = action as HoverAction;
+        transformedSteps.push({
+          type: StepType.Hover,
+          target,
+          selectors: getSelectors(hoverAction),
+          offsetX: hoverAction.offsetX,
+          offsetY: hoverAction.offsetY,
         });
         break;
       case ActionType.Input:
         transformedSteps.push({
-          type: "change",
+          type: StepType.Change,
           value: (action as InputAction).value,
-          target: "main",
+          target,
           selectors: getSelectors(action),
         });
         break;
       case ActionType.Keydown:
         transformedSteps.push({
-          type: "keyDown",
+          type: StepType.KeyDown,
           key: (action as KeydownAction).key,
-          target: "main",
+          target,
           selectors: getSelectors(action),
         });
         transformedSteps.push({
-          type: "keyUp",
+          type: StepType.KeyUp,
           key: (action as KeydownAction).key,
-          target: "main",
+          target,
           selectors: getSelectors(action),
         });
         break;
       case ActionType.Resize:
         transformedSteps.push({
-          type: "setViewport",
+          type: StepType.SetViewport,
           width: (action as ResizeAction).width,
           height: (action as ResizeAction).height,
           deviceScaleFactor: 1,
@@ -851,9 +874,17 @@ const __genPuppeteerSteps = (actions: Action[]): Step[] => {
         break;
       case ActionType.Wheel:
         transformedSteps.push({
-          type: "scroll",
+          type: StepType.Scroll,
           deltaX: (action as WheelAction).pageXOffset,
           deltaY: (action as WheelAction).pageYOffset,
+        });
+        break;
+      case ActionType.AwaitText:
+        const awaitAction = action as AwaitTextAction;
+        transformedSteps.push({
+          type: StepType.WaitForExpression,
+          target,
+          expression: `document.body.innerText.includes('${awaitAction.text}')`,
         });
         break;
       default:
@@ -862,7 +893,7 @@ const __genPuppeteerSteps = (actions: Action[]): Step[] => {
     if (action.events != null) {
       action.events.forEach((event) => {
         transformedSteps.push({
-          type: "customStep",
+          type: StepType.CustomStep,
           name: "syft",
           parameters: {
             name: event.name,

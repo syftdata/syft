@@ -5,10 +5,16 @@ import puppeteer from "puppeteer-core/lib/cjs/puppeteer/web";
 import {
   createRunner,
   PuppeteerRunnerExtension,
-  Step,
+  Runner,
 } from "@puppeteer/replay";
 
-export async function runScriptSteps(steps: Step[]) {
+export interface SyftRunner {
+  runner: Runner;
+  onComplete: () => Promise<void>;
+  transport: ExtensionDebuggerTransport;
+}
+
+export async function createSyftRunner(): Promise<SyftRunner | undefined> {
   const tabId = getCurrentTabId();
   try {
     const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
@@ -23,16 +29,26 @@ export async function runScriptSteps(steps: Step[]) {
     const runner = await createRunner(
       new PuppeteerRunnerExtension(browser, page)
     );
+
+    extensionTransport.onclose = () => {
+      console.log("Extension transport closed");
+      // TODO: update our UI to reflect the same!!
+    };
+
     await runner.runBeforeAllSteps();
-    for (const step of steps) {
-      await runner.runStep(step);
-    }
-    await runner.runAfterAllSteps();
-    extensionTransport.close();
+    return {
+      runner,
+      transport: extensionTransport,
+      onComplete: async () => {
+        await runner.runAfterAllSteps();
+        extensionTransport.close();
+      },
+    };
   } catch (e) {
     console.error(
       "Error running the test script. Did you give all requested permissions to the extension?",
       e
     );
   }
+  return;
 }

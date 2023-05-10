@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
-import { Action, ActionsMode, ScriptType, UserSession } from "../types";
+import { Action, ScriptType, UserSession } from "../types";
 import CodeGen from "./CodeGen";
-import ActionList from "./ActionList";
 import Input from "../common/components/core/Input/Input";
 import { Label } from "../common/styles/fonts";
 import Section from "../common/components/core/Section";
@@ -13,7 +12,7 @@ import {
 } from "../common/components/core/Button/IconButton";
 import { genPuppeteerSteps } from "../builders";
 import { createTestSpec } from "../cloud/api/git";
-import { runScriptSteps } from "../replay";
+import { Step } from "@puppeteer/replay";
 
 interface RecordScriptViewProps {
   userSession: UserSession;
@@ -23,6 +22,7 @@ interface RecordScriptViewProps {
   scriptTitle: string;
   setScriptTitle: (title: string) => void;
   onClose: () => void;
+  onPreview: (title: string, steps: Step[]) => void;
   className?: string;
 }
 
@@ -34,11 +34,10 @@ export default function RecordScriptView({
   scriptTitle,
   setScriptTitle,
   onClose,
+  onPreview,
   className,
 }: RecordScriptViewProps) {
-  const [actionsMode, setActionsMode] = useState<ActionsMode>(ActionsMode.Code);
   const [saving, setSaving] = useState(false);
-  const [playing, setPlaying] = useState(false);
 
   const onSave = async () => {
     setSaving(true);
@@ -52,14 +51,6 @@ export default function RecordScriptView({
       .finally(() => {
         setSaving(false);
       });
-  };
-
-  const togglePlayPause = async () => {
-    if (!playing) {
-      setPlaying(true);
-      await runScriptSteps(genPuppeteerSteps(actions));
-      setPlaying(false);
-    }
   };
 
   return (
@@ -76,8 +67,8 @@ export default function RecordScriptView({
           </Flex.Row>
         </Flex.Col>
         <IconButton
-          onClick={togglePlayPause}
-          icon={playing ? "pause" : "play"}
+          onClick={() => onPreview(scriptTitle, genPuppeteerSteps(actions))}
+          icon={"play"}
           label="Preview"
         />
         <PrimaryIconButton
@@ -92,19 +83,10 @@ export default function RecordScriptView({
         <Flex.Col
           className={css(
             Css.overflow("scroll"),
-            Css.maxHeight("calc(100vh - 170px)")
+            Css.maxHeight("calc(100vh - 180px)")
           )}
         >
-          {actionsMode === ActionsMode.Code && (
-            <CodeGen
-              title={scriptTitle}
-              actions={actions}
-              library={scriptType}
-            />
-          )}
-          {actionsMode === ActionsMode.Actions && (
-            <ActionList actions={actions} />
-          )}
+          <CodeGen title={scriptTitle} actions={actions} library={scriptType} />
         </Flex.Col>
       </Section>
     </Flex.Col>

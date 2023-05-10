@@ -3,25 +3,14 @@ import { getBestSelectorForAction } from "../builders/selector";
 import { Action, ActionType, ScriptType } from "../types";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
+import Icon from "../common/components/core/Icon/Icon";
 
 const LongTextCss = css(
   Css.whiteSpace("normal"),
   Css.wordBreak("break-all"),
   Flex.grow(1)
 );
-const svg = (
-  <div className={Css.width(10)}>
-    <svg
-      width="7"
-      height="7"
-      viewBox="0 0 7 7"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M6 3.5L0.75 6.53109V0.468911L6 3.5Z" fill="#83848A" />
-    </svg>
-  </div>
-);
+const svg = <Icon icon="arrow-right" size="xSmall" />;
 export function ActionText({
   action,
   className,

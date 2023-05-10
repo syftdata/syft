@@ -219,7 +219,7 @@ class Recorder {
     }
   };
 
-  private onClick = (event: Event) => {
+  private onClick = (event: MouseEvent) => {
     if (event.isTrusted === false) {
       // Ignore synthetic events
       return;
@@ -238,6 +238,8 @@ class Recorder {
     const action: ClickAction = {
       ...buildBaseAction(event, predictedTarget),
       type: ActionType.Click,
+      offsetX: event.offsetX,
+      offsetY: event.offsetY,
     };
 
     this.appendToRecording(action);
@@ -300,6 +302,8 @@ class Recorder {
             selectors:
               genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
               {},
+            offsetX: this.lastContextMenuEvent.offsetX,
+            offsetY: this.lastContextMenuEvent.offsetY,
           };
           break;
         case "onAwaitTextCtxMenu":

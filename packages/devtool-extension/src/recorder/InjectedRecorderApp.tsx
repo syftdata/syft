@@ -77,7 +77,7 @@ export default function InjectedRecorderApp() {
   const rect = hoveredElement?.getBoundingClientRect();
   const displayedSelector = getBestSelectorForAction(
     {
-      type: ActionType.Click,
+      type: ActionType.Hover,
       tagName: (hoveredElement?.tagName ?? "") as TagName,
       inputType: undefined,
       value: undefined,
@@ -87,6 +87,8 @@ export default function InjectedRecorderApp() {
       hasOnlyText:
         hoveredElement?.children?.length === 0 &&
         hoveredElement?.innerText?.length > 0,
+      offsetX: 0,
+      offsetY: 0,
     },
     ScriptType.Playwright
   );

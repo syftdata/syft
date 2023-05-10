@@ -28,7 +28,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/index.ts-loader.cbe0060d.js"
+        "assets/index.ts-loader.7ad14407.js"
       ],
       "matches": [
         "<all_urls>"
@@ -37,7 +37,7 @@
     },
     {
       "js": [
-        "assets/devtools_source.ts-loader.2adcd399.js"
+        "assets/devtools_source.ts-loader.137b8251.js"
       ],
       "matches": [
         "<all_urls>"
@@ -50,9 +50,9 @@
         "<all_urls>"
       ],
       "resources": [
-        "assets/chunk-c834524c.js",
-        "assets/chunk-e7be4601.js",
-        "assets/chunk-7f06edce.js"
+        "assets/chunk-8740526c.js",
+        "assets/chunk-a2eae9e0.js",
+        "assets/chunk-b1176340.js"
       ],
       "use_dynamic_url": true
     },
@@ -62,10 +62,10 @@
         "https://*/*"
       ],
       "resources": [
-        "assets/chunk-cfd3f0b9.js",
-        "assets/chunk-30aba9a8.js",
-        "assets/chunk-c834524c.js",
-        "assets/chunk-5caacc2e.js",
+        "assets/chunk-82eb7e4c.js",
+        "assets/chunk-f83022a5.js",
+        "assets/chunk-8740526c.js",
+        "assets/chunk-0fe22381.js",
         "assets/index.2ab409f4.css"
       ],
       "use_dynamic_url": false

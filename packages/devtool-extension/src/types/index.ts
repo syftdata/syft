@@ -21,7 +21,6 @@ export enum ActionType {
   Navigate = "navigate",
   Resize = "resize",
   Wheel = "wheel",
-  SyftEvent = "syft",
 }
 
 export enum TagName {
@@ -72,6 +71,8 @@ export class InputAction extends BaseAction {
 
 export class ClickAction extends BaseAction {
   declare type: ActionType.Click;
+  offsetX: number;
+  offsetY: number;
 }
 
 export class DragAndDropAction extends BaseAction {
@@ -84,6 +85,8 @@ export class DragAndDropAction extends BaseAction {
 
 export class HoverAction extends BaseAction {
   declare type: ActionType.Hover;
+  offsetX: number;
+  offsetY: number;
 }
 
 export class LoadAction extends BaseAction {
@@ -118,12 +121,6 @@ export class ResizeAction extends BaseAction {
   declare type: ActionType.Resize;
   width: number;
   height: number;
-}
-
-export class SyftAction extends BaseAction {
-  declare type: ActionType.SyftEvent;
-  name: string;
-  data: Record<string, string>;
 }
 
 export type Action =

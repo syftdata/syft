@@ -7,10 +7,13 @@ import Section from "../../common/components/core/Section";
 import { IconButton } from "../../common/components/core/Button/IconButton";
 import { deleteTestSpec } from "../api/git";
 import { useUserSession } from "../state/usersession";
-import { runScriptSteps } from "../../replay";
 import Spinner from "../../common/components/core/Spinner/Spinner";
 
-const GitFileList = () => {
+export interface GitFileListProps {
+  onPreview: (test: FileInfo) => void;
+}
+
+const GitFileList = ({ onPreview }: GitFileListProps) => {
   const [gitInfo] = useGitInfo();
   const [userSession] = useUserSession();
   if (gitInfo == null || userSession == null) {
@@ -23,7 +26,7 @@ const GitFileList = () => {
         if (record.content == null) {
           return;
         }
-        await runScriptSteps(JSON.parse(record.content).steps);
+        onPreview(record);
       },
     };
   };
