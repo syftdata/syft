@@ -1,14 +1,15 @@
-## About
+## Syft Studio Testing Instructions.
 
 This document shows how to use [cloud](https://syft-studio.app.vercel.app) features
 
 ### Prerequisites
 
 - Checkout branch `move-recorder-to-panel`
-- `npx lerna add -D`
+- Install Chrome Extension from packages/devtool-extension/dist-pkg folder.
 - Get an api-key from [sources page](https://syft-studio-app.vercel.app/sources)
+- `npx lerna add -D`
 
-NOTE: When you are reporting a bug, use `--verbose` flag and collect debug logs.
+**NOTE**: When you are reporting a bug, use `--verbose` flag and collect debug logs.
 
 ### Commands
 
