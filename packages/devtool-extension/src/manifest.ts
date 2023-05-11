@@ -16,7 +16,6 @@ export default defineManifest(async (env) => ({
     "tabs",
   ],
   host_permissions: ["<all_urls>"],
-
   icons: {
     "32": "img/logo-32.png",
     "48": "img/logo-48.png",

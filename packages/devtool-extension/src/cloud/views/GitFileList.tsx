@@ -11,9 +11,10 @@ import Spinner from "../../common/components/core/Spinner/Spinner";
 
 export interface GitFileListProps {
   onPreview: (test: FileInfo) => void;
+  onEdit: (test: FileInfo) => void;
 }
 
-const GitFileList = ({ onPreview }: GitFileListProps) => {
+const GitFileList = ({ onPreview, onEdit }: GitFileListProps) => {
   const [gitInfo] = useGitInfo();
   const [userSession] = useUserSession();
   if (gitInfo == null || userSession == null) {
@@ -31,6 +32,16 @@ const GitFileList = ({ onPreview }: GitFileListProps) => {
     };
   };
   columns[2].onCell = (record) => {
+    return {
+      onClick: async () => {
+        if (record.content == null) {
+          return;
+        }
+        onEdit(record);
+      },
+    };
+  };
+  columns[3].onCell = (record) => {
     return {
       onClick: async () => {
         await deleteTestSpec(record.name, record.sha, userSession);
@@ -60,6 +71,18 @@ export const FileInfoColumns = [
       return (
         <TableCell key={index} type="custom" justifyContent="end">
           <IconButton icon="play" />
+        </TableCell>
+      );
+    },
+  },
+  {
+    dataIndex: "edit",
+    key: "edit",
+    width: 32,
+    render: (value, record, index) => {
+      return (
+        <TableCell key={index} type="custom" justifyContent="end">
+          <IconButton icon="edit" />
         </TableCell>
       );
     },

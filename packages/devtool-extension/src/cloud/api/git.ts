@@ -42,6 +42,7 @@ export async function fetchGitInfo(
 export async function createTestSpec(
   name: string,
   steps: Step[],
+  sha: string | undefined,
   user: UserSession
 ): Promise<void> {
   const gitInfo = await getGitInfo();
@@ -54,6 +55,7 @@ export async function createTestSpec(
     branch: gitInfo.activeBranch,
     name,
     content,
+    sha,
   });
   handleGitInfoResponse(response);
 }

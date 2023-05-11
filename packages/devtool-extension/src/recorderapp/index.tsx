@@ -14,6 +14,7 @@ import GitFileList from "../cloud/views/GitFileList";
 import RecordPreviewView from "./RecordPreviewView";
 import ActionsEditor from "./ActionsEditor";
 import { Step } from "@puppeteer/replay";
+import { genPuppeteerSteps } from "../builders";
 
 export interface RecorderAppProps {
   actions: Action[];
@@ -23,9 +24,9 @@ export interface RecorderAppProps {
 }
 
 enum RecordingState {
-  Fresh,
+  Stopped,
   Recording,
-  Finished,
+  Editing,
 }
 
 export default function RecorderApp({
@@ -35,10 +36,12 @@ export default function RecorderApp({
   actions,
 }: RecorderAppProps) {
   const [userSession] = useUserSession();
-  const [_scriptType, setScriptType] = usePreferredLibrary();
+  //const [_scriptType, setScriptType] = usePreferredLibrary();
   const [recording, setRecording] = useState({
     title: "",
-    state: RecordingState.Fresh,
+    script: "",
+    sha: undefined as string | undefined,
+    state: RecordingState.Stopped,
   });
   const [preview, setPreview] = useState({
     title: "",
@@ -70,7 +73,11 @@ export default function RecorderApp({
   };
   const onStopRecording = () => {
     endRecording();
-    setRecording((r) => ({ ...r, state: RecordingState.Finished }));
+    setRecording((r) => ({
+      ...r,
+      script: JSON.stringify(genPuppeteerSteps(actions), null, 2),
+      state: RecordingState.Editing,
+    }));
   };
 
   const onPreview = (title: string, steps: Step[]) => {
@@ -80,8 +87,6 @@ export default function RecorderApp({
   const onStopPreview = () => {
     setPreview((p) => ({ ...p, isRunning: false }));
   };
-
-  const scriptType = _scriptType ?? ScriptType.Playwright;
 
   const getPreviewView = () => {
     return (
@@ -110,7 +115,7 @@ export default function RecorderApp({
     );
   };
 
-  const getFreshView = () => {
+  const getHomeView = () => {
     return (
       <>
         <FlexExtra.RowWithDivider>
@@ -126,28 +131,45 @@ export default function RecorderApp({
               onPreview(file.name, JSON.parse(file.content).steps);
             }
           }}
+          onEdit={(efile) => {
+            if (efile.content != null) {
+              setRecording((r) => ({
+                ...r,
+                title: efile.name,
+                sha: efile.sha,
+                script: JSON.stringify(
+                  JSON.parse(efile.content!).steps,
+                  null,
+                  2
+                ),
+                state: RecordingState.Editing,
+              }));
+            }
+          }}
         />
         <ActionsEditor actions={[]} />
       </>
     );
   };
 
-  const getRecordOverView = () => {
+  const getRecordEditorView = () => {
     return (
       <RecordScriptView
-        actions={actions}
+        script={recording.script}
+        sha={recording.sha}
+        setScript={(script) => {
+          setRecording((r) => ({ ...r, script }));
+        }}
         userSession={userSession!}
-        scriptType={scriptType}
-        setScriptType={setScriptType}
         scriptTitle={recording.title}
         setScriptTitle={(title) => {
           setRecording((r) => ({ ...r, title }));
         }}
-        onPreview={(title, steps) => {
-          onPreview(title, steps);
+        onPreview={() => {
+          onPreview(recording.title, JSON.parse(recording.script));
         }}
         onClose={() => {
-          setRecording((r) => ({ ...r, state: RecordingState.Fresh }));
+          setRecording((r) => ({ ...r, state: RecordingState.Stopped }));
         }}
       />
     );
@@ -158,12 +180,12 @@ export default function RecorderApp({
       return getPreviewView();
     }
     switch (recording.state) {
-      case RecordingState.Fresh:
-        return getFreshView();
+      case RecordingState.Stopped:
+        return getHomeView();
       case RecordingState.Recording:
         return getRecordingView();
-      case RecordingState.Finished:
-        return getRecordOverView();
+      case RecordingState.Editing:
+        return getRecordEditorView();
     }
   };
 

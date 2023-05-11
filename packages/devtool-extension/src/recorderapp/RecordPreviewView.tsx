@@ -37,7 +37,6 @@ export default function RecordPreviewView({
     if (isPlaying) {
       // stop previous script
       if (!runner) {
-        console.log(">>>>>>> creating runner...");
         createSyftRunner().then((syftRunner) => {
           if (syftRunner != null) {
             setRunner(syftRunner);

@@ -27,7 +27,7 @@ export async function createSyftRunner(): Promise<SyftRunner | undefined> {
     // use first page from pages instead of using browser.newPage()
     const [page] = await browser.pages();
     const runner = await createRunner(
-      new PuppeteerRunnerExtension(browser, page)
+      new PuppeteerRunnerExtension(browser, page, { timeout: 2000 })
     );
 
     extensionTransport.onclose = () => {
