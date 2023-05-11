@@ -12,9 +12,7 @@ import {
   FullScreenshotAction,
   InputAction,
   KeydownAction,
-  MessageType,
   ResizeAction,
-  SyftEventSource,
   TagName,
   WheelAction,
 } from "../types";
@@ -61,40 +59,40 @@ function buildBaseAction(
   };
 }
 
-async function getSourceFileOfAction(
-  action: Action
-): Promise<SyftEventSource | undefined> {
-  let doSomethingResolveCallback: any;
-  let doSomethingRejectCallback: any;
+// async function getSourceFileOfAction(
+//   action: Action
+// ): Promise<SyftEventSource | undefined> {
+//   let doSomethingResolveCallback: any;
+//   let doSomethingRejectCallback: any;
 
-  const handleSourceFile = (source: SyftEventSource | undefined) => {
-    if (doSomethingResolveCallback == null) return;
-    doSomethingResolveCallback(source);
-    doSomethingRejectCallback = null;
-    doSomethingResolveCallback = null;
-    window.removeEventListener("message", handleSourceFileEvent);
-  };
+//   const handleSourceFile = (source: SyftEventSource | undefined) => {
+//     if (doSomethingResolveCallback == null) return;
+//     doSomethingResolveCallback(source);
+//     doSomethingRejectCallback = null;
+//     doSomethingResolveCallback = null;
+//     window.removeEventListener("message", handleSourceFileEvent);
+//   };
 
-  const handleSourceFileEvent = (event: MessageEvent) => {
-    if (event.data.type !== MessageType.GetSourceFileResponse) return;
-    handleSourceFile(event.data.data as SyftEventSource | undefined);
-    return true;
-  };
+//   const handleSourceFileEvent = (event: MessageEvent) => {
+//     if (event.data.type !== MessageType.GetSourceFileResponse) return;
+//     handleSourceFile(event.data.data as SyftEventSource | undefined);
+//     return true;
+//   };
 
-  return new Promise((resolve, reject) => {
-    doSomethingResolveCallback = resolve;
-    doSomethingRejectCallback = reject;
-    window.addEventListener("message", handleSourceFileEvent);
-    // if we dont get the message back in 100ms, we will just give up.
-    setTimeout(() => {
-      handleSourceFile(undefined);
-    }, 100);
-    window.postMessage({
-      type: MessageType.GetSourceFile,
-      data: action.selectors,
-    });
-  });
-}
+//   return new Promise((resolve, reject) => {
+//     doSomethingResolveCallback = resolve;
+//     doSomethingRejectCallback = reject;
+//     window.addEventListener("message", handleSourceFileEvent);
+//     // if we dont get the message back in 100ms, we will just give up.
+//     setTimeout(() => {
+//       handleSourceFile(undefined);
+//     }, 100);
+//     window.postMessage({
+//       type: MessageType.GetSourceFile,
+//       data: action.selectors,
+//     });
+//   });
+// }
 
 class Recorder {
   private _recording: Action[];
@@ -104,17 +102,19 @@ class Recorder {
 
   private appendToRecording = (action: Action) => {
     this._recording.push(action);
-    getSourceFileOfAction(action)
-      .then((source) => {
-        action.eventSource = source;
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => {
-        chrome.storage.local.set({ recording: this._recording });
-        this.onAction(this._recording);
-      });
+    chrome.storage.local.set({ recording: this._recording });
+    this.onAction(this._recording);
+    // getSourceFileOfAction(action)
+    //   .then((source) => {
+    //     action.eventSource = source;
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //   })
+    //   .finally(() => {
+    //     chrome.storage.local.set({ recording: this._recording });
+    //     this.onAction(this._recording);
+    //   });
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {

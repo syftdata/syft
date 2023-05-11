@@ -27,7 +27,7 @@ export function setupCLICommonParams(cli: Argv): Argv {
     .option('remote', {
       describe: 'Remote Server Base Url',
       type: 'string',
-      default: 'https://syft-studio-app.vercel.app',
+      default: 'https://studio.syftdata.com',
       hidden: true
     })
     .option('force', {

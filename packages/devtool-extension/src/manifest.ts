@@ -3,8 +3,8 @@ import { defineManifest } from "@crxjs/vite-plugin";
 export default defineManifest(async (env) => ({
   name: env.mode === "production" ? "Syft Studio" : "[Dev] Syft Studio",
   description:
-    "Syft Studio lets you record, test and instrument your web apps.",
-  version: "0.0.6",
+    "Record browser interactions to auto generate event tests, and auto-magically instrument application code.",
+  version: "0.0.0.1",
   manifest_version: 3,
   permissions: [
     "activeTab",
@@ -13,7 +13,6 @@ export default defineManifest(async (env) => ({
     "contextMenus",
     "webNavigation",
     "debugger",
-    "tabs",
   ],
   host_permissions: ["<all_urls>"],
   icons: {
@@ -31,10 +30,6 @@ export default defineManifest(async (env) => ({
       matches: ["<all_urls>"],
       js: ["src/content/index.ts"],
       run_at: "document_start",
-    },
-    {
-      matches: ["<all_urls>"],
-      js: ["src/content/devtools_source.ts"],
     },
   ],
 }));
