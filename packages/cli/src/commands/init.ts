@@ -10,15 +10,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { handler as generateFromDir } from './generate';
 import { generate as schemaGenerate } from '../codegen/generators/model_generator';
-import { type FileInfo, getRemoteEventShemas } from '../init/destination';
+import { fetchRemoteData } from '../init/destination';
 import type { AST } from '../codegen/types';
 import { getEventShemas } from '../init/local';
+import { writeRemoteConfig } from '../config/remote';
+import { writeTestSpecs } from '../publish/remote';
 
 export interface Params {
   platform: string;
   product: string;
   outDir: string;
   apikey?: string;
+  branch: string;
   remote: string;
   force: boolean;
 }
@@ -31,6 +34,12 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
       describe:
         'Syft API key. If provided, event models are fetched from the remote server',
       type: 'string'
+    })
+    .option('branch', {
+      describe:
+        'Branch to pull event models from. If not provided, the default branch is used',
+      type: 'string',
+      default: 'main'
     })
     .positional('platform', {
       choices: ['web', 'mobile'] as const,
@@ -65,22 +74,6 @@ function initalizeSchemaFolder(folder: string, force: boolean): boolean {
   return true;
 }
 
-function writeTestSpecs(testFiles: FileInfo[], outDir: string): void {
-  // generate basic assets.
-  testFiles.forEach((file) => {
-    if (file.content === undefined) {
-      logError(`:warning: Test file ${file.name} is empty. Skipping..`);
-      return;
-    }
-    const filePath = path.join(outDir, file.name);
-    const fileDir = path.dirname(filePath);
-    if (!fs.existsSync(fileDir)) {
-      fs.mkdirSync(fileDir, { recursive: true });
-    }
-    fs.writeFileSync(filePath, file.content);
-  });
-}
-
 function generateSchemasFrom(ast: AST, folder: string): void {
   logVerbose(`Output dir: ${folder}`);
   // generate basic assets.
@@ -109,36 +102,41 @@ function generateSchemasFrom(ast: AST, folder: string): void {
   logInfo(`:sparkles: Models are generated successfully!`);
 }
 
-async function runSyftGenerator(outDir: string): Promise<void> {
-  await generateFromDir({ input: outDir, type: 'ts' });
-}
-
 export async function handler({
   platform,
   product,
   outDir,
   apikey,
+  branch,
   remote,
   force
 }: Params): Promise<void> {
   logVerbose(`Initializing Syft in ${outDir}..`);
   let ast: AST;
-  let testFiles: FileInfo[] = [];
   if (apikey !== undefined) {
-    logVerbose(`Syncing from ${remote}`);
-    const remoteData = await getRemoteEventShemas(remote, apikey);
+    logVerbose(`Pulling from ${remote}..`);
+    const remoteData = await fetchRemoteData(remote, apikey, branch);
+    if (remoteData === undefined) {
+      return;
+    }
     ast = remoteData.ast;
-    testFiles = remoteData.tests;
+    initalizeSchemaFolder(outDir, force);
+    writeTestSpecs(remoteData.tests, outDir);
+    writeRemoteConfig(
+      branch,
+      remoteData.eventSchemaSha,
+      remoteData.tests,
+      outDir
+    );
   } else {
     logVerbose(`Generating models for ${platform}`);
     ast = getEventShemas(platform, product);
+    initalizeSchemaFolder(outDir, force);
   }
 
-  initalizeSchemaFolder(outDir, force);
   generateSchemasFrom(ast, outDir);
-  writeTestSpecs(testFiles, outDir);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
-    await runSyftGenerator(outDir);
+    await generateFromDir({ input: outDir, type: 'ts' });
   }
 }

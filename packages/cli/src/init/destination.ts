@@ -3,7 +3,7 @@ import * as https from 'https';
 import type { AST, EventSchema, Field } from '../codegen/types';
 import { SyftEventType } from '../client_types';
 import { CLIVersion } from '../config/pkg';
-import { logVerbose } from '../utils';
+import { getHumanizedEventName, logVerbose } from '../utils';
 
 /***
  * Given a syft destination, this can re-create the schema file.
@@ -22,6 +22,7 @@ interface ApiField {
 interface ApiEvent {
   eventType: string; // type of the event
   name: string;
+  id?: string; // id and alias are the same. alias is deprecated.
   alias?: string;
   description?: string;
   fields: ApiField[];
@@ -45,23 +46,31 @@ interface EventSchemas {
 
 export interface FileInfo {
   name: string;
+  path: string;
   size: number;
   created?: Date;
   updated?: Date;
   updatedBy?: string;
-  sha: string;
+  sha?: string;
   content?: string;
 }
 
-interface ApiResponse {
-  activeSourceId?: string; // active source sent down
-  activeBranch?: string; // active branch sent down
-
-  branches: string[]; // all branches
+export interface CLIPullResponse {
   files: FileInfo[]; // tests in those branches
-
   eventSchemaSha?: string; // used to update the file without overwriting others changes.
   eventSchema: EventSchemas; // event catalog
+}
+
+export interface CLIPushRequest {
+  activeBranch: string; // active branch sent down
+  files: FileInfo[]; // tests in those branches
+  eventSchemaSha?: string; // used to update the file without overwriting others changes.
+  eventSchema: EventSchemas; // event catalog
+}
+
+export interface CLIPushResponse {
+  files: FileInfo[]; // tests in those branches
+  eventSchemaSha?: string; // used to update the file without overwriting others changes.
 }
 
 function getEventSchema(event: ApiEvent): EventSchema {
@@ -80,7 +89,7 @@ function getEventSchema(event: ApiEvent): EventSchema {
   });
 
   const schema: EventSchema = {
-    name: event.alias ?? event.name,
+    name: event.id ?? event.alias ?? event.name,
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     documentation:
       event.description ??
@@ -106,23 +115,41 @@ function getApiEvent(schema: EventSchema): ApiEvent {
     return val;
   });
   const result: ApiEvent = {
-    name: schema.name,
+    name: getHumanizedEventName(schema.name), // make it human friendly
+    id: schema.name,
+    alias: schema.name,
     description: schema.documentation,
     fields: properties,
-    eventType: schema.eventType.toString()
+    eventType: SyftEventType[schema.eventType]
   };
   return result;
 }
 
-export async function getRemoteEventShemas(
+export interface CLIParsedPullData {
+  ast: AST;
+  tests: FileInfo[];
+  eventSchemaSha?: string;
+}
+
+export interface CLIParsedPushData {
+  tests: FileInfo[];
+  eventSchemaSha?: string;
+}
+
+export async function fetchRemoteData(
   baseUrl: string,
-  apikey: string
-): Promise<{ ast: AST; tests: FileInfo[] }> {
+  apikey: string,
+  branch: string
+): Promise<CLIParsedPullData | undefined> {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   const fullUrl = `${baseUrl}/api/cliinfo`;
-  const payloadData = JSON.stringify({ apikey });
+  const payloadData = JSON.stringify({ branch });
 
   const options = {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': payloadData.length,
@@ -146,7 +173,8 @@ export async function getRemoteEventShemas(
           try {
             const responseData = JSON.parse(
               Buffer.concat(body).toString()
-            ) as ApiResponse;
+            ) as CLIPullResponse;
+            // console.log('>>>> response data is ', responseData);
             const events = responseData.eventSchema.events;
             const eventSchemas = events.map(getEventSchema);
             resolve({
@@ -157,6 +185,7 @@ export async function getRemoteEventShemas(
                 },
                 eventSchemas
               },
+              eventSchemaSha: responseData.eventSchemaSha,
               tests: responseData.files
             });
           } catch (e) {
@@ -201,7 +230,8 @@ export async function publishEventShemas(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': payloadData.length
+      'Content-Length': payloadData.length,
+      'syft-cli-auth': apiKey
     }
   };
   let protocol: Pick<typeof http, 'request'> = http;
@@ -216,6 +246,72 @@ export async function publishEventShemas(
         res.statusCode <= 299
       ) {
         resolve(true);
+      } else {
+        reject(new Error(`statusCode=${res.statusCode ?? 'undefined'}`));
+      }
+    });
+    req.write(payloadData);
+    req.end();
+  });
+}
+
+export async function pushRemoteData(
+  remoteData: CLIParsedPullData,
+  apiKey: string,
+  baseUrl: string,
+  branch: string
+): Promise<CLIParsedPushData | undefined> {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
+  const fullUrl = `${baseUrl}/api/clipush`;
+  const payload: CLIPushRequest = {
+    activeBranch: branch,
+    eventSchemaSha: remoteData.eventSchemaSha,
+    files: remoteData.tests,
+    eventSchema: {
+      appName: remoteData.ast.config.projectName,
+      appVersion: remoteData.ast.config.version,
+      events: remoteData.ast.eventSchemas.map(getApiEvent)
+    }
+  };
+  const payloadData = JSON.stringify(payload);
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': payloadData.length,
+      'syft-cli-auth': apiKey
+    }
+  };
+  let protocol: Pick<typeof http, 'request'> = http;
+  if (baseUrl.includes('https')) {
+    protocol = https;
+  }
+  return await new Promise((resolve, reject) => {
+    const req = protocol.request(fullUrl, options, (res) => {
+      if (
+        res.statusCode !== undefined &&
+        res.statusCode >= 200 &&
+        res.statusCode <= 299
+      ) {
+        const body: Buffer[] = [];
+        res.on('data', (d) => body.push(d));
+        res.on('end', () => {
+          try {
+            const responseData = JSON.parse(
+              Buffer.concat(body).toString()
+            ) as CLIPushResponse;
+            resolve({
+              eventSchemaSha: responseData.eventSchemaSha,
+              tests: responseData.files
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
       } else {
         reject(new Error(`statusCode=${res.statusCode ?? 'undefined'}`));
       }
