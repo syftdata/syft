@@ -1,7 +1,7 @@
 {
   "name": "Syft Studio",
-  "description": "Syft Studio lets you record, test and instrument your web apps.",
-  "version": "0.0.6",
+  "description": "Record browser interactions to auto generate event tests, and auto-magically instrument application code.",
+  "version": "0.0.0.1",
   "manifest_version": 3,
   "permissions": [
     "activeTab",
@@ -9,8 +9,7 @@
     "storage",
     "contextMenus",
     "webNavigation",
-    "debugger",
-    "tabs"
+    "debugger"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -28,20 +27,12 @@
   "content_scripts": [
     {
       "js": [
-        "assets/index.ts-loader.7ad14407.js"
+        "assets/index.ts-loader.d6c33073.js"
       ],
       "matches": [
         "<all_urls>"
       ],
       "run_at": "document_start"
-    },
-    {
-      "js": [
-        "assets/devtools_source.ts-loader.137b8251.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
     }
   ],
   "web_accessible_resources": [
@@ -51,8 +42,7 @@
       ],
       "resources": [
         "assets/chunk-8740526c.js",
-        "assets/chunk-a2eae9e0.js",
-        "assets/chunk-b1176340.js"
+        "assets/chunk-4ac3b015.js"
       ],
       "use_dynamic_url": true
     },
@@ -65,7 +55,7 @@
         "assets/chunk-2d8509c2.js",
         "assets/chunk-e266c12f.js",
         "assets/chunk-8740526c.js",
-        "assets/chunk-ac1fa2ef.js",
+        "assets/chunk-6ed47567.js",
         "assets/index.2ab409f4.css"
       ],
       "use_dynamic_url": false
