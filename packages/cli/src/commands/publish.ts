@@ -6,8 +6,8 @@ import {
   setConfigVersionOnExpression
 } from '../config/config';
 import { getSchemaFolder, logFatal, logInfo, logUnknownError } from '../utils';
-import { createTSProject, generateASTForProject } from '../codegen/compiler';
 import { publishEventShemas } from '../init/destination';
+import { createTSProject, generateASTForProject } from '@syftdata/codehandler';
 
 export interface Params {
   input: string;

@@ -1,6 +1,5 @@
 import type * as yargs from 'yargs';
 import * as fs from 'fs';
-import { generateAST } from '../codegen/compiler';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
@@ -13,8 +12,9 @@ import { getSchemaFolder, logDetail, logInfo } from '../utils';
 import { type Questions, prompt as ask } from 'inquirer';
 import { getClientPackage, updatePackageJson } from '../config/pkg';
 import { runLinter } from '../lint/linter';
-import { type AST } from '../codegen/types';
+import { type AST } from '@syftdata/common/lib/types';
 import { startServer } from '../watch/json_server';
+import { deserialize } from '@syftdata/codehandler';
 
 export interface Params {
   input: string;
@@ -128,7 +128,7 @@ async function innerHandler({
   destination,
   platform
 }: Params): Promise<AST | undefined> {
-  const ast = generateAST([input]);
+  const ast = deserialize([input]);
   if (ast != null) {
     if (ast.config.lintingDisabled !== true) {
       // lint source first.

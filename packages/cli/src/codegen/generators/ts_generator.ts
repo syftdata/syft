@@ -1,5 +1,5 @@
 import { CodeBlockWriter, ModuleKind, Project, ScriptTarget } from 'ts-morph';
-import { type AST, type TypeSchema } from '../types';
+import { type AST, type TypeSchema } from '@syftdata/common/lib/types';
 import {
   capitalize,
   logDetail,
@@ -8,7 +8,7 @@ import {
   logVerbose,
   lowerize
 } from '../../utils';
-import { SyftEventType } from '../../client_types';
+import { SyftEventType } from '@syftdata/common/lib/client_types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';

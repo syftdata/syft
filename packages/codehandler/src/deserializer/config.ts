@@ -1,4 +1,3 @@
-import { createTSProject } from '@syftdata/codehandler';
 import type { StaticConfig } from '@syftdata/common/lib/client_types';
 import type { ObjectLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, PropertyAssignment } from 'ts-morph';
@@ -46,29 +45,4 @@ export function getConfigFromExpression(
     }
   });
   return val;
-}
-
-export function setConfigVersionOnExpression(
-  expression: ObjectLiteralExpression,
-  version: string
-): boolean {
-  expression.getProperties().forEach((property) => {
-    if (property instanceof PropertyAssignment) {
-      const propertyName = property.getSymbolOrThrow().getEscapedName();
-      if (propertyName === 'version') {
-        property.setInitializer(`'${version}'`);
-        return true;
-      }
-    }
-  });
-  return false;
-}
-
-export function getConfig(schemaFolder: string): StaticConfig | undefined {
-  const project = createTSProject([schemaFolder]);
-  const expression = getConfigExpressionForProject(project);
-  if (expression === undefined) {
-    return;
-  }
-  return getConfigFromExpression(expression);
 }

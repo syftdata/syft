@@ -88,8 +88,8 @@ export const LOG_VALIDATE_METHODS_TEMPLATE = `
 `;
 
 export const GENERATED_TS_TEMPLATE = `
-import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from '@syftdata/common/lib/types'
-import { SyftEventType, NamingCase } from '@syftdata/common/lib/types'
+import type { StaticConfig, RuntimeConfig, SyftEvent, SyftPlugin } from './types'
+import { SyftEventType, NamingCase } from './types'
 import BaseSyft from './base'
 import { z } from 'zod'
 

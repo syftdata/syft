@@ -1,7 +1,7 @@
 {
-  "name": "@syftdata/client",
-  "version": "0.1.7+1684179888954",
-  "description": "Client library to log events. Please use syft to generate events from a schema file.",
+  "name": "@syftdata/codehandler",
+  "version": "0.1.7",
+  "description": "Code handler for Syft cli, which can serialize/deserialize internal models into typescript",
   "keywords": [
     "syft",
     "client",
@@ -31,20 +31,12 @@
   "bugs": {
     "url": "https://github.com/syftdata/syft/issues"
   },
-  "browser": {
-    "./src/node/configstore.js": "./src/browser/configstore.js",
-    "./src/node/dispatcher.js": "./src/browser/dispatcher.js",
-    "./src/node/uploader.js": "./src/browser/uploader.js",
-    "./src/node/index.js": "./src/browser/index.js"
-  },
   "scripts": {
     "prebuild": "rm -rf ./lib",
-    "build": "tsc && tsc --project tsconfig_scripts.json",
-    "build-bundle": "npx webpack --config webpack.config.js",
+    "build": "tsc",
     "test": "jest",
     "lint": "eslint --ext .ts src tests --fix",
     "prepublish": "npm run build",
-    "postinstall": "node ./lib/scripts/postinstall.js || true",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
@@ -65,7 +57,9 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "zod": "^3.20.5"
-  },
-  "gitHead": "88c566d72818936b193d860ced18df01b84bf140"
+    "@es-joy/jsdoccomment": "^0.37.0",
+    "@syftdata/common": "*",
+    "handlebars": "^4.7.7",
+    "ts-morph": "^17.0.1"    
+  }
 }

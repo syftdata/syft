@@ -2,7 +2,7 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
-import { type AST, type EventSchema } from '../types';
+import { type AST, type EventSchema } from '@syftdata/common/lib/types';
 import { createDir, getSQLFriendlyEventName, logInfo } from '../../utils';
 import DbtTemplate from '../templates/dbt_project';
 import DbtSampleProfile from '../templates/dbt_sample_profile';
@@ -11,7 +11,7 @@ import {
   type BigQueryConfig,
   type ProviderConfig
 } from '../../config/sink_configs';
-import { SyftEventType } from '../../client_types';
+import { SyftEventType } from '@syftdata/common/lib/client_types';
 
 // HACK: ignore user identity and index too. they don't exist in BQ yet.
 const EXCLUDED = ['UserIdentity', 'Index', 'TrackedEvent', 'PageEvent'];

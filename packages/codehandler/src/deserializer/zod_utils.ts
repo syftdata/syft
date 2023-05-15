@@ -1,4 +1,4 @@
-import { type TypeField } from './types';
+import { type TypeField } from '@syftdata/common/lib/types';
 
 const TypeToZodMapping = {
   number: 'number()',

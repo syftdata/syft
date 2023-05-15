@@ -1,6 +1,6 @@
 import * as http from 'http';
 import { logInfo } from '../utils';
-import { type AST } from '../codegen/types';
+import { type AST } from '@syftdata/common/lib/types';
 
 const PORT = 8085;
 export function startServer(getAST: () => AST | undefined): http.Server {

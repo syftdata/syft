@@ -1,4 +1,4 @@
-import type { AST } from '../codegen/types';
+import type { AST } from '@syftdata/common/lib/types';
 
 // NOTE: THIS IS FOR GIT CODE POINTERS (NOT YET IMPLEMENTED).
 // DO NOT GET CONFUSED WITH SYFT REMOTE GIT.

@@ -9,12 +9,13 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { handler as generateFromDir } from './generate';
-import { generate as schemaGenerate } from '../codegen/generators/model_generator';
 import { fetchRemoteData } from '../init/destination';
-import type { AST } from '../codegen/types';
+import type { AST } from '@syftdata/common/lib/types';
 import { getEventShemas } from '../init/local';
 import { writeRemoteConfig } from '../config/remote';
 import { writeTestSpecs } from '../publish/remote';
+import { serialize } from '@syftdata/codehandler';
+import { ModuleKind, Project, ScriptTarget } from 'ts-morph';
 
 export interface Params {
   platform: string;
@@ -98,7 +99,28 @@ function generateSchemasFrom(ast: AST, folder: string): void {
     path.join(__dirname, '../../assets/lint/rules/required_tsdoc.js'),
     path.join(folder, 'lint/rules/required_tsdoc.js')
   );
-  schemaGenerate(ast, folder);
+
+  if (ast.eventSchemas.length !== 0) {
+    const project = new Project({
+      compilerOptions: {
+        target: ScriptTarget.ES2016,
+        declaration: true,
+        sourceMap: true,
+        module: ModuleKind.CommonJS,
+        strict: false,
+        removeComments: false
+      }
+    });
+    project.createDirectory(folder);
+    const sourceFile = project.createSourceFile(
+      path.join(folder, 'events.ts'),
+      (writer) => {
+        writer.write(serialize(ast));
+      },
+      { overwrite: true }
+    );
+    sourceFile.saveSync();
+  }
   logInfo(`:sparkles: Models are generated successfully!`);
 }
 

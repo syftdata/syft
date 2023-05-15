@@ -6,8 +6,12 @@ import {
   type Symbol as TSSymbol,
   SyntaxKind
 } from 'ts-morph';
-import { logInfo } from '../utils';
-import { type TypeField, type Field, type TypeSchema } from './types';
+import { logInfo } from '@syftdata/common/lib/utils';
+import {
+  type TypeField,
+  type Field,
+  type TypeSchema
+} from '@syftdata/common/lib/types';
 import { ANY_TYPE, getZodType, getZodTypeForSchema } from './zod_utils';
 
 // const SyftypeModuleIndex = 'client/src/index".type.'

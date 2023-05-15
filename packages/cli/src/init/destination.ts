@@ -1,7 +1,7 @@
 import * as http from 'http';
 import * as https from 'https';
-import type { AST, EventSchema, Field } from '../codegen/types';
-import { SyftEventType } from '../client_types';
+import type { AST, EventSchema, Field } from '@syftdata/common/lib/types';
+import { SyftEventType } from '@syftdata/common/lib/client_types';
 import { CLIVersion } from '../config/pkg';
 import { getHumanizedEventName, logVerbose } from '../utils';
 

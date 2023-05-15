@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { type StaticConfig, type SyftEventType } from '../client_types';
+import { type StaticConfig, type SyftEventType } from './client_types';
 import { type Expression } from 'ts-morph';
 
 interface BasicInfo {

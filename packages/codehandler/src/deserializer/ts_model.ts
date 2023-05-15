@@ -1,13 +1,13 @@
-import { logDetail, logError, logFatal, logInfo } from '../utils';
+import { logDetail, logFatal } from '@syftdata/common/lib/utils';
 import { Project, ScriptTarget } from 'ts-morph';
-import { type AST } from './types';
+import { type AST } from '@syftdata/common/lib/types';
 import { getEventSchemas } from './visitor';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
   getConfigExpressionForProject,
   getConfigFromExpression
-} from '../config/config';
+} from './config';
 
 // TODO: memoize this method.
 export function createTSProject(filePaths: string[]): Project {
@@ -22,8 +22,9 @@ export function createTSProject(filePaths: string[]): Project {
     }
     return filePath;
   });
-
-  project.addSourceFilesAtPaths(files);
+  if (files.length > 0) {
+    project.addSourceFilesAtPaths(files);
+  }
   return project;
 }
 
@@ -53,6 +54,6 @@ export function generateASTForProject(project: Project): AST | undefined {
   };
 }
 
-export function generateAST(fileNames: string[]): AST | undefined {
+export function deserialize(fileNames: string[]): AST | undefined {
   return generateASTForProject(createTSProject(fileNames));
 }
