@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { generateAST } from '../../src/codegen/compiler';
+import { deserialize } from '../../src/deserializer/ts_model';
 
 describe('generateASTForProject', () => {
   it('with event annotations', async () => {
-    const ast = generateAST(['./tests/test_schema/single_event']);
+    const ast = deserialize(['./tests/test_schema/single_event']);
 
     expect(ast).toBeDefined();
     expect(ast?.eventSchemas.length).toBe(1);
@@ -11,7 +11,7 @@ describe('generateASTForProject', () => {
   });
 
   it('with multiple schemas', async () => {
-    const ast = generateAST(['./tests/test_schema/multiple_events']);
+    const ast = deserialize(['./tests/test_schema/multiple_events']);
 
     expect(ast).toBeDefined();
     expect(ast?.eventSchemas.length).toBe(8);

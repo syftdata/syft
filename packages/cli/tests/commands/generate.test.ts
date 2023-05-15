@@ -1,15 +1,15 @@
 import * as yargs from 'yargs';
-import * as compiler from '../../src/codegen/compiler';
+import * as compiler from '@syftdata/codehandler';
 import * as ts_generator from '../../src/codegen/generators/ts_generator';
 import * as go_generator from '../../src/codegen/generators/go_generator';
 import { setupCLICommonParams } from '../../src/cli';
 
 // silence outputs
-jest.mock('../../src/codegen/compiler');
+jest.mock('@syftdata/codehandler');
 jest.mock('../../src/codegen/generators/ts_generator');
 jest.mock('../../src/codegen/generators/go_generator');
 
-const generateAST = jest.spyOn(compiler, 'generateAST');
+const generateAST = jest.spyOn(compiler, 'deserialize');
 const generateTS = jest.spyOn(ts_generator, 'generate');
 const generateGO = jest.spyOn(go_generator, 'generate');
 generateAST.mockImplementation(() => {

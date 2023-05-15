@@ -2,8 +2,8 @@
 import { SyftEventType } from '@syftdata/client';
 import { CodeBlockWriter } from 'ts-morph';
 import { generateSource } from '../../../src/codegen/generators/ts_generator';
-import { type Field, type AST } from '../../../src/codegen/types';
-import { getZodTypeForSchema } from '../../../src/codegen/zod_utils';
+import { type Field, type AST } from '@syftdata/common/lib/types';
+import { getZodTypeForSchema } from '@syftdata/codehandler';
 
 const TEST_FIELDS: Field[] = [
   {
