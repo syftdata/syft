@@ -69,8 +69,8 @@
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
     "@puppeteer/replay": "^2.11.1",
-    "@syftdata/codehandler": "*",
-    "@syftdata/common": "*",
+    "@syftdata/codehandler": "file:../codehandler",
+    "@syftdata/common": "file:../common",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "chalk": "^4.1",

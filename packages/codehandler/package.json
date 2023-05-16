@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
-    "@syftdata/common": "*",
+    "@syftdata/common": "file:../common",
     "handlebars": "^4.7.7",
     "ts-morph": "^17.0.1"    
   }
