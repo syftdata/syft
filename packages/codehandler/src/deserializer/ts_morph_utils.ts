@@ -102,8 +102,7 @@ export function getTypeSchema(
   let enumValues: string[] = [];
   const isOptional = typeObj.isNullable();
   let syfttype: string | undefined;
-
-  if (typeObj.isClassOrInterface()) {
+  if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
     if (name.includes(SyftypeIndex)) {
       // TODO: all types that start with "type." are treated as syft-types.
       // Downside: if syft-types are imported as something else, this doesn't work.
