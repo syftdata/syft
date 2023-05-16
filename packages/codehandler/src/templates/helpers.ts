@@ -1,14 +1,9 @@
 import { isEmptyString } from '@syftdata/common/lib/utils';
 
 export function registerHandlerbarHelpers(handlebars): void {
-  const DEFAULT_DOCUMENTATION =
-    'Documentation is not available.\nPlease add it in the model file.';
-
   handlebars.registerHelper('ts_documentation', function (input?: string) {
-    const doc = (
-      !isEmptyString(input) ? input : DEFAULT_DOCUMENTATION
-    ) as string;
-    const lines = doc.split('\n');
+    if (input == null || isEmptyString(input)) return '';
+    const lines = input.split('\n');
     return lines.map((line) => `* ${line}`).join('\n');
   });
 

@@ -5,7 +5,7 @@ import {
   type Type,
   type Symbol as TSSymbol,
   SyntaxKind
-} from 'ts-morph';
+} from 'ts-morph/dist/ts-morph';
 import { logInfo } from '@syftdata/common/lib/utils';
 import {
   type TypeField,

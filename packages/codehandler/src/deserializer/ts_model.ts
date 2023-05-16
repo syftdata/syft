@@ -1,5 +1,5 @@
 import { logDetail, logFatal } from '@syftdata/common/lib/utils';
-import { Project, ScriptTarget } from 'ts-morph';
+import { Project, ScriptTarget } from 'ts-morph/dist/ts-morph';
 import { type AST } from '@syftdata/common/lib/types';
 import { getEventSchemas } from './visitor';
 import * as fs from 'fs';
@@ -56,4 +56,20 @@ export function generateASTForProject(project: Project): AST | undefined {
 
 export function deserialize(fileNames: string[]): AST | undefined {
   return generateASTForProject(createTSProject(fileNames));
+}
+
+export function deserializeFromCode(
+  code: string,
+  config: string
+): AST | undefined {
+  const project = new Project({
+    compilerOptions: { target: ScriptTarget.ES5 }
+  });
+  project.createSourceFile(path.join('events.ts'), (writer) => {
+    writer.write(code);
+  });
+  project.createSourceFile(path.join('config.ts'), (writer) => {
+    writer.write(config);
+  });
+  return generateASTForProject(project);
 }

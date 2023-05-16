@@ -1,6 +1,6 @@
 import type { StaticConfig } from '@syftdata/common/lib/client_types';
-import type { ObjectLiteralExpression, Project } from 'ts-morph';
-import { SyntaxKind, PropertyAssignment } from 'ts-morph';
+import type { ObjectLiteralExpression, Project } from 'ts-morph/dist/ts-morph';
+import { SyntaxKind, PropertyAssignment } from 'ts-morph/dist/ts-morph';
 
 const STATIC_CONFIG_TYPE = 'StaticConfig';
 

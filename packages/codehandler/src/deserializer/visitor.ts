@@ -12,7 +12,7 @@ import {
   type PropertyDeclaration,
   type SourceFile,
   type ts
-} from 'ts-morph';
+} from 'ts-morph/dist/ts-morph';
 import { getTags, getTypeSchema } from './ts_morph_utils';
 import { logError, logVerbose } from '@syftdata/common/lib/utils';
 import { getZodTypeForSchema, ZOD_ALLOWED_TAGS } from './zod_utils';
@@ -117,6 +117,7 @@ export function getEventSchema(
     return map;
   }, new Map<string, Field>());
 
+  // TODO: remove type field, which is the last one usually.
   let documentation = classObj
     .getJsDocs()
     .map((doc) => doc.getInnerText())
@@ -143,11 +144,13 @@ export function getEventSchema(
       documentation = baseSchema.documentation;
     }
     fields = Array.from(fieldMap.values());
-    traits = [...new Set([...baseSchema.traits, ...traits])];
+    traits = [...new Set([...(baseSchema.traits ?? []), ...traits])];
   }
 
   const zodType = getZodTypeForSchema(fields);
-
+  documentation = documentation
+    .replace(/\n@type {SyftEventType.*}/g, '')
+    .trim();
   return {
     name,
     eventType:

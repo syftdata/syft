@@ -1,5 +1,5 @@
 import { registerHandlerbarHelpers } from './helpers';
-import * as handlebars from 'handlebars';
+import * as handlebars from 'handlebars/dist/cjs/handlebars';
 
 registerHandlerbarHelpers(handlebars);
 

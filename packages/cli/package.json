@@ -68,6 +68,9 @@
   },
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
+    "@puppeteer/replay": "^2.11.1",
+    "@syftdata/codehandler": "*",
+    "@syftdata/common": "*",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "chalk": "^4.1",
@@ -76,10 +79,9 @@
     "inquirer": "^3.2.0",
     "js-yaml": "^4.1.0",
     "node-emoji": "^1.11.0",
+    "puppeteer": "^20.2.1",
     "ts-morph": "^17.0.1",
-    "yargs": "^17.6.2",
-    "@syftdata/common": "*",
-    "@syftdata/codehandler": "*"
+    "yargs": "^17.6.2"
   },
   "gitHead": "88c566d72818936b193d860ced18df01b84bf140"
 }
