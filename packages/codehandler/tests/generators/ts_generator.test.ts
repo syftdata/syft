@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { SyftEventType } from '@syftdata/client';
-import { CodeBlockWriter } from 'ts-morph';
-import { generateSource } from '../../../src/codegen/generators/ts_generator';
+import { generateSource } from '../../src/generators/ts_generator';
 import { type Field, type AST } from '@syftdata/common/lib/types';
 import { getZodTypeForSchema } from '@syftdata/codehandler';
 
@@ -36,9 +35,7 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const writer: CodeBlockWriter = new CodeBlockWriter();
-    generateSource(ast, writer);
-    expect(writer.toString()).toMatchSnapshot();
+    expect(generateSource(ast)).toMatchSnapshot();
   });
 
   it('with ts parses an event that is not exported', async () => {
@@ -58,9 +55,7 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const writer: CodeBlockWriter = new CodeBlockWriter();
-    generateSource(ast, writer);
-    expect(writer.toString()).toMatchSnapshot();
+    expect(generateSource(ast)).toMatchSnapshot();
   });
 
   it('with ts parses an event that is exported', async () => {
@@ -80,22 +75,6 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const writer: CodeBlockWriter = new CodeBlockWriter();
-    generateSource(ast, writer);
-    expect(writer.toString()).toMatchSnapshot();
+    expect(generateSource(ast)).toMatchSnapshot();
   });
-  // it('says generate with the right name, after asking it if not provided', async () => {
-  //   await runWithAnswers(() => generate({}), ['gabro', ENTER]);
-  //   expect(renderQuestion.mock.calls[0][0]).toMatchSnapshot();
-  //   expect(logInfo).toHaveBeenCalledTimes(2);
-  //   expect(logInfo.mock.calls[0][0]).toMatchSnapshot();
-  //   expect(logInfo.mock.calls[1][0]).toMatchSnapshot();
-  // });
-
-  // it('says generate with the right name, without asking it if provided', async () => {
-  //   await runWithAnswers(() => generate({ name: 'gabro' }));
-  //   expect(renderQuestion).not.toHaveBeenCalled();
-  //   expect(logInfo).toHaveBeenCalledTimes(1);
-  //   expect(logInfo.mock.calls[0][0]).toMatchSnapshot();
-  // });
 });

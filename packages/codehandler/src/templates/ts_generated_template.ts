@@ -15,6 +15,24 @@ handlebars.registerHelper('field_default_value', function (field: Field) {
     return `${field.defaultValue.toString()}`;
   }
 });
+handlebars.registerHelper('field_example_value', function (field: Field) {
+  if (field.type.name === 'string') {
+    return `"value"`;
+  } else if (field.type.name === 'number') {
+    return '0';
+  } else if (field.type.name === 'boolean') {
+    return 'false';
+  } else if (field.type.name === 'Date') {
+    return 'new Date()';
+  } else if (field.syfttype === 'Email') {
+    return '"test@acme.com"';
+  } else if (field.syfttype === 'Url') {
+    return '"https://example.com"';
+  } else if (field.syfttype === 'UUID') {
+    return '"123e4567-e89b-12d3-a456-426614174000"';
+  }
+  return 'undefined';
+});
 
 handlebars.registerPartial(
   'interface',
@@ -116,4 +134,15 @@ export default class Syft extends BaseSyft {
 
   {{logMethods}}
 }
+`;
+
+export const EXAMPLE_CALL_TEMPLATE = `syft.{{lowerName}}({
+  {{#each fields}}
+  {{#if defaultValue}}
+  {{name}}: {{field_default_value this}},
+  {{else}}
+  {{name}}: {{field_example_value this}},
+  {{/if}}
+  {{/each}}
+})
 `;

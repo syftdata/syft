@@ -32,7 +32,6 @@
     "url": "https://github.com/syftdata/syft/issues"
   },
   "scripts": {
-    "prebuild": "rm -rf ./lib",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint --ext .ts src tests --fix",

@@ -1,9 +1,7 @@
-import { isEmptyString } from '@syftdata/common/lib/utils';
-
 export function registerHandlerbarHelpers(handlebars): void {
   handlebars.registerHelper('ts_documentation', function (input?: string) {
-    if (input == null || isEmptyString(input)) return '';
-    const lines = input.split('\n');
+    const documentation = input?.trim() ?? '';
+    const lines = documentation.split('\n');
     return lines.map((line) => `* ${line}`).join('\n');
   });
 

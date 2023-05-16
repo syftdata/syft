@@ -1,5 +1,5 @@
+import { Project, ScriptTarget } from 'ts-morph';
 import { logDetail, logFatal } from '@syftdata/common/lib/utils';
-import { Project, ScriptTarget } from 'ts-morph/dist/ts-morph';
 import { type AST } from '@syftdata/common/lib/types';
 import { getEventSchemas } from './visitor';
 import * as fs from 'fs';

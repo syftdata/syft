@@ -12,10 +12,12 @@ handlebars.registerPartial(
  */
 {{#if exported}}export {{/if}}class {{name}} {
   {{#each fields}}
+  {{#if has_documentation}}
   /**
    {{> ts_documentation}}
    */
-  {{name}}{{#if isOptional}}?{{/if}}: {{type.name}};
+  {{/if}}
+  {{name}}{{#if isOptional}}?{{/if}}: {{#if syfttype}}type.{{syfttype}}{{else}}{{type.name}}{{/if}};
 
   {{/each}}
 }

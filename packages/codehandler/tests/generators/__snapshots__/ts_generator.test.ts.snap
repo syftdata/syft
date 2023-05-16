@@ -37,18 +37,15 @@ import { z } from 'zod'
 
 
 /**
- * Documentation is not available.
- * Please add it in the model file.
+ * 
  */
 export interface TestEvent {
     /**
-     * Documentation is not available.
-     * Please add it in the model file.
+     * 
      */
     backgrounded: boolean;
     /**
-     * Documentation is not available.
-     * Please add it in the model file.
+     * 
      */
     has_focus?: boolean;
 }
@@ -82,8 +79,7 @@ export default class Syft extends BaseSyft {
   }
 
   /**
-   * Documentation is not available.
-   * Please add it in the model file.
+   * 
    * @param event object with fields defined in the syft model file. 
    */
   testEvent(event: TestEvent): boolean {
@@ -118,18 +114,15 @@ import { z } from 'zod'
 
 
 /**
- * Documentation is not available.
- * Please add it in the model file.
+ * 
  */
 export interface TestEvent {
     /**
-     * Documentation is not available.
-     * Please add it in the model file.
+     * 
      */
     backgrounded: boolean;
     /**
-     * Documentation is not available.
-     * Please add it in the model file.
+     * 
      */
     has_focus?: boolean;
 }

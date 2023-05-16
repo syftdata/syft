@@ -1,10 +1,4 @@
 import {
-  type EventSchema,
-  type Field,
-  type TypeField
-} from '@syftdata/common/lib/types';
-import { SyftEventType } from '@syftdata/common/lib/client_types';
-import {
   JSDocTypeTag,
   type ClassDeclaration,
   type JSDocTag,
@@ -12,9 +6,15 @@ import {
   type PropertyDeclaration,
   type SourceFile,
   type ts
-} from 'ts-morph/dist/ts-morph';
-import { getTags, getTypeSchema } from './ts_morph_utils';
+} from 'ts-morph';
+import {
+  type EventSchema,
+  type Field,
+  type TypeField
+} from '@syftdata/common/lib/types';
+import { SyftEventType } from '@syftdata/common/lib/client_types';
 import { logError, logVerbose } from '@syftdata/common/lib/utils';
+import { getTags, getTypeSchema } from './ts_morph_utils';
 import { getZodTypeForSchema, ZOD_ALLOWED_TAGS } from './zod_utils';
 
 interface EventAnnotations {
