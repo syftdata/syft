@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/codehandler",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Code handler for Syft cli, which can serialize/deserialize internal models into typescript",
   "keywords": [
     "syft",
