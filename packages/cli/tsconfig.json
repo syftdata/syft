@@ -10,5 +10,5 @@
   },
   "include": [
     "./src"
-  ]
+, "../test/src/browser_funcs.ts"  ]
 }

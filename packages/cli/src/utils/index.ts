@@ -62,6 +62,11 @@ export function getSchemaFolder(): string {
   return path.join(projectRootFolder, SCHEMA_FOLDER);
 }
 
+export function getTestSpecFolder(schemaFolder?: string): string {
+  const dir = schemaFolder ?? getSchemaFolder();
+  return path.join(dir, 'specs');
+}
+
 export function createDir(dir: string): void {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

@@ -2,8 +2,7 @@ import { createRunner, parse } from '@puppeteer/replay';
 import puppeteer, { type Browser } from 'puppeteer';
 import * as fs from 'fs';
 import * as path from 'path';
-import { VerifyExtension } from './verify';
-import { getEventNameFrom } from './utils';
+import { SyftPuppeteerVerifyExtension, getEventNameFrom } from '@syftdata/test';
 import { glob } from 'glob';
 import { logDetail, logError, logInfo } from '../utils';
 
@@ -33,7 +32,9 @@ export async function verifyPuppeteerTest(
 
   const browser = await getBrowser(headless);
   const page = await browser.newPage();
-  const extension = new VerifyExtension(browser, page, { timeout: 10000 });
+  const extension = new SyftPuppeteerVerifyExtension(browser, page, {
+    timeout: 10000
+  });
   const runner = await createRunner(flow, extension);
 
   await runner.run();

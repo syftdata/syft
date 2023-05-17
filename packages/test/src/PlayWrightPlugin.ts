@@ -1,4 +1,5 @@
-import { test as baseTest, type TestInfo, type Page } from '@playwright/test';
+import { test, type TestInfo, type Page } from '@playwright/test';
+import { getSyftEvents, resetSyft } from './browser_funcs';
 
 declare global {
   interface Window {
@@ -13,20 +14,13 @@ class SyftPlayWrightUtils {
 
   constructor(private readonly page: Page, private readonly test: TestInfo) {}
   async reset(): Promise<void> {
-    await this.page.evaluate(() => {
-      if (typeof window.syft !== 'undefined') {
-        return window.syft.getTester().reset();
-      }
-    });
+    await this.page.evaluate(resetSyft);
   }
 
   async getEvents(): Promise<Array<Record<string, any>>> {
-    const events = (await this.page.evaluate(() => {
-      if (typeof window.syft !== 'undefined') {
-        return window.syft.getTester().events;
-      }
-      return [];
-    })) as Array<Record<string, any>>;
+    const events = (await this.page.evaluate(getSyftEvents)) as Array<
+      Record<string, any>
+    >;
     return events;
   }
 
@@ -35,40 +29,18 @@ class SyftPlayWrightUtils {
     const existingEvents = await this.getEvents();
     const startTime = new Date().getTime();
     return await new Promise((resolve, reject) => {
-      // const customReject = async (): Promise<void> => {
-      //   const coverage = await this.page.coverage.stopJSCoverage();
-      //   coverage.forEach((c) => {
-      //     if (c.url.includes('localhost') === true) {
-      //       console.log(
-      //         c.functions
-      //           .filter((f) => f.isBlockCoverage)
-      //           .map((f) => f.functionName)
-      //       );
-      //     }
-      //   });
-      //   // this.test.fixme(true, `Event not found: ${eventName}`);
-      //   reject(new Error(`Event not found: ${eventName}`));
-      // };
-      // const customResolve = async (
-      //   event: Record<string, any>
-      // ): Promise<void> => {
-      //   await this.page.coverage.stopJSCoverage();
-      //   resolve(event);
-      // };
       const testAsyncFunc = async (): Promise<void> => {
         const events = await this.getEvents();
         const newEvents = events.slice(existingEvents.length);
         if (newEvents.length > 0) {
           const event = newEvents.find((e) => e.syft.eventName === eventName);
           if (event != null) {
-            // await customResolve(event);
             resolve(event);
             return;
           }
         }
         const currentTime = new Date().getTime();
         if (currentTime - startTime >= 2000) {
-          // await customReject();
           reject(new Error(`Event not found: ${eventName}`));
         } else {
           setTimeout(testfunc, 100);
@@ -105,7 +77,7 @@ interface SyftPlayWrightTest {
   syft: SyftPlayWrightUtils;
 }
 
-export const test = baseTest.extend<SyftPlayWrightTest>({
+export const SyftPWTest = test.extend<SyftPlayWrightTest>({
   syft: async ({ page }, use, testInfo) => {
     // we can attach the failure on test info.
     // testInfo.attach();

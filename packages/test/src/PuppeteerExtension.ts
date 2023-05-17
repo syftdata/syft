@@ -4,14 +4,14 @@ import {
   type UserFlow
 } from '@puppeteer/replay';
 import { logError, logInfo, logVerbose } from '@syftdata/common/lib/utils';
-import { getEventNameFrom, isSyftStep } from './utils';
+import { getEventNameFrom, isSyftStep } from './PuppeteerUtils';
 import { getSyftEvents, getSyftTester } from './browser_funcs';
 
 export interface FailedEvent {
   eventName: string;
   stepNum: number;
 }
-export class VerifyExtension extends PuppeteerRunnerExtension {
+export class SyftPuppeteerVerifyExtension extends PuppeteerRunnerExtension {
   failedEvents: FailedEvent[] = [];
   previousEventCount = 0;
 
