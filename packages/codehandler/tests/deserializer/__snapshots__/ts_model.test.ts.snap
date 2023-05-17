@@ -12,6 +12,7 @@ exports[`generateASTForProject with event annotations 1`] = `
         "name": "userId",
         "type": {
           "name": "string",
+          "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
         "isOptional": false,
@@ -21,6 +22,7 @@ exports[`generateASTForProject with event annotations 1`] = `
         "name": "email",
         "type": {
           "name": "string",
+          "syfttype": "Email",
           "zodType": "z.string().email()"
         },
         "isOptional": false,
@@ -30,6 +32,7 @@ exports[`generateASTForProject with event annotations 1`] = `
         "name": "country",
         "type": {
           "name": "string",
+          "syfttype": "CountryCode",
           "zodType": "z.string().length(2)"
         },
         "isOptional": false,
@@ -52,10 +55,19 @@ exports[`generateASTForProject with event annotations 1`] = `
         },
         "isOptional": false,
         "documentation": ""
+      },
+      {
+        "name": "isVerified",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false,
+        "documentation": ""
       }
     ],
     "traits": [],
-    "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2),\\n\\tdirection: z.enum([0, 1, 2, 3]),\\n\\tisSpammer: z.enum([\\"Yes\\", \\"No\\"])\\n  })"
+    "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2),\\n\\tdirection: z.enum([0, 1, 2, 3]),\\n\\tisSpammer: z.enum([\\"Yes\\", \\"No\\"]),\\n\\tisVerified: z.boolean()\\n  })"
   }
 ]"
 `;
@@ -72,6 +84,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "userId",
         "type": {
           "name": "string",
+          "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
         "isOptional": false,
@@ -81,6 +94,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "email",
         "type": {
           "name": "string",
+          "syfttype": "Email",
           "zodType": "z.string().email()"
         },
         "isOptional": false,
@@ -90,6 +104,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "country",
         "type": {
           "name": "string",
+          "syfttype": "CountryCode",
           "zodType": "z.string().length(2)"
         },
         "isOptional": false,
@@ -213,6 +228,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "id",
         "type": {
           "name": "string",
+          "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
         "isOptional": false,
@@ -303,6 +319,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "id",
         "type": {
           "name": "string",
+          "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
         "isOptional": false,
@@ -420,6 +437,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "webhook",
         "type": {
           "name": "string",
+          "syfttype": "Url",
           "zodType": "z.string().url()"
         },
         "isOptional": false,
@@ -484,6 +502,7 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "name": "webhook",
         "type": {
           "name": "string",
+          "syfttype": "Url",
           "zodType": "z.string().url()"
         },
         "isOptional": false,

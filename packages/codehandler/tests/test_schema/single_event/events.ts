@@ -27,4 +27,5 @@ export class UserIdentity {
   country: type.CountryCode;
   direction: Direction;
   isSpammer: YesNo;
+  isVerified: boolean;
 }

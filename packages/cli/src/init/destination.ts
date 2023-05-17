@@ -10,12 +10,12 @@ import { SyftEventType } from '@syftdata/common/lib/client_types';
 interface ApiFieldType {
   name: string;
   zodType: string;
+  syfttype?: string;
 }
 
 interface ApiField {
   name: string;
   type: ApiFieldType;
-  syfttype?: string;
   documentation?: string;
   defaultValue?: string;
   isOptional: boolean;
@@ -50,12 +50,14 @@ export interface FileInfo {
 }
 
 export interface CLIPullResponse {
+  activeBranch: string; // branch that is active
   files: FileInfo[]; // tests in those branches
   eventSchemaSha?: string; // used to update the file without overwriting others changes.
   eventSchema: ApiAST; // event catalog
 }
 
 export interface CLIParsedPullData {
+  activeBranch: string;
   ast: AST;
   tests: FileInfo[];
   eventSchemaSha?: string;
@@ -91,7 +93,7 @@ function getEventSchema(event: ApiEventSchema): EventSchema {
 export async function fetchRemoteData(
   baseUrl: string,
   apikey: string,
-  branch: string
+  branch?: string
 ): Promise<CLIParsedPullData | undefined> {
   if (process.env.NODE_ENV === 'test') {
     return;
@@ -126,7 +128,6 @@ export async function fetchRemoteData(
             const responseData = JSON.parse(
               Buffer.concat(body).toString()
             ) as CLIPullResponse;
-            // console.log('>>>> response data is ', responseData);
             const events = responseData.eventSchema.events;
             const eventSchemas = events.map(getEventSchema);
             resolve({
@@ -137,6 +138,7 @@ export async function fetchRemoteData(
                 },
                 eventSchemas
               },
+              activeBranch: responseData.activeBranch,
               eventSchemaSha: responseData.eventSchemaSha,
               tests: responseData.files
             });

@@ -43,10 +43,10 @@ export interface TypeField extends BasicInfo {
 export interface TypeSchema extends BasicInfo {
   typeFields?: TypeField[]; // fields if the type is a complex object. for primitives, this will be empty.
   zodType: string; // for zod validation. z.string()
+  syfttype?: string; // types defined in syft system. UUID, email etc.,
 }
 
 export interface Field extends TypeField {
-  syfttype?: string; // types defined in syft system. UUID, email etc.,
   defaultValue?: string; // eg: default values 1, "hello". makes the field optional.
 }
 

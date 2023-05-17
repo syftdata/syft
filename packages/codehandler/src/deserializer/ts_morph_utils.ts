@@ -102,6 +102,7 @@ export function getTypeSchema(
   let enumValues: string[] = [];
   const isOptional = typeObj.isNullable();
   let syfttype: string | undefined;
+  let foundUnsuppotedCloudType = false;
   if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
     if (name.includes(SyftypeIndex)) {
       // TODO: all types that start with "type." are treated as syft-types.
@@ -111,9 +112,11 @@ export function getTypeSchema(
       syfttype = name.slice(typeStrLoc + SyftypeIndex.length);
       name = 'string';
     } else if (!KNOWN_TYPES.has(name)) {
+      foundUnsuppotedCloudType = true;
       return getTypeSchemaForComplexObject(typeObj, debugName);
     }
   } else if (typeObj.isObject()) {
+    foundUnsuppotedCloudType = true;
     return getTypeSchemaForComplexObject(typeObj, debugName);
   } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
     const subtypes = typeObj.getUnionTypes();
@@ -143,8 +146,16 @@ export function getTypeSchema(
       name = 'any';
     }
   } else if (typeObj.isAny()) {
+    // throw error.
     logInfo(`:warning: Any type is seen: "${debugName}".`);
     name = 'any';
+    foundUnsuppotedCloudType = true;
+  }
+
+  if (foundUnsuppotedCloudType) {
+    logInfo(
+      `:prohibited: ${debugName} field is defined as ${name} type, which is not supported on the cloud.`
+    );
   }
 
   let zodType = `z.${getZodType(name, enumValues, syfttype)}`;
@@ -160,6 +171,7 @@ export function getTypeSchema(
 
   return {
     name,
+    syfttype,
     zodType
   };
 }

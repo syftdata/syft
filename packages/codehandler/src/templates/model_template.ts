@@ -17,7 +17,7 @@ handlebars.registerPartial(
    {{> ts_documentation}}
    */
   {{/if}}
-  {{name}}{{#if isOptional}}?{{/if}}: {{#if syfttype}}type.{{syfttype}}{{else}}{{type.name}}{{/if}};
+  {{name}}{{#if isOptional}}?{{/if}}: {{#if type.syfttype}}type.{{type.syfttype}}{{else}}{{type.name}}{{/if}};
 
   {{/each}}
 }

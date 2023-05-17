@@ -22,7 +22,7 @@ export interface Params {
   product: string;
   outDir: string;
   apikey?: string;
-  branch: string;
+  branch?: string;
   remote: string;
   force: boolean;
 }
@@ -39,8 +39,7 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
     .option('branch', {
       describe:
         'Branch to pull event models from. If not provided, the default branch is used',
-      type: 'string',
-      default: 'main'
+      type: 'string'
     })
     .positional('platform', {
       choices: ['web', 'mobile'] as const,
@@ -139,17 +138,18 @@ export async function handler({
     logVerbose(`Pulling from ${remote}..`);
     const remoteData = await fetchRemoteData(remote, apikey, branch);
     if (remoteData === undefined) {
+      logError(`:warning: Failed to fetch data from ${remote}`);
       return;
     }
     ast = remoteData.ast;
     initalizeSchemaFolder(outDir, force);
     writeTestSpecs(remoteData.tests, outDir);
-    writeRemoteConfig(
-      branch,
-      remoteData.eventSchemaSha,
-      remoteData.tests,
-      outDir
-    );
+    // writeRemoteConfig(
+    //   remoteData.activeBranch,
+    //   remoteData.eventSchemaSha,
+    //   remoteData.tests,
+    //   outDir
+    // );
   } else {
     logVerbose(`Generating models for ${platform}`);
     ast = getEventShemas(platform, product);

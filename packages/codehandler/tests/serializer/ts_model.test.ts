@@ -2,7 +2,7 @@ import { SyftEventType } from '@syftdata/client';
 import { serialize } from '../../src/serializer/ts_model';
 
 describe('serialize', () => {
-  it('with ts parses an empty schema file', async () => {
+  it('serialize regular primitive and syft types', async () => {
     const ast = {
       eventSchemas: [
         {
@@ -21,9 +21,9 @@ describe('serialize', () => {
               name: 'email',
               type: {
                 name: 'string',
+                syfttype: 'Email',
                 zodType: 'z.string().email()'
               },
-              syfttype: 'Email',
               isOptional: false
             }
           ],
