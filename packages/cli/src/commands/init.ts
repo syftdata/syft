@@ -12,7 +12,6 @@ import { handler as generateFromDir } from './generate';
 import { fetchRemoteData } from '../init/destination';
 import type { AST } from '@syftdata/common/lib/types';
 import { getEventShemas } from '../init/local';
-import { writeRemoteConfig } from '../config/remote';
 import { writeTestSpecs } from '../publish/remote';
 import { serialize } from '@syftdata/codehandler';
 import { ModuleKind, Project, ScriptTarget } from 'ts-morph';

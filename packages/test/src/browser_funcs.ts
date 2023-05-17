@@ -20,3 +20,9 @@ export const getSyftEvents = () => {
   }
   return [];
 };
+
+export const resetSyft = () => {
+  if (typeof window.syft !== 'undefined') {
+    return window.syft.getTester().reset();
+  }
+};

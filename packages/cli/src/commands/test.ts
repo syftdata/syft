@@ -1,5 +1,5 @@
 import type * as yargs from 'yargs';
-import { logInfo, logVerbose } from '../utils';
+import { getTestSpecFolder, logInfo, logVerbose } from '../utils';
 import * as glob from 'glob';
 import { verifyPuppeteerTest } from '../replay/puppeteer';
 
@@ -11,8 +11,7 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
   return y
     .option('test-specs', {
       describe: 'folder with test specs.',
-      // default: getTestSpecFolder(),
-      default: '../examples/todo-app/syft/tests',
+      default: getTestSpecFolder(),
       type: 'string'
     })
     .option('headless', {

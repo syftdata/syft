@@ -3,3 +3,5 @@
 
 export * from './TestingPlugin';
 export * from './PlayWrightPlugin';
+export * from './PuppeteerExtension';
+export * from './PuppeteerUtils';
