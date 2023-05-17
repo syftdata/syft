@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "workspaces": {
-    "packages": ["packages/client", "packages/cli"]
+    "packages": ["packages/common", "packages/client", "packages/codehandler", "packages/cli", "packages/test"]
   },
   "devDependencies": {
     "@types/node": "^18.13.0",

@@ -32,7 +32,13 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - run: npx lerna bootstrap
       - run: npx lerna run build
+      - run: cd packages/common;npm publish;cd ../../;
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: cd packages/client;npm publish;cd ../../;
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: cd packages/codehandler;npm publish;cd ../../;
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: cd packages/cli;npm publish;cd ../../;

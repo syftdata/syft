@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/client",
-  "version": "0.1.7",
+  "version": "0.1.7+1684320730581",
   "description": "Client library to log events. Please use syft to generate events from a schema file.",
   "keywords": [
     "syft",

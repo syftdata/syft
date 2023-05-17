@@ -1,28 +1,27 @@
-import { defineConfig } from 'vite'
-import { crx } from '@crxjs/vite-plugin'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { crx } from "@crxjs/vite-plugin";
+import react from "@vitejs/plugin-react";
 
-import manifest from './src/manifest'
+// @ts-ignore-error
+import manifest from "./src/manifest";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
-    define: {
-      global: {},
-    },
     build: {
+      chunkSizeWarningLimit: 1000,
       emptyOutDir: true,
-      outDir: 'build',
+      outDir: "build",
       rollupOptions: {
         input: {
-          devpanel: './devpanel.html',
+          devpanel: "./devpanel.html",
         },
         output: {
-          chunkFileNames: 'assets/chunk-[hash].js',
+          chunkFileNames: "assets/chunk-[hash].js",
         },
       },
     },
 
     plugins: [crx({ manifest }), react()],
-  }
-})
+  };
+});

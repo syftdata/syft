@@ -1,7 +1,7 @@
-import type { StaticConfig } from '../client_types';
+import { createTSProject } from '@syftdata/codehandler';
+import type { StaticConfig } from '@syftdata/common/lib/client_types';
 import type { ObjectLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, PropertyAssignment } from 'ts-morph';
-import { createTSProject } from '../codegen/compiler';
 
 const STATIC_CONFIG_TYPE = 'StaticConfig';
 

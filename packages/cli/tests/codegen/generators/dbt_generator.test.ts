@@ -4,12 +4,12 @@ import * as mockfs from 'mock-fs';
 import * as fs from 'fs';
 import * as path from 'path';
 import { generate } from '../../../src/codegen/generators/dbt_generator';
-import { type Field, type AST } from '../../../src/codegen/types';
+import { type Field, type AST } from '@syftdata/common/lib/types';
 import {
   type BigQueryConfig,
   type ProviderConfig
 } from '../../../src/config/sink_configs';
-import { getZodTypeForSchema } from '../../../src/codegen/zod_utils';
+import { getZodTypeForSchema } from '@syftdata/codehandler';
 
 const TEST_FIELDS: Field[] = [
   {

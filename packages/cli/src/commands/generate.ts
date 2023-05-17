@@ -1,5 +1,5 @@
 import type * as yargs from 'yargs';
-import { generateAST } from '../codegen/compiler';
+import * as fs from 'fs';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
@@ -8,10 +8,13 @@ import {
   type BigQueryConfig,
   type ProviderConfig
 } from '../config/sink_configs';
-import { getSchemaFolder } from '../utils';
+import { getSchemaFolder, logDetail, logInfo } from '../utils';
 import { type Questions, prompt as ask } from 'inquirer';
 import { getClientPackage, updatePackageJson } from '../config/pkg';
 import { runLinter } from '../lint/linter';
+import { type AST } from '@syftdata/common/lib/types';
+import { startServer } from '../watch/json_server';
+import { deserialize } from '@syftdata/codehandler';
 
 export interface Params {
   input: string;
@@ -21,6 +24,7 @@ export interface Params {
   dataset?: string;
   destination?: string;
   platform?: string;
+  watch?: boolean;
 }
 export const command = 'generate [type]';
 export const desc =
@@ -57,6 +61,10 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
       .option('outDir', {
         describe: 'Directory to place output files',
         type: 'string'
+      })
+      .option('watch', {
+        describe: 'Watch input folder for changes and regenerate',
+        type: 'boolean'
       })
   );
 };
@@ -111,7 +119,7 @@ async function getProviderConfig(
   };
 }
 
-export async function handler({
+async function innerHandler({
   input,
   type,
   outDir,
@@ -119,14 +127,14 @@ export async function handler({
   dataset,
   destination,
   platform
-}: Params): Promise<void> {
-  const ast = generateAST([input]);
+}: Params): Promise<AST | undefined> {
+  const ast = deserialize([input]);
   if (ast != null) {
     if (ast.config.lintingDisabled !== true) {
       // lint source first.
       const successLint = await runLinter([input]);
       if (!successLint) {
-        return;
+        return ast;
       }
     }
     if (type === 'ts') {
@@ -148,5 +156,27 @@ export async function handler({
 
       generateDBT(ast, outDir ?? './dbt', bqConfig, providerConfig);
     }
+  }
+  return ast;
+}
+
+export async function handler(params: Params): Promise<void> {
+  const { watch, input } = params;
+  let ast = await innerHandler(params);
+  if (watch === true) {
+    logDetail('Watching input folder for changes...');
+    fs.watch(input, (eventType, filename) => {
+      if (filename?.endsWith('.ts')) {
+        logInfo('Detected changes in the input folder. Regenerating...');
+        innerHandler(params)
+          .then((latestAST) => {
+            ast = latestAST;
+            logInfo('Regeneration complete.');
+          })
+          .catch(() => {});
+      }
+    });
+    // in watch mode, run a http server and serve AST.
+    startServer(() => ast);
   }
 }

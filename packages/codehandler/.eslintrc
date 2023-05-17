@@ -1,0 +1,25 @@
+{
+  "env": {
+    "node": true
+  },
+  "root": true,
+  "plugins": [
+    "prettier"
+  ],
+  "extends": [
+    "standard-with-typescript",
+    "prettier"
+  ],
+  "rules": {
+    "no-console": 1,       // Means warning
+    "prettier/prettier": 2 // Means error
+  },
+  "parserOptions": {
+    "ecmaVersion": "2016",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "overrides": [{
+      "files": ["*.ts"]
+  }]
+}

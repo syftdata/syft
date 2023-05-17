@@ -1,4 +1,7 @@
-import type { AST } from '../codegen/types';
+import type { AST } from '@syftdata/common/lib/types';
+
+// NOTE: THIS IS FOR GIT CODE POINTERS (NOT YET IMPLEMENTED).
+// DO NOT GET CONFUSED WITH SYFT REMOTE GIT.
 
 export interface GitLocation {
   filePath: string;
@@ -6,7 +9,7 @@ export interface GitLocation {
   lineNum: number;
 }
 
-export interface GitInfo {
+export interface GitLocations {
   tag?: string; // tag if available.
   head: string; // git head
   definitions: Map<string, GitLocation>; // git location of each event definition. (aka schema file)

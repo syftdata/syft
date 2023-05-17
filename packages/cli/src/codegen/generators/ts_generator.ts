@@ -1,75 +1,11 @@
-import { CodeBlockWriter, ModuleKind, Project, ScriptTarget } from 'ts-morph';
-import { type AST, type TypeSchema } from '../types';
-import {
-  capitalize,
-  logDetail,
-  logFatal,
-  logInfo,
-  logVerbose,
-  lowerize
-} from '../../utils';
-import { SyftEventType } from '../../client_types';
+import { ModuleKind, Project, ScriptTarget } from 'ts-morph';
+import { type AST } from '@syftdata/common/lib/types';
+import { generateSource } from '@syftdata/codehandler';
+import { logDetail, logFatal, logInfo, logVerbose } from '../../utils';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as handlebars from 'handlebars';
-import {
-  GENERATED_TS_TEMPLATE,
-  LOG_VALIDATE_METHODS_TEMPLATE
-} from '../templates/ts_generated_template';
 import { type PackageJson } from '../../config/pkg';
 import { SYFT_DOCUMENTATION } from '../../utils/constants';
-
-// TODO: Memoize
-function getGeneratedTS(): HandlebarsTemplateDelegate<any> {
-  return handlebars.compile(GENERATED_TS_TEMPLATE, { noEscape: true });
-}
-
-// TODO: Memoize
-function getLogMethod(): HandlebarsTemplateDelegate<any> {
-  return handlebars.compile(LOG_VALIDATE_METHODS_TEMPLATE, { noEscape: true });
-}
-
-export function generateSource(ast: AST, writer: CodeBlockWriter): void {
-  const logMethodWriter = new CodeBlockWriter();
-  ast.eventSchemas.forEach((schema) => {
-    if (schema.exported === false) return;
-    const requiredFields = schema.fields.filter(
-      (field) => !field.isOptional && field.defaultValue === undefined
-    );
-    logMethodWriter.write(
-      getLogMethod()({
-        ...schema,
-        isOptionalInput: requiredFields.length === 0,
-        eventType: SyftEventType[schema.eventType],
-        lowerName: lowerize(schema.name),
-        capitalName: capitalize(schema.name)
-      })
-    );
-  });
-
-  const externalInterfaceDefs = ast.eventSchemas.flatMap((schema) => {
-    return schema.fields.map((field) => {
-      if ((field.type.typeFields?.length ?? 0) > 0) {
-        return field.type;
-      }
-      return undefined;
-    });
-  });
-  const externalInterfaceDefMap = externalInterfaceDefs.reduce((map, def) => {
-    if (def != null) {
-      map.set(def.name, def);
-    }
-    return map;
-  }, new Map<string, TypeSchema>());
-
-  const syftClassStr = getGeneratedTS()({
-    syftConfig: ast.syftConfig?.getFullText() ?? '{}',
-    interface_defs: externalInterfaceDefMap.values(), // get all interfaces used by schemas.
-    schemas: ast.eventSchemas,
-    logMethods: logMethodWriter.toString()
-  });
-  writer.write(syftClassStr);
-}
 
 export function generate(
   ast: AST,
@@ -92,7 +28,7 @@ export function generate(
   const sourceFile = project.createSourceFile(
     path.join(destinationDir, 'lib', 'generated.ts'),
     (writer) => {
-      generateSource(ast, writer);
+      writer.write(generateSource(ast));
     },
     { overwrite: true }
   );

@@ -5,9 +5,9 @@ import {
   getConfigFromExpression,
   setConfigVersionOnExpression
 } from '../config/config';
-import { getSchemaFolder, logFatal, logInfo, logUnknownError } from '../utils';
-import { createTSProject, generateASTForProject } from '../codegen/compiler';
-import { publishEventShemas } from '../init/destination';
+import { logFatal, logInfo } from '@syftdata/common/lib/utils';
+import { getSchemaFolder } from '../utils';
+import { createTSProject, generateASTForProject } from '@syftdata/codehandler';
 
 export interface Params {
   input: string;
@@ -70,11 +70,11 @@ export async function handler({
 
   logInfo(`Version bumped from ${config.version} -> ${newVer ?? ''}`);
 
-  // now publish the schema to the cloud.
-  try {
-    await publishEventShemas(ast, remote, apikey, newVer);
-    logInfo(':sparkles: Published successfully!');
-  } catch (e) {
-    logUnknownError(':warning: Failed to publish.', e);
-  }
+  // // now publish the schema to the cloud.
+  // try {
+  //   await publishEventShemas(ast, remote, apikey, newVer);
+  //   logInfo(':sparkles: Published successfully!');
+  // } catch (e) {
+  //   logUnknownError(':warning: Failed to publish.', e);
+  // }
 }

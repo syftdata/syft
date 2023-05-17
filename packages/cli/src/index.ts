@@ -7,7 +7,7 @@ cli
   .commandDir('commands', {
     recurse: true,
     exclude: (path) => {
-      return path.includes('login') || path.includes('publish');
+      return path.includes('login');
     },
     extensions: ['js', 'ts']
   })
