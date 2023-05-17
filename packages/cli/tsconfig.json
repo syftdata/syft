@@ -8,7 +8,5 @@
     "target": "ESNext",
     "skipLibCheck": true,
   },
-  "include": [
-    "./src"
-, "../test/src/browser_funcs.ts"  ]
+  "include": ["./src"]
 }
