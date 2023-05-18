@@ -25,6 +25,14 @@ export default defineManifest(async (env) => ({
     type: "module",
   },
   devtools_page: "devtools.html",
+  action: {
+    default_popup: "popup.html",
+    default_icon: {
+      "32": "img/logo-32.png",
+      "48": "img/logo-48.png",
+      "128": "img/logo-128.png",
+    },
+  },
   content_scripts: [
     {
       matches: ["<all_urls>"],

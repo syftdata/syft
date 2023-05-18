@@ -17,8 +17,16 @@
     "jsx": "react-jsx",
 
 
-    "strictPropertyInitialization": false
-  },
+    "strictPropertyInitialization": false,
+  },  
   "include": ["src"],
+  "exclude": [
+    "**/node_modules/*",
+    "build",
+    "lib",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],  
   "references": [{ "path": "./tsconfig.node.json" }]
 }

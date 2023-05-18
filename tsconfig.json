@@ -15,9 +15,11 @@
       ]
     },
     "exclude": [
-      "node_modules",
+      "**/node_modules/*",
+      "build",
       "lib",
       "dist",
-      "**/*.spec.ts"
+      "**/*.spec.ts",
+      "**/*.test.ts"
     ]
    }

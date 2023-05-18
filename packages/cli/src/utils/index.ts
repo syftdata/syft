@@ -16,6 +16,9 @@ export const logUnknownError = (s: string, e: any): void => {
   if (s != null) {
     logError(s);
   }
+  if (e.message != null) {
+    logError(`Error: ${e.message as string}`);
+  }
   logInfo(`We are sorry that you ran into this error.
 Please file a bug here: ${FILE_A_BUG}
 We hang out on this discord channel: ${DISCORD_LINK}.
