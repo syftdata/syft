@@ -35,7 +35,7 @@
     "memoize-one": "^6.0.0",
     "monaco-editor": "^0.38.0",
     "puppeteer-core": "^13.7.0",
-    "puppeteer-extension-transport": "^0.0.6",
+    "puppeteer-extension-transport": "^0.0.6",    
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.9"

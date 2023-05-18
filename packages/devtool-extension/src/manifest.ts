@@ -4,7 +4,7 @@ export default defineManifest(async (env) => ({
   name: env.mode === "production" ? "Syft Studio" : "[Dev] Syft Studio",
   description:
     "Record browser interactions to auto generate event tests, and auto-magically instrument application code.",
-  version: "0.0.0.1",
+  version: "0.0.0.2",
   manifest_version: 3,
   permissions: [
     "activeTab",
@@ -25,6 +25,14 @@ export default defineManifest(async (env) => ({
     type: "module",
   },
   devtools_page: "devtools.html",
+  action: {
+    default_popup: "popup.html",
+    default_icon: {
+      "32": "img/logo-32.png",
+      "48": "img/logo-48.png",
+      "128": "img/logo-128.png",
+    },
+  },
   content_scripts: [
     {
       matches: ["<all_urls>"],

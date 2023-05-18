@@ -1,6 +1,6 @@
 import LoginView from "../cloud/views/LoginView";
 import { Css, Flex } from "../common/styles/common.styles";
-import LoginInfo from "../cloud/views/LoginInfo";
+import LoginInfo from "../cloud/views/logininfo";
 import PageBody from "../common/components/core/Page/PageBody";
 import { Colors } from "../common/styles/colors";
 import { useUserSession } from "../cloud/state/usersession";

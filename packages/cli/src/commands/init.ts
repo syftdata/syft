@@ -4,6 +4,7 @@ import {
   logDetail,
   logError,
   logInfo,
+  logUnknownError,
   logVerbose
 } from '../utils';
 import * as fs from 'fs';
@@ -135,20 +136,29 @@ export async function handler({
   let ast: AST;
   if (apikey !== undefined) {
     logVerbose(`Pulling from ${remote}..`);
-    const remoteData = await fetchRemoteData(remote, apikey, branch);
-    if (remoteData === undefined) {
-      logError(`:warning: Failed to fetch data from ${remote}`);
+    try {
+      const remoteData = await fetchRemoteData(remote, apikey, branch);
+      if (remoteData === undefined) {
+        logError(`:warning: Failed to fetch data from ${remote}`);
+        return;
+      }
+      ast = remoteData.ast;
+      if (ast.eventSchemas.length === 0) {
+        logError(`:warning: No event models found. Exiting..`);
+        return;
+      }
+      initalizeSchemaFolder(outDir, force);
+      writeTestSpecs(remoteData.tests, outDir);
+      // writeRemoteConfig(
+      //   remoteData.activeBranch,
+      //   remoteData.eventSchemaSha,
+      //   remoteData.tests,
+      //   outDir
+      // );
+    } catch (e) {
+      logUnknownError(`:warning: Failed to fetch data from ${remote}`, e);
       return;
     }
-    ast = remoteData.ast;
-    initalizeSchemaFolder(outDir, force);
-    writeTestSpecs(remoteData.tests, outDir);
-    // writeRemoteConfig(
-    //   remoteData.activeBranch,
-    //   remoteData.eventSchemaSha,
-    //   remoteData.tests,
-    //   outDir
-    // );
   } else {
     logVerbose(`Generating models for ${platform}`);
     ast = getEventShemas(platform, product);

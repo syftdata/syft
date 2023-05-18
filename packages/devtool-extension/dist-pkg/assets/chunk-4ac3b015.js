@@ -1,1 +1,0 @@
-import{M as n}from"./chunk-8740526c.js";function s(t){const e=t.detail;return e.createdAt=e.props.time!=null?new Date(e.props.time):new Date,e}console.debug("[Syft][Content] Injected content script, listening for events");window.addEventListener("syft-event",t=>{console.debug("[Syft][Content] Received a syft event"),chrome.runtime.sendMessage({type:n.SyftEvent,data:s(t)})},!0);

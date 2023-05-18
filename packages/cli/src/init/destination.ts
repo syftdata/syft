@@ -147,7 +147,16 @@ export async function fetchRemoteData(
           }
         });
       } else {
-        reject(new Error(`statusCode=${res.statusCode ?? 'undefined'}`));
+        const body: Buffer[] = [];
+        res.on('data', (d) => body.push(d));
+        res.on('end', () => {
+          try {
+            const responseData = JSON.parse(Buffer.concat(body).toString());
+            reject(new Error(responseData.message as string));
+          } catch (e) {
+            reject(new Error(`statusCode=${res.statusCode ?? 'undefined'}`));
+          }
+        });
       }
     });
     req.write(payloadData);
