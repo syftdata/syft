@@ -142,7 +142,7 @@ async function handleMessageAsync(
   message: any,
   port: chrome.runtime.Port
 ): Promise<boolean> {
-  console.debug("[Syft][Background] Received a message from Devtools", message);
+  console.debug("[Syft][Background] Received a message", message, port);
   switch (message.type) {
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
@@ -168,6 +168,7 @@ async function handleMessageAsync(
 chrome.runtime.onConnect.addListener(async function (port) {
   console.debug("[Syft][Background] Received a connection", port);
   if (port.name !== "syft-devtools") {
+    console.debug("[Syft][Background] Ignoring the connection");
     return;
   }
 
@@ -212,6 +213,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.warn(
         "Tab not found in connection list.",
         request,
+        sender.tab,
         tabId,
         Object.keys(connections)
       );
@@ -223,7 +225,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse(true);
     } else {
       console.warn(
-        "Tab not found in connection list.",
+        "Tab not found in connection list 2.",
         request,
         tabId,
         Object.keys(connections)
