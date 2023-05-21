@@ -18,10 +18,13 @@ export function downloadFile(name: string, contents: string): void {
   a.remove();
 }
 
-async function handleGitInfoResponse(response: Response): Promise<void> {
+async function handleGitInfoResponse(
+  response: Response
+): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
     setGitInfo(data);
+    return data;
   } else {
     console.error("Error fetching git info", response);
   }
@@ -31,12 +34,12 @@ export async function fetchGitInfo(
   user: UserSession,
   sourceId?: string,
   branch?: string
-): Promise<void> {
+): Promise<GitInfo | undefined> {
   const response = await get("/api/gitinfo", user, {
     sourceId,
     branch,
   });
-  handleGitInfoResponse(response);
+  return handleGitInfoResponse(response);
 }
 
 export async function createTestSpec(

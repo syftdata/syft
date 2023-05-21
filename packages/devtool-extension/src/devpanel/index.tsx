@@ -34,6 +34,9 @@ function init(
       onActions(message.data as Action[]);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
+      console.debug(
+        "OnShown called. refreshing connection and re-fetching git info."
+      );
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
