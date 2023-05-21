@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/codehandler",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Code handler for Syft cli, which can serialize/deserialize internal models into typescript",
   "keywords": [
     "syft",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
-    "@syftdata/common": "*",
+    "@syftdata/common": "^0.1.11",
     "handlebars": "^4.7.7",
     "ts-morph": "^17.0.1"
   }
