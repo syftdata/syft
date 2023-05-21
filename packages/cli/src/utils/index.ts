@@ -67,7 +67,7 @@ export function getSchemaFolder(): string {
 
 export function getTestSpecFolder(schemaFolder?: string): string {
   const dir = schemaFolder ?? getSchemaFolder();
-  return path.join(dir, 'specs');
+  return path.join(dir, 'tests');
 }
 
 export function createDir(dir: string): void {

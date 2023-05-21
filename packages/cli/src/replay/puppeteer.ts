@@ -50,7 +50,7 @@ export async function verifyPuppeteerTest(
       `${flow?.title ?? 'Test'} failed with invalid instrumentation`
     );
     logDetail(
-      `You could try using syft auto instrumentation. "npx syft instrument --help"`
+      `You could try using syft auto instrumentation. Please sign up at https://studio.syftdata.com to get started.`
     );
   }
   return failedSteps.length === 0;
