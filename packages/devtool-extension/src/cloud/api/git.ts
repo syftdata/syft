@@ -72,7 +72,7 @@ export async function deleteTestSpec(
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
-  const response = await post("/api/testspec/delete", user, {
+  const response = await post("/api/testspec_delete", user, {
     sourceId: gitInfo.activeSourceId,
     branch: gitInfo.activeBranch,
     name,
@@ -105,7 +105,7 @@ export async function deleteBranch(
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
-  const response = await post("/api/branch/delete", user, {
+  const response = await post("/api/branch_delete", user, {
     sourceId: gitInfo.activeSourceId,
     branch,
   });
