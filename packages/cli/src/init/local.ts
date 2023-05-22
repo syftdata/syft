@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import { SyftEventType } from '@syftdata/common/lib/client_types';
-import { capitalize, logVerbose } from '../utils';
+import { capitalize, logVerbose } from '@syftdata/common/lib/utils';
 
 function getEventSchemasFromFolder(folder: string): EventSchema[] {
   const files = glob.sync(folder + '/**/*', {

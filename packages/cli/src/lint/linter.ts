@@ -1,5 +1,5 @@
 import { ESLint } from 'eslint';
-import { logUnknownError } from '../utils';
+import { logUnknownError } from '@syftdata/common/lib/utils';
 
 export async function runLinter(files: string[]): Promise<boolean> {
   try {

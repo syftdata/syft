@@ -1,4 +1,8 @@
-import { logError, logFatal, logUnknownError } from '../utils';
+import {
+  logError,
+  logFatal,
+  logUnknownError
+} from '@syftdata/common/lib/utils';
 import * as fs from 'fs';
 import * as path from 'path';
 

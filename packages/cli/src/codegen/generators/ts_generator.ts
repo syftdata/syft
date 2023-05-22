@@ -1,11 +1,16 @@
 import { ModuleKind, Project, ScriptTarget } from 'ts-morph';
 import { type AST } from '@syftdata/common/lib/types';
 import { generateSource } from '@syftdata/codehandler';
-import { logDetail, logFatal, logInfo, logVerbose } from '../../utils';
+import {
+  logDetail,
+  logInfo,
+  logFatal,
+  logVerbose,
+  SYFT_DOCUMENTATION
+} from '@syftdata/common/lib/utils';
 import * as fs from 'fs';
 import * as path from 'path';
 import { type PackageJson } from '../../config/pkg';
-import { SYFT_DOCUMENTATION } from '../../utils/constants';
 
 export function generate(
   ast: AST,

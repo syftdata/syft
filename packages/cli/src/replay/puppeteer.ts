@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SyftPuppeteerVerifyExtension, getEventNameFrom } from '@syftdata/test';
 import { glob } from 'glob';
-import { logDetail, logError, logInfo } from '../utils';
+import { logDetail, logError, logInfo } from '@syftdata/common/lib/utils';
 
 async function getBrowser(headless: boolean): Promise<Browser> {
   const extensionsFolder: string = path.join(

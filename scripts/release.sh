@@ -16,7 +16,7 @@ fi
 git push origin $curr_branch
 
 # open pull request with main.
-open https://github.com/syftdata/event-hub/pull/new/$curr_branch
+open https://github.com/syftdata/syft/pull/new/$curr_branch
 
 git branch -D release
 git push origin :release

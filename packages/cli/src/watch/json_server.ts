@@ -1,5 +1,5 @@
 import * as http from 'http';
-import { logInfo } from '../utils';
+import { logInfo } from '@syftdata/common/lib/utils';
 import { type AST } from '@syftdata/common/lib/types';
 
 const PORT = 8085;

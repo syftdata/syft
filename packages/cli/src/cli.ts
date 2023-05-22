@@ -1,7 +1,11 @@
 import type { Argv } from 'yargs';
 import * as findUp from 'find-up';
 import * as fs from 'fs';
-import { logError, logUnknownError, toggleVerbosity } from './utils';
+import {
+  logError,
+  logUnknownError,
+  toggleVerbosity
+} from '@syftdata/common/lib/utils';
 
 const configPath = findUp.sync(['.syftrc', '.syftrc.json']);
 let config = {};

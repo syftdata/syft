@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { logInfo } from '../../utils';
+import { logInfo } from '@syftdata/common/lib/utils';
 import { type AST } from '@syftdata/common/lib/types';
 
 export function generate(ast: AST, destDir: string): void {

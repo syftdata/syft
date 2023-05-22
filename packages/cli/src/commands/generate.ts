@@ -8,7 +8,8 @@ import {
   type BigQueryConfig,
   type ProviderConfig
 } from '../config/sink_configs';
-import { getSchemaFolder, logDetail, logInfo } from '../utils';
+import { getSchemaFolder } from '../utils';
+import { logDetail, logInfo } from '@syftdata/common/lib/utils';
 import { type Questions, prompt as ask } from 'inquirer';
 import { getClientPackage, updatePackageJson } from '../config/pkg';
 import { runLinter } from '../lint/linter';
