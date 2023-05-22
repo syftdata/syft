@@ -12,10 +12,11 @@
   ],
   "rules": {
     "no-console": 1,       // Means warning
-    "prettier/prettier": 2 // Means error
+    "prettier/prettier": 2, // Means error
+    "@typescript-eslint/restrict-template-expressions": ["warn"]
   },
   "parserOptions": {
-    "ecmaVersion": "2016",
+    "ecmaVersion": 2016,
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
