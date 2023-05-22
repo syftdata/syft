@@ -1,5 +1,6 @@
 import type * as yargs from 'yargs';
-import { getTestSpecFolder, logInfo, logVerbose } from '../utils';
+import { getTestSpecFolder } from '../utils';
+import { logVerbose, logInfo } from '@syftdata/common/lib/utils';
 import * as glob from 'glob';
 import { verifyPuppeteerTest } from '../replay/puppeteer';
 

@@ -1,12 +1,12 @@
 import type * as yargs from 'yargs';
+import { getSchemaFolder } from '../utils';
 import {
-  getSchemaFolder,
   logDetail,
   logError,
   logInfo,
   logUnknownError,
   logVerbose
-} from '../utils';
+} from '@syftdata/common/lib/utils';
 import * as fs from 'fs';
 import * as path from 'path';
 import { handler as generateFromDir } from './generate';

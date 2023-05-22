@@ -1,6 +1,6 @@
 import { type RemoteConfig } from '../config/remote';
 import { type FileInfo } from '../init/destination';
-import { logError } from '../utils';
+import { logError } from '@syftdata/common/lib/utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
