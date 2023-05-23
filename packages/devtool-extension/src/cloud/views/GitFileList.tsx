@@ -18,7 +18,7 @@ const GitFileList = ({ onPreview, onEdit }: GitFileListProps) => {
   const [gitInfo] = useGitInfo();
   const [userSession] = useUserSession();
   if (gitInfo == null || userSession == null) {
-    return <Spinner />;
+    return <></>;
   }
   const columns = FileInfoColumns;
   columns[1].onCell = (record) => {

@@ -6,7 +6,6 @@ import { Colors } from "../common/styles/colors";
 import { useUserSession } from "../cloud/state/usersession";
 import { useEffect } from "react";
 import { fetchGitInfo } from "../cloud/api/git";
-import { GitView } from "../cloud/views/gitview";
 
 const SettingsApp = () => {
   const [userSession] = useUserSession();

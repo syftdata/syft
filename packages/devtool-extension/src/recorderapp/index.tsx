@@ -15,6 +15,10 @@ import RecordPreviewView from "./RecordPreviewView";
 import ActionsEditor from "./ActionsEditor";
 import { Step } from "@puppeteer/replay";
 import { genPuppeteerSteps } from "../builders";
+import { useGitInfo } from "../cloud/state/gitinfo";
+import { Subheading } from "../common/styles/fonts";
+import { css } from "@emotion/css";
+import Spinner from "../common/components/core/Spinner/Spinner";
 
 export interface RecorderAppProps {
   actions: Action[];
@@ -36,7 +40,7 @@ export default function RecorderApp({
   actions,
 }: RecorderAppProps) {
   const [userSession] = useUserSession();
-  //const [_scriptType, setScriptType] = usePreferredLibrary();
+  const [gitInfo] = useGitInfo();
   const [recording, setRecording] = useState({
     title: "",
     script: "",
@@ -53,6 +57,23 @@ export default function RecorderApp({
     return (
       <Flex.Col className={Css.height("calc(100vh - 80px)")}>
         <LoginView />
+      </Flex.Col>
+    );
+  }
+
+  if (!gitInfo) {
+    return (
+      <Flex.Col
+        gap={24}
+        alignItems="center"
+        className={css(Css.padding("24px 10px"), Flex.grow(1))}
+      >
+        <Subheading.SH12>
+          Connecting to your Syft Studio workspace..
+        </Subheading.SH12>
+        <Flex.Row>
+          <Spinner />
+        </Flex.Row>
       </Flex.Col>
     );
   }

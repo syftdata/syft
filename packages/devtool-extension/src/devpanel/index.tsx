@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Action, MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
@@ -11,6 +11,11 @@ import { GitView } from "../cloud/views/gitview";
 import { getCurrentTabId } from "../common/utils";
 import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession } from "../cloud/state/usersession";
+import { useGitInfo } from "../cloud/state/gitinfo";
+import { Css, Flex } from "../common/styles/common.styles";
+import { Subheading } from "../common/styles/fonts";
+import Spinner from "../common/components/core/Spinner/Spinner";
+import { css } from "@emotion/css";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
@@ -96,8 +101,8 @@ const replaceAction = (index: number, action?: Action) => {
 };
 
 const App = () => {
-  const [events, setEvents] = React.useState<Array<SyftEvent>>([]);
-  const [actions, setActions] = React.useState<Array<Action>>([]);
+  const [events, setEvents] = useState<Array<SyftEvent>>([]);
+  const [actions, setActions] = useState<Array<Action>>([]);
   useEffect(() => init(insertEvent, setActions), []);
 
   const insertEvent = (event: SyftEvent) => {
@@ -134,7 +139,7 @@ const App = () => {
     },
   ];
   return (
-    <>
+    <Flex.Col className={css(Css.minWidth(500), Css.overflow("auto auto"))}>
       <GitView />
       <Tabs
         defaultActiveKey="1"
@@ -148,7 +153,7 @@ const App = () => {
           borderBottom: `1px solid ${Colors.Gray.V3}`,
         }}
       />
-    </>
+    </Flex.Col>
   );
 };
 let target = document.getElementById("app") as HTMLElement;

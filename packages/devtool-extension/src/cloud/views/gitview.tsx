@@ -13,7 +13,12 @@ export function GitView() {
     if (userSession == null || gitInfo == null) {
       return;
     }
+    if (sourceId === gitInfo.activeSourceId) {
+      return;
+    }
+
     gitInfo.activeSourceId = sourceId;
+    gitInfo.activeBranch = undefined;
     setGitInfo({ ...gitInfo });
     // make a call to the backend to set the active source.
     void fetchGitInfo(
@@ -43,11 +48,11 @@ export function GitView() {
   }
 
   const _createBranch = (branch: string) => {
-    createBranch(branch, userSession);
+    createBranch(gitInfo.activeSourceId!, branch, userSession);
   };
 
   const _deleteBranch = (branch: string) => {
-    deleteBranch(branch, userSession);
+    deleteBranch(gitInfo.activeSourceId!, branch, userSession);
   };
 
   const activeSource =
@@ -56,7 +61,7 @@ export function GitView() {
 
   return (
     <Flex.Row
-      gap={16}
+      gap={8}
       alignItems="center"
       justifyContent="start"
       className={Css.padding("0px 8px")}

@@ -11,6 +11,7 @@ interface SyftTableProps {
   className?: string;
   expandable?: ExpandableConfig<any>;
   rowKey?: string;
+  emptyMessage?: React.ReactNode;
   onRowClick?: (data: any, index?: number) => void;
 }
 const SyftTable = ({
@@ -20,8 +21,12 @@ const SyftTable = ({
   className,
   expandable,
   rowKey,
+  emptyMessage,
   onRowClick,
 }: SyftTableProps) => {
+  if (emptyMessage && (!data || data.length === 0)) {
+    return <>{emptyMessage}</>;
+  }
   return (
     <Flex.Col
       className={css(
@@ -32,9 +37,7 @@ const SyftTable = ({
         className
       )}
     >
-      <Flex.Col
-        className={css(Css.background(Colors.White), Css.overflow("scroll"))}
-      >
+      <Flex.Col className={Css.overflow("hidden auto")}>
         <Table
           columns={columns}
           expandable={expandable}
@@ -47,7 +50,6 @@ const SyftTable = ({
           onRow={(record, rowIndex) => {
             return {
               onClick: () => onRowClick?.(record, rowIndex),
-              // onClick: onRowClick,
             };
           }}
         />

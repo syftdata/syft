@@ -41,6 +41,7 @@ import {
   VideoCameraOffIcon,
   WarningTriangleIcon,
   PauseIcon,
+  CopyIcon,
 } from "@iconicicons/react";
 import type { Size } from "../../../constants/types";
 import { Colors } from "../../../styles/colors";
@@ -87,7 +88,10 @@ export type IconName =
   | "play"
   | "pause"
   | "floppy-disc"
-  | "plus-circle";
+  | "plus-circle"
+  | "copy"
+  | "github"
+  | "notebook";
 
 const getIcon = (icon: IconName) => {
   switch (icon) {
@@ -173,6 +177,12 @@ const getIcon = (icon: IconName) => {
       return <FloppyDiscIcon />;
     case "plus-circle":
       return <PlusCircleIcon />;
+    case "copy":
+      return <CopyIcon />;
+    case "box":
+      return <BoxIcon />;
+    case "notebook":
+      return <BookIcon />;
   }
 };
 

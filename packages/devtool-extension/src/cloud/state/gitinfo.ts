@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { localStorageGet } from "../../common/utils";
 import { GitInfo } from "../../types";
 
-export const STORAGE_KEY = "gitInfo";
+export const GIT_STORAGE_KEY = "gitInfo";
 
 export async function getGitInfo(): Promise<GitInfo | undefined> {
-  const { gitInfo } = await localStorageGet([STORAGE_KEY]);
+  const { gitInfo } = await localStorageGet([GIT_STORAGE_KEY]);
   if (gitInfo) {
     return gitInfo;
   }
@@ -13,9 +13,9 @@ export async function getGitInfo(): Promise<GitInfo | undefined> {
 
 export async function setGitInfo(gitInfo: GitInfo | undefined) {
   if (gitInfo == null) {
-    await chrome.storage.local.remove([STORAGE_KEY]);
+    await chrome.storage.local.remove([GIT_STORAGE_KEY]);
   } else {
-    await chrome.storage.local.set({ [STORAGE_KEY]: gitInfo });
+    await chrome.storage.local.set({ [GIT_STORAGE_KEY]: gitInfo });
   }
 }
 
@@ -31,11 +31,18 @@ export function useGitInfo() {
 
   // changes flow through the storage listener
   chrome.storage.onChanged.addListener((changes) => {
-    if (
-      changes[STORAGE_KEY] != null &&
-      changes[STORAGE_KEY].newValue != changes[STORAGE_KEY].oldValue
-    ) {
-      _setGitInfo(changes[STORAGE_KEY].newValue);
+    if (changes[GIT_STORAGE_KEY] != null) {
+      console.log("gitinfo changed in storage");
+      if (
+        changes[GIT_STORAGE_KEY].newValue != changes[GIT_STORAGE_KEY].oldValue
+      ) {
+        console.log(
+          "Updating git info in state",
+          changes[GIT_STORAGE_KEY].newValue,
+          changes[GIT_STORAGE_KEY].oldValue
+        );
+        _setGitInfo(changes[GIT_STORAGE_KEY].newValue);
+      }
     }
   });
 
