@@ -4,7 +4,7 @@ export default defineManifest(async (env) => ({
   name: env.mode === "production" ? "Syft Studio" : "[Dev] Syft Studio",
   description:
     "Record browser interactions to auto generate event tests, and auto-magically instrument application code.",
-  version: "0.0.0.2",
+  version: "0.0.0.3",
   manifest_version: 3,
   permissions: [
     "activeTab",

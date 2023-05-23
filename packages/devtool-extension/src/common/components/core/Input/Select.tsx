@@ -4,20 +4,26 @@ import AntdSelect, {
 } from "antd/lib/select";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
-import { Paragraph } from "../../../styles/fonts";
+import { Subheading } from "../../../styles/fonts";
 
 interface SelectProps extends AntdSelectProps {
   label?: string;
   rowWise?: boolean;
+  width?: number | string;
 }
 
-const InnerSelect = ({ label, ...otherSelectProps }: SelectProps) => {
+const InnerSelect = ({ label, width, ...otherSelectProps }: SelectProps) => {
   return (
     <>
-      <Paragraph.P14 color={Colors.Gray.V7}>{label}</Paragraph.P14>
+      <Subheading.SH12 color={Colors.Gray.V7}>{label}</Subheading.SH12>
       <AntdSelect
         {...otherSelectProps}
-        className={css(Css.borderRadius(4), Css.brandingFont, Css.fontSize(12))}
+        className={css(
+          Css.borderRadius(4),
+          Css.width(width),
+          Css.brandingFont,
+          Css.fontSize(12)
+        )}
       />
     </>
   );

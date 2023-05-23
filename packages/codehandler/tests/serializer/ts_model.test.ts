@@ -8,6 +8,7 @@ describe('serialize', () => {
         {
           name: 'TestEvent',
           eventType: SyftEventType.TRACK,
+          documentation: 'This is a test event with two fields',
           fields: [
             {
               name: 'test',
@@ -15,6 +16,7 @@ describe('serialize', () => {
                 name: 'string',
                 zodType: 'z.string()'
               },
+              documentation: 'This is a test field',
               isOptional: false
             },
             {

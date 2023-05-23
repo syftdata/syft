@@ -12,7 +12,10 @@ function getEventModelsTemplate(): handlebars.HandlebarsTemplateDelegate<any> {
 export function serialize(ast: AST): string {
   const schemas = ast.eventSchemas.map((schema) => ({
     ...schema,
-    has_documentation: !isEmptyString(schema.documentation),
+    fields: schema.fields.map((field) => ({
+      ...field,
+      has_documentation: !isEmptyString(field.documentation)
+    })),
     eventType: SyftEventType[schema.eventType]
   }));
   return getEventModelsTemplate()({

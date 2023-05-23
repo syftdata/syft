@@ -65,6 +65,7 @@ export function SimpleGitView({
           value: source.id,
           label: source.name,
         }))}
+        width={130}
         onChange={(e) => setActiveSourceById(e as string)}
       />
       <Select
@@ -75,6 +76,7 @@ export function SimpleGitView({
           value: branch,
           label: branch,
         }))}
+        width={130}
         onChange={(e) => setActiveBranch(e as string)}
       />
       <Button

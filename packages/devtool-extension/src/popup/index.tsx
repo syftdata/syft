@@ -10,6 +10,7 @@ import {
   PrimaryIconButton,
 } from "../common/components/core/Button/IconButton";
 import { createTab } from "../common/utils";
+import { Colors } from "../common/styles/colors";
 
 const shortcuts = [
   {
@@ -41,18 +42,33 @@ const App = () => {
   return (
     <Flex.Col
       gap={16}
-      className={css(Css.width(380), Css.padding(10))}
+      className={css(Css.width(380), Css.padding(20))}
       alignItems="center"
     >
-      <Flex.Col gap={6} alignItems="center">
-        <Heading.H18>Syft Studio</Heading.H18>
-        <Subheading.SH12>Use Developer tools to get started.</Subheading.SH12>
+      <Flex.Col gap={8} alignItems="center">
+        <Flex.Row gap={8} alignItems="center">
+          <img
+            src="/img/logo-128.png"
+            alt="logo"
+            className={css(Css.imgCoverFitCss, Css.width(24), Css.height(24))}
+          />
+          <Heading.H18 color={Colors.Gray.V7}>Syft Studio</Heading.H18>
+        </Flex.Row>
+        <Subheading.SH12 color={Colors.Branding.Blue}>
+          Open Developer tools to get started.
+        </Subheading.SH12>
       </Flex.Col>
-      <Paragraph.P14>
-        1. Open Developer tools by Right click -&gt; Inspect (or)
-      </Paragraph.P14>
-      <SyftTable columns={columns} data={shortcuts} />
-      <Paragraph.P14>2. Go to "Syft Studio" tab.</Paragraph.P14>
+      <Flex.Col gap={16}>
+        <Flex.Col gap={8}>
+          <Paragraph.P12>1. Right-click -&gt; Inspect (or)</Paragraph.P12>
+          <SyftTable
+            columns={columns}
+            data={shortcuts}
+            className={css(Css.padding(0), Css.border("none !important"))}
+          />
+        </Flex.Col>
+        <Paragraph.P12>2. Go to "Syft Studio" tab.</Paragraph.P12>
+      </Flex.Col>
       <IconButton
         onClick={() => {
           createTab("https://studio.syftdata.com");

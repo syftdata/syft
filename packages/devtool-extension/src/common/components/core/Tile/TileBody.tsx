@@ -15,7 +15,7 @@ const TileBody = ({ children, className, color }: TileBodyProps) => {
         Css.background(color ?? Colors.White),
         Css.border(`1px solid ${Colors.Gray.V1}`),
         Css.padding("12px 16px"),
-        Css.overflow("scroll"),
+        Css.overflow("auto"),
         className
       )}
     >

@@ -82,31 +82,24 @@ export async function deleteTestSpec(
 }
 
 export async function createBranch(
+  sourceId: string,
   branch: string,
   user: UserSession
 ): Promise<void> {
-  const gitInfo = await getGitInfo();
-  if (!gitInfo) {
-    throw new Error("GitInfo not found");
-  }
-
   const response = await post("/api/branches", user, {
-    sourceId: gitInfo.activeSourceId,
+    sourceId,
     branch,
   });
   handleGitInfoResponse(response);
 }
 
 export async function deleteBranch(
+  sourceId: string,
   branch: string,
   user: UserSession
 ): Promise<void> {
-  const gitInfo = await getGitInfo();
-  if (!gitInfo) {
-    throw new Error("GitInfo not found");
-  }
   const response = await post("/api/branch_delete", user, {
-    sourceId: gitInfo.activeSourceId,
+    sourceId,
     branch,
   });
   handleGitInfoResponse(response);

@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "vite --force",
-    "build": "tsc && vite build",
+    "build": "rm -rf ../../node_modules/puppeteer && tsc && vite build",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{tsx,ts,json,css,scss,md}'"
   },
