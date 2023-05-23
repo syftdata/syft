@@ -5,10 +5,13 @@ exports[`serialize serialize regular primitive and syft types 1`] = `
 import type { type, SyftEventType } from '@syftdata/client';
 
 /**
- * 
+ * This is a test event with two fields
  * @type {SyftEventType.TRACK}
  */
 export class TestEvent {
+  /**
+   * This is a test field
+   */
   test: string;
 
   email: type.Email;
