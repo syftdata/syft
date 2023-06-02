@@ -1,0 +1,17 @@
+[
+    {
+        "id": "1",
+        "component": "AddTodoComponent",
+        "selector": "#todoInput",
+        "trigger": "keyUp",
+        "key": "Enter",
+        "eventId": "TodoAdded"
+    },
+    {
+        "id": "2",
+        "component": "TodoComponent",
+        "selector": "li:nth-child(1) > .toggle",
+        "trigger": "click",
+        "eventId": "TodoToggled"
+    }
+]
