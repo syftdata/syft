@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Event } from "../types";
+import { useCallback, useState } from "react";
+import { EventSchema } from "@syftdata/common/lib/types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Label, Mono } from "../common/styles/fonts";
@@ -9,12 +9,12 @@ import { css } from "@emotion/css";
 import { useGitInfo } from "../cloud/state/gitinfo";
 import NoSchemasView from "./noschemasview";
 import Button from "../common/components/core/Button/Button";
-import { createTab } from "../common/utils";
 import { Colors } from "../common/styles/colors";
-import { constants } from "../constants";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { useUserSession } from "../cloud/state/usersession";
 import LoginView from "../cloud/views/LoginView";
+import AddEventModal, { EditEventModal } from "./AddEventModal";
+import { updateEventSchemas } from "../cloud/api/schema";
 
 export interface SchemaAppProps {
   className?: string;
@@ -25,12 +25,66 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   const [search, setSearch] = useState("");
   const [gitInfo] = useGitInfo();
 
+  const [schema, setSchema] = useState<EventSchema | undefined>();
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const closeEditEventFlow = useCallback(() => {
+    setShowEditModal(false);
+  }, []);
+  const closeAddEventFlow = useCallback(() => {
+    setShowAddModal(false);
+  }, []);
+
   if (!userSession) {
     return <LoginView />;
   }
   if (!gitInfo) {
     return <Spinner />;
   }
+
+  const addEventModel = (newEvent: EventSchema) => {
+    updateEventSchemas(
+      {
+        ...gitInfo.eventSchema,
+        events: [...gitInfo.eventSchema.events, newEvent],
+      },
+      gitInfo.eventSchemaSha,
+      userSession
+    );
+    setShowAddModal(false);
+  };
+
+  const editEventModel = (newEvent: EventSchema, oldEvent: EventSchema) => {
+    // remove old event from events and add new event in the same place.
+    const newEvents = gitInfo.eventSchema.events.map((e) => {
+      return e.name !== oldEvent.name ? e : newEvent;
+    });
+    updateEventSchemas(
+      {
+        ...gitInfo.eventSchema,
+        events: newEvents,
+      },
+      gitInfo.eventSchemaSha,
+      userSession
+    );
+    setShowEditModal(false);
+  };
+
+  const deleteEventModel = (eventName: string) => {
+    // remove old event from events and add new event in the same place.
+    const remaining = gitInfo.eventSchema.events.filter((e) => {
+      return e.name !== eventName;
+    });
+    updateEventSchemas(
+      {
+        ...gitInfo.eventSchema,
+        events: remaining,
+      },
+      gitInfo.eventSchemaSha,
+      userSession
+    );
+    setShowEditModal(false);
+  };
 
   let filteredSchemas = gitInfo.eventSchema.events;
   if (filteredSchemas.length === 0) {
@@ -46,7 +100,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   // TODO: show selected items at the top.
   return (
     <Flex.Col className={className}>
-      <List<Event>
+      <List<EventSchema>
         data={filteredSchemas}
         emptyMessage={<NoSchemasView />}
         renderItem={(item) => {
@@ -58,14 +112,21 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
             >
               <Flex.Col gap={4}>
                 <Mono.M14>{item.name}</Mono.M14>
-                <Mono.M10>{item.description}</Mono.M10>
+                <Mono.M10>{item.documentation}</Mono.M10>
               </Flex.Col>
-              <IconButton
-                icon="edit"
-                onClick={() => {
-                  createTab(constants.EditSchemaUrl(item.id));
-                }}
-              />
+              <Flex.Row gap={8}>
+                <IconButton
+                  icon="edit"
+                  onClick={() => {
+                    setSchema(item);
+                    setShowEditModal(true);
+                  }}
+                />
+                <IconButton
+                  icon="trash"
+                  onClick={() => deleteEventModel(item.name)}
+                />
+              </Flex.Row>
             </Flex.Row>
           );
         }}
@@ -75,9 +136,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
           setSearch,
           actions: [
             <Button
-              onClick={() => {
-                createTab(constants.AddSchemaUrl);
-              }}
+              onClick={() => setShowAddModal(true)}
               type="Clear"
               size="small"
               className={Css.padding(0)}
@@ -89,6 +148,20 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
         expandable={{
           renderItem: (item) => <SchemaPropsRenderer data={{ schema: item }} />,
         }}
+      />
+      {schema && (
+        <EditEventModal
+          key={schema.name}
+          open={showEditModal}
+          event={schema}
+          onEditEvent={editEventModel}
+          onCancel={closeEditEventFlow}
+        />
+      )}
+      <AddEventModal
+        open={showAddModal}
+        onAddEvent={addEventModel}
+        onCancel={closeAddEventFlow}
       />
     </Flex.Col>
   );

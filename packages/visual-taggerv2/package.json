@@ -1,5 +1,5 @@
 {
-  "name": "@syftdata/devtool-extension",
+  "name": "@syftdata/visual-tagger",
   "version": "0.0.38",
   "description": "Syft Developer Extension to record and validate events.",
   "keywords": [
@@ -19,27 +19,21 @@
   },
   "scripts": {
     "dev": "vite --force",
-    "build": "rm -rf ../../node_modules/puppeteer && tsc && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{tsx,ts,json,css,scss,md}'"
   },
   "dependencies": {
     "@emotion/css": "^11.10.6",
-    "@fortawesome/fontawesome-free-solid": "^5.0.13",
-    "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@iconicicons/react": "^1.5.1",
-    "@monaco-editor/react": "^4.5.1",
-    "@puppeteer/replay": "^2.11.0",
+    "@syftdata/common": "^0.1.13",
     "antd": "^5.4.3",
     "framer-motion": "^10.12.7",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "memoize-one": "^6.0.0",
-    "monaco-editor": "^0.38.0",
-    "puppeteer-core": "^13.7.0",
-    "puppeteer-extension-transport": "^0.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.9"

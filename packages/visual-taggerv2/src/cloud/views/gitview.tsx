@@ -4,6 +4,7 @@ import { useUserSession } from "../state/usersession";
 import { SimpleGitView } from "../../common/components/simplegitview";
 import { Css, Flex } from "../../common/styles/common.styles";
 import { createBranch, deleteBranch, fetchGitInfo } from "../api/git";
+import { PrimaryIconButton } from "../../common/components/core/Button/IconButton";
 
 export function GitView() {
   const [userSession] = useUserSession();
@@ -55,6 +56,8 @@ export function GitView() {
     deleteBranch(gitInfo.activeSourceId!, branch, userSession);
   };
 
+  const _onSave = () => {};
+
   const activeSource =
     gitInfo.sources.find((source) => source.id === gitInfo.activeSourceId) ??
     gitInfo.sources[0];
@@ -75,6 +78,8 @@ export function GitView() {
         setActiveBranch={setActiveBranch}
         createBranch={_createBranch}
         rowWise={true}
+        onCommit={_onSave}
+        hasChanges={true}
       />
     </Flex.Row>
   );

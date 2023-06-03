@@ -1,0 +1,152 @@
+{
+   "events":[
+      {
+         "name":"TodoAdded",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is created.",
+         "fields":[
+            {
+               "name":"title",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string()"
+               },
+               "documentation":"Title of the ToDo",
+               "isOptional":false
+            },
+            {
+               "name":"created_at",
+               "type":{
+                  "name":"Date",
+                  "zodType":"z.date()"
+               },
+               "documentation":"Time when the ToDo was created",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \ttitle: z.string(),\n\tcreated_at: z.date(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoAdded({\n  title: \"value\",\n  created_at: new Date(),\n  id: 0,\n})\n"
+      },
+      {
+         "name":"TodoToggled",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is (un)done.",
+         "fields":[
+            {
+               "name":"is_done",
+               "type":{
+                  "name":"boolean",
+                  "zodType":"z.boolean()"
+               },
+               "documentation":"True when the ToDo item is marked as done",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoToggled({\n  is_done: false,\n  id: 0,\n})\n"
+      },
+      {
+         "name":"TodoDeleted",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is deleted",
+         "fields":[
+            {
+               "name":"is_done",
+               "type":{
+                  "name":"boolean",
+                  "zodType":"z.boolean()"
+               },
+               "documentation":"True when the ToDo is marked as done",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoDeleted({\n  is_done: false,\n  id: 0,\n})\n"
+      },
+      {
+         "name":"PageEvent",
+         "eventType":1,
+         "documentation":"Logged when the page changes.",
+         "fields":[
+            {
+               "name":"name",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string()"
+               },
+               "documentation":"Name of the page",
+               "isOptional":false,
+               "defaultValue":"\"index\""
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tname: z.string()\n  })",
+         "exampleUsage":"syft.pageEvent({\n  name: \"\"index\"\",\n})\n"
+      },
+      {
+         "name":"UserIdentity",
+         "eventType":3,
+         "documentation":"User Identity is tracked via this event.",
+         "fields":[
+            {
+               "name":"userId",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string().uuid()",
+                  "syfttype":"UUID"
+               },
+               "documentation":"Id of the user",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tuserId: z.string().uuid()\n  })",
+         "exampleUsage":"syft.userIdentity({\n  userId: \"123e4567-e89b-12d3-a456-426614174000\",\n})\n"
+      }
+   ]
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Action, MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
-import RecorderApp from "../recorderapp";
+import TaggingApp from "../recorderapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
 import SchemaApp from "../schemaapp";
@@ -112,9 +112,9 @@ const App = () => {
       key: "1",
       label: `Visual Tagger`,
       children: (
-        <RecorderApp
-          startRecording={startRecording}
-          endRecording={endRecording}
+        <TaggingApp
+          startTagging={startRecording}
+          endTagging={endRecording}
           onUpdateAction={replaceAction}
           actions={actions}
         />

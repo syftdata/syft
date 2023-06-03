@@ -2,11 +2,12 @@ import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
-import { EventField, Event, SyftEvent } from "../types";
+import { SyftEvent } from "../types";
+import { Field, EventSchema } from "@syftdata/common/lib/types";
 import Input from "../common/components/core/Input/Input";
 
 export interface SchemaAndEvents {
-  schema: Event;
+  schema: EventSchema;
   event?: SyftEvent;
 }
 
@@ -15,7 +16,7 @@ const EditableFieldRenderer = ({
   val,
   setVal,
 }: {
-  field: EventField;
+  field: Field;
   val: string;
   setVal: (val: string) => void;
 }) => {
@@ -27,18 +28,18 @@ const EditableFieldRenderer = ({
     >
       <Flex.Col gap={4} className={Flex.grow(1)}>
         <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-        <Mono.M10>{field.description}..</Mono.M10>
+        <Mono.M10>{field.documentation}..</Mono.M10>
       </Flex.Col>
       <Input value={val} onChange={(e) => setVal(e.target.value)} />
     </Flex.Row>
   );
 };
 
-const FieldRenderer = ({ field }: { field: EventField }) => {
+const FieldRenderer = ({ field }: { field: Field }) => {
   return (
     <Flex.Col gap={4} className={Css.padding("0px 36px")}>
       <Mono.M14 color={Colors.Branding.DarkBlue}>{field.name}</Mono.M14>
-      <Mono.M10>{field.description}</Mono.M10>
+      <Mono.M10>{field.documentation}</Mono.M10>
     </Flex.Col>
   );
 };

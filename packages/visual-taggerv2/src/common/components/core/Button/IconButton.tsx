@@ -7,7 +7,7 @@ import { Label, Paragraph } from "../../../styles/fonts";
 function getLabel(size: "small" | "medium" | "large"): any {
   switch (size) {
     case "small":
-      return Label.L10;
+      return Label.L12;
     case "medium":
       return Label.L14;
     case "large":

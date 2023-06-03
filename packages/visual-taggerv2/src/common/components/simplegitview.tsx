@@ -6,7 +6,8 @@ import Modal from "../components/core/Modal/Modal";
 import Select from "../components/core/Input/Select";
 import { Label } from "../styles/fonts";
 import { Colors } from "../styles/colors";
-import { Css, Flex } from "../styles/common.styles";
+import { Css } from "../styles/common.styles";
+import { IconButton } from "./core/Button/IconButton";
 
 export interface GitEventSource {
   id: string;
@@ -23,6 +24,9 @@ export interface SimpleGitViewProps {
   setActiveBranch: (branch: string) => void;
   createBranch: (branch: string) => void;
 
+  onCommit?: () => void;
+  hasChanges?: boolean;
+
   rowWise?: boolean;
 }
 
@@ -34,6 +38,9 @@ export function SimpleGitView({
   activeBranch,
   setActiveBranch,
   createBranch,
+
+  onCommit,
+  hasChanges,
 
   rowWise,
 }: SimpleGitViewProps) {
@@ -79,13 +86,21 @@ export function SimpleGitView({
         width={130}
         onChange={(e) => setActiveBranch(e as string)}
       />
+      {hasChanges && onCommit && (
+        <IconButton
+          icon="floppy-disc"
+          label="Commit"
+          color={Colors.Branding.Blue}
+          onClick={() => onCommit()}
+        />
+      )}
       <Button
         onClick={showModal}
         type="Clear"
         size="small"
         className={Css.padding(0)}
       >
-        <Label.L12 color={Colors.Branding.Blue}>+ Add Branch</Label.L12>
+        <Label.L12 color={Colors.Branding.Blue}>+Add Branch</Label.L12>
       </Button>
       <Modal
         open={isModalOpen}

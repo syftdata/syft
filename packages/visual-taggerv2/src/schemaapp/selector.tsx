@@ -1,5 +1,6 @@
 import React from "react";
-import { Action, Event, SyftEvent } from "../types";
+import { EventSchema } from "@syftdata/common/lib/types";
+import { Action, SyftEvent } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
@@ -14,7 +15,7 @@ import NoSchemasView from "./noschemasview";
 export interface SchemaSelectorProps {
   setEvents: (events: SyftEvent[]) => void;
   action?: Action;
-  schemas: Event[];
+  schemas: EventSchema[];
   className?: string;
 }
 
@@ -41,7 +42,7 @@ export const SelectedSchemaView = ({
     return null;
   }
 
-  const removeSchema = (schema: Event) => {
+  const removeSchema = (schema: EventSchema) => {
     const index = expectedEvents.findIndex((i) => i.name === schema.name);
     if (index > -1) {
       const expectedEvents1 = [...expectedEvents];
@@ -73,7 +74,7 @@ export const SelectedSchemaView = ({
             >
               <Flex.Col gap={4}>
                 <Mono.M14>{item.schema.name}</Mono.M14>
-                <Mono.M10>{item.schema.description}</Mono.M10>
+                <Mono.M10>{item.schema.documentation}</Mono.M10>
               </Flex.Col>
               <SecondaryIconButton
                 label="remove"
@@ -116,7 +117,7 @@ const SchemaSelector = ({
     return null;
   }
 
-  const attachEvent = (schema: Event) => {
+  const attachEvent = (schema: EventSchema) => {
     const expectedEvents1 = [
       ...expectedEvents,
       {
@@ -150,7 +151,7 @@ const SchemaSelector = ({
             >
               <Flex.Col gap={4}>
                 <Mono.M14>{item.schema.name}</Mono.M14>
-                <Mono.M10>{item.schema.description}</Mono.M10>
+                <Mono.M10>{item.schema.documentation}</Mono.M10>
               </Flex.Col>
               <IconButton
                 icon="plus-circle"

@@ -1,4 +1,4 @@
-import { GitInfo, UserSession } from "../../types";
+import { EventSchemas, GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
 import { getGitInfo, setGitInfo } from "../state/gitinfo";
 import { Step } from "@puppeteer/replay";
@@ -18,7 +18,7 @@ export function downloadFile(name: string, contents: string): void {
   a.remove();
 }
 
-async function handleGitInfoResponse(
+export async function handleGitInfoResponse(
   response: Response
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
@@ -60,7 +60,7 @@ export async function createTestSpec(
     content,
     sha,
   });
-  handleGitInfoResponse(response);
+  await handleGitInfoResponse(response);
 }
 
 export async function deleteTestSpec(
@@ -78,7 +78,7 @@ export async function deleteTestSpec(
     name,
     sha,
   });
-  handleGitInfoResponse(response);
+  await handleGitInfoResponse(response);
 }
 
 export async function createBranch(
@@ -90,7 +90,7 @@ export async function createBranch(
     sourceId,
     branch,
   });
-  handleGitInfoResponse(response);
+  await handleGitInfoResponse(response);
 }
 
 export async function deleteBranch(
@@ -102,5 +102,5 @@ export async function deleteBranch(
     sourceId,
     branch,
   });
-  handleGitInfoResponse(response);
+  await handleGitInfoResponse(response);
 }

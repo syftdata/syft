@@ -1,0 +1,241 @@
+{
+   "activeSourceId":"clifd30tq0002fbekryjenyju",
+   "activeBranch":"demo1",
+   "sources":[
+      {
+         "id":"clhtioy2e0002fbac0ad9lq9i",
+         "name":"weather",
+         "apiKey":"clhtioy2e0003fbac0lo5isq3",
+         "orgId":"syftdata.com",
+         "createdAt":"2023-05-18T19:21:01.814Z",
+         "updatedAt":"2023-05-18T19:21:01.814Z",
+         "suspended":false,
+         "gitInstallationId":37664081,
+         "gitAccountName":"naagas-syft",
+         "gitRepoName":"react-weather-app",
+         "gitMainBranch":"master",
+         "gitSyftFolder":"syft"
+      },
+      {
+         "id":"cli2j009y0002fb8vjzispb5f",
+         "name":"Web App",
+         "apiKey":"cli2j009y0003fb8v4331hr31",
+         "orgId":"syftdata.com",
+         "createdAt":"2023-05-25T02:39:33.478Z",
+         "updatedAt":"2023-05-25T02:39:33.478Z",
+         "suspended":false,
+         "gitInstallationId":37663669,
+         "gitAccountName":"syftdata",
+         "gitRepoName":"tutorannie",
+         "gitMainBranch":"main",
+         "gitSyftFolder":"syft"
+      },
+      {
+         "id":"clifd30tq0002fbekryjenyju",
+         "name":"Todo App",
+         "apiKey":"clifd30tq0003fbekplp27y36",
+         "orgId":"syftdata.com",
+         "createdAt":"2023-06-03T02:14:56.750Z",
+         "updatedAt":"2023-06-03T02:14:56.750Z",
+         "suspended":false,
+         "gitInstallationId":37663669,
+         "gitAccountName":"syftdata",
+         "gitRepoName":"todo-app",
+         "gitMainBranch":"main",
+         "gitSyftFolder":"syft"
+      }
+   ],
+   "branches":[
+      "demo1",
+      "demo2",
+      "demo-bb",
+      "syft",
+      "todo-analytics"
+   ],
+   "files":[
+      {
+         "name":"todo_app",
+         "path":"syft/tests/todo_app.json",
+         "size":4293,
+         "sha":"5f94f256917b51ec365aad778825a7ebecd8d92e",
+         "content":"{\n    \"title\": \"ToDo CRUD analytics\",\n    \"steps\": [\n        {\n            \"type\": \"navigate\",\n            \"url\": \"http://localhost:3000/\",\n            \"assertedEvents\": [\n                {\n                    \"type\": \"navigation\",\n                    \"url\": \"http://localhost:3000/\",\n                    \"title\": \"React App\"\n                }\n            ]\n        },\n        {\n            \"type\": \"click\",\n            \"target\": \"main\",\n            \"selectors\": [\n                [\n                    \"aria/What needs to be done?\"\n                ],\n                [\n                    \"#todoInput\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"todoInput\\\"]\"\n                ]\n            ],\n            \"offsetY\": 40,\n            \"offsetX\": 223\n        },\n        {\n            \"type\": \"change\",\n            \"value\": \"Record demo video\",\n            \"selectors\": [\n                [\n                    \"aria/What needs to be done?\"\n                ],\n                [\n                    \"#todoInput\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"todoInput\\\"]\"\n                ]\n            ],\n            \"target\": \"main\"\n        },\n        {\n            \"type\": \"keyDown\",\n            \"target\": \"main\",\n            \"key\": \"Enter\"\n        },\n        {\n            \"type\": \"keyUp\",\n            \"key\": \"Enter\",\n            \"target\": \"main\"\n        },\n        {\n            \"type\": \"customStep\",\n            \"name\": \"syft\",\n            \"parameters\": {\n                \"name\": \"TodoAdded\"\n            }\n        },\n        {\n            \"type\": \"click\",\n            \"target\": \"main\",\n            \"selectors\": [\n                [\n                    \"html\"\n                ],\n                [\n                    \"xpath//html\"\n                ]\n            ],\n            \"offsetY\": 614,\n            \"offsetX\": 434\n        },\n        {\n            \"type\": \"click\",\n            \"target\": \"main\",\n            \"selectors\": [\n                [\n                    \"aria/What needs to be done?\"\n                ],\n                [\n                    \"#todoInput\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"todoInput\\\"]\"\n                ]\n            ],\n            \"offsetY\": 22,\n            \"offsetX\": 175\n        },\n        {\n            \"type\": \"change\",\n            \"value\": \"Upload and share\",\n            \"selectors\": [\n                [\n                    \"aria/What needs to be done?\"\n                ],\n                [\n                    \"#todoInput\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"todoInput\\\"]\"\n                ]\n            ],\n            \"target\": \"main\"\n        },\n        {\n            \"type\": \"keyDown\",\n            \"target\": \"main\",\n            \"key\": \"Enter\"\n        },\n        {\n            \"type\": \"keyUp\",\n            \"key\": \"Enter\",\n            \"target\": \"main\"\n        },\n        {\n            \"type\": \"customStep\",\n            \"name\": \"syft\",\n            \"parameters\": {\n                \"name\": \"TodoAdded\"\n            }\n        },\n        {\n            \"type\": \"click\",\n            \"target\": \"main\",\n            \"selectors\": [\n                [\n                    \"#root > div > section > ul > li:nth-child(1) > input\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"root\\\"]/div/section/ul/li[1]/input\"\n                ]\n            ],\n            \"offsetY\": 29.40625,\n            \"offsetX\": 22\n        },\n        {\n            \"type\": \"customStep\",\n            \"name\": \"syft\",\n            \"parameters\": {\n                \"name\": \"TodoToggled\"\n            }\n        },\n        {\n            \"type\": \"click\",\n            \"target\": \"main\",\n            \"selectors\": [\n                [\n                    \"aria/×\"\n                ],\n                [\n                    \"#root > div > section > ul > li.completed > button\"\n                ],\n                [\n                    \"xpath///*[@id=\\\"root\\\"]/div/section/ul/li[1]/button\"\n                ]\n            ],\n            \"offsetY\": 27.609375,\n            \"offsetX\": 21\n        },\n        {\n            \"type\": \"customStep\",\n            \"name\": \"syft\",\n            \"parameters\": {\n                \"name\": \"TodoDeleted\"\n            }\n        }\n    ]\n}\n"
+      }
+   ],
+   "eventSchemaSha":"47d9fb85cd0ebecdfaba58dad2feeeb051c64e05",
+   "eventSchema":{
+      "appName":"Todo App",
+      "appVersion":"0.0.1",
+      "events":[
+         {
+            "name":"TodoEvent",
+            "eventType":0,
+            "documentation":"",
+            "fields":[
+               {
+                  "name":"id",
+                  "type":{
+                     "name":"number",
+                     "zodType":"z.number()"
+                  },
+                  "documentation":"ID of the ToDo",
+                  "isOptional":false
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":false,
+            "zodType":"z.object({\n    \tid: z.number()\n  })",
+            "exampleUsage":"syft.todoEvent({\n  id: 0,\n})\n"
+         },
+         {
+            "name":"TodoAdded",
+            "eventType":0,
+            "documentation":"Logged when a ToDo is created.",
+            "fields":[
+               {
+                  "name":"title",
+                  "type":{
+                     "name":"string",
+                     "zodType":"z.string()"
+                  },
+                  "documentation":"Title of the ToDo",
+                  "isOptional":false
+               },
+               {
+                  "name":"created_at",
+                  "type":{
+                     "name":"Date",
+                     "zodType":"z.date()"
+                  },
+                  "documentation":"Time when the ToDo was created",
+                  "isOptional":false
+               },
+               {
+                  "name":"id",
+                  "type":{
+                     "name":"number",
+                     "zodType":"z.number()"
+                  },
+                  "documentation":"ID of the ToDo",
+                  "isOptional":false
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":true,
+            "zodType":"z.object({\n    \ttitle: z.string(),\n\tcreated_at: z.date(),\n\tid: z.number()\n  })",
+            "exampleUsage":"syft.todoAdded({\n  title: \"value\",\n  created_at: new Date(),\n  id: 0,\n})\n"
+         },
+         {
+            "name":"TodoToggled",
+            "eventType":0,
+            "documentation":"Logged when a ToDo is (un)done.",
+            "fields":[
+               {
+                  "name":"is_done",
+                  "type":{
+                     "name":"boolean",
+                     "zodType":"z.boolean()"
+                  },
+                  "documentation":"True when the ToDo item is marked as done",
+                  "isOptional":false
+               },
+               {
+                  "name":"id",
+                  "type":{
+                     "name":"number",
+                     "zodType":"z.number()"
+                  },
+                  "documentation":"ID of the ToDo",
+                  "isOptional":false
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":true,
+            "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+            "exampleUsage":"syft.todoToggled({\n  is_done: false,\n  id: 0,\n})\n"
+         },
+         {
+            "name":"TodoDeleted",
+            "eventType":0,
+            "documentation":"Logged when a ToDo is deleted",
+            "fields":[
+               {
+                  "name":"is_done",
+                  "type":{
+                     "name":"boolean",
+                     "zodType":"z.boolean()"
+                  },
+                  "documentation":"True when the ToDo is marked as done",
+                  "isOptional":false
+               },
+               {
+                  "name":"id",
+                  "type":{
+                     "name":"number",
+                     "zodType":"z.number()"
+                  },
+                  "documentation":"ID of the ToDo",
+                  "isOptional":false
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":true,
+            "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+            "exampleUsage":"syft.todoDeleted({\n  is_done: false,\n  id: 0,\n})\n"
+         },
+         {
+            "name":"PageEvent",
+            "eventType":1,
+            "documentation":"Logged when the page changes.",
+            "fields":[
+               {
+                  "name":"name",
+                  "type":{
+                     "name":"string",
+                     "zodType":"z.string()"
+                  },
+                  "documentation":"Name of the page",
+                  "isOptional":false,
+                  "defaultValue":"\"index\""
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":true,
+            "zodType":"z.object({\n    \tname: z.string()\n  })",
+            "exampleUsage":"syft.pageEvent({\n  name: \"\"index\"\",\n})\n"
+         },
+         {
+            "name":"UserIdentity",
+            "eventType":3,
+            "documentation":"User Identity is tracked via this event.",
+            "fields":[
+               {
+                  "name":"userId",
+                  "type":{
+                     "name":"string",
+                     "zodType":"z.string().uuid()",
+                     "syfttype":"UUID"
+                  },
+                  "documentation":"Id of the user",
+                  "isOptional":false
+               }
+            ],
+            "traits":[
+               
+            ],
+            "exported":true,
+            "zodType":"z.object({\n    \tuserId: z.string().uuid()\n  })",
+            "exampleUsage":"syft.userIdentity({\n  userId: \"123e4567-e89b-12d3-a456-426614174000\",\n})\n"
+         }
+      ]
+   }
+}

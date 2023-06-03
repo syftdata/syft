@@ -1,3 +1,5 @@
+import { EventSchema } from "@syftdata/common/lib/types";
+
 export enum ActionsMode {
   Actions = "actions",
   Code = "code",
@@ -187,44 +189,10 @@ export enum MessageType {
   LoggedOut = "logged-out",
 }
 
-export enum FieldType {
-  STRING = "STRING",
-  INT = "INT",
-  POSITIVE_INT = "POSITIVE_INT",
-  FLOAT = "FLOAT",
-  BOOLEAN = "BOOLEAN",
-  NUMBER = "NUMBER",
-  ARRAY = "ARRAY",
-  OBJECT = "OBJECT",
-  DATE = "DATE",
-  CUID = "CUID",
-  CUID2 = "CUID2",
-  UUID = "UUID",
-  EMAIL = "EMAIL",
-  URL = "URL",
-  COUNTRYCODE = "COUNTRYCODE",
-}
-
 export interface EventSchemas {
   appName: string;
   appVersion: string;
-  events: Event[];
-}
-
-export interface EventField {
-  name: string;
-  type: FieldType;
-  description?: string;
-  isOptional: boolean;
-  defaultValue?: string;
-}
-
-export interface Event {
-  id: string;
-  name: string;
-  description?: string;
-  updatedAt?: Date;
-  fields: EventField[];
+  events: EventSchema[];
 }
 
 export interface User {
