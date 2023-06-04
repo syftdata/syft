@@ -46,7 +46,8 @@ export default function TaggingApp({
     );
   }
 
-  if (!gitInfoState.info) {
+  const gitInfo = gitInfoState.info;
+  if (!gitInfo) {
     return (
       <Flex.Col
         gap={24}
@@ -83,6 +84,26 @@ export default function TaggingApp({
     });
   };
 
+  const onCreateTag = (action: Action) => {
+    dispatch({
+      type: GitInfoActionType.UPDATE_EVENT_TAGS,
+      data: [...gitInfo.eventTags, action],
+    });
+  };
+
+  const onUpdateTag = (index: number, action?: Action) => {
+    const newTags = [...gitInfo.eventTags];
+    if (action != null) {
+      newTags.splice(index, 1, action);
+    } else {
+      newTags.splice(index, 1);
+    }
+    dispatch({
+      type: GitInfoActionType.UPDATE_EVENT_TAGS,
+      data: newTags,
+    });
+  };
+
   const getTaggingView = () => {
     return (
       <>
@@ -94,13 +115,10 @@ export default function TaggingApp({
           />
         </FlexExtra.RowWithDivider>
         <ActionsEditor
-          title="Actions"
+          tags={gitInfoState.info?.eventTags ?? []}
           actions={actions}
           onUpdateAction={onUpdateAction}
-        />
-        <ActionsEditor
-          title="Tags"
-          actions={gitInfoState.info?.eventTags ?? []}
+          onUpdateTag={onUpdateTag}
         />
       </>
     );
@@ -113,7 +131,12 @@ export default function TaggingApp({
           <IconButton icon="highlighter" onClick={onStartTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
-        <ActionsEditor actions={gitInfoState.info?.eventTags ?? []} />
+        <ActionsEditor
+          tags={gitInfoState.info?.eventTags ?? []}
+          actions={[]}
+          onUpdateAction={onUpdateAction}
+          onUpdateTag={onUpdateTag}
+        />
       </>
     );
   };
