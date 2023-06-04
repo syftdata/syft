@@ -13,6 +13,7 @@ import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
+import { GitInfoContext, useGitInfoContext } from "../cloud/state/gitinfo";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
@@ -33,7 +34,6 @@ function init(
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.RecordedStep) {
-      console.log(">>>>>>>> recorded step ", message.data);
       onActions(message.data as Action[]);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
@@ -43,7 +43,7 @@ function init(
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
-          fetchGitInfo(userSession).then((gitInfo) => {});
+          void fetchGitInfo(userSession);
         }
       });
     } else {
@@ -102,6 +102,7 @@ const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
   const [actions, setActions] = useState<Array<Action>>([]);
   useEffect(() => init(insertEvent, setActions), []);
+  const { gitInfoState, dispatch } = useGitInfoContext();
 
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);
@@ -139,19 +140,26 @@ const App = () => {
 
   return (
     <Flex.Col className={css(Css.minWidth(500), Css.overflow("auto auto"))}>
-      <GitView />
-      <Tabs
-        defaultActiveKey="1"
-        items={items}
-        size="small"
-        style={{ height: "100vh" }}
-        tabBarStyle={{
-          marginBottom: 0,
-          backgroundColor: Colors.Gray.V1,
-          paddingLeft: 8,
-          borderBottom: `1px solid ${Colors.Gray.V3}`,
+      <GitInfoContext.Provider
+        value={{
+          gitInfoState,
+          dispatch,
         }}
-      />
+      >
+        <GitView />
+        <Tabs
+          defaultActiveKey="1"
+          items={items}
+          size="small"
+          style={{ height: "100vh" }}
+          tabBarStyle={{
+            marginBottom: 0,
+            backgroundColor: Colors.Gray.V1,
+            paddingLeft: 8,
+            borderBottom: `1px solid ${Colors.Gray.V3}`,
+          }}
+        />
+      </GitInfoContext.Provider>
     </Flex.Col>
   );
 };

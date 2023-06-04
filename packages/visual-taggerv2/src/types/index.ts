@@ -232,6 +232,9 @@ export interface GitInfo {
 
   eventSchemaSha?: string; // used to update the file without overwriting others changes.
   eventSchema: EventSchemas;
+
+  eventTags: Action[];
+  eventTagsSha?: string; // used to update the file without overwriting others changes.
 }
 
 export interface RecordingState {

@@ -3,7 +3,7 @@ import { Css, Flex } from "../common/styles/common.styles";
 import { useState } from "react";
 import Section from "../common/components/core/Section";
 import SchemaSelector, { SelectedSchemaView } from "../schemaapp/selector";
-import { useGitInfo } from "../cloud/state/gitinfo";
+import { useGitInfoContext } from "../cloud/state/gitinfo";
 import ActionList from "./ActionList";
 
 export interface ActionsEditorProps {
@@ -17,10 +17,11 @@ export default function ActionsEditor({
 }: ActionsEditorProps) {
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
-  const [gitInfo] = useGitInfo();
+  const { gitInfoState } = useGitInfoContext();
 
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
+  const gitInfo = gitInfoState.info;
 
   const schemas = gitInfo?.eventSchema?.events ?? [];
   return (

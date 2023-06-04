@@ -1,66 +1,60 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { useGitInfo } from "../state/gitinfo";
+import { useGitInfoContext } from "../state/gitinfo";
 import { useUserSession } from "../state/usersession";
 import { SimpleGitView } from "../../common/components/simplegitview";
 import { Css, Flex } from "../../common/styles/common.styles";
-import { createBranch, deleteBranch, fetchGitInfo } from "../api/git";
-import { PrimaryIconButton } from "../../common/components/core/Button/IconButton";
+import { GitInfoActionType, LoadingState } from "../state/types";
+import Spinner from "../../common/components/core/Spinner/Spinner";
 
 export function GitView() {
   const [userSession] = useUserSession();
-  const [gitInfo, setGitInfo] = useGitInfo();
-
-  const setActiveSourceById = (sourceId: string) => {
-    if (userSession == null || gitInfo == null) {
-      return;
-    }
-    if (sourceId === gitInfo.activeSourceId) {
-      return;
-    }
-
-    gitInfo.activeSourceId = sourceId;
-    gitInfo.activeBranch = undefined;
-    setGitInfo({ ...gitInfo });
-    // make a call to the backend to set the active source.
-    void fetchGitInfo(
-      userSession,
-      gitInfo.activeSourceId,
-      gitInfo.activeBranch
-    );
-  };
-
-  const setActiveBranch = (branch: string) => {
-    if (userSession == null || gitInfo == null) {
-      return;
-    }
-    gitInfo.activeBranch = branch;
-    setGitInfo({ ...gitInfo });
-    // make a call to the backend to set the active source.
-    void fetchGitInfo(
-      userSession,
-      gitInfo.activeSourceId,
-      gitInfo.activeBranch
-    );
-  };
+  const { gitInfoState, dispatch } = useGitInfoContext();
+  const gitInfo = gitInfoState.info;
 
   // TODO: show selected items at the top.
   if (!userSession || !gitInfo) {
     return <></>;
   }
 
-  const _createBranch = (branch: string) => {
-    createBranch(gitInfo.activeSourceId!, branch, userSession);
+  const setActiveSourceById = (sourceId: string) => {
+    dispatch({
+      type: GitInfoActionType.UPDATE_SOURCE,
+      data: sourceId,
+    });
   };
 
-  const _deleteBranch = (branch: string) => {
-    deleteBranch(gitInfo.activeSourceId!, branch, userSession);
+  const setActiveBranch = (branch: string) => {
+    dispatch({
+      type: GitInfoActionType.UPDATE_BRANCH,
+      data: branch,
+    });
   };
 
-  const _onSave = () => {};
+  const createBranch = (branch: string) => {
+    dispatch({
+      type: GitInfoActionType.CREATE_BRANCH,
+      data: branch,
+    });
+  };
+
+  const deleteBranch = (branch: string) => {
+    dispatch({
+      type: GitInfoActionType.DELETE_BRANCH,
+      data: branch,
+    });
+  };
+
+  const onCommit = () => {
+    dispatch({
+      type: GitInfoActionType.COMMIT,
+    });
+  };
 
   const activeSource =
     gitInfo.sources.find((source) => source.id === gitInfo.activeSourceId) ??
     gitInfo.sources[0];
+
+  console.log(">> git state ", gitInfoState.state, gitInfoState.isModified);
 
   return (
     <Flex.Row
@@ -76,11 +70,12 @@ export function GitView() {
         branches={gitInfo.branches}
         activeBranch={gitInfo.activeBranch ?? ""}
         setActiveBranch={setActiveBranch}
-        createBranch={_createBranch}
+        createBranch={createBranch}
         rowWise={true}
-        onCommit={_onSave}
-        hasChanges={true}
+        onCommit={onCommit}
+        hasChanges={gitInfoState.isModified}
       />
+      {gitInfoState.state === LoadingState.LOADING && <Spinner />}
     </Flex.Row>
   );
 }

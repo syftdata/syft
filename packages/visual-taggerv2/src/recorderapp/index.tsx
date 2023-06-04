@@ -9,8 +9,7 @@ import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import LoginView from "../cloud/views/LoginView";
 import { useUserSession } from "../cloud/state/usersession";
 import ActionsEditor from "./ActionsEditor";
-import { genPuppeteerSteps } from "../builders";
-import { useGitInfo } from "../cloud/state/gitinfo";
+import { useGitInfoContext } from "../cloud/state/gitinfo";
 import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
@@ -35,7 +34,7 @@ export default function TaggingApp({
   actions,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
-  const [gitInfo] = useGitInfo();
+  const { gitInfoState } = useGitInfoContext();
   const [taggingState, setTaggingState] = useState(TaggingState.Stopped);
 
   if (!userSession) {
@@ -46,7 +45,7 @@ export default function TaggingApp({
     );
   }
 
-  if (!gitInfo) {
+  if (!gitInfoState.info) {
     return (
       <Flex.Col
         gap={24}
@@ -63,11 +62,11 @@ export default function TaggingApp({
     );
   }
 
-  const onStartRecording = () => {
+  const onStartTagging = () => {
     startTagging();
     setTaggingState(TaggingState.Recording);
   };
-  const onStopRecording = () => {
+  const onStopTagging = () => {
     endTagging();
     setTaggingState(TaggingState.Stopped);
   };
@@ -81,7 +80,7 @@ export default function TaggingApp({
         <FlexExtra.RowWithDivider>
           <PrimaryIconButton
             icon="highlighter"
-            onClick={onStopRecording}
+            onClick={onStopTagging}
             size="medium"
           />
         </FlexExtra.RowWithDivider>
@@ -94,7 +93,7 @@ export default function TaggingApp({
     return (
       <>
         <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <IconButton icon="highlighter" onClick={onStartRecording} />
+          <IconButton icon="highlighter" onClick={onStartTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
         <ActionsEditor actions={actions} />

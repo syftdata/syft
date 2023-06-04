@@ -6,7 +6,7 @@ import { Label, Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer from "./schema";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
-import { useGitInfo } from "../cloud/state/gitinfo";
+import { useGitInfoContext } from "../cloud/state/gitinfo";
 import NoSchemasView from "./noschemasview";
 import Button from "../common/components/core/Button/Button";
 import { Colors } from "../common/styles/colors";
@@ -14,7 +14,7 @@ import Spinner from "../common/components/core/Spinner/Spinner";
 import { useUserSession } from "../cloud/state/usersession";
 import LoginView from "../cloud/views/LoginView";
 import AddEventModal, { EditEventModal } from "./AddEventModal";
-import { updateEventSchemas } from "../cloud/api/schema";
+import { GitInfoActionType } from "../cloud/state/types";
 
 export interface SchemaAppProps {
   className?: string;
@@ -23,7 +23,7 @@ export interface SchemaAppProps {
 const SchemaApp = ({ className }: SchemaAppProps) => {
   const [userSession] = useUserSession();
   const [search, setSearch] = useState("");
-  const [gitInfo] = useGitInfo();
+  const { gitInfoState, dispatch } = useGitInfoContext();
 
   const [schema, setSchema] = useState<EventSchema | undefined>();
   const [showEditModal, setShowEditModal] = useState(false);
@@ -38,19 +38,16 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   if (!userSession) {
     return <LoginView />;
   }
+  const gitInfo = gitInfoState.info;
   if (!gitInfo) {
     return <Spinner />;
   }
 
   const addEventModel = (newEvent: EventSchema) => {
-    updateEventSchemas(
-      {
-        ...gitInfo.eventSchema,
-        events: [...gitInfo.eventSchema.events, newEvent],
-      },
-      gitInfo.eventSchemaSha,
-      userSession
-    );
+    dispatch({
+      type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+      data: [...gitInfo.eventSchema.events, newEvent],
+    });
     setShowAddModal(false);
   };
 
@@ -59,14 +56,10 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     const newEvents = gitInfo.eventSchema.events.map((e) => {
       return e.name !== oldEvent.name ? e : newEvent;
     });
-    updateEventSchemas(
-      {
-        ...gitInfo.eventSchema,
-        events: newEvents,
-      },
-      gitInfo.eventSchemaSha,
-      userSession
-    );
+    dispatch({
+      type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+      data: newEvents,
+    });
     setShowEditModal(false);
   };
 
@@ -75,14 +68,10 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     const remaining = gitInfo.eventSchema.events.filter((e) => {
       return e.name !== eventName;
     });
-    updateEventSchemas(
-      {
-        ...gitInfo.eventSchema,
-        events: remaining,
-      },
-      gitInfo.eventSchemaSha,
-      userSession
-    );
+    dispatch({
+      type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+      data: remaining,
+    });
     setShowEditModal(false);
   };
 

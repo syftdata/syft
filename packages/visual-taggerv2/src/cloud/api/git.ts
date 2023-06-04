@@ -1,28 +1,15 @@
-import { EventSchemas, GitInfo, UserSession } from "../../types";
+import { GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
 import { getGitInfo, setGitInfo } from "../state/gitinfo";
 import { Step } from "@puppeteer/replay";
 import { genPuppeteerScript } from "../../builders";
-
-export function downloadFile(name: string, contents: string): void {
-  // write code to show download dialog for a text.
-  const blob = new Blob([contents], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.style.setProperty("display", "none");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  a.remove();
-}
 
 export async function handleGitInfoResponse(
   response: Response
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
+    console.log(">>>> Got response for git info", data);
     setGitInfo(data);
     return data;
   } else {

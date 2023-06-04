@@ -1,4 +1,7 @@
 {
+   "eventTags": [
+
+   ],
    "events":[
       {
          "name":"TodoAdded",

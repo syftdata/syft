@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import { localStorageGet } from "../../common/utils";
 import { GitInfo } from "../../types";
+import {
+  GitInfoAction,
+  GitInfoActionType,
+  GitInfoState,
+  LoadingState,
+} from "./types";
+import reducer from "./gitinfo/reducer";
+import { useUserSession } from "./usersession";
 
 export const GIT_STORAGE_KEY = "gitInfo";
 
@@ -20,31 +28,58 @@ export async function setGitInfo(gitInfo: GitInfo | undefined) {
 }
 
 export function useGitInfo() {
-  const [_gitInfo, _setGitInfo] = useState<GitInfo | undefined>();
+  const [userSession] = useUserSession();
+  const [gitInfo, dispatch] = useReducer(
+    reducer(userSession),
+    {
+      state: LoadingState.NOT_INITIALIZED,
+      isModified: false,
+    } as GitInfoState,
+    (a) => a
+  );
+
   useEffect(() => {
     getGitInfo().then((storedGitInfo) => {
       if (storedGitInfo != null) {
-        _setGitInfo(storedGitInfo);
+        dispatch({
+          type: GitInfoActionType.SET_DATA,
+          data: storedGitInfo,
+        });
       }
+      // changes flow through the storage listener
+      chrome.storage.onChanged.addListener((changes) => {
+        if (changes[GIT_STORAGE_KEY] != null) {
+          dispatch({
+            type: GitInfoActionType.SET_DATA,
+            data: changes[GIT_STORAGE_KEY].newValue,
+          });
+        }
+      });
     });
   }, []);
 
-  // changes flow through the storage listener
-  chrome.storage.onChanged.addListener((changes) => {
-    if (changes[GIT_STORAGE_KEY] != null) {
-      console.log("gitinfo changed in storage");
-      if (
-        changes[GIT_STORAGE_KEY].newValue != changes[GIT_STORAGE_KEY].oldValue
-      ) {
-        console.log(
-          "Updating git info in state",
-          changes[GIT_STORAGE_KEY].newValue,
-          changes[GIT_STORAGE_KEY].oldValue
-        );
-        _setGitInfo(changes[GIT_STORAGE_KEY].newValue);
-      }
+  useEffect(() => {
+    if (userSession != null) {
+      dispatch({
+        type: GitInfoActionType.REFRESH,
+      });
     }
-  });
+  }, [userSession]);
 
-  return [_gitInfo, setGitInfo] as const;
+  return [gitInfo, dispatch] as const;
+}
+
+type GitInfoContextType = {
+  gitInfoState: GitInfoState;
+  dispatch: (action: GitInfoAction) => void;
+};
+export const GitInfoContext = createContext<GitInfoContextType>({
+  gitInfoState: {
+    state: LoadingState.NOT_INITIALIZED,
+    isModified: false,
+  },
+  dispatch: () => {},
+});
+export function useGitInfoContext() {
+  return useContext(GitInfoContext);
 }
