@@ -1,6 +1,7 @@
 import { UserSession } from "../../../types";
 import { createBranch, deleteBranch, fetchGitInfo } from "../../api/git";
 import { updateEventSchemas } from "../../api/schema";
+import { setGitInfo, setGitInfoInMemory } from "../gitinfo";
 import {
   GitInfoAction,
   GitInfoActionType,
@@ -79,13 +80,23 @@ export default function reducer(userSession: UserSession | undefined) {
         newState.isModified = false;
         updateEventSchemas(
           newState.info.activeSourceId!,
-          newState.info.activeSourceId!,
+          newState.info.activeBranch!,
           newState.info.eventSchema,
           newState.info.eventSchemaSha,
           newState.info.eventTags,
-          newState.info.eventTagsSha,
           userSession
         );
+        break;
+      case GitInfoActionType.FETCH_MAGIC_CHANGES:
+        if (newState.info == null) throw new Error("");
+        newState.state = LoadingState.LOADING;
+        break;
+      case GitInfoActionType.FETCHED_MAGIC_CHANGES:
+        if (newState.info == null) throw new Error("");
+        newState.state = LoadingState.LOADED;
+        newState.isModified = true;
+        newState.info.eventSchema.events = action.data.eventSchema.events;
+        newState.info.eventTags = action.data.eventTags;
         break;
     }
     if (
@@ -102,6 +113,7 @@ export default function reducer(userSession: UserSession | undefined) {
       newState.state = LoadingState.LOADING;
     }
     console.log(">> new state ", newState);
+    setGitInfoInMemory(newState.info);
     return newState;
   };
 }

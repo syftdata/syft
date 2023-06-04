@@ -17,7 +17,7 @@ import {
   WheelAction,
 } from "../types";
 import {
-  getRecordingState,
+  RECORDING_STORAGE_KEY,
   updateRecordingState,
 } from "../cloud/state/recordingstate";
 
@@ -85,27 +85,27 @@ function buildBaseAction(
   };
 }
 
-class Recorder {
-  private _recording: Action[];
+export default class Recorder {
+  private _actions: Action[];
   private currentEventHandleType: string | null = null;
   private onAction: (actions: Action[]) => void;
   // private lastContextMenuEvent: MouseEvent | null = null;
 
-  private appendToRecording = (action: Action) => {
-    this._recording.push(action);
-    updateRecordingState((state) => ({ ...state, recording: this._recording }));
-    this.onAction(this._recording);
+  private appendToActions = (action: Action) => {
+    this._actions.push(action);
+    updateRecordingState((state) => ({ ...state, recording: this._actions }));
+    this.onAction(this._actions);
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {
-    const lastAction = this._recording[this._recording.length - 1];
+    const lastAction = this._actions[this._actions.length - 1];
     const newAction = {
       ...lastAction,
       ...actionUpdate,
     };
-    this._recording[this._recording.length - 1] = newAction;
-    updateRecordingState((state) => ({ ...state, recording: this._recording }));
-    this.onAction(this._recording);
+    this._actions[this._actions.length - 1] = newAction;
+    updateRecordingState((state) => ({ ...state, recording: this._actions }));
+    this.onAction(this._actions);
   };
 
   /**
@@ -127,35 +127,25 @@ class Recorder {
 
   constructor({ onAction }: { onAction: (actions: Action[]) => void }) {
     this.onAction = onAction;
-    this._recording = [];
-    getRecordingState().then((state) => {
-      this._recording = state?.recording ?? [];
+    this._actions = [];
+    // Watch for changes to the recording from the background worker (when a SPA navigation happens)
+    chrome.storage.onChanged.addListener(this.onStorageChange);
 
-      // Watch for changes to the recording from the background worker (when a SPA navigation happens)
-      chrome.storage.onChanged.addListener((changes) => {
-        if (
-          changes.recording != null &&
-          changes.recording.newValue !== changes.recording.oldValue
-        ) {
-          this._recording = changes.recording.newValue.recording;
-        }
-      });
+    window.addEventListener("click", this.onClick, true);
+    // window.addEventListener("contextmenu", this.onContextMenu, true);
+    window.addEventListener("dragstart", this.onDrag, true);
+    window.addEventListener("drop", this.onDrag, true);
+    window.addEventListener("input", this.onInput, true);
+    window.addEventListener("keydown", this.onKeyDown, true);
+    window.addEventListener("resize", this.debouncedOnResize, true);
+    window.addEventListener("wheel", this.onMouseWheel, true);
 
-      window.addEventListener("click", this.onClick, true);
-      // window.addEventListener("contextmenu", this.onContextMenu, true);
-      window.addEventListener("dragstart", this.onDrag, true);
-      window.addEventListener("drop", this.onDrag, true);
-      window.addEventListener("input", this.onInput, true);
-      window.addEventListener("keydown", this.onKeyDown, true);
-      window.addEventListener("resize", this.debouncedOnResize, true);
-      window.addEventListener("wheel", this.onMouseWheel, true);
-
-      // We listen to a context menu action
-      // chrome.runtime.onMessage.addListener(this.onBackgroundMessage);
-    });
+    // We listen to a context menu action
+    // chrome.runtime.onMessage.addListener(this.onBackgroundMessage);
   }
 
   deregister() {
+    chrome.storage.onChanged.removeListener(this.onStorageChange);
     window.removeEventListener("click", this.onClick, true);
     // window.removeEventListener("contextmenu", this.onContextMenu, true);
     window.removeEventListener("dragstart", this.onDrag, true);
@@ -166,8 +156,20 @@ class Recorder {
     window.removeEventListener("wheel", this.onMouseWheel, true);
   }
 
+  private onStorageChange = (changes: {
+    [key: string]: chrome.storage.StorageChange;
+  }) => {
+    if (
+      changes[RECORDING_STORAGE_KEY] != null &&
+      changes[RECORDING_STORAGE_KEY].newValue !==
+        changes[RECORDING_STORAGE_KEY].oldValue
+    ) {
+      this._actions = changes[RECORDING_STORAGE_KEY].newValue.recording;
+    }
+  };
+
   private onMouseWheel = (event: WheelEvent) => {
-    const lastAction = this._recording[this._recording.length - 1];
+    const lastAction = this._actions[this._actions.length - 1];
 
     const { pageXOffset, pageYOffset } = window;
 
@@ -191,7 +193,7 @@ class Recorder {
         pageXOffset,
         pageYOffset,
       } as WheelAction;
-      this.appendToRecording(action);
+      this.appendToActions(action);
     }
   };
 
@@ -218,14 +220,14 @@ class Recorder {
       offsetY: event.offsetY,
     };
 
-    this.appendToRecording(action);
+    this.appendToActions(action);
   };
 
   private onDrag = (event: DragEvent) => {
-    const lastAction = this._recording[this._recording.length - 1];
+    const lastAction = this._actions[this._actions.length - 1];
 
     if (event.type === "dragstart") {
-      this.appendToRecording({
+      this.appendToActions({
         ...buildBaseAction(event),
         type: ActionType.DragAndDrop,
         sourceX: event.x,
@@ -258,7 +260,7 @@ class Recorder {
       key: event.key,
     };
 
-    this.appendToRecording(action);
+    this.appendToActions(action);
   };
 
   // private onContextMenu = (event: MouseEvent) => {
@@ -306,7 +308,7 @@ class Recorder {
 
     const target = event.target as HTMLInputElement;
     const selectors = genSelectors(target);
-    const lastAction = this._recording[this._recording.length - 1];
+    const lastAction = this._actions[this._actions.length - 1];
     // If the last event was also an input and for the same element, update the last event with the latest input
     if (
       lastAction.type === "input" &&
@@ -322,7 +324,7 @@ class Recorder {
         type: ActionType.Input,
         value: target?.value,
       };
-      this.appendToRecording(action);
+      this.appendToActions(action);
     }
   };
 
@@ -339,14 +341,14 @@ class Recorder {
         width,
         height,
       } as ResizeAction;
-      this.appendToRecording(action);
+      this.appendToActions(action);
     }
   };
 
   private getLastResizeAction = (): ResizeAction | undefined => {
-    for (let i = this._recording.length - 1; i >= 0; i--) {
-      if (this._recording[i].type === ActionType.Resize) {
-        return this._recording[i] as ResizeAction;
+    for (let i = this._actions.length - 1; i >= 0; i--) {
+      if (this._actions[i].type === ActionType.Resize) {
+        return this._actions[i] as ResizeAction;
       }
     }
   };
@@ -357,8 +359,6 @@ class Recorder {
     const action = {
       type: ActionType.FullScreenshot,
     } as FullScreenshotAction;
-    this.appendToRecording(action);
+    this.appendToActions(action);
   };
 }
-
-export default Recorder;

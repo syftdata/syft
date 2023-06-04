@@ -26,6 +26,14 @@ export function localStorageGet(keys: string[]) {
   });
 }
 
+export function sessionStorageGet(keys: string[]) {
+  return new Promise<{ [key: string]: any }>((resolve, reject) => {
+    chrome.storage.session.get(keys, (storage) => {
+      resolve(storage);
+    });
+  });
+}
+
 export async function getRandomInstallId() {
   return localStorageGet(["randomId"]).then(({ randomId }) => {
     let id = randomId;

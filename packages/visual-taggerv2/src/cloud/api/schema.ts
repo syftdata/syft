@@ -1,5 +1,5 @@
 import { Action, EventSchemas, GitInfo, UserSession } from "../../types";
-import { getGitInfo, setGitInfo } from "../state/gitinfo";
+import { getGitInfo } from "../state/gitinfo";
 import { handleGitInfoResponse } from "./git";
 import { post } from "./utils";
 import data from "./mock_magic.json";
@@ -10,7 +10,6 @@ export async function updateEventSchemas(
   eventSchema: EventSchemas,
   eventSchemaSha: string | undefined,
   eventTags: Action[],
-  eventTagsSha: string | undefined,
   user: UserSession
 ): Promise<void> {
   const response = await post("/api/catalog", user, {
@@ -19,23 +18,23 @@ export async function updateEventSchemas(
     eventSchema,
     eventSchemaSha,
     eventTags,
-    eventTagsSha,
   });
   await handleGitInfoResponse(response);
 }
 
-export async function magicAPI(user: UserSession): Promise<void> {
+export async function magicAPI(user: UserSession): Promise<GitInfo> {
   const gitInfo = await getGitInfo();
   if (!gitInfo) {
     throw new Error("GitInfo not found");
   }
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const newGitInfo: GitInfo = {
     ...gitInfo,
     eventSchema: {
       ...gitInfo.eventSchema,
       events: data.events,
     },
-    eventTags: data.eventTags,
+    eventTags: data.eventTags as unknown as Action[],
   };
-  await setGitInfo(newGitInfo);
+  return newGitInfo;
 }

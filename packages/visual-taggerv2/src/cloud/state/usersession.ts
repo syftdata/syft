@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { localStorageGet } from "../../common/utils";
 import { UserSession } from "../../types";
-import { GIT_STORAGE_KEY } from "./gitinfo";
+import { GIT_IN_MEMORY_STORAGE_KEY, GIT_STORAGE_KEY } from "./gitinfo";
 
 export const USER_STORAGE_KEY = "userSession";
 export async function getUserSession(): Promise<UserSession | undefined> {
@@ -13,7 +13,11 @@ export async function getUserSession(): Promise<UserSession | undefined> {
 
 export async function setUserSession(userSession: UserSession | undefined) {
   if (userSession == null) {
-    await chrome.storage.local.remove([GIT_STORAGE_KEY, USER_STORAGE_KEY]);
+    await chrome.storage.local.remove([
+      GIT_STORAGE_KEY,
+      GIT_IN_MEMORY_STORAGE_KEY,
+      USER_STORAGE_KEY,
+    ]);
   } else {
     await chrome.storage.local.set({ [USER_STORAGE_KEY]: userSession });
   }

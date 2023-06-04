@@ -18,6 +18,9 @@ export enum GitInfoActionType {
 
   SET_DATA,
   REFRESH,
+
+  FETCH_MAGIC_CHANGES,
+  FETCHED_MAGIC_CHANGES,
 }
 
 export interface GitInfoAction {
@@ -27,6 +30,8 @@ export interface GitInfoAction {
 
 export interface GitInfoState {
   info?: GitInfo;
+  // unmodifiedInfo?: GitInfo;
+
   state: LoadingState;
   error?: string;
   isModified: boolean;

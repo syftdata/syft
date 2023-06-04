@@ -1,7 +1,8 @@
 async function executeScript(tabId: number, frameId: number, file: string) {
-  await chrome.scripting.executeScript({
+  return await chrome.scripting.executeScript({
     target: { tabId, frameIds: [frameId] },
     files: [file],
+    injectImmediately: true,
   });
 }
 
@@ -9,15 +10,23 @@ async function executeScript(tabId: number, frameId: number, file: string) {
 // https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
 import scriptPath from "../visualtagger?script";
 export async function executeContentScript(tabId: number, frameId: number) {
-  executeScript(tabId, frameId, scriptPath);
+  await executeScript(tabId, frameId, scriptPath);
+  await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    func: () => {
+      if (typeof window?.__SYFT_TAGGER_SETUP === "function") {
+        window.__SYFT_TAGGER_SETUP();
+      }
+    },
+  });
 }
 
 export async function executeCleanUp(tabId: number, frameId: number) {
   await chrome.scripting.executeScript({
     target: { tabId, frameIds: [frameId] },
     func: () => {
-      if (typeof window?.__SYFT_CLEAN_UP === "function") {
-        window.__SYFT_CLEAN_UP();
+      if (typeof window?.__SYFT_TAGGER_CLEAN_UP === "function") {
+        window.__SYFT_TAGGER_CLEAN_UP();
       }
     },
   });

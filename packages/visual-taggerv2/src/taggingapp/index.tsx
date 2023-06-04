@@ -14,27 +14,28 @@ import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { magicAPI } from "../cloud/api/schema";
+import { GitInfoActionType } from "../cloud/state/types";
 
 export interface TaggingAppProps {
   actions: Action[];
   startTagging: () => void;
-  endTagging: () => void;
+  stopTagging: () => void;
   onUpdateAction: (index: number, action?: Action) => void;
 }
 
 enum TaggingState {
   Stopped,
-  Recording,
+  Tagging,
 }
 
 export default function TaggingApp({
   startTagging,
-  endTagging,
+  stopTagging,
   onUpdateAction,
   actions,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
-  const { gitInfoState } = useGitInfoContext();
+  const { gitInfoState, dispatch } = useGitInfoContext();
   const [taggingState, setTaggingState] = useState(TaggingState.Stopped);
 
   if (!userSession) {
@@ -64,27 +65,43 @@ export default function TaggingApp({
 
   const onStartTagging = () => {
     startTagging();
-    setTaggingState(TaggingState.Recording);
+    setTaggingState(TaggingState.Tagging);
   };
   const onStopTagging = () => {
-    endTagging();
+    stopTagging();
     setTaggingState(TaggingState.Stopped);
   };
   const onMagicWand = () => {
-    magicAPI(userSession);
+    dispatch({
+      type: GitInfoActionType.FETCH_MAGIC_CHANGES,
+    });
+    magicAPI(userSession).then((g) => {
+      dispatch({
+        type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
+        data: g,
+      });
+    });
   };
 
-  const getRecordingView = () => {
+  const getTaggingView = () => {
     return (
       <>
-        <FlexExtra.RowWithDivider>
+        <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
           <PrimaryIconButton
             icon="highlighter"
             onClick={onStopTagging}
             size="medium"
           />
         </FlexExtra.RowWithDivider>
-        <ActionsEditor actions={actions} onUpdateAction={onUpdateAction} />
+        <ActionsEditor
+          title="Actions"
+          actions={actions}
+          onUpdateAction={onUpdateAction}
+        />
+        <ActionsEditor
+          title="Tags"
+          actions={gitInfoState.info?.eventTags ?? []}
+        />
       </>
     );
   };
@@ -96,7 +113,7 @@ export default function TaggingApp({
           <IconButton icon="highlighter" onClick={onStartTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
-        <ActionsEditor actions={actions} />
+        <ActionsEditor actions={gitInfoState.info?.eventTags ?? []} />
       </>
     );
   };
@@ -105,8 +122,8 @@ export default function TaggingApp({
     switch (taggingState) {
       case TaggingState.Stopped:
         return getHomeView();
-      case TaggingState.Recording:
-        return getRecordingView();
+      case TaggingState.Tagging:
+        return getTaggingView();
     }
   };
 

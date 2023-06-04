@@ -83,9 +83,10 @@ export default function Highlighters({ actions }: HighlightersProps) {
   return (
     <>
       <style>{HighlighterStyle}</style>
-      {computedActions.map((def) => {
+      {computedActions.map((def, idx) => {
         return (
           <Highlighter
+            key={idx}
             rect={def.ele.getBoundingClientRect()}
             defined={true}
             committed={true}

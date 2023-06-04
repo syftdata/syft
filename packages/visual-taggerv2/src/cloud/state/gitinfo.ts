@@ -11,6 +11,26 @@ import reducer from "./gitinfo/reducer";
 import { useUserSession } from "./usersession";
 
 export const GIT_STORAGE_KEY = "gitInfo";
+export const GIT_IN_MEMORY_STORAGE_KEY = "gitInfoInMemory";
+
+export async function getGitInfoInMemory(): Promise<GitInfo | undefined> {
+  const { gitInfoInMemory } = await localStorageGet([
+    GIT_IN_MEMORY_STORAGE_KEY,
+  ]);
+  if (gitInfoInMemory) {
+    return gitInfoInMemory;
+  } else {
+    return getGitInfo();
+  }
+}
+
+export async function setGitInfoInMemory(gitInfo: GitInfo | undefined) {
+  if (gitInfo == null) {
+    await chrome.storage.local.remove([GIT_IN_MEMORY_STORAGE_KEY]);
+  } else {
+    await chrome.storage.local.set({ [GIT_IN_MEMORY_STORAGE_KEY]: gitInfo });
+  }
+}
 
 export async function getGitInfo(): Promise<GitInfo | undefined> {
   const { gitInfo } = await localStorageGet([GIT_STORAGE_KEY]);
@@ -25,6 +45,7 @@ export async function setGitInfo(gitInfo: GitInfo | undefined) {
   } else {
     await chrome.storage.local.set({ [GIT_STORAGE_KEY]: gitInfo });
   }
+  setGitInfoInMemory(gitInfo);
 }
 
 export function useGitInfo() {
@@ -46,7 +67,7 @@ export function useGitInfo() {
           data: storedGitInfo,
         });
       }
-      // changes flow through the storage listener
+      // changes from API call flow through the storage listener
       chrome.storage.onChanged.addListener((changes) => {
         if (changes[GIT_STORAGE_KEY] != null) {
           dispatch({

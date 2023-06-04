@@ -168,12 +168,12 @@ export interface SyftEvent {
 export enum MessageType {
   // Background to DevTools.
   SyftEvent = "syft-event",
-  RecordedStep = "recorded-step",
+  RecordedActions = "recorded-actions",
 
   // Other way round. DevTools to background
   InitDevTools = "init-devtools",
-  StartRecord = "start-record",
-  StopRecord = "stop-record",
+  StartTagging = "start-tagging",
+  StopTagging = "stop-tagging",
   ReplaceStep = "replace-step",
 
   // Background to Content Script.

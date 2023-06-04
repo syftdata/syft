@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Action, MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
-import TaggingApp from "../recorderapp";
+import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
 import SchemaApp from "../schemaapp";
@@ -13,11 +13,7 @@ import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
-import {
-  GitInfoContext,
-  useGitInfo,
-  useGitInfoContext,
-} from "../cloud/state/gitinfo";
+import { GitInfoContext, getGitInfo, useGitInfo } from "../cloud/state/gitinfo";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
@@ -37,7 +33,7 @@ function init(
       }
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
-    } else if (message.type === MessageType.RecordedStep) {
+    } else if (message.type === MessageType.RecordedActions) {
       onActions(message.data as Action[]);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
@@ -47,7 +43,13 @@ function init(
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
-          void fetchGitInfo(userSession);
+          getGitInfo().then((gitInfo) => {
+            void fetchGitInfo(
+              userSession,
+              gitInfo?.activeSourceId,
+              gitInfo?.activeBranch
+            );
+          });
         }
       });
     } else {
@@ -79,16 +81,16 @@ function init(
   chrome.devtools.network.onNavigated.addListener(refreshConnection);
 }
 
-const startRecording = () => {
+const startTagging = () => {
   existingConnection?.postMessage({
-    type: MessageType.StartRecord,
+    type: MessageType.StartTagging,
     tabId: chrome.devtools.inspectedWindow.tabId,
   });
 };
 
-const endRecording = () => {
+const stopTagging = () => {
   existingConnection?.postMessage({
-    type: MessageType.StopRecord,
+    type: MessageType.StopTagging,
     tabId: chrome.devtools.inspectedWindow.tabId,
   });
 };
@@ -104,9 +106,9 @@ const replaceAction = (index: number, action?: Action) => {
 
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
+  const [gitInfoState, dispatch] = useGitInfo();
   const [actions, setActions] = useState<Array<Action>>([]);
   useEffect(() => init(insertEvent, setActions), []);
-  const [gitInfoState, dispatch] = useGitInfo();
 
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);
@@ -118,8 +120,8 @@ const App = () => {
       label: `Visual Tagger`,
       children: (
         <TaggingApp
-          startTagging={startRecording}
-          endTagging={endRecording}
+          startTagging={startTagging}
+          stopTagging={stopTagging}
           onUpdateAction={replaceAction}
           actions={actions}
         />

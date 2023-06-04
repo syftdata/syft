@@ -1,7 +1,7 @@
 import { recordNavigationEvent, replaceAction } from "../common/utils";
 import { executeContentScript } from "../common/scripting";
 import { MessageType } from "../types";
-import { startRecording, stopRecording } from "./bridge";
+import { startTagging, stopTagging } from "./bridge";
 import {
   getRecordingState,
   stopRecordingState,
@@ -134,16 +134,16 @@ async function handleMessageAsync(
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
       break;
-    case MessageType.StartRecord:
-      await startRecording(message.tabId);
+    case MessageType.StartTagging:
+      await startTagging(message.tabId);
       break;
-    case MessageType.StopRecord:
-      await stopRecording(message.tabId);
+    case MessageType.StopTagging:
+      await stopTagging(message.tabId);
       break;
     case MessageType.ReplaceStep:
       const recordingState = await replaceAction(message.index, message.action);
       await port.postMessage({
-        type: MessageType.RecordedStep,
+        type: MessageType.RecordedActions,
         data: recordingState.recording,
       });
       break;

@@ -1,6 +1,140 @@
 {
    "eventTags": [
-
+      {
+         "eventSource": {
+               "parent": {
+                  "name": "AddTodoComponent",
+                  "parent": {
+                     "name": "App",
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/AddTodo.tsx"
+         },
+         "events": [
+               {
+                  "createdAt": "2023-06-04T14:03:35.829Z",
+                  "name": "TodoAdded",
+                  "props": {},
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "inputType": "text",
+         "isPassword": false,
+         "key": "Enter",
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "#todoInput",
+               "formSelector": "[placeholder=\"What needs to be done?\"]",
+               "generalSelector": "#todoInput",
+               "href": null,
+               "hrefSelector": null,
+               "id": "#todoInput",
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "INPUT",
+         "timestamp": 2850.7000000476837,
+         "type": "keydown"
+      },
+      {
+         "eventSource": {
+               "parent": {
+                  "name": "TodoComponent",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "parent": {
+                           "name": "App",
+                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+         },
+         "events": [
+               {
+                  "createdAt": "2023-06-04T14:03:42.445Z",
+                  "name": "TodoToggled",
+                  "props": {},
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "inputType": "checkbox",
+         "isPassword": false,
+         "offsetX": 17,
+         "offsetY": 30,
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "[class=\"toggle\"]",
+               "formSelector": null,
+               "generalSelector": ".toggle",
+               "href": null,
+               "hrefSelector": null,
+               "id": null,
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "INPUT",
+         "timestamp": 16666,
+         "type": "click"
+      },
+      {
+         "isPassword": false,
+         "type": "click",
+         "tagName": "BUTTON",
+         "selectors": {
+               "id": null,
+               "generalSelector": ".destroy",
+               "attrSelector": "[class=\"destroy\"]",
+               "testIdSelector": null,
+               "text": "",
+               "href": null,
+               "hrefSelector": null,
+               "accessibilitySelector": null,
+               "formSelector": null
+         },
+         "timestamp": 22593.700000047684,
+         "hasOnlyText": false,
+         "eventSource": {
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx",
+               "parent": {
+                  "name": "TodoComponent",
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx",
+                     "parent": {
+                           "name": "App",
+                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     }
+                  }
+               }
+         },
+         "offsetX": 22,
+         "offsetY": 18,
+         "events": [
+               {
+                  "name": "TodoDeleted",
+                  "props": {},
+                  "createdAt": "2023-06-04T14:03:47.704Z",
+                  "syft_status": {
+                     "valid": "valid",
+                     "track": ""
+                  }
+               }
+         ]
+      }
    ],
    "events":[
       {

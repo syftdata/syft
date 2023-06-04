@@ -11,11 +11,11 @@ export async function getRecordingState(): Promise<RecordingState | undefined> {
   }
 }
 
-export async function setRecordingState(Recording: RecordingState | undefined) {
-  if (Recording == null) {
+export async function setRecordingState(recording: RecordingState | undefined) {
+  if (recording == null) {
     await chrome.storage.local.remove([RECORDING_STORAGE_KEY]);
   } else {
-    await chrome.storage.local.set({ [RECORDING_STORAGE_KEY]: Recording });
+    await chrome.storage.local.set({ [RECORDING_STORAGE_KEY]: recording });
   }
 }
 
@@ -44,7 +44,7 @@ export async function startRecordingState(
 }
 
 export async function stopRecordingState() {
-  setRecordingState({
+  await setRecordingState({
     recordingState: "finished",
     recordingTabId: undefined,
     recordingFrameId: undefined,
@@ -70,35 +70,18 @@ export function useRecordingState() {
   // changes flow through the storage listener
   chrome.storage.onChanged.addListener((changes) => {
     if (changes[RECORDING_STORAGE_KEY] != null) {
-      console.log("Recording changed in storage");
       if (
         changes[RECORDING_STORAGE_KEY].newValue !=
         changes[RECORDING_STORAGE_KEY].oldValue
       ) {
-        console.log(
-          "Updating recording state in storage",
-          changes[RECORDING_STORAGE_KEY].newValue,
-          changes[RECORDING_STORAGE_KEY].oldValue
-        );
         _setRecording(changes[RECORDING_STORAGE_KEY].newValue);
       }
     }
   });
 
-  const setRecordingActions = async (actions: Action[]) => {
-    if (_recording == null) {
-      throw new Error("Recording state is not set");
-    }
-    await setRecordingState({
-      ..._recording,
-      recording: actions,
-    });
-  };
-
   return {
     recordingState: _recording,
     startRecordingState,
     stopRecordingState,
-    setRecordingActions,
   };
 }

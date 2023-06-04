@@ -8,11 +8,13 @@ import ActionList from "./ActionList";
 
 export interface ActionsEditorProps {
   actions: Action[];
+  title: string;
   onUpdateAction?: (index: number, action?: Action) => void;
 }
 
 export default function ActionsEditor({
   actions,
+  title,
   onUpdateAction,
 }: ActionsEditorProps) {
   // select the last action by default.
@@ -26,7 +28,7 @@ export default function ActionsEditor({
   const schemas = gitInfo?.eventSchema?.events ?? [];
   return (
     <Flex.Col className={Flex.grow(1)}>
-      <Section title="Tags" className={Flex.grow(1)}>
+      <Section title={title} className={Flex.grow(1)}>
         <ActionList
           actions={actions}
           selectedIndex={selectedActionIndex}

@@ -5,19 +5,18 @@ import {
   stopRecordingState,
 } from "../cloud/state/recordingstate";
 
-export async function startRecording(tabId: number) {
+export async function startTagging(tabId: number) {
+  // await executeCleanUp(tabId, 0);
   console.debug("[Syft][Background] starting recording on ", tabId);
   const tab = await chrome.tabs.get(tabId);
   await startRecordingState(tabId, 0, tab.url || "");
-  await executeCleanUp(tabId, 0);
-  // start with a fresh page / state.
-  await chrome.tabs.reload(tabId, { bypassCache: true });
   await executeContentScript(tabId, 0);
 }
 
-export async function stopRecording(tabId: number) {
+export async function stopTagging(tabId: number) {
   console.debug("[Syft][Background] stoping recording on ", tabId);
   await stopRecordingState();
+  await executeCleanUp(tabId, 0);
 }
 
 ///// Listen from Webapp

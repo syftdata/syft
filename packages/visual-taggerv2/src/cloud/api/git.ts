@@ -9,7 +9,6 @@ export async function handleGitInfoResponse(
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
-    console.log(">>>> Got response for git info", data);
     setGitInfo(data);
     return data;
   } else {
