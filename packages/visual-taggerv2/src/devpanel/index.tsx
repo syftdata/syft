@@ -13,7 +13,11 @@ import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
-import { GitInfoContext, useGitInfoContext } from "../cloud/state/gitinfo";
+import {
+  GitInfoContext,
+  useGitInfo,
+  useGitInfoContext,
+} from "../cloud/state/gitinfo";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
@@ -102,7 +106,7 @@ const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
   const [actions, setActions] = useState<Array<Action>>([]);
   useEffect(() => init(insertEvent, setActions), []);
-  const { gitInfoState, dispatch } = useGitInfoContext();
+  const [gitInfoState, dispatch] = useGitInfo();
 
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);

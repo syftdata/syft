@@ -89,16 +89,15 @@ export default function reducer(userSession: UserSession | undefined) {
         break;
     }
     if (
-      newState.info != null &&
-      (forceRefresh ||
-        state.info?.activeSourceId != newState.info.activeSourceId ||
-        state.info?.activeBranch != newState.info.activeBranch)
+      forceRefresh ||
+      state.info?.activeSourceId != newState.info?.activeSourceId ||
+      state.info?.activeBranch != newState.info?.activeBranch
     ) {
       // make a call to the backend to set the active source.
       void fetchGitInfo(
         userSession,
-        newState.info.activeSourceId,
-        newState.info.activeBranch
+        newState.info?.activeSourceId,
+        newState.info?.activeBranch
       );
       newState.state = LoadingState.LOADING;
     }
