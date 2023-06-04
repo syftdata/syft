@@ -35,7 +35,7 @@ export default function ActionsEditor({
   const schemas = gitInfo?.eventSchema?.events ?? [];
   return (
     <Flex.Col className={Flex.grow(1)}>
-      <Section title="Tags">
+      <Section title="Tags" className={Flex.grow(1)}>
         <TagList
           tags={tags}
           selectedIndex={selectedTagIndex}
@@ -54,6 +54,7 @@ export default function ActionsEditor({
           onDelete={(index) => {
             onUpdateTag && onUpdateTag(index);
           }}
+          className={Flex.grow(1)}
         />
       </Section>
       {selectedTag && (
