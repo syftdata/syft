@@ -4,10 +4,16 @@ import { Colors } from "../../styles/colors";
 export interface SectionProps {
   title: string;
   children: React.ReactNode;
+  extraButtons?: React.ReactNode;
   className?: string;
 }
 
-const Section = ({ title, children, className }: SectionProps) => {
+const Section = ({
+  title,
+  children,
+  className,
+  extraButtons,
+}: SectionProps) => {
   return (
     <Tabs
       defaultActiveKey="1"
@@ -25,6 +31,7 @@ const Section = ({ title, children, className }: SectionProps) => {
         paddingLeft: 8,
         borderBottom: `1px solid ${Colors.Gray.V3}`,
       }}
+      tabBarExtraContent={extraButtons}
       className={className}
     />
   );

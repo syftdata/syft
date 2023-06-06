@@ -20,6 +20,12 @@ chrome.devtools.panels.create(
         type: MessageType.OnShown,
       });
     });
+    panel.onHidden.addListener(() => {
+      chrome.runtime.sendMessage({
+        tabId,
+        type: MessageType.OnHidden,
+      });
+    });
     // const recordButton = panel.createStatusBarButton(
     //   "img/logo-32.png",
     //   "Play Recording",

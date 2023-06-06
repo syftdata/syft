@@ -40,6 +40,7 @@ function init(
       console.debug(
         "OnShown called. refreshing connection and re-fetching git info."
       );
+      // inject the content script.
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
@@ -52,6 +53,18 @@ function init(
           });
         }
       });
+    } else if (message.type === MessageType.OnHidden) {
+      // refresh connection and re-fetch git info.
+      console.debug("OnHidden called. cleaning up script");
+      if (existingConnection) {
+        const tabId = getCurrentTabId();
+        existingConnection.postMessage({
+          type: MessageType.CleanupDevTools,
+          tabId,
+        });
+        existingConnection.disconnect();
+        existingConnection = undefined;
+      }
     } else {
       console.warn("[Syft][Devtools] Received unknown message ", message);
     }
@@ -157,7 +170,7 @@ const App = () => {
           defaultActiveKey="1"
           items={items}
           size="small"
-          style={{ height: "100vh" }}
+          style={{ height: "calc(100vh - 80px)" }}
           tabBarStyle={{
             marginBottom: 0,
             backgroundColor: Colors.Gray.V1,

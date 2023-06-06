@@ -132,8 +132,8 @@ export default function TaggingApp({
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
         <ActionsEditor
-          tags={gitInfoState.info?.eventTags ?? []}
-          actions={[]}
+          tags={[]}
+          actions={actions}
           onUpdateAction={onUpdateAction}
           onUpdateTag={onUpdateTag}
         />

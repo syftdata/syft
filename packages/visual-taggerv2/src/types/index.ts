@@ -172,6 +172,7 @@ export enum MessageType {
 
   // Other way round. DevTools to background
   InitDevTools = "init-devtools",
+  CleanupDevTools = "cleanup-devtools",
   StartTagging = "start-tagging",
   StopTagging = "stop-tagging",
   ReplaceStep = "replace-step",
@@ -183,6 +184,7 @@ export enum MessageType {
   // Extension UI to DevTools.
   OnSearch = "on-search",
   OnShown = "on-shown",
+  OnHidden = "on-hidden",
 
   // Webapp to Background
   LoggedIn = "logged-in",
@@ -237,8 +239,14 @@ export interface GitInfo {
   eventTagsSha?: string; // used to update the file without overwriting others changes.
 }
 
+export enum RecordingMode {
+  NONE,
+  RECORDING,
+  PREVIEW,
+}
+
 export interface RecordingState {
-  recordingState: string;
+  mode: RecordingMode;
   recordingTabId?: number;
   recordingFrameId?: number;
   recording: Action[];

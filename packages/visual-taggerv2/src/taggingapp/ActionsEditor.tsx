@@ -1,8 +1,7 @@
 import { Action } from "../types";
-import { Css, Flex } from "../common/styles/common.styles";
+import { Flex } from "../common/styles/common.styles";
 import { useState } from "react";
 import Section from "../common/components/core/Section";
-import SchemaSelector, { SelectedSchemaView } from "../schemaapp/selector";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
 import ActionList from "./ActionList";
 import TagList from "./TagList";
@@ -35,35 +34,29 @@ export default function ActionsEditor({
   const schemas = gitInfo?.eventSchema?.events ?? [];
   return (
     <Flex.Col className={Flex.grow(1)}>
-      <Section title="Tags" className={Flex.grow(1)}>
-        <TagList
-          tags={tags}
-          selectedIndex={selectedTagIndex}
-          onSelect={(index) => {
-            if (index === selectedTagIndex) {
-              setSelectedTagIndex(-1);
-            } else {
+      {tags.length > 0 && (
+        <Section title="Tags" className={Flex.grow(1)}>
+          <TagList
+            tags={tags}
+            selectedIndex={selectedTagIndex}
+            onSelect={(index) => {
+              if (index === selectedTagIndex) {
+                setSelectedTagIndex(-1);
+              } else {
+                setSelectedActionIndex(-1);
+                setSelectedTagIndex(index);
+              }
+            }}
+            onEdit={(index) => {
               setSelectedActionIndex(-1);
               setSelectedTagIndex(index);
-            }
-          }}
-          onEdit={(index) => {
-            setSelectedActionIndex(-1);
-            setSelectedTagIndex(index);
-          }}
-          onDelete={(index) => {
-            onUpdateTag && onUpdateTag(index);
-          }}
-          className={Flex.grow(1)}
-        />
-      </Section>
-      {selectedTag && (
-        <ActionEditor
-          action={selectedTag}
-          onUpdateAction={(action) => {
-            onUpdateTag && onUpdateTag(selectedTagIndex, action);
-          }}
-        />
+            }}
+            onDelete={(index) => {
+              onUpdateTag && onUpdateTag(index);
+            }}
+            className={Flex.grow(1)}
+          />
+        </Section>
       )}
       {actions.length > 0 && (
         <Section title="Actions" className={Flex.grow(1)}>
@@ -82,8 +75,18 @@ export default function ActionsEditor({
           />
         </Section>
       )}
+      {selectedTag && (
+        <ActionEditor
+          key={selectedTagIndex}
+          action={selectedTag}
+          onUpdateAction={(action) => {
+            onUpdateTag && onUpdateTag(selectedTagIndex, action);
+          }}
+        />
+      )}
       {selectedAction && (
         <ActionEditor
+          key={selectedActionIndex}
           action={selectedAction}
           onUpdateAction={(action) => {
             onUpdateAction && onUpdateAction(selectedActionIndex, action);

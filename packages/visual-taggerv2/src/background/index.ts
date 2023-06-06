@@ -1,10 +1,11 @@
 import { recordNavigationEvent, replaceAction } from "../common/utils";
-import { executeContentScript } from "../common/scripting";
-import { MessageType } from "../types";
-import { startTagging, stopTagging } from "./bridge";
+import { executeCleanUp, executeContentScript } from "../common/scripting";
+import { MessageType, RecordingMode } from "../types";
+
 import {
   getRecordingState,
-  stopRecordingState,
+  startPreview,
+  stopPreview,
 } from "../cloud/state/recordingstate";
 
 /// *** Navigation Events *** ///
@@ -19,7 +20,7 @@ async function onNavEvent(
   if (
     tabId !== recordingState?.recordingTabId ||
     frameId !== recordingState?.recordingFrameId ||
-    recordingState?.recordingState !== "active"
+    recordingState?.mode !== RecordingMode.RECORDING
   ) {
     return;
   }
@@ -31,7 +32,7 @@ async function onNavEvent(
 chrome.tabs.onRemoved.addListener(async (tabId) => {
   const recordingState = await getRecordingState();
   if (tabId == recordingState?.recordingTabId) {
-    await stopRecordingState();
+    await stopPreview();
   }
 });
 
@@ -43,10 +44,11 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
   const { tabId, frameId } = details;
   const recordingState = await getRecordingState();
 
+  // if the page moves to another location, insert content script again.
   if (
     tabId !== recordingState?.recordingTabId ||
     frameId !== recordingState?.recordingFrameId ||
-    recordingState?.recordingState !== "active"
+    recordingState?.mode === RecordingMode.NONE
   ) {
     return;
   }
@@ -133,12 +135,20 @@ async function handleMessageAsync(
   switch (message.type) {
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
+      await executeContentScript(message.tabId, 0);
+      break;
+    case MessageType.CleanupDevTools:
+      delete connections[message.tabId];
+      await executeCleanUp(message.tabId, 0);
       break;
     case MessageType.StartTagging:
-      await startTagging(message.tabId);
+      const tab = await chrome.tabs.get(message.tabId);
+      if (tab.id) {
+        await startPreview(tab.id, 0, tab.url || "");
+      }
       break;
     case MessageType.StopTagging:
-      await stopTagging(message.tabId);
+      await stopPreview();
       break;
     case MessageType.ReplaceStep:
       const recordingState = await replaceAction(message.index, message.action);
@@ -225,5 +235,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     );
   }
 });
+
+///// Listen from Webapp
+chrome.runtime.onMessageExternal.addListener(
+  (request, sender, sendResponse) => {
+    if (request.type === MessageType.LoggedIn) {
+      if (request.jwt) {
+        sendResponse({ success: true, message: "Token has been received" });
+      } else {
+        sendResponse({ success: false, message: "Token not found" });
+      }
+    }
+  }
+);
 
 export {};
