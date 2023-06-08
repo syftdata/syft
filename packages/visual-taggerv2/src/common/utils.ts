@@ -70,18 +70,6 @@ export async function insertNewAction(action: Action, index?: number) {
   });
 }
 
-export async function replaceAction(index: number, newAction?: Action) {
-  return await updateRecordingState((state) => {
-    const newRecording = [...state.recording];
-    if (newAction != null) {
-      newRecording.splice(index, 1, newAction);
-    } else {
-      newRecording.splice(index, 1);
-    }
-    return { ...state, recording: newRecording };
-  });
-}
-
 export function shallowEqual(
   object1: { [key: string]: any },
   object2: { [key: string]: any }

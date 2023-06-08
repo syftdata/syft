@@ -10,7 +10,7 @@ import SettingsApp from "../settingsapp";
 import { GitView } from "../cloud/views/gitview";
 import { getCurrentTabId } from "../common/utils";
 import { fetchGitInfo } from "../cloud/api/git";
-import { getUserSession } from "../cloud/state/usersession";
+import { getUserSession, useUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
 import {
@@ -18,14 +18,11 @@ import {
   getGitInfoState,
   useGitInfoState,
 } from "../cloud/state/gitinfo";
+import { GitInfoActionType } from "../cloud/state/types";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
-function init(
-  onNewEvent: (event: SyftEvent) => void,
-  onActions: (actions: Action[]) => void,
-  onPreviewClick: (action: Action) => void
-) {
+function init(onNewEvent: (event: SyftEvent) => void) {
   if (existingConnection) {
     return;
   }
@@ -38,16 +35,11 @@ function init(
       }
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
-    } else if (message.type === MessageType.RecordedActions) {
-      onActions(message.data as Action[]);
-    } else if (message.type === MessageType.PreviewClicked) {
-      onPreviewClick(message.data as Action);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
       console.debug(
         "OnShown called. refreshing connection and re-fetching git info."
       );
-      // inject the content script.
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
@@ -122,15 +114,17 @@ const stopTagging = () => {
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
   const [gitInfoState, dispatch] = useGitInfoState();
-  const [actions, setActions] = useState<Array<Action>>([]);
+  const [userSession] = useUserSession();
 
-  useEffect(
-    () =>
-      init(insertEvent, setActions, (action) => {
-        setActions([action]);
-      }),
-    []
-  );
+  useEffect(() => init(insertEvent), []);
+
+  useEffect(() => {
+    if (userSession != null) {
+      dispatch({
+        type: GitInfoActionType.REFRESH_INFO,
+      });
+    }
+  }, [userSession]);
 
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);
@@ -141,11 +135,7 @@ const App = () => {
       key: "1",
       label: `Visual Editor`,
       children: (
-        <TaggingApp
-          startTagging={startTagging}
-          stopTagging={stopTagging}
-          actions={actions}
-        />
+        <TaggingApp startTagging={startTagging} stopTagging={stopTagging} />
       ),
     },
     {
@@ -165,6 +155,11 @@ const App = () => {
     },
   ];
 
+  if (userSession == null) {
+    // hide catalog and recorder if the user is not logged in.
+    items.splice(0, 2);
+  }
+
   return (
     <Flex.Col
       className={css(
@@ -181,6 +176,7 @@ const App = () => {
       >
         <GitView />
         <Tabs
+          key={userSession?.user.id} // re-render when userSession changes
           defaultActiveKey="1"
           items={items}
           size="small"

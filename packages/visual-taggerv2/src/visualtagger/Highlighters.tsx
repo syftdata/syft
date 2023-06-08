@@ -7,11 +7,11 @@ import { ComputedEventTag, EventTag } from "./types";
 import HighlighterStyle from "./Highlighter.css";
 import { Action, ActionType, ClickAction, ScriptType } from "../types";
 import { getBestSelectorsForAction } from "../builders/selector";
-import { buildBaseAction } from "./utils";
+import { buildBaseAction, getTagIndexFromElement } from "./utils";
 
 export interface HighlightersProps {
   actions: EventTag[];
-  onPreviewClick: (action: Action) => void;
+  onPreviewClick: (action: Action, tagIndex: number) => void;
 }
 
 function getElementFromSelectors(eventTag: EventTag) {
@@ -54,14 +54,11 @@ export default function Highlighters({
     throttle((event: MouseEvent) => {
       const x = event.clientX,
         y = event.clientY,
-        elementsMouseIsOver = document.elementsFromPoint(x, y);
-      const elementMouseIsOver = elementsMouseIsOver.find(
-        (ele) =>
-          ele instanceof HTMLElement &&
-          !ele.classList.contains("Syft-Highlighter-outline")
-      ) as HTMLElement;
-
-      if (elementMouseIsOver != null) {
+        elementMouseIsOver = document.elementFromPoint(x, y);
+      if (
+        elementMouseIsOver != null &&
+        elementMouseIsOver instanceof HTMLElement
+      ) {
         const { parentElement } = elementMouseIsOver;
         // Match the logic in recorder.ts for link clicks
         const element =
@@ -79,20 +76,20 @@ export default function Highlighters({
     throttle((event: MouseEvent) => {
       const x = event.clientX,
         y = event.clientY,
-        elementsMouseIsOver = document.elementsFromPoint(x, y);
-      const elementMouseIsOver = elementsMouseIsOver.find(
-        (ele) =>
-          ele instanceof HTMLElement &&
-          !ele.classList.contains("Syft-Highlighter-outline")
-      ) as HTMLElement;
-      if (elementMouseIsOver != null) {
+        elementMouseIsOver = document.elementFromPoint(x, y);
+
+      if (
+        elementMouseIsOver != null &&
+        elementMouseIsOver instanceof HTMLElement
+      ) {
+        const matchedIndex = getTagIndexFromElement(elementMouseIsOver);
         const action: ClickAction = {
           ...buildBaseAction(event, elementMouseIsOver),
           type: ActionType.Click,
           offsetX: event.offsetX,
           offsetY: event.offsetY,
         };
-        onPreviewClick(action);
+        onPreviewClick(action, matchedIndex);
       }
       eatUpEvent(event);
     }, 100),
@@ -101,11 +98,12 @@ export default function Highlighters({
 
   useEffect(() => {
     const cActions = actions
-      .map((action) => {
+      .map((action, idx) => {
         const element = getElementFromSelectors(action);
         if (!element) {
           return undefined;
         }
+        element.setAttribute("data-tag-index", idx.toString());
         return {
           ...action,
           ele: element,
@@ -133,6 +131,7 @@ export default function Highlighters({
         return (
           <Highlighter
             key={idx}
+            tagIndex={idx}
             rect={def.ele.getBoundingClientRect()}
             defined={true}
             committed={true}

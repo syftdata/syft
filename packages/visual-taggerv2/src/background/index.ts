@@ -1,4 +1,4 @@
-import { recordNavigationEvent, replaceAction } from "../common/utils";
+import { recordNavigationEvent } from "../common/utils";
 import { executeCleanUp, executeContentScript } from "../common/scripting";
 import { MessageType, RecordingMode } from "../types";
 
@@ -135,6 +135,7 @@ async function handleMessageAsync(
   switch (message.type) {
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
+      await executeCleanUp(message.tabId, 0);
       await executeContentScript(message.tabId, 0);
       break;
     case MessageType.CleanupDevTools:
@@ -142,10 +143,7 @@ async function handleMessageAsync(
       await executeCleanUp(message.tabId, 0);
       break;
     case MessageType.StartTagging:
-      const tab = await chrome.tabs.get(message.tabId);
-      if (tab.id) {
-        await startPreview(tab.id, 0, tab.url || "");
-      }
+      await startPreview();
       break;
     case MessageType.StopTagging:
       await stopPreview();

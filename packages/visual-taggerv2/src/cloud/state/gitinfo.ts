@@ -48,30 +48,22 @@ export function useGitInfoState() {
           data: storedState,
         });
       }
-      // changes from API call flow through the storage listener
-      chrome.storage.onChanged.addListener((changes) => {
-        if (changes[GIT_INFO_STATE_KEY] != null) {
-          if (
-            changes[GIT_INFO_STATE_KEY].newValue !==
-            changes[GIT_INFO_STATE_KEY].oldValue
-          ) {
-            dispatch({
-              type: GitInfoActionType.UPDATE_FULL_STATE,
-              data: changes[GIT_INFO_STATE_KEY].newValue,
-            });
-          }
+    });
+    // changes from API call flow through the storage listener
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes[GIT_INFO_STATE_KEY] != null) {
+        if (
+          changes[GIT_INFO_STATE_KEY].newValue !==
+          changes[GIT_INFO_STATE_KEY].oldValue
+        ) {
+          dispatch({
+            type: GitInfoActionType.UPDATE_FULL_STATE,
+            data: changes[GIT_INFO_STATE_KEY].newValue,
+          });
         }
-      });
+      }
     });
   }, []);
-
-  useEffect(() => {
-    if (userSession != null) {
-      dispatch({
-        type: GitInfoActionType.REFRESH_INFO,
-      });
-    }
-  }, [userSession]);
 
   return [gitInfoState, dispatch] as const;
 }

@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { localStorageGet } from "../../common/utils";
-import {
-  ActionType,
-  RecordingMode,
-  RecordingState,
-  TagName,
-} from "../../types";
+import { RecordingMode, RecordingState } from "../../types";
 
 export const RECORDING_STORAGE_KEY = "recording";
 
@@ -24,37 +19,19 @@ export async function setRecordingState(recording: RecordingState | undefined) {
   }
 }
 
-export async function startPreview(
-  tabId: number,
-  frameId: number,
-  newUrl: string
-) {
-  const recording: RecordingState = {
+export async function startPreview() {
+  await updateRecordingState((state) => ({
+    ...state,
     mode: RecordingMode.PREVIEW,
-    recordingTabId: tabId,
-    recordingFrameId: frameId,
-    recording: [
-      // @ts-ignore
-      {
-        type: ActionType.Load,
-        url: newUrl,
-        selectors: {},
-        timestamp: 0,
-        isPassword: false,
-        hasOnlyText: false,
-      },
-    ],
-  };
-  await setRecordingState(recording);
+  }));
 }
 
 export async function stopPreview() {
-  await setRecordingState({
+  await updateRecordingState((state) => ({
+    ...state,
     mode: RecordingMode.RECORDING,
-    recordingTabId: undefined,
-    recordingFrameId: undefined,
-    recording: [],
-  });
+    previewAction: undefined,
+  }));
 }
 
 export async function updateRecordingState(
@@ -91,7 +68,5 @@ export function useRecordingState() {
 
   return {
     recordingState: _recording,
-    startRecordingState: startPreview,
-    stopRecordingState: stopPreview,
   };
 }

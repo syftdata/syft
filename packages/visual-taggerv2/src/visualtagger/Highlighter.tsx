@@ -3,6 +3,7 @@ import { Colors } from "../common/styles/colors";
 export type HighlighterProps = {
   rect: DOMRect;
   label?: string;
+  tagIndex?: number;
   defined?: boolean;
   committed?: boolean;
 };
@@ -12,6 +13,7 @@ export const rectBackgroundColor = (backgroundColor: string) =>
 
 export default function Highlighter({
   label,
+  tagIndex,
   rect,
   defined,
   committed,
@@ -20,6 +22,7 @@ export default function Highlighter({
     <>
       <div
         className="Syft-Highlighter-outline"
+        data-tag-index={tagIndex}
         style={{
           top: rect.top,
           left: rect.left,

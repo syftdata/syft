@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Action, RecordingMode } from "../types";
 
 import {
@@ -6,7 +5,6 @@ import {
   PrimaryIconButton,
 } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
-import LoginView from "../cloud/views/LoginView";
 import { useUserSession } from "../cloud/state/usersession";
 import ActionsEditor from "./ActionsEditor";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
@@ -20,7 +18,6 @@ import Section from "../common/components/core/Section";
 import ActionList from "./ActionList";
 
 export interface TaggingAppProps {
-  actions: Action[];
   startTagging: () => void;
   stopTagging: () => void;
 }
@@ -28,20 +25,16 @@ export interface TaggingAppProps {
 export default function TaggingApp({
   startTagging,
   stopTagging,
-  actions,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
   const { recordingState } = useRecordingState();
 
   if (!userSession) {
-    return (
-      <Flex.Col className={Css.height("calc(100vh - 80px)")}>
-        <LoginView />
-      </Flex.Col>
-    );
+    return <></>;
   }
 
+  const actions = recordingState.recording;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return (
@@ -100,6 +93,10 @@ export default function TaggingApp({
           tags={gitInfo.eventTags ?? []}
           actions={actions}
           previewMode={true}
+          previewAction={recordingState.previewAction}
+          previewActionMatchedTagIndex={
+            recordingState.previewActionMatchedTagIndex
+          }
           onUpdateTag={onUpdateTag}
         />
       </>
@@ -113,7 +110,7 @@ export default function TaggingApp({
           <IconButton icon="highlighter" onClick={startTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
-        <Section title="Recent Triggers" className={Flex.grow(1)}>
+        <Section title="Interactions" className={Flex.grow(1)}>
           <ActionList
             selectedIndex={-1}
             actions={actions}

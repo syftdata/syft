@@ -1,5 +1,11 @@
 import genSelectors from "../builders/selector";
-import { ActionType, BaseAction, ReactSource, TagName } from "../types";
+import {
+  ActionType,
+  BaseAction,
+  LoadAction,
+  ReactSource,
+  TagName,
+} from "../types";
 
 export function getReactSourceFileForElement(ele: HTMLElement) {
   const syftSource = ele.getAttribute("data-syft-source");
@@ -16,6 +22,14 @@ export function hasHandlerOnReactElement(ele: HTMLElement) {
     return false;
   }
   return /true/i.test(hasHandler);
+}
+
+export function getTagIndexFromElement(ele: Element) {
+  const index = ele.getAttribute("data-tag-index");
+  if (index) {
+    return parseInt(index);
+  }
+  return -1;
 }
 
 export function buildBaseAction(
@@ -40,5 +54,17 @@ export function buildBaseAction(
     value: undefined,
 
     eventSource,
+  };
+}
+
+export function buildLoadAction(url: string, title: string): LoadAction {
+  return {
+    type: ActionType.Load,
+    url,
+    timestamp: Date.now(),
+    selectors: {},
+    isPassword: false,
+    hasOnlyText: false,
+    tagName: TagName.Window,
   };
 }

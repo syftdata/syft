@@ -11,8 +11,6 @@ import NoSchemasView from "./noschemasview";
 import Button from "../common/components/core/Button/Button";
 import { Colors } from "../common/styles/colors";
 import Spinner from "../common/components/core/Spinner/Spinner";
-import { useUserSession } from "../cloud/state/usersession";
-import LoginView from "../cloud/views/LoginView";
 import AddEventModal, { EditEventModal } from "./AddEventModal";
 import { GitInfoActionType } from "../cloud/state/types";
 
@@ -21,7 +19,6 @@ export interface SchemaAppProps {
 }
 
 const SchemaApp = ({ className }: SchemaAppProps) => {
-  const [userSession] = useUserSession();
   const [search, setSearch] = useState("");
   const { gitInfoState, dispatch } = useGitInfoContext();
 
@@ -35,9 +32,6 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     setShowAddModal(false);
   }, []);
 
-  if (!userSession) {
-    return <LoginView />;
-  }
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return <Spinner />;

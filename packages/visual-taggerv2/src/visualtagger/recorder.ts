@@ -11,6 +11,8 @@ import {
   FullScreenshotAction,
   InputAction,
   KeydownAction,
+  LoadAction,
+  MessageType,
   ReactSource,
   ResizeAction,
   TagName,
@@ -20,7 +22,11 @@ import {
   RECORDING_STORAGE_KEY,
   updateRecordingState,
 } from "../cloud/state/recordingstate";
-import { buildBaseAction, getReactSourceFileForElement } from "./utils";
+import {
+  buildBaseAction,
+  buildLoadAction,
+  getReactSourceFileForElement,
+} from "./utils";
 
 /**
  * This is directly derived from:
@@ -47,13 +53,14 @@ function _shouldGenerateKeyPressFor(event: KeyboardEvent): boolean {
 export default class Recorder {
   private _actions: Action[];
   private currentEventHandleType: string | null = null;
-  private onAction: (actions: Action[]) => void;
   // private lastContextMenuEvent: MouseEvent | null = null;
 
   private appendToActions = (action: Action) => {
     this._actions.push(action);
     updateRecordingState((state) => ({ ...state, recording: this._actions }));
-    this.onAction(this._actions);
+    window.postMessage({
+      type: MessageType.GetSourceFile,
+    });
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {
@@ -64,7 +71,9 @@ export default class Recorder {
     };
     this._actions[this._actions.length - 1] = newAction;
     updateRecordingState((state) => ({ ...state, recording: this._actions }));
-    this.onAction(this._actions);
+    window.postMessage({
+      type: MessageType.GetSourceFile,
+    });
   };
 
   /**
@@ -84,9 +93,10 @@ export default class Recorder {
     return false; // This was not a duplicate handle
   };
 
-  constructor({ onAction }: { onAction: (actions: Action[]) => void }) {
-    this.onAction = onAction;
-    this._actions = [];
+  constructor() {
+    this._actions = [
+      buildLoadAction(window.location.href, window.document.title),
+    ];
     // Watch for changes to the recording from the background worker (when a SPA navigation happens)
     chrome.storage.onChanged.addListener(this.onStorageChange);
 

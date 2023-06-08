@@ -36,6 +36,8 @@ export enum TagName {
   Span = "SPAN",
   Strong = "STRONG",
   TextArea = "TEXTAREA",
+  Div = "DIV",
+  Window = "WINDOW",
 }
 
 // (TODO) -> move to utils
@@ -178,10 +180,6 @@ export enum MessageType {
   GetSourceFile = "get-source-file",
   GetSourceFileResponse = "get-source-file-response",
 
-  // Content -> Background -> DevTools
-  RecordedActions = "recorded-actions",
-  PreviewClicked = "preview-clicked",
-
   // DevTools -> Background -> Content
   StartTagging = "start-tagging",
   StopTagging = "stop-tagging",
@@ -255,4 +253,7 @@ export interface RecordingState {
   recordingTabId?: number;
   recordingFrameId?: number;
   recording: Action[];
+
+  previewAction?: Action;
+  previewActionMatchedTagIndex?: number;
 }

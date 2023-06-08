@@ -10,19 +10,26 @@ import { shallowEqual } from "../common/utils";
 export interface ActionsEditorProps {
   actions: Action[];
   tags: Action[];
+  previewAction?: Action;
+  previewActionMatchedTagIndex?: number;
+
   onUpdateTag?: (index: number, action?: Action) => void;
   previewMode: boolean;
 }
 
 export default function ActionsEditor({
-  tags,
+  tags: _tags,
   actions,
+  previewAction,
+  previewActionMatchedTagIndex,
   onUpdateTag,
   previewMode,
 }: ActionsEditorProps) {
   // select the last action by default.
-  const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
-  const [selectedTagIndex, setSelectedTagIndex] = useState<number>(-1);
+  const [selectedActionIndex, setSelectedActionIndex] = useState(-1);
+  const [selectedTagIndex, setSelectedTagIndex] = useState(-1);
+  const [forceShowEditModal, setForceShowEditModal] = useState(false);
+  const [tags, setTags] = useState<Action[]>([]);
 
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
@@ -38,21 +45,22 @@ export default function ActionsEditor({
   };
 
   useEffect(() => {
-    const lastAction = actions[actions.length - 1];
-    if (lastAction) {
-      const selector = lastAction.selectors;
-      const tag = tags.find((tag, idx) => {
-        if (shallowEqual(tag.selectors, selector)) {
-          selectTag(idx);
-          return true;
-        }
-        return false;
-      });
-      if (!tag) {
-        selectAction(actions.length - 1);
+    setForceShowEditModal(false);
+    if (previewAction) {
+      if (
+        previewActionMatchedTagIndex !== undefined &&
+        previewActionMatchedTagIndex > -1
+      ) {
+        selectTag(previewActionMatchedTagIndex);
+      } else {
+        setTags([..._tags, previewAction]);
+        selectTag(_tags.length);
+        setForceShowEditModal(true);
       }
+    } else {
+      setTags(_tags);
     }
-  }, [actions]);
+  }, [_tags, previewAction]);
 
   return (
     <Flex.Col className={Flex.grow(1)}>
@@ -79,7 +87,7 @@ export default function ActionsEditor({
         </Section>
       )}
       {actions && (
-        <Section title="Recent Triggers">
+        <Section title="Interactions">
           <ActionList
             actions={actions}
             selectedIndex={selectedActionIndex}
@@ -97,6 +105,7 @@ export default function ActionsEditor({
         <ActionEditor
           key={selectedTagIndex}
           action={selectedTag}
+          forceShowEditModal={forceShowEditModal}
           onUpdateAction={(action) => {
             onUpdateTag && onUpdateTag(selectedTagIndex, action);
           }}
