@@ -3,11 +3,9 @@ import Recorder from "./recorder";
 
 import { Action, MessageType, RecordingMode } from "../types";
 import Highlighters from "./Highlighters";
-import {
-  GIT_IN_MEMORY_STORAGE_KEY,
-  getGitInfoInMemory,
-} from "../cloud/state/gitinfo";
+import { GIT_INFO_STATE_KEY, getGitInfoState } from "../cloud/state/gitinfo";
 import { RECORDING_STORAGE_KEY } from "../cloud/state/recordingstate";
+import { getReactSourceFileForElement } from "./utils";
 
 export default function VisualTaggerApp() {
   const [eventTags, setEventTags] = useState<Action[]>([]);
@@ -17,10 +15,10 @@ export default function VisualTaggerApp() {
   const storageListener = useCallback(
     (changes: { [key: string]: chrome.storage.StorageChange }) => {
       console.log("[Syft][Content] storage changed ", changes);
-      if (changes[GIT_IN_MEMORY_STORAGE_KEY] != null) {
-        const gitInfo = changes[GIT_IN_MEMORY_STORAGE_KEY];
-        if (gitInfo.newValue?.eventTags !== gitInfo.oldValue?.eventTags) {
-          setEventTags(gitInfo.newValue?.eventTags ?? []);
+      if (changes[GIT_INFO_STATE_KEY] != null) {
+        const gitInfo = changes[GIT_INFO_STATE_KEY];
+        if (gitInfo.newValue?.modifiedInfo !== gitInfo.oldValue?.modifiedInfo) {
+          setEventTags(gitInfo.newValue?.modifiedInfo?.eventTags ?? []);
         }
       }
 
@@ -44,10 +42,22 @@ export default function VisualTaggerApp() {
     });
   }, []);
 
+  const onPreviewClick = useCallback((action: Action) => {
+    console.log(
+      ">>> preview clicked in content ",
+      action,
+      MessageType.PreviewClicked
+    );
+    chrome.runtime.sendMessage({
+      type: MessageType.PreviewClicked,
+      data: action,
+    });
+  }, []);
+
   useEffect(() => {
-    getGitInfoInMemory().then((gitInfo) => {
-      if (gitInfo) {
-        setEventTags(gitInfo.eventTags);
+    getGitInfoState().then((state) => {
+      if (state?.modifiedInfo) {
+        setEventTags(state?.modifiedInfo.eventTags);
       }
     });
     // Set recording to be finished if somewhere else (ex. popup) the state has been set to be finished
@@ -71,7 +81,7 @@ export default function VisualTaggerApp() {
   }, [recordingMode]);
 
   if (recordingMode === RecordingMode.PREVIEW) {
-    return <Highlighters actions={eventTags} />;
+    return <Highlighters actions={eventTags} onPreviewClick={onPreviewClick} />;
   }
   return <></>;
 }

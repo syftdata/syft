@@ -1,11 +1,15 @@
 import Tabs from "antd/lib/tabs";
 import { Colors } from "../../styles/colors";
+import { useEffect, useState } from "react";
 
 export interface SectionProps {
   title: string;
   children: React.ReactNode;
   extraButtons?: React.ReactNode;
   className?: string;
+
+  expandable?: boolean;
+  isExpanded?: boolean;
 }
 
 const Section = ({
@@ -13,7 +17,18 @@ const Section = ({
   children,
   className,
   extraButtons,
+  expandable,
+  isExpanded,
 }: SectionProps) => {
+  const [expanded, setExpanded] = useState(isExpanded);
+  const toggleExpanded = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    setExpanded(isExpanded);
+  }, [isExpanded]);
+
   return (
     <Tabs
       defaultActiveKey="1"
@@ -21,7 +36,7 @@ const Section = ({
         {
           key: "1",
           label: title,
-          children,
+          children: !expandable || expanded ? children : null,
         },
       ]}
       size="small"
@@ -31,6 +46,7 @@ const Section = ({
         paddingLeft: 8,
         borderBottom: `1px solid ${Colors.Gray.V3}`,
       }}
+      onClick={expandable ? toggleExpanded : undefined}
       tabBarExtraContent={extraButtons}
       className={className}
     />

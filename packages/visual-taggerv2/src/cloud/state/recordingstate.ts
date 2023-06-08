@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { localStorageGet } from "../../common/utils";
 import {
-  Action,
   ActionType,
   RecordingMode,
   RecordingState,
@@ -71,7 +70,12 @@ export async function updateRecordingState(
 }
 
 export function useRecordingState() {
-  const [_recording, _setRecording] = useState<RecordingState | undefined>();
+  const [_recording, _setRecording] = useState<RecordingState>({
+    mode: RecordingMode.RECORDING,
+    recordingTabId: undefined,
+    recordingFrameId: 0,
+    recording: [],
+  });
 
   // changes flow through the storage listener
   chrome.storage.onChanged.addListener((changes) => {

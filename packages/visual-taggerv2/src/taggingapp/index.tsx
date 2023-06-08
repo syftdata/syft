@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Action } from "../types";
+import { Action, RecordingMode } from "../types";
 
 import {
   IconButton,
@@ -15,28 +15,24 @@ import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { magicAPI } from "../cloud/api/schema";
 import { GitInfoActionType } from "../cloud/state/types";
+import { useRecordingState } from "../cloud/state/recordingstate";
+import Section from "../common/components/core/Section";
+import ActionList from "./ActionList";
 
 export interface TaggingAppProps {
   actions: Action[];
   startTagging: () => void;
   stopTagging: () => void;
-  onUpdateAction: (index: number, action?: Action) => void;
-}
-
-enum TaggingState {
-  Stopped,
-  Tagging,
 }
 
 export default function TaggingApp({
   startTagging,
   stopTagging,
-  onUpdateAction,
   actions,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
-  const [taggingState, setTaggingState] = useState(TaggingState.Stopped);
+  const { recordingState } = useRecordingState();
 
   if (!userSession) {
     return (
@@ -46,7 +42,7 @@ export default function TaggingApp({
     );
   }
 
-  const gitInfo = gitInfoState.info;
+  const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return (
       <Flex.Col
@@ -64,14 +60,6 @@ export default function TaggingApp({
     );
   }
 
-  const onStartTagging = () => {
-    startTagging();
-    setTaggingState(TaggingState.Tagging);
-  };
-  const onStopTagging = () => {
-    stopTagging();
-    setTaggingState(TaggingState.Stopped);
-  };
   const onMagicWand = () => {
     dispatch({
       type: GitInfoActionType.FETCH_MAGIC_CHANGES,
@@ -81,13 +69,7 @@ export default function TaggingApp({
         type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
         data: g,
       });
-    });
-  };
-
-  const onCreateTag = (action: Action) => {
-    dispatch({
-      type: GitInfoActionType.UPDATE_EVENT_TAGS,
-      data: [...gitInfo.eventTags, action],
+      startTagging();
     });
   };
 
@@ -104,50 +86,53 @@ export default function TaggingApp({
     });
   };
 
-  const getTaggingView = () => {
+  const getPreviewView = () => {
     return (
       <>
         <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
           <PrimaryIconButton
             icon="highlighter"
-            onClick={onStopTagging}
+            onClick={stopTagging}
             size="medium"
           />
         </FlexExtra.RowWithDivider>
         <ActionsEditor
-          tags={gitInfoState.info?.eventTags ?? []}
+          tags={gitInfo.eventTags ?? []}
           actions={actions}
-          onUpdateAction={onUpdateAction}
+          previewMode={true}
           onUpdateTag={onUpdateTag}
         />
       </>
     );
   };
 
-  const getHomeView = () => {
+  const getRecordingView = () => {
     return (
       <>
         <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <IconButton icon="highlighter" onClick={onStartTagging} />
+          <IconButton icon="highlighter" onClick={startTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
-        <ActionsEditor
-          tags={[]}
-          actions={actions}
-          onUpdateAction={onUpdateAction}
-          onUpdateTag={onUpdateTag}
-        />
+        <Section title="Recent Triggers" className={Flex.grow(1)}>
+          <ActionList
+            selectedIndex={-1}
+            actions={actions}
+            onSelect={(index) => {}}
+            className={Flex.grow(1)}
+          />
+        </Section>
       </>
     );
   };
 
   const getView = () => {
-    switch (taggingState) {
-      case TaggingState.Stopped:
-        return getHomeView();
-      case TaggingState.Tagging:
-        return getTaggingView();
+    switch (recordingState.mode) {
+      case RecordingMode.RECORDING:
+        return getRecordingView();
+      case RecordingMode.PREVIEW:
+        return getPreviewView();
     }
+    return <></>;
   };
 
   return (

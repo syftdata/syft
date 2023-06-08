@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { Action, MessageType, SyftEvent } from "../types";
+import { Action, MessageType, ReactSource, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
@@ -13,13 +13,18 @@ import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
-import { GitInfoContext, getGitInfo, useGitInfo } from "../cloud/state/gitinfo";
+import {
+  GitInfoContext,
+  getGitInfoState,
+  useGitInfoState,
+} from "../cloud/state/gitinfo";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
 function init(
   onNewEvent: (event: SyftEvent) => void,
-  onActions: (actions: Action[]) => void
+  onActions: (actions: Action[]) => void,
+  onPreviewClick: (action: Action) => void
 ) {
   if (existingConnection) {
     return;
@@ -35,6 +40,8 @@ function init(
       onNewEvent(event);
     } else if (message.type === MessageType.RecordedActions) {
       onActions(message.data as Action[]);
+    } else if (message.type === MessageType.PreviewClicked) {
+      onPreviewClick(message.data as Action);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
       console.debug(
@@ -44,29 +51,33 @@ function init(
       refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
-          getGitInfo().then((gitInfo) => {
+          getGitInfoState().then((state) => {
             void fetchGitInfo(
               userSession,
-              gitInfo?.activeSourceId,
-              gitInfo?.activeBranch
+              state?.info?.activeSourceId,
+              state?.info?.activeBranch
             );
           });
         }
       });
     } else if (message.type === MessageType.OnHidden) {
       // refresh connection and re-fetch git info.
-      console.debug("OnHidden called. cleaning up script");
-      if (existingConnection) {
-        const tabId = getCurrentTabId();
-        existingConnection.postMessage({
-          type: MessageType.CleanupDevTools,
-          tabId,
-        });
-        existingConnection.disconnect();
-        existingConnection = undefined;
-      }
+      // console.debug("OnHidden called. cleaning up script");
+      // if (existingConnection) {
+      //   const tabId = getCurrentTabId();
+      //   existingConnection.postMessage({
+      //     type: MessageType.CleanupDevTools,
+      //     tabId,
+      //   });
+      //   existingConnection.disconnect();
+      //   existingConnection = undefined;
+      // }
     } else {
-      console.warn("[Syft][Devtools] Received unknown message ", message);
+      console.warn(
+        "[Syft][Devtools] Received unknown message ",
+        message,
+        message.type
+      );
     }
   };
 
@@ -108,20 +119,18 @@ const stopTagging = () => {
   });
 };
 
-const replaceAction = (index: number, action?: Action) => {
-  existingConnection?.postMessage({
-    type: MessageType.ReplaceStep,
-    index,
-    action,
-    tabId: chrome.devtools.inspectedWindow.tabId,
-  });
-};
-
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
-  const [gitInfoState, dispatch] = useGitInfo();
+  const [gitInfoState, dispatch] = useGitInfoState();
   const [actions, setActions] = useState<Array<Action>>([]);
-  useEffect(() => init(insertEvent, setActions), []);
+
+  useEffect(
+    () =>
+      init(insertEvent, setActions, (action) => {
+        setActions([action]);
+      }),
+    []
+  );
 
   const insertEvent = (event: SyftEvent) => {
     setEvents((events) => [event, ...events]);
@@ -130,12 +139,11 @@ const App = () => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: `Visual Tagger`,
+      label: `Visual Editor`,
       children: (
         <TaggingApp
           startTagging={startTagging}
           stopTagging={stopTagging}
-          onUpdateAction={replaceAction}
           actions={actions}
         />
       ),
@@ -158,7 +166,13 @@ const App = () => {
   ];
 
   return (
-    <Flex.Col className={css(Css.minWidth(500), Css.overflow("auto auto"))}>
+    <Flex.Col
+      className={css(
+        Css.minWidth(500),
+        Css.overflow("auto auto"),
+        Css.height("100%")
+      )}
+    >
       <GitInfoContext.Provider
         value={{
           gitInfoState,

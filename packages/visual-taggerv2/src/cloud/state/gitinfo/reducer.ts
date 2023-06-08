@@ -1,7 +1,7 @@
 import { UserSession } from "../../../types";
 import { createBranch, deleteBranch, fetchGitInfo } from "../../api/git";
 import { updateEventSchemas } from "../../api/schema";
-import { setGitInfo, setGitInfoInMemory } from "../gitinfo";
+import { setGitInfoState } from "../gitinfo";
 import {
   GitInfoAction,
   GitInfoActionType,
@@ -20,17 +20,15 @@ export default function reducer(userSession: UserSession | undefined) {
     let newState: GitInfoState = {
       ...state,
       info: state.info ? { ...state.info } : undefined,
+      modifiedInfo: state.modifiedInfo ? { ...state.modifiedInfo } : state.info,
     };
-    console.log(">> old state ", state, action);
     switch (action.type) {
-      case GitInfoActionType.SET_DATA:
-        // gets called by the API call.
+      case GitInfoActionType.UPDATE_FULL_STATE:
         return {
           ...state,
-          state: LoadingState.LOADED,
-          info: action.data,
+          ...action.data,
         } as GitInfoState;
-      case GitInfoActionType.REFRESH:
+      case GitInfoActionType.REFRESH_INFO:
         forceRefresh = true;
         break;
       case GitInfoActionType.CREATE_BRANCH:
@@ -42,6 +40,8 @@ export default function reducer(userSession: UserSession | undefined) {
           action.data,
           userSession
         );
+        newState.modifiedInfo = undefined;
+        newState.isModified = false;
         break;
       case GitInfoActionType.DELETE_BRANCH:
         if (newState.info == null) throw new Error("");
@@ -52,53 +52,61 @@ export default function reducer(userSession: UserSession | undefined) {
           action.data,
           userSession
         );
+        newState.modifiedInfo = undefined;
+        newState.isModified = false;
         break;
       case GitInfoActionType.UPDATE_SOURCE:
         if (newState.info == null) throw new Error("");
         // TODO: dont allow switching if current branch has changes.
         newState.info.activeSourceId = action.data;
         newState.info.activeBranch = undefined;
+        newState.modifiedInfo = undefined;
+        newState.isModified = false;
         break;
       case GitInfoActionType.UPDATE_BRANCH:
         if (newState.info == null) throw new Error("");
         // TODO: dont allow switching if current branch has changes.
         newState.info.activeBranch = action.data;
+        newState.modifiedInfo = undefined;
+        newState.isModified = false;
         break;
       case GitInfoActionType.UPDATE_EVENT_SCHEMA:
-        if (newState.info == null) throw new Error("");
-        newState.info.eventSchema.events = action.data;
+        if (newState.modifiedInfo == null) throw new Error("");
+        newState.modifiedInfo.eventSchema.events = action.data;
         newState.isModified = true;
         break;
       case GitInfoActionType.UPDATE_EVENT_TAGS:
-        if (newState.info == null) throw new Error("");
-        newState.info.eventTags = action.data;
+        if (newState.modifiedInfo == null) throw new Error("");
+        newState.modifiedInfo.eventTags = action.data;
         newState.isModified = true;
         break;
       case GitInfoActionType.COMMIT:
-        if (newState.info == null) throw new Error("");
+        if (!newState.isModified) return state;
+        if (newState.modifiedInfo == null) throw new Error("");
         // write changes to cloud.
         newState.isModified = false;
         updateEventSchemas(
-          newState.info.activeSourceId!,
-          newState.info.activeBranch!,
-          newState.info.eventSchema,
-          newState.info.eventSchemaSha,
-          newState.info.eventTags,
+          newState.modifiedInfo.activeSourceId!,
+          newState.modifiedInfo.activeBranch!,
+          newState.modifiedInfo.eventSchema,
+          newState.modifiedInfo.eventSchemaSha,
+          newState.modifiedInfo.eventTags,
           userSession
         );
         break;
       case GitInfoActionType.FETCH_MAGIC_CHANGES:
-        if (newState.info == null) throw new Error("");
         newState.state = LoadingState.LOADING;
         break;
       case GitInfoActionType.FETCHED_MAGIC_CHANGES:
-        if (newState.info == null) throw new Error("");
+        if (newState.modifiedInfo == null) throw new Error("");
         newState.state = LoadingState.LOADED;
         newState.isModified = true;
-        newState.info.eventSchema.events = action.data.eventSchema.events;
-        newState.info.eventTags = action.data.eventTags;
+        newState.modifiedInfo.eventSchema.events =
+          action.data.eventSchema.events;
+        newState.modifiedInfo.eventTags = action.data.eventTags;
         break;
     }
+
     if (
       forceRefresh ||
       state.info?.activeSourceId != newState.info?.activeSourceId ||
@@ -112,8 +120,8 @@ export default function reducer(userSession: UserSession | undefined) {
       );
       newState.state = LoadingState.LOADING;
     }
-    console.log(">> new state ", newState);
-    setGitInfoInMemory(newState.info);
+    setGitInfoState(newState);
+    console.log(">> gitinfo new state and action type ", newState, action.type);
     return newState;
   };
 }

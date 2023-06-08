@@ -11,46 +11,27 @@ import reducer from "./gitinfo/reducer";
 import { useUserSession } from "./usersession";
 
 export const GIT_STORAGE_KEY = "gitInfo";
+export const GIT_INFO_STATE_KEY = "gitInfoState";
 export const GIT_IN_MEMORY_STORAGE_KEY = "gitInfoInMemory";
 
-export async function getGitInfoInMemory(): Promise<GitInfo | undefined> {
-  const { gitInfoInMemory } = await localStorageGet([
-    GIT_IN_MEMORY_STORAGE_KEY,
-  ]);
-  if (gitInfoInMemory) {
-    return gitInfoInMemory;
+export async function getGitInfoState(): Promise<GitInfoState | undefined> {
+  const { gitInfoState } = await localStorageGet([GIT_INFO_STATE_KEY]);
+  if (gitInfoState) {
+    return gitInfoState;
+  }
+}
+
+export async function setGitInfoState(gitInfoState: GitInfoState | undefined) {
+  if (gitInfoState == null) {
+    await chrome.storage.local.remove([GIT_INFO_STATE_KEY]);
   } else {
-    return getGitInfo();
+    await chrome.storage.local.set({ [GIT_INFO_STATE_KEY]: gitInfoState });
   }
 }
 
-export async function setGitInfoInMemory(gitInfo: GitInfo | undefined) {
-  if (gitInfo == null) {
-    await chrome.storage.local.remove([GIT_IN_MEMORY_STORAGE_KEY]);
-  } else {
-    await chrome.storage.local.set({ [GIT_IN_MEMORY_STORAGE_KEY]: gitInfo });
-  }
-}
-
-export async function getGitInfo(): Promise<GitInfo | undefined> {
-  const { gitInfo } = await localStorageGet([GIT_STORAGE_KEY]);
-  if (gitInfo) {
-    return gitInfo;
-  }
-}
-
-export async function setGitInfo(gitInfo: GitInfo | undefined) {
-  if (gitInfo == null) {
-    await chrome.storage.local.remove([GIT_STORAGE_KEY]);
-  } else {
-    await chrome.storage.local.set({ [GIT_STORAGE_KEY]: gitInfo });
-  }
-  setGitInfoInMemory(gitInfo);
-}
-
-export function useGitInfo() {
+export function useGitInfoState() {
   const [userSession] = useUserSession();
-  const [gitInfo, dispatch] = useReducer(
+  const [gitInfoState, dispatch] = useReducer(
     reducer(userSession),
     {
       state: LoadingState.NOT_INITIALIZED,
@@ -60,20 +41,25 @@ export function useGitInfo() {
   );
 
   useEffect(() => {
-    getGitInfo().then((storedGitInfo) => {
-      if (storedGitInfo != null) {
+    getGitInfoState().then((storedState) => {
+      if (storedState != null) {
         dispatch({
-          type: GitInfoActionType.SET_DATA,
-          data: storedGitInfo,
+          type: GitInfoActionType.UPDATE_FULL_STATE,
+          data: storedState,
         });
       }
       // changes from API call flow through the storage listener
       chrome.storage.onChanged.addListener((changes) => {
-        if (changes[GIT_STORAGE_KEY] != null) {
-          dispatch({
-            type: GitInfoActionType.SET_DATA,
-            data: changes[GIT_STORAGE_KEY].newValue,
-          });
+        if (changes[GIT_INFO_STATE_KEY] != null) {
+          if (
+            changes[GIT_INFO_STATE_KEY].newValue !==
+            changes[GIT_INFO_STATE_KEY].oldValue
+          ) {
+            dispatch({
+              type: GitInfoActionType.UPDATE_FULL_STATE,
+              data: changes[GIT_INFO_STATE_KEY].newValue,
+            });
+          }
         }
       });
     });
@@ -82,12 +68,12 @@ export function useGitInfo() {
   useEffect(() => {
     if (userSession != null) {
       dispatch({
-        type: GitInfoActionType.REFRESH,
+        type: GitInfoActionType.REFRESH_INFO,
       });
     }
   }, [userSession]);
 
-  return [gitInfo, dispatch] as const;
+  return [gitInfoState, dispatch] as const;
 }
 
 type GitInfoContextType = {

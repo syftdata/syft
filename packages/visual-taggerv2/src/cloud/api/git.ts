@@ -1,18 +1,32 @@
 import { GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
-import { getGitInfo, setGitInfo } from "../state/gitinfo";
+import { getGitInfoState, setGitInfoState } from "../state/gitinfo";
 import { Step } from "@puppeteer/replay";
 import { genPuppeteerScript } from "../../builders";
+import { GitInfoState, LoadingState } from "../state/types";
 
 export async function handleGitInfoResponse(
   response: Response
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
-    setGitInfo(data);
+    const gitInfoState: GitInfoState = {
+      state: LoadingState.LOADED,
+      info: data,
+      modifiedInfo: data,
+      error: undefined,
+      isModified: false,
+    };
+    setGitInfoState(gitInfoState);
     return data;
   } else {
     console.error("Error fetching git info", response);
+    const gitInfoState: GitInfoState = {
+      state: LoadingState.LOADED,
+      error: response.statusText,
+      isModified: false,
+    };
+    setGitInfoState(gitInfoState);
   }
 }
 
@@ -34,14 +48,14 @@ export async function createTestSpec(
   sha: string | undefined,
   user: UserSession
 ): Promise<void> {
-  const gitInfo = await getGitInfo();
-  if (!gitInfo) {
+  const gitInfo = await getGitInfoState();
+  if (!gitInfo?.info) {
     throw new Error("GitInfo not found");
   }
   const content = genPuppeteerScript(name, steps);
   const response = await post("/api/testspecs", user, {
-    sourceId: gitInfo.activeSourceId,
-    branch: gitInfo.activeBranch,
+    sourceId: gitInfo.info.activeSourceId,
+    branch: gitInfo.info.activeBranch,
     name,
     content,
     sha,
@@ -54,13 +68,13 @@ export async function deleteTestSpec(
   sha: string,
   user: UserSession
 ): Promise<void> {
-  const gitInfo = await getGitInfo();
-  if (!gitInfo) {
+  const gitInfo = await getGitInfoState();
+  if (!gitInfo?.info) {
     throw new Error("GitInfo not found");
   }
   const response = await post("/api/testspec_delete", user, {
-    sourceId: gitInfo.activeSourceId,
-    branch: gitInfo.activeBranch,
+    sourceId: gitInfo?.info.activeSourceId,
+    branch: gitInfo?.info.activeBranch,
     name,
     sha,
   });

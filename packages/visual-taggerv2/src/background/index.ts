@@ -150,13 +150,6 @@ async function handleMessageAsync(
     case MessageType.StopTagging:
       await stopPreview();
       break;
-    case MessageType.ReplaceStep:
-      const recordingState = await replaceAction(message.index, message.action);
-      await port.postMessage({
-        type: MessageType.RecordedActions,
-        data: recordingState.recording,
-      });
-      break;
   }
   return true;
 }

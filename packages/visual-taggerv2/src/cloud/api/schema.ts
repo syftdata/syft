@@ -1,5 +1,5 @@
 import { Action, EventSchemas, GitInfo, UserSession } from "../../types";
-import { getGitInfo } from "../state/gitinfo";
+import { getGitInfoState } from "../state/gitinfo";
 import { handleGitInfoResponse } from "./git";
 import { post } from "./utils";
 import data from "./mock_magic.json";
@@ -23,15 +23,15 @@ export async function updateEventSchemas(
 }
 
 export async function magicAPI(user: UserSession): Promise<GitInfo> {
-  const gitInfo = await getGitInfo();
-  if (!gitInfo) {
+  const state = await getGitInfoState();
+  if (state?.info == null) {
     throw new Error("GitInfo not found");
   }
   await new Promise((resolve) => setTimeout(resolve, 1000));
   const newGitInfo: GitInfo = {
-    ...gitInfo,
+    ...state.info,
     eventSchema: {
-      ...gitInfo.eventSchema,
+      ...state.info.eventSchema,
       events: data.events,
     },
     eventTags: data.eventTags as unknown as Action[],

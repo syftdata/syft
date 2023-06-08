@@ -38,7 +38,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   if (!userSession) {
     return <LoginView />;
   }
-  const gitInfo = gitInfoState.info;
+  const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return <Spinner />;
   }

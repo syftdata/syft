@@ -18,7 +18,7 @@ export default function ActionEditor({
   onUpdateAction,
 }: ActionEditorProps) {
   const { gitInfoState } = useGitInfoContext();
-  const gitInfo = gitInfoState.info;
+  const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   const schemas = gitInfo?.eventSchema?.events ?? [];
   const [showAttachModal, setShowAttachModal] = useState(false);
 

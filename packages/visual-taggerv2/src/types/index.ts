@@ -1,4 +1,5 @@
 import { EventSchema } from "@syftdata/common/lib/types";
+import { LoadingState } from "../cloud/state/types";
 
 export enum ActionsMode {
   Actions = "actions",
@@ -168,20 +169,24 @@ export interface SyftEvent {
 export enum MessageType {
   // Background to DevTools.
   SyftEvent = "syft-event",
-  RecordedActions = "recorded-actions",
 
-  // Other way round. DevTools to background
+  // DevTools to background
   InitDevTools = "init-devtools",
   CleanupDevTools = "cleanup-devtools",
-  StartTagging = "start-tagging",
-  StopTagging = "stop-tagging",
-  ReplaceStep = "replace-step",
 
-  // Background to Content Script.
+  // Content to Content Script.
   GetSourceFile = "get-source-file",
   GetSourceFileResponse = "get-source-file-response",
 
-  // Extension UI to DevTools.
+  // Content -> Background -> DevTools
+  RecordedActions = "recorded-actions",
+  PreviewClicked = "preview-clicked",
+
+  // DevTools -> Background -> Content
+  StartTagging = "start-tagging",
+  StopTagging = "stop-tagging",
+
+  // Extension Native UI to DevTools.
   OnSearch = "on-search",
   OnShown = "on-shown",
   OnHidden = "on-hidden",

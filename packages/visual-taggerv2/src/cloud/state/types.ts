@@ -16,8 +16,8 @@ export enum GitInfoActionType {
   CREATE_BRANCH,
   DELETE_BRANCH,
 
-  SET_DATA,
-  REFRESH,
+  UPDATE_FULL_STATE,
+  REFRESH_INFO,
 
   FETCH_MAGIC_CHANGES,
   FETCHED_MAGIC_CHANGES,
@@ -30,7 +30,7 @@ export interface GitInfoAction {
 
 export interface GitInfoState {
   info?: GitInfo;
-  // unmodifiedInfo?: GitInfo;
+  modifiedInfo?: GitInfo;
 
   state: LoadingState;
   error?: string;

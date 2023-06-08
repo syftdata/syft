@@ -1,8 +1,9 @@
 div.Syft-Highlighter-outline {
-  box-sizing: border-box;
+  box-sizing: border-box;  
   pointer-events: none !important;
   position: fixed !important;  
   z-index: 2147483600 !important;
+  cursor: pointer !important;
 }
 div.Syft-Highlighter-label {
   pointer-events: none !important;

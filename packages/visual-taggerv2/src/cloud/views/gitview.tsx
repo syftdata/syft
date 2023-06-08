@@ -5,11 +5,13 @@ import { SimpleGitView } from "../../common/components/simplegitview";
 import { Css, Flex } from "../../common/styles/common.styles";
 import { GitInfoActionType, LoadingState } from "../state/types";
 import Spinner from "../../common/components/core/Spinner/Spinner";
+import Icon from "../../common/components/core/Icon/Icon";
 
 export function GitView() {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
-  const gitInfo = gitInfoState.info;
+
+  const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
 
   // TODO: show selected items at the top.
   if (!userSession || !gitInfo) {
@@ -54,8 +56,6 @@ export function GitView() {
     gitInfo.sources.find((source) => source.id === gitInfo.activeSourceId) ??
     gitInfo.sources[0];
 
-  console.log(">> git state ", gitInfoState.state, gitInfoState.isModified);
-
   return (
     <Flex.Row
       gap={8}
@@ -75,7 +75,9 @@ export function GitView() {
         onCommit={onCommit}
         hasChanges={gitInfoState.isModified}
       />
-      {gitInfoState.state === LoadingState.LOADING && <Spinner />}
+      {gitInfoState.state === LoadingState.LOADING && (
+        <Icon icon="spinner" size="medium" />
+      )}
     </Flex.Row>
   );
 }

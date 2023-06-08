@@ -20,6 +20,7 @@ import {
   RECORDING_STORAGE_KEY,
   updateRecordingState,
 } from "../cloud/state/recordingstate";
+import { buildBaseAction, getReactSourceFileForElement } from "./utils";
 
 /**
  * This is directly derived from:
@@ -41,48 +42,6 @@ function _shouldGenerateKeyPressFor(event: KeyboardEvent): boolean {
   const hasModifier = event.ctrlKey || event.altKey || event.metaKey;
   if (event.key.length === 1 && !hasModifier) return false;
   return true;
-}
-
-function getReactSourceFileForElement(ele: HTMLElement) {
-  const syftSource = ele.getAttribute("data-syft-source");
-  if (syftSource == null) {
-    return undefined;
-  }
-  const source = JSON.parse(syftSource) as ReactSource;
-  return source;
-}
-
-// function hasHandlerOnReactElement(ele: HTMLElement) {
-//   const hasHandler = ele.getAttribute("data-syft-has-handler");
-//   if (hasHandler == null) {
-//     return false;
-//   }
-//   return /true/i.test(hasHandler);
-// }
-
-function buildBaseAction(
-  event: Event,
-  overrideTarget?: HTMLElement
-): BaseAction {
-  const target = overrideTarget ?? (event.target as HTMLElement);
-
-  // get the source from the target;
-  const eventSource = getReactSourceFileForElement(target);
-
-  return {
-    isPassword:
-      target instanceof HTMLInputElement &&
-      target.type.toLowerCase() === "password",
-    type: ActionType.Click, // UNKNOWN
-    tagName: target.tagName as TagName,
-    inputType: target instanceof HTMLInputElement ? target.type : undefined,
-    selectors: genSelectors(target) ?? {},
-    timestamp: event.timeStamp,
-    hasOnlyText: target.children.length === 0 && target.innerText.length > 0,
-    value: undefined,
-
-    eventSource,
-  };
 }
 
 export default class Recorder {
@@ -213,6 +172,9 @@ export default class Recorder {
     const predictedTarget =
       parentElement?.tagName === "A" ? parentElement : target;
 
+    if (predictedTarget instanceof HTMLHtmlElement) {
+      return;
+    }
     const action: ClickAction = {
       ...buildBaseAction(event, predictedTarget),
       type: ActionType.Click,

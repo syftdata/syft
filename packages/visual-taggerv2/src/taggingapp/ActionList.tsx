@@ -22,7 +22,7 @@ export default function ActionList({
   return (
     <List<Action>
       data={_actions}
-      emptyMessage="Actions will show up here once you start tagging."
+      emptyMessage="Start interacting with your application to see actions here."
       renderItem={(action, index) => {
         const eventCount = action.events?.length ?? 0;
         return (

@@ -1,55 +1,75 @@
 import { Action } from "../types";
 import { Flex } from "../common/styles/common.styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Section from "../common/components/core/Section";
-import { useGitInfoContext } from "../cloud/state/gitinfo";
 import ActionList from "./ActionList";
 import TagList from "./TagList";
 import ActionEditor from "./ActionEditor";
+import { shallowEqual } from "../common/utils";
 
 export interface ActionsEditorProps {
   actions: Action[];
   tags: Action[];
-  onUpdateAction?: (index: number, action?: Action) => void;
   onUpdateTag?: (index: number, action?: Action) => void;
+  previewMode: boolean;
 }
 
 export default function ActionsEditor({
   tags,
   actions,
-  onUpdateAction,
   onUpdateTag,
+  previewMode,
 }: ActionsEditorProps) {
   // select the last action by default.
   const [selectedActionIndex, setSelectedActionIndex] = useState<number>(-1);
   const [selectedTagIndex, setSelectedTagIndex] = useState<number>(-1);
-  const { gitInfoState } = useGitInfoContext();
 
   const selectedAction =
     selectedActionIndex > -1 ? actions[selectedActionIndex] : null;
   const selectedTag = selectedTagIndex > -1 ? tags[selectedTagIndex] : null;
 
-  const gitInfo = gitInfoState.info;
+  const selectTag = (index: number) => {
+    setSelectedTagIndex(index);
+    setSelectedActionIndex(-1);
+  };
+  const selectAction = (index: number) => {
+    setSelectedActionIndex(index);
+    setSelectedTagIndex(-1);
+  };
 
-  const schemas = gitInfo?.eventSchema?.events ?? [];
+  useEffect(() => {
+    const lastAction = actions[actions.length - 1];
+    if (lastAction) {
+      const selector = lastAction.selectors;
+      const tag = tags.find((tag, idx) => {
+        if (shallowEqual(tag.selectors, selector)) {
+          selectTag(idx);
+          return true;
+        }
+        return false;
+      });
+      if (!tag) {
+        selectAction(actions.length - 1);
+      }
+    }
+  }, [actions]);
+
   return (
     <Flex.Col className={Flex.grow(1)}>
-      {tags.length > 0 && (
-        <Section title="Tags" className={Flex.grow(1)}>
+      {previewMode && tags && (
+        <Section title="Event Triggers" className={Flex.grow(1)}>
           <TagList
             tags={tags}
             selectedIndex={selectedTagIndex}
             onSelect={(index) => {
               if (index === selectedTagIndex) {
-                setSelectedTagIndex(-1);
+                selectTag(-1);
               } else {
-                setSelectedActionIndex(-1);
-                setSelectedTagIndex(index);
+                selectTag(index);
               }
             }}
             onEdit={(index) => {
-              setSelectedActionIndex(-1);
-              setSelectedTagIndex(index);
+              selectTag(index);
             }}
             onDelete={(index) => {
               onUpdateTag && onUpdateTag(index);
@@ -58,20 +78,18 @@ export default function ActionsEditor({
           />
         </Section>
       )}
-      {actions.length > 0 && (
-        <Section title="Actions" className={Flex.grow(1)}>
+      {actions && (
+        <Section title="Recent Triggers">
           <ActionList
             actions={actions}
             selectedIndex={selectedActionIndex}
             onSelect={(index) => {
               if (index === selectedActionIndex) {
-                setSelectedActionIndex(-1);
+                selectAction(-1);
               } else {
-                setSelectedTagIndex(-1);
-                setSelectedActionIndex(index);
+                selectAction(index);
               }
             }}
-            className={Flex.grow(1)}
           />
         </Section>
       )}
@@ -89,7 +107,9 @@ export default function ActionsEditor({
           key={selectedActionIndex}
           action={selectedAction}
           onUpdateAction={(action) => {
-            onUpdateAction && onUpdateAction(selectedActionIndex, action);
+            if (action?.events && action.events.length > 0) {
+              onUpdateTag && onUpdateTag(tags.length, action);
+            }
           }}
         />
       )}
