@@ -24,10 +24,12 @@ export function hasHandlerOnReactElement(ele: HTMLElement) {
   return /true/i.test(hasHandler);
 }
 
-export function getTagIndexFromElement(ele: Element) {
-  const index = ele.getAttribute("data-tag-index");
-  if (index) {
-    return parseInt(index);
+export function getTagIndexFromElement(ele?: Element) {
+  if (ele) {
+    const index = ele.getAttribute("data-tag-index");
+    if (index) {
+      return parseInt(index);
+    }
   }
   return -1;
 }

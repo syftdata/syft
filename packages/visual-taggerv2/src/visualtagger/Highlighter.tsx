@@ -4,6 +4,8 @@ export type HighlighterProps = {
   rect: DOMRect;
   label?: string;
   tagIndex?: number;
+
+  clicked?: boolean;
   defined?: boolean;
   committed?: boolean;
 };
@@ -15,6 +17,8 @@ export default function Highlighter({
   label,
   tagIndex,
   rect,
+
+  clicked,
   defined,
   committed,
 }: HighlighterProps) {
@@ -28,13 +32,15 @@ export default function Highlighter({
           left: rect.left,
           width: rect.width,
           height: rect.height,
-          border: `1px solid ${Colors.Branding.V5}`,
+          border: clicked ? `1px solid ${Colors.Branding.V5}` : undefined,
           backgroundColor: rectBackgroundColor(
-            committed
+            clicked
+              ? Colors.Branding.V3
+              : committed
               ? Colors.Secondary.Green
               : defined
               ? Colors.Secondary.Orange
-              : Colors.Branding.V3
+              : Colors.Branding.V1
           ),
         }}
       />

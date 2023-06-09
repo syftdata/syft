@@ -11,14 +11,12 @@ export interface TagListProps {
   tags: Action[];
   selectedIndex: number;
   onSelect?: (index: number) => void;
-  onEdit?: (index: number) => void;
   onDelete?: (index: number) => void;
   className?: string;
 }
 export default function TagList({
   tags,
   selectedIndex,
-  onEdit,
   onSelect,
   onDelete,
   className,
@@ -35,7 +33,9 @@ export default function TagList({
             alignItems="center"
             className={css(
               Flex.grow(1),
-              selectedIndex === index && backgroundCss(Colors.Branding.V1)
+              selectedIndex === index && backgroundCss(Colors.Branding.V1),
+              selectedIndex === index &&
+                Css.border(`1px solid ${Colors.Branding.V5} !important`)
             )}
           >
             <Flex.Row
@@ -49,14 +49,6 @@ export default function TagList({
               <ActionText action={action} className={Css.margin("0px 6px")} />
               {eventCount > 0 && <Mono.M10>{eventCount} Events</Mono.M10>}
             </Flex.Row>
-            {onEdit && (
-              <IconButton
-                icon="edit"
-                onClick={() => {
-                  onEdit(index);
-                }}
-              />
-            )}
             {onDelete && (
               <IconButton
                 icon="trash"

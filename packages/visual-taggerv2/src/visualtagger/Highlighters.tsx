@@ -2,15 +2,22 @@ import { useState, useEffect, useCallback } from "react";
 import throttle from "lodash.throttle";
 import Highlighter from "./Highlighter";
 
-import { ComputedEventTag, EventTag } from "./types";
+import { ComputedEventTag } from "./types";
 
 import HighlighterStyle from "./Highlighter.css";
-import { Action, ActionType, ClickAction, ScriptType } from "../types";
+import {
+  Action,
+  ActionType,
+  ClickAction,
+  EventTag,
+  ScriptType,
+} from "../types";
 import { getBestSelectorsForAction } from "../builders/selector";
 import { buildBaseAction, getTagIndexFromElement } from "./utils";
 
 export interface HighlightersProps {
   actions: EventTag[];
+  previewAction?: Action;
   onPreviewClick: (action: Action, tagIndex: number) => void;
 }
 
@@ -40,15 +47,27 @@ const eatUpEvent = (event: Event) => {
 
 export default function Highlighters({
   actions,
+  previewAction,
   onPreviewClick,
 }: HighlightersProps) {
   const [hoveredElement, setHoveredElement] = useState<
     HTMLElement | undefined
   >();
-
+  const [clickedElement, setClickedElement] = useState<
+    HTMLElement | undefined
+  >();
   const [computedActions, setComputedActions] = useState<ComputedEventTag[]>(
     []
   );
+
+  useEffect(() => {
+    if (previewAction) {
+      const element = getElementFromSelectors(previewAction);
+      if (element === undefined || element instanceof HTMLElement) {
+        setClickedElement(element);
+      }
+    }
+  }, [previewAction]);
 
   const handleMouseMove = useCallback(
     throttle((event: MouseEvent) => {
@@ -77,18 +96,25 @@ export default function Highlighters({
       const x = event.clientX,
         y = event.clientY,
         elementMouseIsOver = document.elementFromPoint(x, y);
-
       if (
         elementMouseIsOver != null &&
         elementMouseIsOver instanceof HTMLElement
       ) {
-        const matchedIndex = getTagIndexFromElement(elementMouseIsOver);
+        const { parentElement } = elementMouseIsOver;
+        // Match the logic in recorder.ts for link clicks
+        const element =
+          parentElement?.tagName === "A" ? parentElement : elementMouseIsOver;
+        if (element instanceof HTMLHtmlElement) {
+          return;
+        }
+        const matchedIndex = getTagIndexFromElement(element);
         const action: ClickAction = {
-          ...buildBaseAction(event, elementMouseIsOver),
+          ...buildBaseAction(event, element),
           type: ActionType.Click,
           offsetX: event.offsetX,
           offsetY: event.offsetY,
         };
+        setClickedElement(element);
         onPreviewClick(action, matchedIndex);
       }
       eatUpEvent(event);
@@ -124,6 +150,8 @@ export default function Highlighters({
     };
   }, [actions, handleMouseMove]);
 
+  const tagIndex = getTagIndexFromElement(hoveredElement);
+
   return (
     <>
       <style>{HighlighterStyle}</style>
@@ -134,12 +162,16 @@ export default function Highlighters({
             tagIndex={idx}
             rect={def.ele.getBoundingClientRect()}
             defined={true}
-            committed={true}
+            clicked={clickedElement === def.ele}
+            committed={def.committed}
           />
         );
       })}
-      {hoveredElement != null && (
-        <Highlighter rect={hoveredElement.getBoundingClientRect()} />
+      {hoveredElement != null && tagIndex === -1 && (
+        <Highlighter
+          rect={hoveredElement.getBoundingClientRect()}
+          clicked={clickedElement === hoveredElement}
+        />
       )}
     </>
   );

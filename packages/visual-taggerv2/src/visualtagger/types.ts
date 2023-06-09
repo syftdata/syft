@@ -1,6 +1,4 @@
-import { Action } from "../types";
-
-export type EventTag = Action;
+import { EventTag } from "../types";
 
 export type ComputedEventTag = EventTag & {
   ele: HTMLElement;

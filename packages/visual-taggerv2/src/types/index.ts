@@ -1,5 +1,4 @@
 import { EventSchema } from "@syftdata/common/lib/types";
-import { LoadingState } from "../cloud/state/types";
 
 export enum ActionsMode {
   Actions = "actions",
@@ -140,6 +139,11 @@ export type Action =
   | AwaitTextAction
   | ResizeAction;
 
+export type EventTag = Action & {
+  committed?: boolean;
+  instrumented?: boolean;
+};
+
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.
   SEMI_TRACKED, // event is modeled, but the library is not being used.
@@ -238,7 +242,7 @@ export interface GitInfo {
   eventSchemaSha?: string; // used to update the file without overwriting others changes.
   eventSchema: EventSchemas;
 
-  eventTags: Action[];
+  eventTags: EventTag[];
   eventTagsSha?: string; // used to update the file without overwriting others changes.
 }
 

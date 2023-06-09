@@ -2,49 +2,44 @@ import { Action } from "../types";
 import { ActionText } from "./ActionText";
 import { Css, Flex } from "../common/styles/common.styles";
 import List from "../common/components/core/List";
-import { Mono } from "../common/styles/fonts";
-import { Colors, backgroundCss } from "../common/styles/colors";
 import { css } from "@emotion/css";
+import { IconButton } from "../common/components/core/Button/IconButton";
 
 export interface ActionListProps {
   actions: Action[];
-  selectedIndex: number;
-  onSelect?: (index: number) => void;
+  startAttachFlow?: (action: Action) => void;
   className?: string;
 }
 export default function ActionList({
   actions,
-  selectedIndex,
-  onSelect,
+  startAttachFlow,
   className,
 }: ActionListProps) {
-  const _actions = actions;
   return (
     <List<Action>
-      data={_actions}
+      data={actions}
       emptyMessage="Start interacting with your application to see actions here."
-      renderItem={(action, index) => {
-        const eventCount = action.events?.length ?? 0;
+      renderItem={(action) => {
         return (
           <Flex.Row
             gap={4}
             alignItems="center"
-            className={css(
-              Flex.grow(1),
-              Css.padding("4px 0px"),
-              selectedIndex === index && backgroundCss(Colors.Branding.V1)
-            )}
+            className={css(Flex.grow(1), Css.padding("4px 0px"))}
           >
             <Flex.Row
               className={Flex.grow(1)}
               alignItems="center"
               justifyContent="space-between"
-              onClick={() => {
-                onSelect && onSelect(index);
-              }}
             >
               <ActionText action={action} className={Css.margin("0px 6px")} />
-              {eventCount > 0 && <Mono.M10>{eventCount} Events</Mono.M10>}
+              {startAttachFlow && (
+                <IconButton
+                  icon="plus-circle"
+                  onClick={() => {
+                    startAttachFlow(action);
+                  }}
+                />
+              )}
             </Flex.Row>
           </Flex.Row>
         );

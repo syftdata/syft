@@ -49,6 +49,7 @@ export default function VisualTaggerApp() {
     return (
       <Highlighters
         actions={gitInfo.eventTags}
+        previewAction={recordingState.previewAction}
         onPreviewClick={onPreviewClick}
       />
     );

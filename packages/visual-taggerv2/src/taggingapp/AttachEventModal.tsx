@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../common/components/core/Modal/Modal";
 import SchemaSelector from "../schemaapp/selector";
 import { Action } from "../types";
 import { EventSchema } from "@syftdata/common/lib/types";
+import ElementView from "./ElementView";
 
 export interface AttachEventModalProps {
   action: Action;
@@ -23,14 +24,19 @@ const AttachEventModal = ({
     onUpdateAction(localAction);
   };
 
+  useEffect(() => {
+    setLocalAction(action);
+  }, [action]);
+
   return (
     <Modal
-      title="Attach Events"
+      title="Attach Events to"
       open={open}
       okText="Save"
       onOk={saveEventModel}
       onCancel={onCancel}
     >
+      <ElementView action={localAction} />
       <SchemaSelector
         action={localAction}
         setEvents={(events) => {

@@ -6,14 +6,17 @@ import {
 } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import { useUserSession } from "../cloud/state/usersession";
-import ActionsEditor from "./ActionsEditor";
+import PreviewEditor from "./PreviewEditor";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
 import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { magicAPI } from "../cloud/api/schema";
 import { GitInfoActionType } from "../cloud/state/types";
-import { useRecordingState } from "../cloud/state/recordingstate";
+import {
+  updateRecordingState,
+  useRecordingState,
+} from "../cloud/state/recordingstate";
 import Section from "../common/components/core/Section";
 import ActionList from "./ActionList";
 
@@ -80,24 +83,29 @@ export default function TaggingApp({
   };
 
   const getPreviewView = () => {
+    const tags = gitInfo.eventTags ?? [];
+    const schemas = gitInfo.eventSchema.events ?? [];
     return (
       <>
         <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <PrimaryIconButton
-            icon="highlighter"
-            onClick={stopTagging}
-            size="medium"
-          />
+          <PrimaryIconButton icon="highlighter" onClick={stopTagging} />
         </FlexExtra.RowWithDivider>
-        <ActionsEditor
-          tags={gitInfo.eventTags ?? []}
+        <PreviewEditor
+          tags={tags}
           actions={actions}
-          previewMode={true}
+          schemas={schemas}
           previewAction={recordingState.previewAction}
           previewActionMatchedTagIndex={
             recordingState.previewActionMatchedTagIndex
           }
           onUpdateTag={onUpdateTag}
+          onSelectTag={(index) => {
+            updateRecordingState((state) => ({
+              ...state,
+              previewActionMatchedTagIndex: index,
+              previewAction: tags[index],
+            }));
+          }}
         />
       </>
     );
@@ -110,13 +118,13 @@ export default function TaggingApp({
           <IconButton icon="highlighter" onClick={startTagging} />
           <IconButton icon="magic-wand" onClick={onMagicWand} />
         </FlexExtra.RowWithDivider>
-        <Section title="Interactions" className={Flex.grow(1)}>
-          <ActionList
-            selectedIndex={-1}
-            actions={actions}
-            onSelect={(index) => {}}
-            className={Flex.grow(1)}
-          />
+        <Section
+          title="Interactions"
+          className={Flex.grow(1)}
+          expandable={true}
+          isExpanded={true}
+        >
+          <ActionList actions={actions} className={Flex.grow(1)} />
         </Section>
       </>
     );
