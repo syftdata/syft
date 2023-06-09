@@ -5,6 +5,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
+import {MetricsDependency} from "../metrics_dependency_registry";
 
 declare global {
   interface Window {
@@ -45,8 +46,9 @@ class Plugin {
   async setup(): Promise<void> {}
 }
 
-export class AmplitudePlugin implements ISyftPlugin {
+export class AmplitudePlugin implements ISyftPlugin, MetricsDependency {
   id = 'Amplitude';
+  pkg = 'amplitude-js';
   amplitude: any;
   isBrowser = typeof window !== 'undefined';
 

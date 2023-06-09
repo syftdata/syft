@@ -13,6 +13,7 @@ declare global {
 
 export class HeapPlugin implements ISyftPlugin {
   id = 'Heap';
+  pkg = '@heap/react-heap';
   isBrowser = typeof window !== 'undefined';
   heap: any;
 

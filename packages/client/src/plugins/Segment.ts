@@ -70,6 +70,7 @@ class Plugin {
  */
 export class SegmentPlugin implements ISyftPlugin {
   id = 'Segment';
+  pkg = 'analytics-node';
   syft: Syft;
   analytics: any;
   isBrowser = typeof window !== 'undefined';

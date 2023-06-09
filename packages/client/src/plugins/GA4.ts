@@ -3,7 +3,7 @@ import {
   type IReflector,
   SyftEventType,
   type SyftEvent,
-  type ISyftPlugin
+  type ISyftPlugin,
 } from '../types';
 
 declare global {
@@ -15,6 +15,7 @@ declare global {
 
 export class GA4Plugin implements ISyftPlugin {
   id = 'GA4';
+  pkg = 'react-ga4';
   syft: Syft;
   gtag: any;
   isBrowser = typeof window !== 'undefined';
@@ -89,6 +90,9 @@ export class GA4Plugin implements ISyftPlugin {
     if (this.gtag != null) {
       this.gtag.reset();
     }
+  }
+
+  setProvider(): void {
   }
 }
 

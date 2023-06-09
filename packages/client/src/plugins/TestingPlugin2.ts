@@ -1,8 +1,9 @@
 import type { SyftEvent, ISyftPlugin, IReflector } from '../types';
+import {MetricsDependency} from "../metrics_dependency_registry";
 
-export class TestingPlugin implements ISyftPlugin {
-  id = 'TestingPlugin';
-  pkg = 'testing-plugin';
+export class TestingPlugin2 implements ISyftPlugin {
+  id = 'TestingPlugin2';
+  pkg = 'testing-plugin2';
   events: SyftEvent[] = [];
 
   isLoaded(): boolean {
@@ -31,4 +32,4 @@ export class TestingPlugin implements ISyftPlugin {
   resetUserProperties(): void {}
 }
 
-export default TestingPlugin;
+export default TestingPlugin2;

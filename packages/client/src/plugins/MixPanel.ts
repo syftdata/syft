@@ -3,7 +3,7 @@ import {
   type IReflector,
   SyftEventType,
   type SyftEvent,
-  type ISyftPlugin
+  ISyftPlugin
 } from '../types';
 
 declare global {
@@ -36,6 +36,7 @@ declare global {
 
 export class MixPanelPlugin implements ISyftPlugin {
   id = 'MixPanel';
+  pkg = 'mixpanel-browser';
   mixpanel: any;
   isBrowser = typeof window !== 'undefined';
 

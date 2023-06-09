@@ -1,4 +1,4 @@
-import { type IReflector } from '../lib';
+import { type IReflector } from '../src';
 import Batcher from '../src/batcher';
 import {
   type ISyftPlugin,
@@ -21,6 +21,7 @@ interface TestEvent extends SyftEvent {
 
 function getMockPlugin(id: string): ISyftPlugin {
   return {
+    pkg: "",
     id,
     init: jest.fn(() => {}),
     logEvent: jest.fn(() => {

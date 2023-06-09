@@ -1,4 +1,5 @@
 import type { ApiEvent } from './monitor/types';
+import type { MetricsDependency } from './metrics_dependency_registry';
 
 export enum SyftEventType {
   TRACK,
@@ -123,9 +124,7 @@ export interface IReflector {
   ) => void;
 }
 
-export interface ISyftPlugin {
-  id: string;
-
+export interface ISyftPlugin extends MetricsDependency {
   /**
    * Gives you an opportunity to start loading the plugin dependencies
    */

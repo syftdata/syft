@@ -1,5 +1,5 @@
 import Batcher from './batcher';
-import { type TestingPlugin } from './plugins';
+import { type TestingPlugin, type TestingPlugin2 } from './plugins';
 import {
   DEFAULT_STATIC_CONFIG,
   DEFAULT_RUNTIME_CONFIG,
