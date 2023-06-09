@@ -5,28 +5,20 @@ import genSelectors from "../builders/selector";
 import {
   Action,
   ActionType,
-  BaseAction,
   ClickAction,
   DragAndDropAction,
   FullScreenshotAction,
   InputAction,
   KeydownAction,
-  LoadAction,
   MessageType,
-  ReactSource,
   ResizeAction,
-  TagName,
   WheelAction,
 } from "../types";
 import {
   RECORDING_STORAGE_KEY,
   updateRecordingState,
 } from "../cloud/state/recordingstate";
-import {
-  buildBaseAction,
-  buildLoadAction,
-  getReactSourceFileForElement,
-} from "./utils";
+import { buildBaseAction, buildLoadAction } from "./utils";
 
 /**
  * This is directly derived from:
@@ -58,6 +50,7 @@ export default class Recorder {
   private appendToActions = (action: Action) => {
     this._actions.push(action);
     updateRecordingState((state) => ({ ...state, recording: this._actions }));
+    // capture current state of the world.
     window.postMessage({
       type: MessageType.GetSourceFile,
     });
@@ -94,9 +87,7 @@ export default class Recorder {
   };
 
   constructor() {
-    this._actions = [
-      buildLoadAction(window.location.href, window.document.title),
-    ];
+    this._actions = [];
     // Watch for changes to the recording from the background worker (when a SPA navigation happens)
     chrome.storage.onChanged.addListener(this.onStorageChange);
 
@@ -111,6 +102,10 @@ export default class Recorder {
 
     // We listen to a context menu action
     // chrome.runtime.onMessage.addListener(this.onBackgroundMessage);
+
+    this.appendToActions(
+      buildLoadAction(window.location.href, window.document.title)
+    );
   }
 
   deregister() {

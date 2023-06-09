@@ -10,7 +10,7 @@ export interface SectionProps {
   className?: string;
 
   expandable?: boolean;
-  isExpanded?: boolean;
+  defaultExpanded?: boolean;
 }
 
 const Section = ({
@@ -19,16 +19,16 @@ const Section = ({
   className,
   extraButtons,
   expandable,
-  isExpanded,
+  defaultExpanded = true,
 }: SectionProps) => {
-  const [expanded, setExpanded] = useState(isExpanded);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
 
   useEffect(() => {
-    setExpanded(isExpanded);
-  }, [isExpanded]);
+    setExpanded(defaultExpanded);
+  }, [defaultExpanded]);
 
   const showChildren = !expandable || expanded;
   const slots = {

@@ -10,6 +10,9 @@ export async function handleGitInfoResponse(
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
+    data.eventTags.forEach((eventTag) => {
+      eventTag.committed = true;
+    });
     const gitInfoState: GitInfoState = {
       state: LoadingState.LOADED,
       info: data,

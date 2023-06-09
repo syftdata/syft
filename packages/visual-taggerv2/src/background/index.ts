@@ -6,6 +6,7 @@ import {
   getRecordingState,
   startPreview,
   stopPreview,
+  updateRecordingState,
 } from "../cloud/state/recordingstate";
 
 /// *** Navigation Events *** ///
@@ -135,12 +136,30 @@ async function handleMessageAsync(
   switch (message.type) {
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
+      // update the recording state to active
+      updateRecordingState((state) => {
+        return {
+          ...state,
+          recordingTabId: message.tabId,
+          recordingFrameId: 0,
+          mode: RecordingMode.RECORDING,
+        };
+      });
       await executeCleanUp(message.tabId, 0);
       await executeContentScript(message.tabId, 0);
       break;
     case MessageType.CleanupDevTools:
       delete connections[message.tabId];
       await executeCleanUp(message.tabId, 0);
+      // update the recording state to finished.
+      updateRecordingState((state) => {
+        return {
+          ...state,
+          recordingTabId: undefined,
+          recordingFrameId: 0,
+          mode: RecordingMode.NONE,
+        };
+      });
       break;
     case MessageType.StartTagging:
       await startPreview();

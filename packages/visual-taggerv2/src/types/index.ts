@@ -142,6 +142,7 @@ export type Action =
 export type EventTag = Action & {
   committed?: boolean;
   instrumented?: boolean;
+  screenshot?: string;
 };
 
 export enum SyftEventTrackStatus {

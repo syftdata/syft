@@ -23,24 +23,19 @@ export default function ActionList({
         return (
           <Flex.Row
             gap={4}
-            alignItems="center"
             className={css(Flex.grow(1), Css.padding("4px 0px"))}
+            alignItems="center"
+            justifyContent="space-between"
           >
-            <Flex.Row
-              className={Flex.grow(1)}
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <ActionText action={action} className={Css.margin("0px 6px")} />
-              {startAttachFlow && (
-                <IconButton
-                  icon="plus-circle"
-                  onClick={() => {
-                    startAttachFlow(action);
-                  }}
-                />
-              )}
-            </Flex.Row>
+            <ActionText action={action} className={Css.margin("0px 6px")} />
+            {startAttachFlow && (
+              <IconButton
+                icon="plus-circle"
+                onClick={() => {
+                  startAttachFlow(action);
+                }}
+              />
+            )}
           </Flex.Row>
         );
       }}

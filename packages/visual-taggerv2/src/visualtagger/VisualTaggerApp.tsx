@@ -8,7 +8,6 @@ import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import { shallowEqual } from "../common/utils";
 
 export default function VisualTaggerApp() {
   const recorderRef = useRef<Recorder | null>(null);

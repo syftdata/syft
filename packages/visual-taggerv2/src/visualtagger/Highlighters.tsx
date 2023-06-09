@@ -63,9 +63,14 @@ export default function Highlighters({
   useEffect(() => {
     if (previewAction) {
       const element = getElementFromSelectors(previewAction);
-      if (element === undefined || element instanceof HTMLElement) {
+      if (element instanceof HTMLElement) {
         setClickedElement(element);
+      } else {
+        setClickedElement(undefined);
       }
+    } else {
+      // hide the clicked element
+      setClickedElement(undefined);
     }
   }, [previewAction]);
 

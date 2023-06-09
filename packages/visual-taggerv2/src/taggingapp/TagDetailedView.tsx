@@ -3,6 +3,7 @@ import Section from "../common/components/core/Section";
 import { SelectedSchemaView } from "../schemaapp/selector";
 import { EventSchema } from "@syftdata/common/lib/types";
 import ElementView from "./ElementView";
+import Screenshots from "./Screenshots";
 
 export interface TagDetailedViewProps {
   tag?: EventTag;
@@ -24,6 +25,7 @@ export default function TagDetailedView({
 
   return (
     <>
+      {tag.screenshot && <Screenshots screenshot={tag.screenshot} />}
       <SelectedSchemaView
         action={tag}
         onEdit={startEditTagFlow}

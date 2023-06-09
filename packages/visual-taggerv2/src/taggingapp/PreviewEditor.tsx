@@ -7,6 +7,7 @@ import TagList from "./TagList";
 import TagDetailedView from "./TagDetailedView";
 import { EventSchema } from "@syftdata/common/lib/types";
 import AttachEventModal from "./AttachEventModal";
+import { shallowEqual } from "../common/utils";
 
 export interface PreviewEditorProps {
   actions: Action[];
@@ -60,10 +61,14 @@ export default function PreviewEditor({
 
   const onActionModalSave = (action: Action) => {
     setShowActionModal(false);
-    onUpdateTag(tags.length, {
-      ...action,
-      committed: false,
-      instrumented: false,
+    // update the tag.
+    chrome.tabs.captureVisibleTab().then((screenshot) => {
+      onUpdateTag(tags.length, {
+        ...action,
+        committed: false,
+        instrumented: false,
+        screenshot,
+      });
     });
   };
 
@@ -86,14 +91,22 @@ export default function PreviewEditor({
         <Section
           title="Interactions"
           expandable={true}
-          isExpanded={false}
+          defaultExpanded={false}
           className={Css.margin("0px 0px 4px 0px")}
         >
           <ActionList
-            actions={actions}
+            actions={actions.slice(-3)}
             startAttachFlow={(action) => {
-              setShowActionModal(true);
-              setSelectedAction(action);
+              const tag = tags.find((tag) =>
+                shallowEqual(tag.selectors, action.selectors)
+              );
+              if (tag) {
+                setShowTagModal(true);
+                selectTag(tags.indexOf(tag));
+              } else {
+                setShowActionModal(true);
+                setSelectedAction(action);
+              }
             }}
           />
         </Section>

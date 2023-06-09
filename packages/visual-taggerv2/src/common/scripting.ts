@@ -10,6 +10,7 @@ async function executeScript(tabId: number, frameId: number, file: string) {
 // https://dev.to/jacksteamdev/advanced-config-for-rpce-3966
 import scriptPath from "../visualtagger?script";
 export async function executeContentScript(tabId: number, frameId: number) {
+  console.warn("Executing content script", scriptPath);
   await executeScript(tabId, frameId, scriptPath);
   await chrome.scripting.executeScript({
     target: { tabId, frameIds: [frameId] },
@@ -22,6 +23,7 @@ export async function executeContentScript(tabId: number, frameId: number) {
 }
 
 export async function executeCleanUp(tabId: number, frameId: number) {
+  console.warn("Executing cleanup script");
   await chrome.scripting.executeScript({
     target: { tabId, frameIds: [frameId] },
     func: () => {

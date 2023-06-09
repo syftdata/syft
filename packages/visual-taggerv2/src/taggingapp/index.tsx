@@ -122,7 +122,7 @@ export default function TaggingApp({
           title="Interactions"
           className={Flex.grow(1)}
           expandable={true}
-          isExpanded={true}
+          defaultExpanded={true}
         >
           <ActionList actions={actions} className={Flex.grow(1)} />
         </Section>

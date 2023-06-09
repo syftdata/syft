@@ -11,7 +11,7 @@ export async function getRecordingState(): Promise<RecordingState | undefined> {
   }
 }
 
-export async function setRecordingState(recording: RecordingState | undefined) {
+async function setRecordingState(recording: RecordingState | undefined) {
   if (recording == null) {
     await chrome.storage.local.remove([RECORDING_STORAGE_KEY]);
   } else {
@@ -31,6 +31,7 @@ export async function stopPreview() {
     ...state,
     mode: RecordingMode.RECORDING,
     previewAction: undefined,
+    previewActionMatchedTagIndex: undefined,
   }));
 }
 
@@ -48,7 +49,7 @@ export async function updateRecordingState(
 
 export function useRecordingState() {
   const [_recording, _setRecording] = useState<RecordingState>({
-    mode: RecordingMode.RECORDING,
+    mode: RecordingMode.NONE,
     recordingTabId: undefined,
     recordingFrameId: 0,
     recording: [],
