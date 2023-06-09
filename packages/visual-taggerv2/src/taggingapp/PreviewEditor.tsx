@@ -86,14 +86,9 @@ export default function PreviewEditor({
   };
 
   return (
-    <Flex.Col className={Flex.grow(1)}>
+    <Flex.Col className={Flex.grow(1)} gap={1}>
       {actions && (
-        <Section
-          title="Interactions"
-          expandable={true}
-          defaultExpanded={false}
-          className={Css.margin("0px 0px 4px 0px")}
-        >
+        <Section title="Interactions" expandable={true} defaultExpanded={false}>
           <ActionList
             actions={actions.slice(-3)}
             startAttachFlow={(action) => {

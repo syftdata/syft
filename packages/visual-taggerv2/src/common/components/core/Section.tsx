@@ -2,6 +2,8 @@ import Tabs from "antd/lib/tabs";
 import { Colors } from "../../styles/colors";
 import { useEffect, useState } from "react";
 import Icon from "./Icon/Icon";
+import { IconButton } from "./Button/IconButton";
+import { css } from "@emotion/css";
 
 export interface SectionProps {
   title: string;
@@ -33,7 +35,10 @@ const Section = ({
   const showChildren = !expandable || expanded;
   const slots = {
     left: expandable ? (
-      <Icon icon={expanded ? "chevron-down" : "chevron-right"} />
+      <IconButton
+        icon={expanded ? "chevron-down" : "chevron-right"}
+        onClick={toggleExpanded}
+      />
     ) : undefined,
     right: extraButtons,
   };
@@ -55,7 +60,7 @@ const Section = ({
       }}
       onTabClick={expandable ? toggleExpanded : undefined}
       tabBarExtraContent={slots}
-      className={className}
+      className={`${className} syft-section`}
     />
   );
 };

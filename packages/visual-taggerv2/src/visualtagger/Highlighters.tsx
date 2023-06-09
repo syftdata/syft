@@ -88,6 +88,7 @@ export default function Highlighters({
         const element =
           parentElement?.tagName === "A" ? parentElement : elementMouseIsOver;
         if (element instanceof HTMLHtmlElement) {
+          setHoveredElement(undefined);
           return;
         }
         setHoveredElement(element);
@@ -110,6 +111,7 @@ export default function Highlighters({
         const element =
           parentElement?.tagName === "A" ? parentElement : elementMouseIsOver;
         if (element instanceof HTMLHtmlElement) {
+          setClickedElement(undefined);
           return;
         }
         const matchedIndex = getTagIndexFromElement(element);
@@ -128,6 +130,11 @@ export default function Highlighters({
   );
 
   useEffect(() => {
+    // remove the old data-tag-index
+    const elements = document.querySelectorAll("[data-tag-index]");
+    elements.forEach((ele) => {
+      ele.removeAttribute("data-tag-index");
+    });
     const cActions = actions
       .map((action, idx) => {
         const element = getElementFromSelectors(action);
@@ -173,9 +180,12 @@ export default function Highlighters({
         );
       })}
       {hoveredElement != null && tagIndex === -1 && (
+        <Highlighter rect={hoveredElement.getBoundingClientRect()} />
+      )}
+      {clickedElement != null && (
         <Highlighter
-          rect={hoveredElement.getBoundingClientRect()}
-          clicked={clickedElement === hoveredElement}
+          rect={clickedElement.getBoundingClientRect()}
+          clicked={true}
         />
       )}
     </>

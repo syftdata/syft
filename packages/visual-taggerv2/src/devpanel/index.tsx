@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { Action, MessageType, ReactSource, SyftEvent } from "../types";
+import { MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
