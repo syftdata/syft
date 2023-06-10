@@ -1,8 +1,6 @@
 import { GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
 import { getGitInfoState, setGitInfoState } from "../state/gitinfo";
-import { Step } from "@puppeteer/replay";
-import { genPuppeteerScript } from "../../builders";
 import { GitInfoState, LoadingState } from "../state/types";
 
 export async function handleGitInfoResponse(
@@ -43,27 +41,6 @@ export async function fetchGitInfo(
     branch,
   });
   return handleGitInfoResponse(response);
-}
-
-export async function createTestSpec(
-  name: string,
-  steps: Step[],
-  sha: string | undefined,
-  user: UserSession
-): Promise<void> {
-  const gitInfo = await getGitInfoState();
-  if (!gitInfo?.info) {
-    throw new Error("GitInfo not found");
-  }
-  const content = genPuppeteerScript(name, steps);
-  const response = await post("/api/testspecs", user, {
-    sourceId: gitInfo.info.activeSourceId,
-    branch: gitInfo.info.activeBranch,
-    name,
-    content,
-    sha,
-  });
-  await handleGitInfoResponse(response);
 }
 
 export async function deleteTestSpec(
