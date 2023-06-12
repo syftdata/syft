@@ -8,6 +8,7 @@ export async function handleGitInfoResponse(
 ): Promise<GitInfo | undefined> {
   if (response.ok) {
     const data = (await response.json()) as GitInfo;
+    data.eventTags = data.eventTags ?? [];
     data.eventTags.forEach((eventTag) => {
       eventTag.committed = true;
     });
@@ -41,24 +42,6 @@ export async function fetchGitInfo(
     branch,
   });
   return handleGitInfoResponse(response);
-}
-
-export async function deleteTestSpec(
-  name: string,
-  sha: string,
-  user: UserSession
-): Promise<void> {
-  const gitInfo = await getGitInfoState();
-  if (!gitInfo?.info) {
-    throw new Error("GitInfo not found");
-  }
-  const response = await post("/api/testspec_delete", user, {
-    sourceId: gitInfo?.info.activeSourceId,
-    branch: gitInfo?.info.activeBranch,
-    name,
-    sha,
-  });
-  await handleGitInfoResponse(response);
 }
 
 export async function createBranch(

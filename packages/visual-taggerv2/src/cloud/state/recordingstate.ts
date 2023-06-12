@@ -35,25 +35,26 @@ export async function stopPreview() {
   }));
 }
 
+const DEFAULT_RECORDING_STATE = {
+  mode: RecordingMode.NONE,
+  recordingTabId: undefined,
+  recordingFrameId: 0,
+  recording: [],
+};
+
 export async function updateRecordingState(
   updater: (state: RecordingState) => RecordingState
 ) {
-  const state = await getRecordingState();
-  if (!state) {
-    throw new Error("No recording state found");
-  }
+  const state = (await getRecordingState()) ?? DEFAULT_RECORDING_STATE;
   const newState = updater(state);
   setRecordingState(newState);
   return newState;
 }
 
 export function useRecordingState() {
-  const [_recording, _setRecording] = useState<RecordingState>({
-    mode: RecordingMode.NONE,
-    recordingTabId: undefined,
-    recordingFrameId: 0,
-    recording: [],
-  });
+  const [_recording, _setRecording] = useState<RecordingState>(
+    DEFAULT_RECORDING_STATE
+  );
 
   // changes flow through the storage listener
   chrome.storage.onChanged.addListener((changes) => {
