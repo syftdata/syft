@@ -37,9 +37,9 @@ export default function Highlighter({
             clicked
               ? Colors.Branding.V3
               : committed
-              ? Colors.Secondary.Green
-              : defined
               ? Colors.Secondary.Orange
+              : defined
+              ? Colors.Secondary.Green
               : Colors.Branding.V1
           ),
         }}

@@ -32,10 +32,15 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     setShowAddModal(false);
   }, []);
 
+  const gitInfoOriginal = gitInfoState.info;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
-  if (!gitInfo) {
+  if (!gitInfo || !gitInfoOriginal) {
     return <Spinner />;
   }
+
+  const existingEvents = new Set(
+    gitInfoOriginal.eventSchema.events.map((e) => e.name)
+  );
 
   const addEventModel = (newEvent: EventSchema) => {
     dispatch({
@@ -129,6 +134,10 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
           ],
         }}
         expandable={{
+          itemBackgroundColor: (item) =>
+            !existingEvents.has(item.name)
+              ? `${Colors.Secondary.Green}55`
+              : undefined,
           renderItem: (item) => <SchemaPropsRenderer data={{ schema: item }} />,
         }}
       />

@@ -20,12 +20,14 @@ export interface SearchProps {
 export interface ExpandableProps<T> {
   isExpanded?: (item: T) => boolean;
   renderItem: (item: T) => React.ReactNode;
+  itemBackgroundColor?: string | ((item: T) => string | undefined);
 }
 
 export interface ListProps<T> {
   data: T[];
   emptyMessage?: string | React.ReactNode;
   renderItem: (item: T, index: number) => React.ReactNode;
+
   className?: string;
   search?: SearchProps;
   expandable?: ExpandableProps<T>;
@@ -47,7 +49,15 @@ function ListItem<T>({ item, renderItem, expandable }: ListItemProps<T>) {
   };
   return (
     <Flex.Col className={Flex.grow(1)} gap={8}>
-      <Flex.Row gap={4} alignItems="center">
+      <Flex.Row
+        gap={4}
+        alignItems="center"
+        className={Css.background(
+          (typeof expandable.itemBackgroundColor === "function"
+            ? expandable.itemBackgroundColor(item)
+            : expandable.itemBackgroundColor) ?? "none"
+        )}
+      >
         <IconButton
           onClick={toggleExpanded}
           icon={expanded ? "chevron-down" : "chevron-right"}

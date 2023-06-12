@@ -240,6 +240,37 @@
          "exampleUsage":"syft.todoDeleted({\n  is_done: false,\n  id: 0,\n})\n"
       },
       {
+         "name":"TodoEdited",
+         "eventType":0,
+         "documentation":"Logged when a ToDo title is updated",
+         "fields":[
+            {
+               "name":"is_done",
+               "type":{
+                  "name":"boolean",
+                  "zodType":"z.boolean()"
+               },
+               "documentation":"True when the ToDo is marked as done",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoEdited({\n  is_done: false,\n  id: 0,\n})\n"
+      },      
+      {
          "name":"PageEvent",
          "eventType":1,
          "documentation":"Logged when the page changes.",
