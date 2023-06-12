@@ -40,7 +40,8 @@
          },
          "tagName": "INPUT",
          "timestamp": 2850.7000000476837,
-         "type": "keydown"
+         "type": "keydown",
+         "committed": true
       },
       {
          "eventSource": {
@@ -87,7 +88,8 @@
          },
          "tagName": "INPUT",
          "timestamp": 16666,
-         "type": "click"
+         "type": "click",
+         "committed": true
       },
       {
          "isPassword": false,

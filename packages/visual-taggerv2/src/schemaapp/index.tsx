@@ -136,7 +136,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
         expandable={{
           itemBackgroundColor: (item) =>
             !existingEvents.has(item.name)
-              ? `${Colors.Secondary.Green}55`
+              ? `${Colors.Secondary.Yellow}55`
               : undefined,
           renderItem: (item) => <SchemaPropsRenderer data={{ schema: item }} />,
         }}
