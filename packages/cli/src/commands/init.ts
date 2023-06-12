@@ -16,6 +16,7 @@ import { getEventShemas } from '../init/local';
 import { writeTestSpecs } from '../publish/remote';
 import { serialize } from '@syftdata/codehandler';
 import { ModuleKind, Project, ScriptTarget } from 'ts-morph';
+import { MetricProvider } from '@syftdata/client';
 
 export interface Params {
   platform: string;
@@ -29,6 +30,15 @@ export interface Params {
 
 export const command = 'init [platform] [product]';
 export const desc = 'Initialize Syft project. Generates Event models.';
+
+const syftFileContent =
+  "import Syft, {{ IMPORT }} from '@syftdata/client'\n" +
+  'export const syft = new Syft({\n' +
+  "  appVersion: '1.0.0',\n" +
+  '  plugins: [{ INSTANTIATION }]\n' +
+  '});\n' +
+  'export default syft;\n';
+
 export const builder = (y: yargs.Argv): yargs.Argv => {
   return y
     .option('apikey', {
@@ -74,11 +84,26 @@ function initalizeSchemaFolder(folder: string, force: boolean): boolean {
   return true;
 }
 
-function generateSchemasFrom(ast: AST, folder: string): void {
+async function getMetricPluginList(dir: string): Promise<string[]> {
+  const filepath = path.join(dir, 'package.json');
+  const deps = JSON.parse(fs.readFileSync(filepath, 'utf8')).dependencies;
+
+  const providers: string[] = [];
+  if (deps != null) {
+    for (const providerPackage of Object.values(MetricProvider)) {
+      if (providerPackage in deps) {
+        providers.push(`${MetricProvider[providerPackage]}` + 'Plugin');
+      }
+    }
+  }
+  return providers;
+}
+
+async function generateSchemasFrom(ast: AST, folder: string): Promise<void> {
   logVerbose(`Output dir: ${folder}`);
   // generate basic assets.
   const lintRules = path.join(folder, 'lint/rules');
-  if (!fs.existsSync(lintRules)) {
+  if (fs.existsSync(lintRules) != null) {
     fs.mkdirSync(lintRules, { recursive: true });
   }
   // recursively copy files from one folder to another.
@@ -99,17 +124,18 @@ function generateSchemasFrom(ast: AST, folder: string): void {
     path.join(folder, 'lint/rules/required_tsdoc.js')
   );
 
+  const project = new Project({
+    compilerOptions: {
+      target: ScriptTarget.ES2016,
+      declaration: true,
+      sourceMap: true,
+      module: ModuleKind.CommonJS,
+      strict: false,
+      removeComments: false
+    }
+  });
+
   if (ast.eventSchemas.length !== 0) {
-    const project = new Project({
-      compilerOptions: {
-        target: ScriptTarget.ES2016,
-        declaration: true,
-        sourceMap: true,
-        module: ModuleKind.CommonJS,
-        strict: false,
-        removeComments: false
-      }
-    });
     project.createDirectory(folder);
     const sourceFile = project.createSourceFile(
       path.join(folder, 'events.ts'),
@@ -120,6 +146,33 @@ function generateSchemasFrom(ast: AST, folder: string): void {
     );
     sourceFile.saveSync();
   }
+
+  const metricsPluginList = await getMetricPluginList(folder);
+  const imports =
+    metricsPluginList.length === 1
+      ? metricsPluginList[0]
+      : '\n  ' + metricsPluginList.join(',\n  ') + '\n';
+
+  const instantiations =
+    metricsPluginList.length === 1
+      ? `new ${metricsPluginList[0]}()`
+      : '\n' +
+        metricsPluginList
+          .map((input: string) => `    new ${input}()`)
+          .join(',\n') +
+        '\n  ';
+
+  const content = syftFileContent
+    .replace(/\{ IMPORT }/, imports)
+    .replace(/\{ INSTANTIATION }/, instantiations);
+  const syftSrcFile = project.createSourceFile(
+    path.join(folder, '/src/syft.ts'),
+    (writer) => {
+      writer.write(content);
+    },
+    { overwrite: true }
+  );
+  syftSrcFile.saveSync();
   logInfo(`:sparkles: Models are generated successfully!`);
 }
 
@@ -165,7 +218,7 @@ export async function handler({
     initalizeSchemaFolder(outDir, force);
   }
 
-  generateSchemasFrom(ast, outDir);
+  await generateSchemasFrom(ast, outDir);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
     await generateFromDir({ input: outDir, type: 'ts' });
