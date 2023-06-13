@@ -51,6 +51,7 @@ export async function setGitInfoState(gitInfoState: GitInfoState | undefined) {
     // update screenshots.
     setScreenshots(gitInfoState.info);
     setScreenshots(gitInfoState.modifiedInfo);
+    console.log(">>>> ", gitInfoState.modifiedInfo?.eventTags);
     await chrome.storage.local.set({ [GIT_INFO_STATE_KEY]: gitInfoState });
   }
 }

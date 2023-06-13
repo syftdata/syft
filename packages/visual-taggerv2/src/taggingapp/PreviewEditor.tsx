@@ -66,7 +66,6 @@ export default function PreviewEditor({
       action.events?.forEach((event) => {
         if (event.screenshot === undefined) event.screenshot = screenshot;
       });
-      console.log("onActionModalSave ", screenshot);
       onUpdateTag(tags.length, {
         ...action,
         committed: false,

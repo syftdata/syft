@@ -1,6 +1,7 @@
 {
    "eventTags": [
       {
+         "committed": true,
          "eventSource": {
                "parent": {
                   "name": "AddTodoComponent",
@@ -40,10 +41,10 @@
          },
          "tagName": "INPUT",
          "timestamp": 2850.7000000476837,
-         "type": "keydown",
-         "committed": true
+         "type": "keydown"
       },
       {
+         "committed": true,
          "eventSource": {
                "parent": {
                   "name": "TodoComponent",
@@ -88,54 +89,101 @@
          },
          "tagName": "INPUT",
          "timestamp": 16666,
-         "type": "click",
-         "committed": true
+         "type": "click"
       },
       {
-         "isPassword": false,
-         "type": "click",
-         "tagName": "BUTTON",
-         "selectors": {
-               "id": null,
-               "generalSelector": ".destroy",
-               "attrSelector": "[class=\"destroy\"]",
-               "testIdSelector": null,
-               "text": "",
-               "href": null,
-               "hrefSelector": null,
-               "accessibilitySelector": null,
-               "formSelector": null
-         },
-         "timestamp": 22593.700000047684,
-         "hasOnlyText": false,
          "eventSource": {
-               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx",
                "parent": {
                   "name": "TodoComponent",
-                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx",
                   "parent": {
                      "name": "TodosComponent",
-                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx",
                      "parent": {
                            "name": "App",
                            "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
-                     }
-                  }
-               }
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
          },
-         "offsetX": 22,
-         "offsetY": 18,
          "events": [
                {
-                  "name": "TodoDeleted",
-                  "props": {},
                   "createdAt": "2023-06-04T14:03:47.704Z",
+                  "name": "TodoDeleted",
+                  "props": {},                  
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "isPassword": false,
+         "offsetX": 22,
+         "offsetY": 18,
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "[class=\"destroy\"]",
+               "formSelector": null,
+               "generalSelector": ".destroy",
+               "href": null,
+               "hrefSelector": null,
+               "id": null,
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "BUTTON",
+         "timestamp": 22593.700000047684,
+         "type": "click"
+      },
+      {
+         "eventSource": {
+               "parent": {
+                  "name": "TodoComponent",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "parent": {
+                           "name": "App",
+                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+         },
+         "hasOnlyText": false,
+         "inputType": "text",
+         "isPassword": false,
+         "key": "Enter",
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "[value=\"Learn React and Next.js!\"]",
+               "formSelector": null,
+               "generalSelector": ".editing > .edit",
+               "href": null,
+               "hrefSelector": null,
+               "id": null,
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "INPUT",
+         "timestamp": 18344.70000000298,
+         "type": "keydown",
+         "events": [
+               {
+                  "name": "TodoEdited",
+                  "props": {},
+                  "createdAt": "2023-06-13T03:25:22.661Z",
                   "syft_status": {
                      "valid": "valid",
                      "track": ""
                   }
                }
-         ]
+         ],
+         "committed": false,
+         "instrumented": false
       }
    ],
    "events":[
