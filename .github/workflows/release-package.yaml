@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npx lerna bootstrap
+      - run: npm install --include-dev
       - run: npx lerna run build
       - run: npx lerna run test
 
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - run: npx lerna bootstrap
+      - run: npm install --include-dev
       - run: npx lerna run build
       - run: cd packages/common;npm publish --access public;cd ../../;
         env:
