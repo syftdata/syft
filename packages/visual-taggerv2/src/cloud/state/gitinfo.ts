@@ -10,6 +10,18 @@ import {
 import reducer from "./gitinfo/reducer";
 import { useUserSession } from "./usersession";
 
+import todo_added_image from "../api/todo_added_image.json";
+import todo_toggled_image from "../api/todo_toggled_image.json";
+import todo_edited_image from "../api/todo_edited_image.json";
+import todo_deleted_image from "../api/todo_deleted_image.json";
+
+const screenshot_image_map: Record<string, string> = {
+  TodoAdded: todo_added_image,
+  TodoToggled: todo_toggled_image,
+  TodoEdited: todo_edited_image,
+  TodoDeleted: todo_deleted_image,
+};
+
 export const GIT_STORAGE_KEY = "gitInfo";
 export const GIT_INFO_STATE_KEY = "gitInfoState";
 export const GIT_IN_MEMORY_STORAGE_KEY = "gitInfoInMemory";
@@ -21,10 +33,24 @@ export async function getGitInfoState(): Promise<GitInfoState | undefined> {
   }
 }
 
+function setScreenshots(gitInfo: GitInfo | undefined) {
+  if (!gitInfo) return;
+  gitInfo.eventTags.forEach((eventTag) => {
+    eventTag.events?.forEach((event) => {
+      if (!event.screenshot) {
+        event.screenshot = screenshot_image_map[event.name];
+      }
+    });
+  });
+}
+
 export async function setGitInfoState(gitInfoState: GitInfoState | undefined) {
   if (gitInfoState == null) {
     await chrome.storage.local.remove([GIT_INFO_STATE_KEY]);
   } else {
+    // update screenshots.
+    setScreenshots(gitInfoState.info);
+    setScreenshots(gitInfoState.modifiedInfo);
     await chrome.storage.local.set({ [GIT_INFO_STATE_KEY]: gitInfoState });
   }
 }

@@ -61,13 +61,16 @@ export default function PreviewEditor({
 
   const onActionModalSave = (action: Action) => {
     setShowActionModal(false);
-    // update the tag.
+    // update the tag event screenshot.
     chrome.tabs.captureVisibleTab().then((screenshot) => {
+      action.events?.forEach((event) => {
+        if (event.screenshot === undefined) event.screenshot = screenshot;
+      });
+      console.log("onActionModalSave ", screenshot);
       onUpdateTag(tags.length, {
         ...action,
         committed: false,
         instrumented: false,
-        screenshot,
       });
     });
   };

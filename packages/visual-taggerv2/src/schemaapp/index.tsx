@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { EventSchema } from "@syftdata/common/lib/types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
@@ -13,6 +13,7 @@ import { Colors } from "../common/styles/colors";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import AddEventModal, { EditEventModal } from "./AddEventModal";
 import { GitInfoActionType } from "../cloud/state/types";
+import { SyftEvent } from "../types";
 
 export interface SchemaAppProps {
   className?: string;
@@ -38,9 +39,21 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     return <Spinner />;
   }
 
-  const existingEvents = new Set(
+  const existingEventSchemas = new Set(
     gitInfoOriginal.eventSchema.events.map((e) => e.name)
   );
+
+  const eventSchemaToEventTags = useMemo(() => {
+    const map = new Map<string, SyftEvent[]>();
+    gitInfo.eventTags.forEach((tag) => {
+      tag.events?.forEach((e) => {
+        const eventTags = map.get(e.name) ?? [];
+        eventTags.push(e);
+        map.set(e.name, eventTags);
+      });
+    });
+    return map;
+  }, [gitInfo]);
 
   const addEventModel = (newEvent: EventSchema) => {
     dispatch({
@@ -135,10 +148,17 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
         }}
         expandable={{
           itemBackgroundColor: (item) =>
-            !existingEvents.has(item.name)
+            !existingEventSchemas.has(item.name)
               ? `${Colors.Secondary.Yellow}55`
               : undefined,
-          renderItem: (item) => <SchemaPropsRenderer data={{ schema: item }} />,
+          renderItem: (item) => (
+            <SchemaPropsRenderer
+              data={{
+                schema: item,
+                event: eventSchemaToEventTags.get(item.name)?.at(0),
+              }}
+            />
+          ),
         }}
       />
       {schema && (

@@ -30,7 +30,7 @@ const AttachEventModal = ({
 
   return (
     <Modal
-      title="Attach Events to"
+      title="Attach Events for"
       open={open}
       okText="Save"
       onOk={saveEventModel}

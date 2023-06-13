@@ -10,6 +10,7 @@ import { css } from "@emotion/css";
 import NoSchemasView from "./noschemasview";
 import Section from "../common/components/core/Section";
 
+// Attached Events view.
 export interface SelectedSchemaProps {
   setEvents: (events: SyftEvent[]) => void;
   onEdit: () => void;
@@ -17,7 +18,6 @@ export interface SelectedSchemaProps {
   schemas: EventSchema[];
   className?: string;
 }
-
 export const SelectedSchemaView = ({
   setEvents,
   onEdit,
@@ -89,8 +89,13 @@ export const SelectedSchemaView = ({
             );
           }}
           expandable={{
+            isExpanded: (item) => true,
             renderItem: (item) => (
-              <SchemaPropsRenderer data={item} onUpdate={updateSchema} />
+              <SchemaPropsRenderer
+                data={item}
+                showScreenshot={false}
+                onUpdate={updateSchema}
+              />
             ),
           }}
         />
@@ -99,6 +104,7 @@ export const SelectedSchemaView = ({
   );
 };
 
+// Used to attach events to an action
 export interface SchemaSelectorProps {
   setEvents: (events: SyftEvent[]) => void;
   action?: Action;
