@@ -139,48 +139,48 @@
       },
       {
          "eventSource": {
-               "parent": {
+            "parent": {
                   "name": "TodoComponent",
                   "parent": {
                      "name": "TodosComponent",
                      "parent": {
-                           "name": "App",
-                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                        "name": "App",
+                        "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
                      },
                      "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
                   },
                   "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
-               },
-               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+            },
+            "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
          },
-         "hasOnlyText": false,
-         "inputType": "text",
+         "hasOnlyText": true,
          "isPassword": false,
-         "key": "Enter",
+         "offsetX": 18,
+         "offsetY": 27,
          "selectors": {
-               "accessibilitySelector": null,
-               "attrSelector": "[value=\"Learn React and Next.js!\"]",
-               "formSelector": null,
-               "generalSelector": ".editing > .edit",
-               "href": null,
-               "hrefSelector": null,
-               "id": null,
-               "testIdSelector": null,
-               "text": ""
+            "accessibilitySelector": null,
+            "attrSelector": null,
+            "formSelector": null,
+            "generalSelector": "li:nth-child(1) > .editbtn",
+            "href": null,
+            "hrefSelector": null,
+            "id": null,
+            "testIdSelector": null,
+            "text": "✏️"
          },
-         "tagName": "INPUT",
-         "timestamp": 18344.70000000298,
-         "type": "keydown",
+         "tagName": "BUTTON",
+         "timestamp": 18818.70000000298,
+         "type": "click",
          "events": [
-               {
+            {
                   "name": "TodoEdited",
                   "props": {},
-                  "createdAt": "2023-06-13T03:25:22.661Z",
+                  "createdAt": "2023-06-13T17:42:06.034Z",
                   "syft_status": {
                      "valid": "valid",
                      "track": ""
                   }
-               }
+            }
          ],
          "committed": false,
          "instrumented": false
@@ -264,15 +264,6 @@
          "documentation":"Logged when a ToDo is deleted",
          "fields":[
             {
-               "name":"is_done",
-               "type":{
-                  "name":"boolean",
-                  "zodType":"z.boolean()"
-               },
-               "documentation":"True when the ToDo is marked as done",
-               "isOptional":false
-            },
-            {
                "name":"id",
                "type":{
                   "name":"number",
@@ -286,8 +277,8 @@
             
          ],
          "exported":true,
-         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
-         "exampleUsage":"syft.todoDeleted({\n  is_done: false,\n  id: 0,\n})\n"
+         "zodType":"z.object({\n    \tid: z.number()\n  })",
+         "exampleUsage":"syft.todoDeleted({\n  id: 0,\n})\n"
       },
       {
          "name":"TodoEdited",
@@ -295,15 +286,6 @@
          "documentation":"Logged when a ToDo title is updated",
          "fields":[
             {
-               "name":"is_done",
-               "type":{
-                  "name":"boolean",
-                  "zodType":"z.boolean()"
-               },
-               "documentation":"True when the ToDo is marked as done",
-               "isOptional":false
-            },
-            {
                "name":"id",
                "type":{
                   "name":"number",
@@ -317,8 +299,8 @@
             
          ],
          "exported":true,
-         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
-         "exampleUsage":"syft.todoEdited({\n  is_done: false,\n  id: 0,\n})\n"
+         "zodType":"z.object({\n    \tid: z.number()\n  })",
+         "exampleUsage":"syft.todoEdited({\n  id: 0,\n})\n"
       },      
       {
          "name":"PageEvent",
