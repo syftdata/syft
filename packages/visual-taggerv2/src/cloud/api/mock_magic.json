@@ -1,0 +1,352 @@
+{
+   "eventTags": [
+      {
+         "committed": true,
+         "eventSource": {
+               "parent": {
+                  "name": "AddTodoComponent",
+                  "parent": {
+                     "name": "App",
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/AddTodo.tsx"
+         },
+         "events": [
+               {
+                  "createdAt": "2023-06-04T14:03:35.829Z",
+                  "name": "TodoAdded",
+                  "props": {},
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "inputType": "text",
+         "isPassword": false,
+         "key": "Enter",
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "#todoInput",
+               "formSelector": "[placeholder=\"What needs to be done?\"]",
+               "generalSelector": "#todoInput",
+               "href": null,
+               "hrefSelector": null,
+               "id": "#todoInput",
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "INPUT",
+         "timestamp": 2850.7000000476837,
+         "type": "keydown"
+      },
+      {
+         "committed": true,
+         "eventSource": {
+               "parent": {
+                  "name": "TodoComponent",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "parent": {
+                           "name": "App",
+                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+         },
+         "events": [
+               {
+                  "createdAt": "2023-06-04T14:03:42.445Z",
+                  "name": "TodoToggled",
+                  "props": {},
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "inputType": "checkbox",
+         "isPassword": false,
+         "offsetX": 17,
+         "offsetY": 30,
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "[class=\"toggle\"]",
+               "formSelector": null,
+               "generalSelector": ".toggle",
+               "href": null,
+               "hrefSelector": null,
+               "id": null,
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "INPUT",
+         "timestamp": 16666,
+         "type": "click"
+      },
+      {
+         "eventSource": {
+               "parent": {
+                  "name": "TodoComponent",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "parent": {
+                           "name": "App",
+                           "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+               },
+               "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+         },
+         "events": [
+               {
+                  "createdAt": "2023-06-04T14:03:47.704Z",
+                  "name": "TodoDeleted",
+                  "props": {},                  
+                  "syft_status": {
+                     "track": "",
+                     "valid": "valid"
+                  }
+               }
+         ],
+         "hasOnlyText": false,
+         "isPassword": false,
+         "offsetX": 22,
+         "offsetY": 18,
+         "selectors": {
+               "accessibilitySelector": null,
+               "attrSelector": "[class=\"destroy\"]",
+               "formSelector": null,
+               "generalSelector": ".destroy",
+               "href": null,
+               "hrefSelector": null,
+               "id": null,
+               "testIdSelector": null,
+               "text": ""
+         },
+         "tagName": "BUTTON",
+         "timestamp": 22593.700000047684,
+         "type": "click"
+      },
+      {
+         "eventSource": {
+            "parent": {
+                  "name": "TodoComponent",
+                  "parent": {
+                     "name": "TodosComponent",
+                     "parent": {
+                        "name": "App",
+                        "source": "/Users/nageswara/Dev/Syft/todo-app/src/index.tsx"
+                     },
+                     "source": "/Users/nageswara/Dev/Syft/todo-app/src/App.tsx"
+                  },
+                  "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+            },
+            "source": "/Users/nageswara/Dev/Syft/todo-app/src/Todos.tsx"
+         },
+         "hasOnlyText": true,
+         "isPassword": false,
+         "offsetX": 18,
+         "offsetY": 27,
+         "selectors": {
+            "accessibilitySelector": null,
+            "attrSelector": null,
+            "formSelector": null,
+            "generalSelector": "li:nth-child(1) > .editbtn",
+            "href": null,
+            "hrefSelector": null,
+            "id": null,
+            "testIdSelector": null,
+            "text": "✏️"
+         },
+         "tagName": "BUTTON",
+         "timestamp": 18818.70000000298,
+         "type": "click",
+         "events": [
+            {
+                  "name": "TodoEdited",
+                  "props": {},
+                  "createdAt": "2023-06-13T17:42:06.034Z",
+                  "syft_status": {
+                     "valid": "valid",
+                     "track": ""
+                  }
+            }
+         ],
+         "committed": false,
+         "instrumented": false
+      }
+   ],
+   "events":[
+      {
+         "name":"TodoAdded",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is created.",
+         "fields":[
+            {
+               "name":"title",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string()"
+               },
+               "documentation":"Title of the ToDo",
+               "isOptional":false
+            },
+            {
+               "name":"created_at",
+               "type":{
+                  "name":"Date",
+                  "zodType":"z.date()"
+               },
+               "documentation":"Time when the ToDo was created",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \ttitle: z.string(),\n\tcreated_at: z.date(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoAdded({\n  title: \"value\",\n  created_at: new Date(),\n  id: 0,\n})\n"
+      },
+      {
+         "name":"TodoToggled",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is (un)done.",
+         "fields":[
+            {
+               "name":"is_done",
+               "type":{
+                  "name":"boolean",
+                  "zodType":"z.boolean()"
+               },
+               "documentation":"True when the ToDo item is marked as done",
+               "isOptional":false
+            },
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
+         "exampleUsage":"syft.todoToggled({\n  is_done: false,\n  id: 0,\n})\n"
+      },
+      {
+         "name":"TodoDeleted",
+         "eventType":0,
+         "documentation":"Logged when a ToDo is deleted",
+         "fields":[
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tid: z.number()\n  })",
+         "exampleUsage":"syft.todoDeleted({\n  id: 0,\n})\n"
+      },
+      {
+         "name":"TodoEdited",
+         "eventType":0,
+         "documentation":"Logged when a ToDo title is updated",
+         "fields":[
+            {
+               "name":"id",
+               "type":{
+                  "name":"number",
+                  "zodType":"z.number()"
+               },
+               "documentation":"ID of the ToDo",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tid: z.number()\n  })",
+         "exampleUsage":"syft.todoEdited({\n  id: 0,\n})\n"
+      },      
+      {
+         "name":"PageEvent",
+         "eventType":1,
+         "documentation":"Logged when the page changes.",
+         "fields":[
+            {
+               "name":"name",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string()"
+               },
+               "documentation":"Name of the page",
+               "isOptional":false,
+               "defaultValue":"\"index\""
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tname: z.string()\n  })",
+         "exampleUsage":"syft.pageEvent({\n  name: \"\"index\"\",\n})\n"
+      },
+      {
+         "name":"UserIdentity",
+         "eventType":3,
+         "documentation":"User Identity is tracked via this event.",
+         "fields":[
+            {
+               "name":"userId",
+               "type":{
+                  "name":"string",
+                  "zodType":"z.string().uuid()",
+                  "syfttype":"UUID"
+               },
+               "documentation":"Id of the user",
+               "isOptional":false
+            }
+         ],
+         "traits":[
+            
+         ],
+         "exported":true,
+         "zodType":"z.object({\n    \tuserId: z.string().uuid()\n  })",
+         "exampleUsage":"syft.userIdentity({\n  userId: \"123e4567-e89b-12d3-a456-426614174000\",\n})\n"
+      }
+   ]
+}

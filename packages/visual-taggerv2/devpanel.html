@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/icon/logo.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Syft - Devtools</title>
+    <style>
+      html {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Azeret Mono', monospace;
+        height: 100%;
+      }
+      #app {
+        height: 100%;
+      }
+      .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+        color: #2545C1;
+      }      
+      .ant-tabs .ant-tabs-ink-bar {
+          border-bottom: 2px solid #2545C1 !important;
+      }            
+      .syft-section .ant-tabs-ink-bar {
+          border-bottom: 2px solid #EAEBED !important;
+      }
+      .ant-image-mask {
+        display: none !important;
+      }      
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/devpanel/index.tsx"></script>
+  </body>
+</html>
