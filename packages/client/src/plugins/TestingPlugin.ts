@@ -1,8 +1,8 @@
 import type { SyftEvent, ISyftPlugin, IReflector } from '../types';
-import {MetricProvider} from "./index";
+import {PluginPackage} from "./index";
 
 export class TestingPlugin implements ISyftPlugin {
-  id = MetricProvider[MetricProvider.Testing];
+  id = PluginPackage[PluginPackage.Testing];
   events: SyftEvent[] = [];
 
   isLoaded(): boolean {

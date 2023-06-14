@@ -5,7 +5,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
-import {MetricProvider} from "./index";
+import {PluginPackage} from "./index";
 
 declare global {
   interface Window {
@@ -15,7 +15,7 @@ declare global {
 }
 
 export class GA4Plugin implements ISyftPlugin {
-  id = MetricProvider[MetricProvider.GA4];
+  id = PluginPackage[PluginPackage.GA4];
   syft: Syft;
   gtag: any;
   isBrowser = typeof window !== 'undefined';

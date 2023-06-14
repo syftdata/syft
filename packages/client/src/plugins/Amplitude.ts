@@ -5,7 +5,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
-import {MetricProvider} from "./index";
+import {PluginPackage} from "./index";
 
 declare global {
   interface Window {
@@ -47,7 +47,7 @@ class Plugin {
 }
 
 export class AmplitudePlugin implements ISyftPlugin {
-  id = MetricProvider[MetricProvider.Amplitude];
+  id = PluginPackage[PluginPackage.Amplitude];
   amplitude: any;
   isBrowser = typeof window !== 'undefined';
 

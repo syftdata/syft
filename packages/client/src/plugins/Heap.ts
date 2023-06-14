@@ -4,7 +4,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
-import {MetricProvider} from "./index";
+import {PluginPackage} from "./index";
 
 declare global {
   interface Window {
@@ -13,7 +13,7 @@ declare global {
 }
 
 export class HeapPlugin implements ISyftPlugin {
-  id = MetricProvider[MetricProvider.Heap];
+  id = PluginPackage[PluginPackage.Heap];
   isBrowser = typeof window !== 'undefined';
   heap: any;
 
