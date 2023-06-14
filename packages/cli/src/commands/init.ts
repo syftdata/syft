@@ -75,7 +75,7 @@ function initalizeSchemaFolder(folder: string, force: boolean): boolean {
   return true;
 }
 
-async function generateSchemasFrom(ast: AST, folder: string): Promise<void> {
+function generateSchemasFrom(ast: AST, folder: string): void {
   logVerbose(`Output dir: ${folder}`);
   // generate basic assets.
   const lintRules = path.join(folder, 'lint/rules');
@@ -124,7 +124,7 @@ async function generateSchemasFrom(ast: AST, folder: string): Promise<void> {
   logInfo(`:sparkles: Models are generated successfully!`);
 }
 
-async function getMetricPluginList(): Promise<string[]> {
+function getMetricPluginList(): string[] {
   const pkg = fs.readFileSync('package.json', 'utf8');
   const deps = JSON.parse(pkg).dependencies;
 
@@ -142,10 +142,7 @@ async function getMetricPluginList(): Promise<string[]> {
   return providers;
 }
 
-async function generateSyftTS(
-  metricPlugins: string[],
-  force: boolean
-): Promise<void> {
+function generateSyftTS(metricPlugins: string[], force: boolean): void {
   if (metricPlugins.length > 0) {
     logVerbose(`Generating syft.ts with ${metricPlugins.join(', ')} plugin(s)`);
   } else {
@@ -246,10 +243,10 @@ export async function handler({
   }
 
   // we may want this for other functionality
-  const metricPlugins = await getMetricPluginList();
+  const metricPlugins = getMetricPluginList();
 
-  await generateSchemasFrom(ast, outDir);
-  await generateSyftTS(metricPlugins, force);
+  generateSchemasFrom(ast, outDir);
+  generateSyftTS(metricPlugins, force);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
     await generateFromDir({ input: outDir, type: 'ts' });
