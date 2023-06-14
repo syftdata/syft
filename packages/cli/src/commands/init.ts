@@ -30,7 +30,6 @@ export interface Params {
 
 export const command = 'init [platform] [product]';
 export const desc = 'Initialize Syft project. Generates Event models.';
-
 export const builder = (y: yargs.Argv): yargs.Argv => {
   return y
     .option('apikey', {
@@ -74,6 +73,55 @@ function initalizeSchemaFolder(folder: string, force: boolean): boolean {
     }
   }
   return true;
+}
+
+async function generateSchemasFrom(ast: AST, folder: string): Promise<void> {
+  logVerbose(`Output dir: ${folder}`);
+  // generate basic assets.
+  const lintRules = path.join(folder, 'lint/rules');
+  if (!fs.existsSync(lintRules)) {
+    fs.mkdirSync(lintRules, { recursive: true });
+  }
+  // recursively copy files from one folder to another.
+  fs.copyFileSync(
+    path.join(__dirname, '../../assets/config.ts'),
+    path.join(folder, 'config.ts')
+  );
+  fs.copyFileSync(
+    path.join(__dirname, '../../assets/lint/config.cjs'),
+    path.join(folder, 'lint/config.cjs')
+  );
+  fs.copyFileSync(
+    path.join(__dirname, '../../assets/lint/rules/required_syft_fields.js'),
+    path.join(folder, 'lint/rules/required_syft_fields.js')
+  );
+  fs.copyFileSync(
+    path.join(__dirname, '../../assets/lint/rules/required_tsdoc.js'),
+    path.join(folder, 'lint/rules/required_tsdoc.js')
+  );
+
+  if (ast.eventSchemas.length !== 0) {
+    const project = new Project({
+      compilerOptions: {
+        target: ScriptTarget.ES2016,
+        declaration: true,
+        sourceMap: true,
+        module: ModuleKind.CommonJS,
+        strict: false,
+        removeComments: false
+      }
+    });
+    project.createDirectory(folder);
+    const sourceFile = project.createSourceFile(
+      path.join(folder, 'events.ts'),
+      (writer) => {
+        writer.write(serialize(ast));
+      },
+      { overwrite: true }
+    );
+    sourceFile.saveSync();
+  }
+  logInfo(`:sparkles: Models are generated successfully!`);
 }
 
 async function getMetricPluginList(): Promise<string[]> {
@@ -155,57 +203,6 @@ async function generateSyftTS(
   syftSrcFile.saveSync();
 }
 
-async function generateSchemasFrom(ast: AST, folder: string): Promise<void> {
-  logVerbose(`Output dir: ${folder}`);
-  // generate basic assets.
-  const lintRules = path.join(folder, 'lint/rules');
-  if (fs.existsSync(lintRules) != null) {
-    fs.mkdirSync(lintRules, { recursive: true });
-  }
-  // recursively copy files from one folder to another.
-  fs.copyFileSync(
-    path.join(__dirname, '../../assets/config.ts'),
-    path.join(folder, 'config.ts')
-  );
-  fs.copyFileSync(
-    path.join(__dirname, '../../assets/lint/config.cjs'),
-    path.join(folder, 'lint/config.cjs')
-  );
-  fs.copyFileSync(
-    path.join(__dirname, '../../assets/lint/rules/required_syft_fields.js'),
-    path.join(folder, 'lint/rules/required_syft_fields.js')
-  );
-  fs.copyFileSync(
-    path.join(__dirname, '../../assets/lint/rules/required_tsdoc.js'),
-    path.join(folder, 'lint/rules/required_tsdoc.js')
-  );
-
-  const project = new Project({
-    compilerOptions: {
-      target: ScriptTarget.ES2016,
-      declaration: true,
-      sourceMap: true,
-      module: ModuleKind.CommonJS,
-      strict: false,
-      removeComments: false
-    }
-  });
-
-  if (ast.eventSchemas.length !== 0) {
-    project.createDirectory(folder);
-    const sourceFile = project.createSourceFile(
-      path.join(folder, 'events.ts'),
-      (writer) => {
-        writer.write(serialize(ast));
-      },
-      { overwrite: true }
-    );
-    sourceFile.saveSync();
-  }
-
-  logInfo(`:sparkles: Models are generated successfully!`);
-}
-
 export async function handler({
   platform,
   product,
@@ -248,10 +245,11 @@ export async function handler({
     initalizeSchemaFolder(outDir, force);
   }
 
+  // we may want this for other functionality
   const metricPlugins = await getMetricPluginList();
-  await generateSyftTS(metricPlugins, force);
 
   await generateSchemasFrom(ast, outDir);
+  await generateSyftTS(metricPlugins, force);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
     await generateFromDir({ input: outDir, type: 'ts' });
