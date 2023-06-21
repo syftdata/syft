@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/test",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A utility library to run unit and e2e tests for Syft clients",
   "keywords": [
     "syft",
@@ -53,6 +53,6 @@
   "dependencies": {
     "@playwright/test": "^1.32.3",
     "@puppeteer/replay": "^2.11.1",
-    "@syftdata/client": "^0.1.13"
+    "@syftdata/client": "^0.1.14"
   }
 }
