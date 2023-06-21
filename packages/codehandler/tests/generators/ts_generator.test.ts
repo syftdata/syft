@@ -10,16 +10,15 @@ const TEST_FIELDS: Field[] = [
     type: {
       name: 'boolean',
       zodType: 'z.boolean()'
-    },
-    isOptional: false
+    }
   },
   {
     name: 'has_focus',
     type: {
       name: 'boolean',
-      zodType: 'z.boolean()'
+      zodType: 'z.boolean()',
+      isOptional: true
     },
-    isOptional: true,
     defaultValue: 'false'
   }
 ];

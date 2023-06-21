@@ -47,12 +47,15 @@ function printType(type: Type): void {
 function getTypeField(property: TSSymbol, debugName: string): TypeField {
   const declaration = property.getValueDeclarationOrThrow();
   const type = getTypeSchema(declaration.getType(), debugName);
+  const isOptional =
+    declaration.getType().isNullable() || declaration.getType().isUndefined();
+  // TODO: we need to find out if declaration.getType() has undefined in its type.
   const hasQuestion =
     declaration.getFirstChildByKind(SyntaxKind.QuestionToken) != null;
   return {
     name: property.getName(),
-    type,
-    isOptional: hasQuestion
+    isOptional: isOptional || hasQuestion,
+    type
   };
 }
 
@@ -99,8 +102,8 @@ export function getTypeSchema(
   debugName: string
 ): TypeSchema {
   let name = typeObj.getText();
-  let enumValues: string[] = [];
-  const isOptional = typeObj.isNullable();
+  let unionTypes: string[] = [];
+  const isOptional = typeObj.isNullable() || typeObj.isUndefined();
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
   if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
@@ -120,30 +123,25 @@ export function getTypeSchema(
     return getTypeSchemaForComplexObject(typeObj, debugName);
   } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
     const subtypes = typeObj.getUnionTypes();
-    let incompatibleSubType = false;
-    enumValues = subtypes.map((subtype) => {
-      if (subtype.isEnumLiteral()) {
-        const enumVal = subtype.getLiteralValue()?.toString();
-        if (enumVal != null) {
-          return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
+    unionTypes = subtypes
+      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()))
+      .map((subtype) => {
+        if (subtype.isLiteral()) {
+          const val = subtype.getLiteralValue()?.toString();
+          if (val != null) {
+            return subtype.isStringLiteral() ? `"${val}"` : val;
+          }
         }
-      } else if (
-        subtype.isStringLiteral() ||
-        subtype.isNumberLiteral() ||
-        subtype.isBooleanLiteral()
-      ) {
         return subtype.getText();
-      }
-      incompatibleSubType = true;
-      return '';
-    });
-    if (!incompatibleSubType) {
-      name = enumValues.join(' | ');
-    } else {
+      });
+    if (unionTypes.length > 1) {
       logInfo(
-        `:warning: Unknown type is seen: "${debugName}: ${name}". using "any" for now`
+        `:warning: Union type is seen: "${debugName}: ${name}". using "any" for now`
       );
       name = 'any';
+      foundUnsuppotedCloudType = true;
+    } else {
+      name = unionTypes[0];
     }
   } else if (typeObj.isAny()) {
     // throw error.
@@ -158,7 +156,7 @@ export function getTypeSchema(
     );
   }
 
-  let zodType = `z.${getZodType(name, enumValues, syfttype)}`;
+  let zodType = `z.${getZodType(name, unionTypes, syfttype)}`;
   if (zodType === ANY_TYPE) {
     logInfo(
       `Used an unknown field type ${name}. No validations will be performed`
@@ -168,7 +166,6 @@ export function getTypeSchema(
   if (isOptional) {
     zodType = `${zodType}.optional()`;
   }
-
   return {
     name,
     syfttype,

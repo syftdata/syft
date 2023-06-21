@@ -24,7 +24,7 @@ export function getZodType(
   enumValues: string[],
   syfttype?: string
 ): string {
-  if (enumValues.length > 0) {
+  if (enumValues.length > 1) {
     // For Enum, return in the format of enum(["Salmon", "Tuna", "Trout"])
     return `enum([${enumValues.join(', ')}])`;
   }
