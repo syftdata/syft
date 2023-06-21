@@ -4,7 +4,7 @@ set -e
 # get current git branch name
 curr_branch=$(git rev-parse --abbrev-ref HEAD)
 npx lerna version --no-push
-npx lerna bootstrap
+#npx lerna bootstrap
 
 # check if any git changes are present
 files=$({ git diff --name-only ; git diff --name-only --staged ; } | sort | uniq)
