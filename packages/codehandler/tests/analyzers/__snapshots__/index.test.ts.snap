@@ -43,7 +43,7 @@ exports[`analyze source code finds amplitude usages 1`] = `
           "name": "number",
           "zodType": "z.number()"
         },
-        "isOptional": false
+        "isOptional": true
       },
       {
         "name": "arg2",
@@ -52,6 +52,14 @@ exports[`analyze source code finds amplitude usages 1`] = `
           "zodType": "z.boolean()"
         },
         "isOptional": false
+      },
+      {
+        "name": "arg3",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": true
       }
     ],
     "zodType": ""

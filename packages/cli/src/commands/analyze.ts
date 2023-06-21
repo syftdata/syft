@@ -16,7 +16,7 @@ export const desc = 'Analyze source directory and extracts schema';
 export const builder = (y: yargs.Argv): yargs.Argv => {
   return y
     .option('output', {
-      describe: 'output folder to create / update events.ts file.',
+      describe: 'output folder to create events.yaml file.',
       type: 'string'
     })
     .option('srcDir', {
@@ -52,7 +52,7 @@ export async function handler({ output, srcDir }: Params): Promise<void> {
   if (output == null) {
     logInfo(yaml);
   } else {
-    const yamlFile = path.join(output, 'event_schema.yaml');
+    const yamlFile = path.join(output, 'events.yaml');
     fs.writeFileSync(yamlFile, yaml, 'utf-8');
   }
 }

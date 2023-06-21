@@ -16,6 +16,15 @@ export function amplitudeTest(optionalField?: number): void {
     arg2: false
   });
 
+  // below is a duplicate track call for "event-ampli-2", with different properties.
+  // our analyzer merges them.
+  window.amplitude.track({
+    eventName: 'event-ampli-2',
+    arg1: optionalField, // test merging isOptional
+    arg2: false,
+    arg3: 'wow' // test merging new args
+  });
+
   const path = 'wow';
   window.amplitude.page('event-ampli-page', {
     path,

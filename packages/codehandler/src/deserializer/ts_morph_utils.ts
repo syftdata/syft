@@ -47,14 +47,20 @@ function printType(type: Type): void {
 function getTypeField(property: TSSymbol, debugName: string): TypeField {
   const declaration = property.getValueDeclarationOrThrow();
   const type = getTypeSchema(declaration.getType(), debugName);
-  const isOptional =
-    declaration.getType().isNullable() || declaration.getType().isUndefined();
-  // TODO: we need to find out if declaration.getType() has undefined in its type.
   const hasQuestion =
     declaration.getFirstChildByKind(SyntaxKind.QuestionToken) != null;
+  const isOptional =
+    hasQuestion ||
+    declaration.getType().isNullable() ||
+    declaration.getType().isUndefined();
+
+  if (isOptional) {
+    type.zodType = `${type.zodType}.optional()`;
+  }
+
   return {
     name: property.getName(),
-    isOptional: isOptional || hasQuestion,
+    isOptional,
     type
   };
 }
@@ -103,7 +109,6 @@ export function getTypeSchema(
 ): TypeSchema {
   let name = typeObj.getText();
   let unionTypes: string[] = [];
-  const isOptional = typeObj.isNullable() || typeObj.isUndefined();
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
   if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
@@ -156,16 +161,13 @@ export function getTypeSchema(
     );
   }
 
-  let zodType = `z.${getZodType(name, unionTypes, syfttype)}`;
+  const zodType = `z.${getZodType(name, unionTypes, syfttype)}`;
   if (zodType === ANY_TYPE) {
     logInfo(
       `Used an unknown field type ${name}. No validations will be performed`
     );
   }
 
-  if (isOptional) {
-    zodType = `${zodType}.optional()`;
-  }
   return {
     name,
     syfttype,

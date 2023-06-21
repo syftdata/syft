@@ -26,7 +26,6 @@ function getField(
   typeFields?: Map<string, TypeField>
 ): Field | undefined {
   const tags = getTags(property.getJsDocs());
-  const isOptional = property.hasQuestionToken();
 
   const typeField = typeFields?.get(property.getName());
   if (typeField == null) {
@@ -54,19 +53,13 @@ function getField(
     });
   }
 
-  if (isOptional) {
-    zodType = `${zodType}.optional()`;
-  }
-  typeField.type.zodType = zodType;
-
   return {
     ...typeField,
     documentation: property
       .getJsDocs()
       .map((doc) => doc.getInnerText())
       .join('\n'),
-    defaultValue: property.getInitializer()?.getText(),
-    isOptional
+    defaultValue: property.getInitializer()?.getText()
   };
 }
 

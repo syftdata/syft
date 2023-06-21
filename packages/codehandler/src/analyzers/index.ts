@@ -17,26 +17,38 @@ export interface Usage {
   typeFields: TypeField[];
 }
 
-function isEqualType(type1: TypeField, type2: TypeField): boolean {
-  // TODO compare types.
-  return true;
+function mergeTypes(
+  type1: TypeField,
+  type2: TypeField,
+  debugName: string
+): TypeField {
+  if (type1.name !== type2.name || type1.type.name !== type2.type.name) {
+    console.error(`Found incompatible field types for ${debugName}`);
+    return type1;
+  }
+  return {
+    ...type1,
+    isOptional: type1.isOptional || type2.isOptional
+  };
 }
+
 function getEventSchema(name: string, usageArray: Usage[]): EventSchema {
   const fieldNameToTypeMap = new Map<string, TypeField>();
   const fieldNameToCount = new Map<string, number>();
   usageArray.forEach((usage) => {
-    usage.typeFields.forEach((field) => {
-      const existingType = fieldNameToTypeMap.get(field.name);
+    usage.typeFields.forEach((typeField) => {
+      const existingType = fieldNameToTypeMap.get(typeField.name);
       fieldNameToCount.set(
-        field.name,
-        (fieldNameToCount.get(field.name) ?? 0) + 1
+        typeField.name,
+        (fieldNameToCount.get(typeField.name) ?? 0) + 1
       );
-      if (existingType != null && !isEqualType(existingType, field)) {
-        console.error(
-          `Found incompatible field types for ${name}.${field.name} `
+      if (existingType != null) {
+        fieldNameToTypeMap.set(
+          typeField.name,
+          mergeTypes(existingType, typeField, `${name}.${typeField.name}`)
         );
       } else {
-        fieldNameToTypeMap.set(field.name, field);
+        fieldNameToTypeMap.set(typeField.name, typeField);
       }
     });
   });
