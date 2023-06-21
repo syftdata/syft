@@ -13,6 +13,7 @@ import {
   type TypeSchema
 } from '@syftdata/common/lib/types';
 import { ANY_TYPE, getZodType, getZodTypeForSchema } from './zod_utils';
+import { type } from 'os';
 
 // const SyftypeModuleIndex = 'client/src/index".type.'
 const SyftypeIndex = 'type.';
@@ -108,9 +109,11 @@ export function getTypeSchema(
   debugName: string
 ): TypeSchema {
   let name = typeObj.getText();
+  let debugType = typeObj.getText(); // used to give detailed messages.
   let unionTypes: string[] = [];
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
+
   if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
     if (name.includes(SyftypeIndex)) {
       // TODO: all types that start with "type." are treated as syft-types.
@@ -126,48 +129,46 @@ export function getTypeSchema(
   } else if (typeObj.isObject()) {
     foundUnsuppotedCloudType = true;
     return getTypeSchemaForComplexObject(typeObj, debugName);
+  } else if (typeObj.isEnum()) {
+    unionTypes = typeObj.getUnionTypes().map((subtype) => {
+      if (subtype.isStringLiteral()) {
+        name = 'string';
+      } else {
+        name = 'number';
+      }
+      const enumVal = subtype.getLiteralValue()?.toString() ?? '';
+      return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
+    });
   } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
-    const subtypes = typeObj.getUnionTypes();
-    unionTypes = subtypes
-      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()))
-      .map((subtype) => {
-        if (subtype.isLiteral()) {
-          const val = subtype.getLiteralValue()?.toString();
-          if (val != null) {
-            return subtype.isStringLiteral() ? `"${val}"` : val;
-          }
-        }
-        return subtype.getText();
-      });
-    if (unionTypes.length > 1) {
-      logInfo(
-        `:warning: Union type is seen: "${debugName}: ${name}". using "any" for now`
-      );
+    const subtypes = typeObj
+      .getUnionTypes()
+      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()));
+    if (subtypes.length > 1) {
+      debugType = 'Union type';
       name = 'any';
       foundUnsuppotedCloudType = true;
     } else {
-      name = unionTypes[0];
+      const subtype = subtypes[0];
+      if (subtype.isLiteral()) {
+        unionTypes = [subtype.getText()];
+      } else {
+        return getTypeSchema(subtypes[0], debugName);
+      }
     }
   } else if (typeObj.isAny()) {
     // throw error.
-    logInfo(`:warning: Any type is seen: "${debugName}".`);
+    debugType = 'any';
     name = 'any';
     foundUnsuppotedCloudType = true;
   }
 
   if (foundUnsuppotedCloudType) {
     logInfo(
-      `:prohibited: ${debugName} field is defined as ${name} type, which is not supported on the cloud.`
+      `:prohibited: Unsupported ${debugType} type is seen on "${debugName}: ${typeObj.getText()}". using "any" for now`
     );
   }
 
   const zodType = `z.${getZodType(name, unionTypes, syfttype)}`;
-  if (zodType === ANY_TYPE) {
-    logInfo(
-      `Used an unknown field type ${name}. No validations will be performed`
-    );
-  }
-
   return {
     name,
     syfttype,

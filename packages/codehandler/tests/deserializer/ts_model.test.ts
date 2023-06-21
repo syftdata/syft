@@ -12,6 +12,7 @@ describe('generateASTForProject', () => {
 
   it('with multiple schemas', async () => {
     const ast = deserialize(['./tests/test_schema/multiple_events']);
+
     expect(ast).toBeDefined();
     expect(ast?.eventSchemas.length).toBe(8);
     expect(JSON.stringify(ast?.eventSchemas, null, 2)).toMatchSnapshot();
