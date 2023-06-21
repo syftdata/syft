@@ -1,5 +1,5 @@
 import { Project, ScriptTarget } from 'ts-morph';
-import { logDetail, logFatal } from '@syftdata/common/lib/utils';
+import { logDetail, logError, logFatal } from '@syftdata/common/lib/utils';
 import { type AST } from '@syftdata/common/lib/types';
 import { getEventSchemas } from './visitor';
 import * as fs from 'fs';
@@ -12,7 +12,7 @@ import {
 // TODO: memoize this method.
 export function createTSProject(filePaths: string[]): Project {
   const project = new Project({
-    compilerOptions: { target: ScriptTarget.ES5 }
+    compilerOptions: { target: ScriptTarget.ES5, strictNullChecks: true }
   });
 
   // if directory, add glob style
@@ -26,6 +26,35 @@ export function createTSProject(filePaths: string[]): Project {
     project.addSourceFilesAtPaths(files);
   }
   return project;
+}
+
+export function readTSProject(
+  sourceDir: string
+): { project: Project; packageJson: any } | undefined {
+  const tsConfigFilePath = `${sourceDir}/tsconfig.json`;
+  if (!fs.existsSync(tsConfigFilePath)) {
+    logError(
+      `tsconfig.json not found in ${sourceDir}. Make sure you are in the root of a typescript project.`
+    );
+    return;
+  }
+  // read package.json file.
+  const packageJsonPath = `${sourceDir}/package.json`;
+  if (!fs.existsSync(packageJsonPath)) {
+    logError(
+      `package.json not found in ${sourceDir}. Make sure you are in the root of a typescript project.`
+    );
+    return;
+  }
+  // read all files in the project from source dir. and initialize ts-morph project
+  const project = new Project({
+    tsConfigFilePath
+  });
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  return {
+    project,
+    packageJson
+  };
 }
 
 export function generateASTForProject(project: Project): AST | undefined {

@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`analyze source code finds amplitude usages 1`] = `
+"[
+  {
+    "name": "EventAmpli1",
+    "eventType": 0,
+    "fields": [
+      {
+        "name": "argOpt",
+        "type": {
+          "name": "number",
+          "zodType": "z.number().optional()"
+        },
+        "isOptional": true
+      },
+      {
+        "name": "arg2",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false
+      }
+    ],
+    "zodType": ""
+  },
+  {
+    "name": "EventAmpli2",
+    "eventType": 0,
+    "fields": [
+      {
+        "name": "eventName",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "arg1",
+        "type": {
+          "name": "number",
+          "zodType": "z.number()"
+        },
+        "isOptional": true
+      },
+      {
+        "name": "arg2",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "arg3",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": true
+      }
+    ],
+    "zodType": ""
+  },
+  {
+    "name": "EventAmpliPage",
+    "eventType": 1,
+    "fields": [
+      {
+        "name": "path",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "arg2",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false
+      }
+    ],
+    "zodType": ""
+  },
+  {
+    "name": "EventGa1",
+    "eventType": 0,
+    "fields": [
+      {
+        "name": "arg1",
+        "type": {
+          "name": "number",
+          "zodType": "z.number()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "arg2",
+        "type": {
+          "name": "boolean",
+          "zodType": "z.boolean()"
+        },
+        "isOptional": false
+      }
+    ],
+    "zodType": ""
+  },
+  {
+    "name": "UserIdentify",
+    "eventType": 3,
+    "fields": [
+      {
+        "name": "userid",
+        "type": {
+          "name": "number",
+          "zodType": "z.number()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "email",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false
+      },
+      {
+        "name": "user",
+        "type": {
+          "name": "string",
+          "zodType": "z.string()"
+        },
+        "isOptional": false
+      }
+    ],
+    "zodType": ""
+  }
+]"
+`;

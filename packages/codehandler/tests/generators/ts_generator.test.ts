@@ -19,8 +19,8 @@ const TEST_FIELDS: Field[] = [
       name: 'boolean',
       zodType: 'z.boolean()'
     },
-    isOptional: true,
-    defaultValue: 'false'
+    defaultValue: 'false',
+    isOptional: true
   }
 ];
 

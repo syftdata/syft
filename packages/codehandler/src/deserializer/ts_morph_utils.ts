@@ -13,6 +13,7 @@ import {
   type TypeSchema
 } from '@syftdata/common/lib/types';
 import { ANY_TYPE, getZodType, getZodTypeForSchema } from './zod_utils';
+import { type } from 'os';
 
 // const SyftypeModuleIndex = 'client/src/index".type.'
 const SyftypeIndex = 'type.';
@@ -49,10 +50,19 @@ function getTypeField(property: TSSymbol, debugName: string): TypeField {
   const type = getTypeSchema(declaration.getType(), debugName);
   const hasQuestion =
     declaration.getFirstChildByKind(SyntaxKind.QuestionToken) != null;
+  const isOptional =
+    hasQuestion ||
+    declaration.getType().isNullable() ||
+    declaration.getType().isUndefined();
+
+  if (isOptional) {
+    type.zodType = `${type.zodType}.optional()`;
+  }
+
   return {
     name: property.getName(),
-    type,
-    isOptional: hasQuestion
+    isOptional,
+    type
   };
 }
 
@@ -99,10 +109,11 @@ export function getTypeSchema(
   debugName: string
 ): TypeSchema {
   let name = typeObj.getText();
-  let enumValues: string[] = [];
-  const isOptional = typeObj.isNullable();
+  let debugType = typeObj.getText(); // used to give detailed messages.
+  let unionTypes: string[] = [];
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
+
   if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
     if (name.includes(SyftypeIndex)) {
       // TODO: all types that start with "type." are treated as syft-types.
@@ -118,57 +129,46 @@ export function getTypeSchema(
   } else if (typeObj.isObject()) {
     foundUnsuppotedCloudType = true;
     return getTypeSchemaForComplexObject(typeObj, debugName);
-  } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
-    const subtypes = typeObj.getUnionTypes();
-    let incompatibleSubType = false;
-    enumValues = subtypes.map((subtype) => {
-      if (subtype.isEnumLiteral()) {
-        const enumVal = subtype.getLiteralValue()?.toString();
-        if (enumVal != null) {
-          return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
-        }
-      } else if (
-        subtype.isStringLiteral() ||
-        subtype.isNumberLiteral() ||
-        subtype.isBooleanLiteral()
-      ) {
-        return subtype.getText();
+  } else if (typeObj.isEnum()) {
+    unionTypes = typeObj.getUnionTypes().map((subtype) => {
+      if (subtype.isStringLiteral()) {
+        name = 'string';
+      } else {
+        name = 'number';
       }
-      incompatibleSubType = true;
-      return '';
+      const enumVal = subtype.getLiteralValue()?.toString() ?? '';
+      return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
     });
-    if (!incompatibleSubType) {
-      name = enumValues.join(' | ');
-    } else {
-      logInfo(
-        `:warning: Unknown type is seen: "${debugName}: ${name}". using "any" for now`
-      );
+  } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
+    const subtypes = typeObj
+      .getUnionTypes()
+      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()));
+    if (subtypes.length > 1) {
+      debugType = 'Union type';
       name = 'any';
+      foundUnsuppotedCloudType = true;
+    } else {
+      const subtype = subtypes[0];
+      if (subtype.isLiteral()) {
+        unionTypes = [subtype.getText()];
+      } else {
+        return getTypeSchema(subtypes[0], debugName);
+      }
     }
   } else if (typeObj.isAny()) {
     // throw error.
-    logInfo(`:warning: Any type is seen: "${debugName}".`);
+    debugType = 'any';
     name = 'any';
     foundUnsuppotedCloudType = true;
   }
 
   if (foundUnsuppotedCloudType) {
     logInfo(
-      `:prohibited: ${debugName} field is defined as ${name} type, which is not supported on the cloud.`
+      `:prohibited: Unsupported ${debugType} type is seen on "${debugName}: ${typeObj.getText()}". using "any" for now`
     );
   }
 
-  let zodType = `z.${getZodType(name, enumValues, syfttype)}`;
-  if (zodType === ANY_TYPE) {
-    logInfo(
-      `Used an unknown field type ${name}. No validations will be performed`
-    );
-  }
-
-  if (isOptional) {
-    zodType = `${zodType}.optional()`;
-  }
-
+  const zodType = `z.${getZodType(name, unionTypes, syfttype)}`;
   return {
     name,
     syfttype,

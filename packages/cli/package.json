@@ -82,6 +82,7 @@
     "node-emoji": "^1.11.0",
     "puppeteer": "^20.2.1",
     "ts-morph": "^17.0.1",
+    "yaml": "^2.3.1",
     "yargs": "^17.6.2"
   },
   "gitHead": "88c566d72818936b193d860ced18df01b84bf140"

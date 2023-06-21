@@ -10,59 +10,59 @@ exports[`generateASTForProject with event annotations 1`] = `
     "fields": [
       {
         "name": "userId",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "email",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "Email",
           "zodType": "z.string().email()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "country",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "CountryCode",
           "zodType": "z.string().length(2)"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "direction",
+        "isOptional": false,
         "type": {
-          "name": "0 | 1 | 2 | 3",
+          "name": "number",
           "zodType": "z.enum([0, 1, 2, 3])"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "isSpammer",
+        "isOptional": false,
         "type": {
-          "name": "\\"Yes\\" | \\"No\\"",
+          "name": "string",
           "zodType": "z.enum([\\"Yes\\", \\"No\\"])"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "isVerified",
+        "isOptional": false,
         "type": {
           "name": "boolean",
           "zodType": "z.boolean()"
         },
-        "isOptional": false,
         "documentation": ""
       }
     ],
@@ -82,32 +82,32 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "userId",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "email",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "Email",
           "zodType": "z.string().email()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "country",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "CountryCode",
           "zodType": "z.string().length(2)"
         },
-        "isOptional": false,
         "documentation": ""
       }
     ],
@@ -122,20 +122,20 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "page",
+        "isOptional": false,
         "type": {
           "name": "string",
           "zodType": "z.string()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "time",
+        "isOptional": false,
         "type": {
           "name": "Date",
           "zodType": "z.date()"
         },
-        "isOptional": false,
         "documentation": ""
       }
     ],
@@ -150,31 +150,31 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "page",
+        "isOptional": false,
         "type": {
           "name": "string",
           "zodType": "z.string()"
         },
-        "isOptional": false,
         "documentation": "",
         "defaultValue": "'index'"
       },
       {
         "name": "loggedIn",
+        "isOptional": false,
         "type": {
           "name": "boolean",
           "zodType": "z.boolean()"
         },
-        "isOptional": false,
         "documentation": "",
         "defaultValue": "false"
       },
       {
         "name": "time",
+        "isOptional": false,
         "type": {
           "name": "Date",
           "zodType": "z.date()"
         },
-        "isOptional": false,
         "documentation": ""
       }
     ],
@@ -189,20 +189,20 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "source_name",
+        "isOptional": false,
         "type": {
           "name": "string",
           "zodType": "z.string()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "source_id",
+        "isOptional": true,
         "type": {
           "name": "number",
           "zodType": "z.number().optional()"
         },
-        "isOptional": true,
         "documentation": ""
       }
     ],
@@ -217,88 +217,88 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "isOriginal",
+        "isOptional": false,
         "type": {
           "name": "boolean",
           "zodType": "z.boolean()"
         },
-        "isOptional": false,
         "documentation": "is the source original or a proxy."
       },
       {
         "name": "id",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
-        "isOptional": false,
         "documentation": "id of the source."
       },
       {
         "name": "type",
+        "isOptional": false,
         "type": {
           "name": "SourceType",
           "typeFields": [
             {
               "name": "source_name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "source_id",
+              "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number()"
-              },
-              "isOptional": true
+                "zodType": "z.number().optional()"
+              }
             }
           ],
-          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  })"
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
         },
-        "isOptional": false,
         "documentation": "Source type."
       },
       {
         "name": "eventType",
+        "isOptional": true,
         "type": {
           "name": "EventType",
           "typeFields": [
             {
               "name": "name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "id",
+              "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number()"
-              },
-              "isOptional": true
+                "zodType": "z.number().optional()"
+              }
             },
             {
               "name": "test_field",
+              "isOptional": true,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
-              },
-              "isOptional": true
+                "zodType": "z.string().optional()"
+              }
             }
           ],
-          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()"
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()"
         },
-        "isOptional": true,
         "documentation": ""
       }
     ],
     "traits": [],
-    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()\\n  })"
+    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()\\n  })"
   },
   {
     "name": "SourceUpdated",
@@ -308,88 +308,88 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "isOriginal",
+        "isOptional": false,
         "type": {
           "name": "boolean",
           "zodType": "z.boolean()"
         },
-        "isOptional": false,
         "documentation": "is the source original or a proxy."
       },
       {
         "name": "id",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "UUID",
           "zodType": "z.string().uuid()"
         },
-        "isOptional": false,
         "documentation": "id of the source."
       },
       {
         "name": "type",
+        "isOptional": false,
         "type": {
           "name": "SourceType",
           "typeFields": [
             {
               "name": "source_name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "source_id",
+              "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number()"
-              },
-              "isOptional": true
+                "zodType": "z.number().optional()"
+              }
             }
           ],
-          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  })"
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
         },
-        "isOptional": false,
         "documentation": "Source type."
       },
       {
         "name": "eventType",
+        "isOptional": true,
         "type": {
           "name": "EventType",
           "typeFields": [
             {
               "name": "name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "id",
+              "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number()"
-              },
-              "isOptional": true
+                "zodType": "z.number().optional()"
+              }
             },
             {
               "name": "test_field",
+              "isOptional": true,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
-              },
-              "isOptional": true
+                "zodType": "z.string().optional()"
+              }
             }
           ],
-          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()"
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()"
         },
-        "isOptional": true,
         "documentation": ""
       }
     ],
     "traits": [],
-    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number(),\\n\\ttest_field: z.string()\\n  }).optional()\\n  })"
+    "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()\\n  })"
   },
   {
     "name": "NotifChannelAction",
@@ -399,57 +399,57 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "name",
+        "isOptional": false,
         "type": {
           "name": "string",
           "zodType": "z.string()"
         },
-        "isOptional": false,
         "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
       },
       {
         "name": "type",
+        "isOptional": false,
         "type": {
           "name": "ChannelType",
           "typeFields": [
             {
               "name": "channel_name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "channel_type",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             }
           ],
           "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "webhook",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "Url",
           "zodType": "z.string().url()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "count",
+        "isOptional": false,
         "type": {
           "name": "number",
           "zodType": "z.number()"
         },
-        "isOptional": false,
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }
     ],
@@ -464,57 +464,57 @@ exports[`generateASTForProject with multiple schemas 1`] = `
     "fields": [
       {
         "name": "name",
+        "isOptional": false,
         "type": {
           "name": "string",
           "zodType": "z.string()"
         },
-        "isOptional": false,
         "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
       },
       {
         "name": "type",
+        "isOptional": false,
         "type": {
           "name": "ChannelType",
           "typeFields": [
             {
               "name": "channel_name",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             },
             {
               "name": "channel_type",
+              "isOptional": false,
               "type": {
                 "name": "string",
                 "zodType": "z.string()"
-              },
-              "isOptional": false
+              }
             }
           ],
           "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "webhook",
+        "isOptional": false,
         "type": {
           "name": "string",
           "syfttype": "Url",
           "zodType": "z.string().url()"
         },
-        "isOptional": false,
         "documentation": ""
       },
       {
         "name": "count",
+        "isOptional": false,
         "type": {
           "name": "number",
           "zodType": "z.number()"
         },
-        "isOptional": false,
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }
     ],
