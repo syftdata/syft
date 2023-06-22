@@ -16,6 +16,7 @@ import { getEventShemas } from '../init/local';
 import { writeTestSpecs } from '../publish/remote';
 import { serialize } from '@syftdata/codehandler';
 import { ModuleKind, Project, ScriptTarget } from 'ts-morph';
+import { PluginPackage } from '@syftdata/client';
 
 export interface Params {
   platform: string;
@@ -123,6 +124,83 @@ function generateSchemasFrom(ast: AST, folder: string): void {
   logInfo(`:sparkles: Models are generated successfully!`);
 }
 
+function getMetricPluginList(): string[] {
+  const pkg = fs.readFileSync('package.json', 'utf8');
+  const deps = JSON.parse(pkg).dependencies;
+
+  const providers: string[] = [];
+  if (deps != null) {
+    for (const providerPackage of Object.values(PluginPackage)) {
+      if (providerPackage in deps) {
+        providers.push(`${PluginPackage[providerPackage]}` + 'Plugin');
+      }
+    }
+  }
+  logVerbose(
+    `Parsed package.json file and found ${providers.length} compatible plugins.`
+  );
+  return providers;
+}
+
+function generateSyftTS(metricPlugins: string[], force: boolean): void {
+  if (metricPlugins.length > 0) {
+    logInfo(`Generating syft.ts with ${metricPlugins.join(', ')} plugin(s)`);
+  } else {
+    logInfo('No compatible plugins found. Not generating syft.ts');
+    return;
+  }
+
+  const destinationPath = path.join('src', 'syft.ts');
+  if (fs.existsSync(destinationPath) && !force) {
+    logInfo(`${destinationPath} already exists. Use --force to overwrite.`);
+    return;
+  }
+
+  // TODO(SYF-71) create eslint to reformat
+  const imports =
+    metricPlugins.length === 1
+      ? ` ${metricPlugins[0]} `
+      : '\n  ' + metricPlugins.join(',\n  ') + '\n';
+  const instantiations =
+    metricPlugins.length === 1
+      ? `new ${metricPlugins[0]}()`
+      : '\n' +
+        metricPlugins.map((input: string) => `    new ${input}()`).join(',\n') +
+        '\n  ';
+
+  const assetPath = path.join(__dirname, '../../assets/syft.ts');
+  let content = '';
+  try {
+    content = fs
+      .readFileSync(assetPath, 'utf8')
+      .replace(/\{ IMPORT }/, imports)
+      .replace(/\{ INSTANTIATION }/, instantiations);
+  } catch (e) {
+    logError(`error creating syft.ts from ${assetPath}... ${e}`);
+  }
+
+  const project = new Project({
+    compilerOptions: {
+      target: ScriptTarget.ES2016,
+      declaration: true,
+      sourceMap: true,
+      module: ModuleKind.CommonJS,
+      strict: false,
+      removeComments: false
+    }
+  });
+
+  const syftSrcFile = project.createSourceFile(
+    destinationPath,
+    (writer) => {
+      writer.write(content);
+    },
+    { overwrite: force }
+  );
+
+  syftSrcFile.saveSync();
+}
+
 export async function handler({
   platform,
   product,
@@ -165,7 +243,11 @@ export async function handler({
     initalizeSchemaFolder(outDir, force);
   }
 
+  // we may want this for other functionality
+  const metricPlugins = getMetricPluginList();
+
   generateSchemasFrom(ast, outDir);
+  generateSyftTS(metricPlugins, force);
   logInfo(':heavy_check_mark: Syft folder is created.');
   if (process.env.NODE_ENV !== 'test') {
     await generateFromDir({ input: outDir, type: 'ts' });

@@ -5,6 +5,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
+import {PluginPackage} from "./index";
 
 declare global {
   interface Window {
@@ -35,7 +36,7 @@ declare global {
 // }
 
 export class MixPanelPlugin implements ISyftPlugin {
-  id = 'MixPanel';
+  id = PluginPackage[PluginPackage.MixPanel];
   mixpanel: any;
   isBrowser = typeof window !== 'undefined';
 

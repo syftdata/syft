@@ -6,6 +6,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
+import {PluginPackage} from "./index";
 
 declare global {
   interface Window {
@@ -69,7 +70,7 @@ class Plugin {
  * Plugin added to Syft.
  */
 export class SegmentPlugin implements ISyftPlugin {
-  id = 'Segment';
+  id = PluginPackage[PluginPackage.Segment];
   syft: Syft;
   analytics: any;
   isBrowser = typeof window !== 'undefined';
