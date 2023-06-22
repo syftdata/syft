@@ -144,18 +144,19 @@ function getMetricPluginList(): string[] {
 
 function generateSyftTS(metricPlugins: string[], force: boolean): void {
   if (metricPlugins.length > 0) {
-    logVerbose(`Generating syft.ts with ${metricPlugins.join(', ')} plugin(s)`);
+    logInfo(`Generating syft.ts with ${metricPlugins.join(', ')} plugin(s)`);
   } else {
-    logVerbose('No compatible plugins found. Not generating syft.ts');
+    logInfo('No compatible plugins found. Not generating syft.ts');
     return;
   }
 
   const destinationPath = path.join('src', 'syft.ts');
   if (fs.existsSync(destinationPath) && !force) {
-    logVerbose(`${destinationPath} already exists. Use --force to overwrite.`);
+    logInfo(`${destinationPath} already exists. Use --force to overwrite.`);
     return;
   }
 
+  // TODO(SYF-71) create eslint to reformat
   const imports =
     metricPlugins.length === 1
       ? ` ${metricPlugins[0]} `
