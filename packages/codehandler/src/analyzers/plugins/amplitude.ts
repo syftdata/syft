@@ -5,7 +5,7 @@ import { type Usage } from '..';
 
 export class AmplitudeAnalyser extends BaseAnalyser {
   isAMatch(expression: string): SyftEventType | undefined {
-    if (expression.endsWith('.track')) {
+    if (expression.endsWith('.track') || expression.endsWith('.logEvent')) {
       return SyftEventType.TRACK;
     }
     if (expression.endsWith('.page')) {
