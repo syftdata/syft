@@ -150,6 +150,8 @@ export interface ISyftPlugin {
 
   /** Gets called when syft.resetUser() is called. */
   resetUserProperties: () => void;
+
+  requestFlush?: () => void;
 }
 
 export interface MonitorResponse {

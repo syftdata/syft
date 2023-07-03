@@ -1,4 +1,4 @@
-import { type IReflector } from '../lib';
+import { type IReflector } from '../src/types';
 import Batcher from '../src/batcher';
 import {
   type ISyftPlugin,

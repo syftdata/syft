@@ -12,8 +12,7 @@ import {
   type Field,
   type TypeSchema
 } from '@syftdata/common/lib/types';
-import { ANY_TYPE, getZodType, getZodTypeForSchema } from './zod_utils';
-import { type } from 'os';
+import { getZodType, getZodTypeForSchema } from './zod_utils';
 
 // const SyftypeModuleIndex = 'client/src/index".type.'
 const SyftypeIndex = 'type.';
