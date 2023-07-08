@@ -11,8 +11,8 @@ export class SyftCustomPlugin implements ISyftPlugin {
 
   // state
   isUploading: boolean = false;
-  flushAttemptTimestamp?: number; // last flush attempt timestamp
-  currentTimeout?: NodeJS.Timeout;
+  oldestEventTimestamp: number = 0; // oldest event timestamp in the queue.
+  currentTimeout?: NodeJS.Timeout; // current timeout for the upload.
 
   userProperties: any = {};
 
@@ -41,6 +41,9 @@ export class SyftCustomPlugin implements ISyftPlugin {
       this.userProperties = { ...this.userProperties, ...identifyProps };
       return true;
     }
+    if (this.events.length === 0) {
+      this.oldestEventTimestamp = Date.now();
+    }
     this.events.push({
       ...this.userProperties,
       ...event
@@ -56,22 +59,17 @@ export class SyftCustomPlugin implements ISyftPlugin {
     }
 
     const now = Date.now();
-    if (this.flushAttemptTimestamp === undefined) {
-      this.flushAttemptTimestamp = now;
-    }
 
-    const timeSinceLastFlushAttempt = now - this.flushAttemptTimestamp;
-    if (timeSinceLastFlushAttempt >= this.uploadInterval) {
+    const oldestEventWaitingTime = now - this.oldestEventTimestamp;
+    if (oldestEventWaitingTime >= this.uploadInterval) {
       this.__flush();
     } else {
-      // update the timeout to flush after remaining time
-      const remainingTime = this.uploadInterval - timeSinceLastFlushAttempt;
-      if (this.currentTimeout != null) {
-        clearTimeout(this.currentTimeout);
+      if (this.currentTimeout === undefined) {
+        const remainingTime = this.uploadInterval - oldestEventWaitingTime;
+        this.currentTimeout = setTimeout(() => {
+          this.flushIfRequired();
+        }, remainingTime);
       }
-      this.currentTimeout = setTimeout(() => {
-        this.flushIfRequired();
-      }, remainingTime);
     }
   }
 
@@ -79,10 +77,11 @@ export class SyftCustomPlugin implements ISyftPlugin {
     if (this.events.length === 0) return;
     const events = this.events.splice(0, this.events.length);
     this.isUploading = true;
-    this.flushAttemptTimestamp = Date.now();
     this.upload(events).finally(() => {
       this.isUploading = false;
     });
+    clearTimeout(this.currentTimeout);
+    this.currentTimeout = undefined;
   }
 
   requestFlush(): void {
