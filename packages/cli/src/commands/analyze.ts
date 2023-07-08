@@ -26,51 +26,6 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
     });
 };
 
-// // produces summary by comparing old and new schemas.
-// export function compareSchemas(oldSchema: string, newSchema: string): object {
-//   const oldEvents = (parse(oldSchema) ?? []) as EventSchema[];
-//   const newEvents = (parse(newSchema) ?? []) as EventSchema[];
-
-//   const oldEventNames = oldEvents.map((e) => e.name);
-//   const newEventNames = newEvents.map((e) => e.name);
-
-//   const oldEventsMap = new Map(oldEvents.map((e) => [e.name, e]));
-//   const newEventsMap = new Map(newEvents.map((e) => [e.name, e]));
-
-//   const addedEvents = newEventNames.filter((e) => !oldEventNames.includes(e));
-//   const removedEvents = oldEventNames.filter((e) => !newEventNames.includes(e));
-//   const changedEvents = newEventNames.filter(
-//     (e) => oldEventNames.includes(e) && newEventsMap[e] !== oldEventsMap[e]
-//   );
-//   const changedEventDetails = changedEvents.map((e) => {
-//     // get the fields that changed.
-//     const oldEvent = oldEventsMap[e] as EventSchema;
-//     const newEvent = newEventsMap[e] as EventSchema;
-//     const oldFields = oldEvent.fields.map((f) => f.name);
-//     const newFields = newEvent.fields.map((f) => f.name);
-//     const addedFields = newFields.filter((f) => !oldFields.includes(f));
-//     const removedFields = oldFields.filter((f) => !newFields.includes(f));
-//     const changedFields = newFields.filter(
-//       (f) =>
-//         oldFields.includes(f) &&
-//         newEvent.fields[newFields.indexOf(f)] !==
-//           oldEvent.fields[oldFields.indexOf(f)]
-//     );
-//     return {
-//       name: e,
-//       addedFields,
-//       removedFields,
-//       changedFields
-//     };
-//   });
-
-//   return {
-//     addedEvents,
-//     removedEvents,
-//     changedEventDetails
-//   };
-// }
-
 export async function handler({ output, srcDir }: Params): Promise<void> {
   const tsProject = readTSProject(srcDir);
   if (tsProject == null) {
