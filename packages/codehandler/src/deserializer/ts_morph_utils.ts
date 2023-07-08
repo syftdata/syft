@@ -139,10 +139,9 @@ export function getTypeSchema(
       return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
     });
   } else if (typeObj.isUnion()) {
-    const subtypes = typeObj.getUnionTypes().filter((subtype) => {
-      console.log('>>> subtype is ', subtype.isUndefined(), subtype.getText());
-      return !(subtype.isUndefined() || subtype.isNull());
-    });
+    const subtypes = typeObj
+      .getUnionTypes()
+      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()));
     if (subtypes.length > 1) {
       // booleans are special case. they are shown as union of true and false.
       // check if remaining subtypes are true and false.
