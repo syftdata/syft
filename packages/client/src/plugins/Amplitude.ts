@@ -5,7 +5,7 @@ import {
   type SyftEvent,
   type ISyftPlugin
 } from '../types';
-import {PluginPackage} from "./index";
+import { PluginPackage } from './index';
 
 declare global {
   interface Window {

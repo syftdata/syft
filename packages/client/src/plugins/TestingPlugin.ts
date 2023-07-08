@@ -1,5 +1,5 @@
 import type { SyftEvent, ISyftPlugin, IReflector } from '../types';
-import {PluginPackage} from "./index";
+import { PluginPackage } from './index';
 
 export class TestingPlugin implements ISyftPlugin {
   id = PluginPackage[PluginPackage.Testing];

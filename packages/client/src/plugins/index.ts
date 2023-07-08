@@ -11,7 +11,8 @@ export enum PluginPackage {
   Heap = '@heap/react-heap' as string,
   GA4 = 'react-ga4' as string,
   Segment = 'analytics-node' as string,
-  Testing = 'testing-plugin' as string
+  Testing = 'testing-plugin' as string,
+  Custom = 'custom-plugin' as string
 }
 
 export * from './Segment';

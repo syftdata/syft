@@ -34,6 +34,14 @@ export async function handler({ output, srcDir }: Params): Promise<void> {
   const project = tsProject.project;
   logInfo('Analyzing the code to find usages..');
   const ast = analyzeAST(project);
+
+  // load old yaml file if it exists.
+  const yamlFile = path.join(output, 'events.yaml');
+  let oldYamlContents = '';
+  if (fs.existsSync(yamlFile)) {
+    oldYamlContents = fs.readFileSync(yamlFile, 'utf-8');
+  }
+
   // put the yaml into a file.
   const yaml = stringify(
     ast.eventSchemas,
@@ -49,10 +57,10 @@ export async function handler({ output, srcDir }: Params): Promise<void> {
     },
     2
   );
-  if (output == null) {
-    logInfo(yaml);
-  } else {
-    const yamlFile = path.join(output, 'events.yaml');
+
+  // compare the old yaml with the new yaml.
+  if (oldYamlContents !== yaml) {
     fs.writeFileSync(yamlFile, yaml, 'utf-8');
+    logInfo('events.yaml is updated.');
   }
 }
