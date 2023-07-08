@@ -5,7 +5,9 @@ import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
 import { generate as generateDBT } from '../codegen/generators/dbt_generator';
 import {
-  type BigQueryConfig,
+  BQConfig,
+  PGConfig,
+  type DestinationConfig,
   type ProviderConfig
 } from '../config/sink_configs';
 import { getSchemaFolder } from '../utils';
@@ -35,7 +37,7 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
     y
       .positional('type', {
         // choices: ['ts', 'go', 'doc', 'dbt'] as const,
-        choices: ['ts'] as const,
+        choices: ['ts', 'dbt'] as const,
         default: 'ts'
       })
       // .option('projectId', {
@@ -47,7 +49,8 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
       //   type: 'string'
       // })
       // .option('destination', {
-      //   describe: 'Data provider. Currently support Segment and Heap',
+      //   choices: ['syft', 'heap', 'segment'] as const,
+      //   describe: 'Event Logging library. Currently we support syft, segment and heap',
       //   type: 'string'
       // })
       // .option('platform', {
@@ -70,54 +73,50 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
   );
 };
 
-async function getBigQueryConfig(
-  projectId?: string,
-  dataset?: string
-): Promise<BigQueryConfig> {
-  const prompts: Questions = [];
-  if (projectId == null) {
-    prompts.push({
-      type: 'input',
-      name: 'projectId',
-      message: 'GCP Project ID:'
-    });
-  }
-  if (dataset == null) {
-    prompts.push({
-      type: 'input',
-      name: 'dataset',
-      message: 'BigQuery Dataset (stores events):'
-    });
-  }
-  const { config } = await ask(prompts);
-  return {
-    projectId: config.projectId,
-    dataset: config.dataset
-  };
+async function getDestinationConfig(): Promise<DestinationConfig> {
+  return new PGConfig('analytics');
+  // const prompts: Questions = [];
+  // if (projectId == null) {
+  //   prompts.push({
+  //     type: 'input',
+  //     name: 'projectId',
+  //     message: 'GCP Project ID:'
+  //   });
+  // }
+  // if (dataset == null) {
+  //   prompts.push({
+  //     type: 'input',
+  //     name: 'dataset',
+  //     message: 'BigQuery Dataset (stores events):'
+  //   });
+  // }
+  // const { config } = await ask(prompts);
+  // return new BQConfig(config.projectId, config.dataset);
 }
 
-async function getProviderConfig(
-  destination?: string,
-  platform?: string
-): Promise<ProviderConfig> {
-  let destinationVal = '';
-  if (destination == null) {
-    const { answer } = await ask([
-      {
-        type: 'input',
-        name: 'destination',
-        message: 'Data Destination (Segment / Heap):'
-      }
-    ]);
-    destinationVal = answer;
-  } else {
-    destinationVal = destination;
-  }
-
+async function getProviderConfig(): Promise<ProviderConfig> {
   return {
-    destination: destinationVal,
-    platform
+    destination: 'syft'
   };
+
+  //   let destinationVal = '';
+  //   if (destination == null) {
+  //     const { answer } = await ask([
+  //       {
+  //         type: 'input',
+  //         name: 'destination',
+  //         message: 'Data Destination (Segment / Heap):'
+  //       }
+  //     ]);
+  //     destinationVal = answer;
+  //   } else {
+  //     destinationVal = destination;
+  //   }
+
+  //   return {
+  //     destination: destinationVal,
+  //     platform
+  //   };
 }
 
 async function innerHandler({
@@ -152,10 +151,9 @@ async function innerHandler({
     } else if (type === 'go') {
       generateGo(ast, outDir ?? './golang');
     } else if (type === 'dbt') {
-      const bqConfig = await getBigQueryConfig(projectId, dataset);
-      const providerConfig = await getProviderConfig(destination, platform);
-
-      generateDBT(ast, outDir ?? './dbt', bqConfig, providerConfig);
+      const destinationConfig = await getDestinationConfig();
+      const providerConfig = await getProviderConfig();
+      generateDBT(ast, outDir ?? './dbt', destinationConfig, providerConfig);
     }
   }
   return ast;

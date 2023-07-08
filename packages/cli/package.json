@@ -69,6 +69,7 @@
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
     "@puppeteer/replay": "^2.11.1",
+    "@scarf/scarf": "^1.1.1",
     "@syftdata/codehandler": "^0.1.15",
     "@syftdata/common": "^0.1.15",
     "@syftdata/test": "^0.1.15",

@@ -1,4 +1,4 @@
-import { capitalize, lowerize } from '@syftdata/common/lib/utils';
+import { capitalize } from '@syftdata/common/lib/utils';
 import * as findUp from 'find-up';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -37,10 +37,4 @@ export function asciiWords(val: string): string[] {
 
 export function getHumanizedEventName(name: string): string {
   return asciiWords(name).map(capitalize).join(' ');
-}
-
-export function getSQLFriendlyEventName(name: string): string {
-  return lowerize(name)
-    .replace(/([A-Z])/g, '_$1')
-    .toLocaleLowerCase();
 }

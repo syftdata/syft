@@ -138,14 +138,22 @@ export function getTypeSchema(
       const enumVal = subtype.getLiteralValue()?.toString() ?? '';
       return subtype.isStringLiteral() ? `"${enumVal}"` : enumVal;
     });
-  } else if (typeObj.isUnion() && !typeObj.isBoolean()) {
-    const subtypes = typeObj
-      .getUnionTypes()
-      .filter((subtype) => !(subtype.isUndefined() || subtype.isNull()));
+  } else if (typeObj.isUnion()) {
+    const subtypes = typeObj.getUnionTypes().filter((subtype) => {
+      console.log('>>> subtype is ', subtype.isUndefined(), subtype.getText());
+      return !(subtype.isUndefined() || subtype.isNull());
+    });
     if (subtypes.length > 1) {
-      debugType = 'Union type';
-      name = 'any';
-      foundUnsuppotedCloudType = true;
+      // booleans are special case. they are shown as union of true and false.
+      // check if remaining subtypes are true and false.
+      const isBoolean = subtypes.every((subtype) => subtype.isBooleanLiteral());
+      if (isBoolean) {
+        name = 'boolean';
+      } else {
+        debugType = 'Union type';
+        name = 'any';
+        foundUnsuppotedCloudType = true;
+      }
     } else {
       const subtype = subtypes[0];
       if (subtype.isLiteral()) {

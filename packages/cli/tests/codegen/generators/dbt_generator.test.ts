@@ -6,7 +6,7 @@ import * as path from 'path';
 import { generate } from '../../../src/codegen/generators/dbt_generator';
 import { type Field, type AST } from '@syftdata/common/lib/types';
 import {
-  type BigQueryConfig,
+  BQConfig,
   type ProviderConfig
 } from '../../../src/config/sink_configs';
 import { getZodTypeForSchema } from '@syftdata/codehandler';
@@ -37,10 +37,7 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const bqConfig: BigQueryConfig = {
-      projectId: 'testProject',
-      dataset: 'testDataset'
-    };
+    const bqConfig = new BQConfig('testProject', 'testDataset');
     const providerConfig: ProviderConfig = {
       destination: 'Segment'
     };
@@ -52,7 +49,14 @@ describe('generate', () => {
     expect(
       fs.readFileSync(path.join('dbt', 'profiles.yml'), 'utf8')
     ).toMatchSnapshot();
-    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(1);
+    // creates a model directory with sources and staging models.
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'schema.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'syft.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(2);
   });
 
   it('with dbt parses an event with Segment', async () => {
@@ -73,12 +77,9 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const bqConfig: BigQueryConfig = {
-      projectId: 'testProject',
-      dataset: 'testDataset'
-    };
+    const bqConfig = new BQConfig('testProject', 'testDataset');
     const providerConfig: ProviderConfig = {
-      destination: 'Segment'
+      destination: 'segment'
     };
     generate(ast, 'dbt', bqConfig, providerConfig);
     // now read project file and models from fs.
@@ -88,12 +89,15 @@ describe('generate', () => {
     expect(
       fs.readFileSync(path.join('dbt', 'profiles.yml'), 'utf8')
     ).toMatchSnapshot();
-    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(2);
+    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(3);
     expect(
       fs.readFileSync(path.join('dbt', 'models', 'stg_test_event.sql'), 'utf8')
     ).toMatchSnapshot();
     expect(
       fs.readFileSync(path.join('dbt', 'models', 'schema.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'syft.yml'), 'utf8')
     ).toMatchSnapshot();
   });
 
@@ -115,12 +119,9 @@ describe('generate', () => {
         version: '1.0.0'
       }
     };
-    const bqConfig: BigQueryConfig = {
-      projectId: 'testProject',
-      dataset: 'testDataset'
-    };
+    const bqConfig = new BQConfig('testProject', 'testDataset');
     const providerConfig: ProviderConfig = {
-      destination: 'Heap',
+      destination: 'heap',
       platform: 'Web'
     };
     generate(ast, 'dbt', bqConfig, providerConfig);
@@ -131,12 +132,56 @@ describe('generate', () => {
     expect(
       fs.readFileSync(path.join('dbt', 'profiles.yml'), 'utf8')
     ).toMatchSnapshot();
-    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(2);
+    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(3);
     expect(
       fs.readFileSync(path.join('dbt', 'models', 'stg_test_event.sql'), 'utf8')
     ).toMatchSnapshot();
     expect(
       fs.readFileSync(path.join('dbt', 'models', 'schema.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'syft.yml'), 'utf8')
+    ).toMatchSnapshot();
+  });
+  it('with dbt parses an event with Syft', async () => {
+    mockfs();
+    const ast: AST = {
+      eventSchemas: [
+        {
+          name: 'TestEvent',
+          fields: TEST_FIELDS,
+          traits: [],
+          eventType: SyftEventType.PAGE,
+          exported: true,
+          zodType: TEST_ZOD_TYPE
+        }
+      ],
+      config: {
+        projectName: 'test',
+        version: '1.0.0'
+      }
+    };
+    const bqConfig = new BQConfig('testProject', 'testDataset');
+    const providerConfig: ProviderConfig = {
+      destination: 'syft'
+    };
+    generate(ast, 'dbt', bqConfig, providerConfig);
+    // now read project file and models from fs.
+    expect(
+      fs.readFileSync(path.join('dbt', 'dbt_project.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'profiles.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(fs.readdirSync(path.join('dbt', 'models')).length).toEqual(3);
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'stg_test_event.sql'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'schema.yml'), 'utf8')
+    ).toMatchSnapshot();
+    expect(
+      fs.readFileSync(path.join('dbt', 'models', 'syft.yml'), 'utf8')
     ).toMatchSnapshot();
   });
 });
