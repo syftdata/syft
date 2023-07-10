@@ -82,9 +82,23 @@ function getTypeSchemaForComplexObject(
 
   const typeFields = typeObj
     .getApparentProperties()
-    .map((property) =>
-      getTypeField(property, `${debugName}.${property.getEscapedName()}`)
-    )
+    .map((property) => {
+      const declaration = property.getValueDeclaration();
+      if (
+        declaration == null ||
+        declaration.getType() === typeObj ||
+        declaration.isKind(SyntaxKind.MethodSignature) ||
+        declaration.isKind(SyntaxKind.MethodDeclaration) ||
+        declaration.isKind(SyntaxKind.FunctionDeclaration) ||
+        declaration.isKind(SyntaxKind.FunctionExpression)
+      ) {
+        return null;
+      }
+      return getTypeField(
+        property,
+        `${debugName}.${property.getEscapedName()}`
+      );
+    })
     .filter((field) => field != null) as Field[];
 
   const zodType = getZodTypeForSchema(typeFields);
