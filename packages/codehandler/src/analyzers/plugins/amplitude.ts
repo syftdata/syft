@@ -17,6 +17,28 @@ export class AmplitudeAnalyser extends BaseAnalyser {
     if (expression.endsWith('.setGroup')) {
       return SyftEventType.GROUP_IDENTIFY;
     }
+
+    if (
+      expression.endsWith('logEvent') ||
+      expression.endsWith('logRevenue') ||
+      expression.endsWith('trackEvent') ||
+      expression.endsWith('sendEvent')
+    ) {
+      return SyftEventType.TRACK;
+    }
+
+    if (
+      expression.endsWith('logIdentify') ||
+      expression.endsWith('trackIdentify') ||
+      expression.endsWith('sendIdentify')
+    ) {
+      return SyftEventType.IDENTIFY;
+    }
+
+    if (expression.endsWith('logPage') || expression.endsWith('logPageView')) {
+      return SyftEventType.PAGE;
+    }
+
     return super.isAMatch(expression);
   }
 
