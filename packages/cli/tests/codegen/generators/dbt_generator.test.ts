@@ -16,7 +16,8 @@ const TEST_FIELDS: Field[] = [
     name: 'backgrounded',
     type: {
       name: 'boolean',
-      zodType: 'z.boolean()'
+      zodType: 'z.boolean()',
+      isArray: false
     },
     isOptional: false
   }

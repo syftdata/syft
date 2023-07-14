@@ -72,7 +72,8 @@ function getEventSchema(event: ApiEventSchema): EventSchema {
       isOptional: field.isOptional,
       type: {
         name: field.type.name,
-        zodType: field.type.zodType ?? 'z.any()'
+        zodType: field.type.zodType ?? 'z.any()',
+        isArray: false
       }
     };
     return val;

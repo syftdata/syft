@@ -21,26 +21,19 @@ import {
   getTypeSchema
 } from './ts_morph_utils';
 import { getZodTypeForSchema, ZOD_ALLOWED_TAGS } from './zod_utils';
-
-interface EventTypeDBProperties {
-  table: string;
-  on: string | string[];
-}
+import {
+  type DBEventSource,
+  type DBFieldRelation
+} from '@syftdata/common/lib/db_types';
 
 interface EventProperties {
   eventType?: SyftEventType;
-  dbProperties?: EventTypeDBProperties;
-}
-
-interface FieldRelationProperties {
-  table: string;
-  references: string[];
-  fields: string[];
+  dbSourceDetails?: DBEventSource;
 }
 
 interface FieldProperties {
   zodType?: string;
-  relation?: FieldRelationProperties;
+  dbRelation?: DBFieldRelation;
 }
 
 function getField(
@@ -63,6 +56,7 @@ function getField(
 
   return {
     ...typeField,
+    dbRelation: fieldProps.dbRelation,
     documentation: property
       .getJsDocs()
       .map((doc) => doc.getInnerText())
@@ -77,7 +71,7 @@ function extractFieldProperties(
   docs: JSDoc[]
 ): FieldProperties {
   const tags = getTags(docs);
-  let fieldRelationProperties: FieldRelationProperties | undefined;
+  let fieldRelationProperties: DBFieldRelation | undefined;
   decorators.forEach((decorator) => {
     const name = decorator.getName();
     if (name === 'relation') {
@@ -96,8 +90,9 @@ function extractFieldProperties(
         ) {
           fieldRelationProperties = {
             table: kvPairs.get('table') as string,
-            references: [kvPairs.get('references') as string],
-            fields: [kvPairs.get('fields') as string]
+            references: kvPairs.get('references') as string[],
+            fields: kvPairs.get('fields') as string[],
+            isMany: typeField.type.isArray ?? false
           };
         }
       }
@@ -127,7 +122,7 @@ function extractFieldProperties(
   });
   return {
     zodType,
-    relation: fieldRelationProperties
+    dbRelation: fieldRelationProperties
   };
 }
 
@@ -137,7 +132,8 @@ function extractEventProperties(
 ): EventProperties {
   const tags = getTags(docs);
   let eventType: SyftEventType | undefined;
-  let dbProperties: EventTypeDBProperties | undefined;
+  let dbProperties: DBEventSource | undefined;
+
   decorators.forEach((decorator) => {
     const name = decorator.getName();
     if (name === 'eventtype') {
@@ -186,7 +182,7 @@ function extractEventProperties(
       }
     }
   });
-  return { eventType, dbProperties };
+  return { eventType, dbSourceDetails: dbProperties };
 }
 
 export function getEventSchema(
@@ -258,6 +254,7 @@ export function getEventSchema(
     exported: classObj.isExported(),
     documentation,
     fields,
+    dbSourceDetails: eventProps.dbSourceDetails ?? baseSchema?.dbSourceDetails,
     zodType
   };
 }

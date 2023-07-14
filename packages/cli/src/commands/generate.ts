@@ -1,5 +1,6 @@
 import type * as yargs from 'yargs';
 import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
@@ -37,7 +38,7 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
     y
       .positional('type', {
         // choices: ['ts', 'go', 'doc', 'dbt'] as const,
-        choices: ['ts', 'dbt'] as const,
+        choices: ['ts', 'dbt', 'yaml'] as const,
         default: 'ts'
       })
       // .option('projectId', {
@@ -154,6 +155,17 @@ async function innerHandler({
       const destinationConfig = await getDestinationConfig();
       const providerConfig = await getProviderConfig();
       generateDBT(ast, outDir ?? './dbt', destinationConfig, providerConfig);
+    } else if (type === 'yaml') {
+      console.log(
+        yaml.dump(ast, {
+          replacer: (key, value) => {
+            if (key === 'syftConfig' || key === 'zodType') {
+              return undefined;
+            }
+            return value;
+          }
+        })
+      );
     }
   }
   return ast;

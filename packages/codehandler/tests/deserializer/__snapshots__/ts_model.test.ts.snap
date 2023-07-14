@@ -14,7 +14,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "type": {
           "name": "string",
           "syfttype": "UUID",
-          "zodType": "z.string().uuid()"
+          "zodType": "z.string().uuid()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -24,7 +25,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "type": {
           "name": "string",
           "syfttype": "Email",
-          "zodType": "z.string().email()"
+          "zodType": "z.string().email()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -34,7 +36,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "type": {
           "name": "string",
           "syfttype": "CountryCode",
-          "zodType": "z.string().length(2)"
+          "zodType": "z.string().length(2)",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -43,7 +46,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "isOptional": false,
         "type": {
           "name": "number",
-          "zodType": "z.enum([0, 1, 2, 3])"
+          "zodType": "z.enum([0, 1, 2, 3])",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -52,7 +56,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.enum([\\"Yes\\", \\"No\\"])"
+          "zodType": "z.enum([\\"Yes\\", \\"No\\"])",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -61,7 +66,8 @@ exports[`generateASTForProject with event annotations 1`] = `
         "isOptional": false,
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -85,7 +91,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "UUID",
-          "zodType": "z.string().uuid()"
+          "zodType": "z.string().uuid()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -95,7 +102,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "Email",
-          "zodType": "z.string().email()"
+          "zodType": "z.string().email()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -105,7 +113,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "CountryCode",
-          "zodType": "z.string().length(2)"
+          "zodType": "z.string().length(2)",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -123,7 +132,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -132,7 +142,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "Date",
-          "zodType": "z.date()"
+          "zodType": "z.date()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -150,7 +161,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "documentation": "",
         "defaultValue": "'index'"
@@ -160,7 +172,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "documentation": "",
         "defaultValue": "false"
@@ -170,7 +183,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "Date",
-          "zodType": "z.date()"
+          "zodType": "z.date()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -188,7 +202,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -197,7 +212,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": true,
         "type": {
           "name": "number",
-          "zodType": "z.number().optional()"
+          "zodType": "z.number().optional()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -215,7 +231,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "documentation": "is the source original or a proxy."
       },
@@ -225,7 +242,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "UUID",
-          "zodType": "z.string().uuid()"
+          "zodType": "z.string().uuid()",
+          "isArray": false
         },
         "documentation": "id of the source."
       },
@@ -240,7 +258,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -248,11 +267,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number().optional()"
+                "zodType": "z.number().optional()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })",
+          "isArray": false
         },
         "documentation": "Source type."
       },
@@ -267,7 +288,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -275,7 +297,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number().optional()"
+                "zodType": "z.number().optional()",
+                "isArray": false
               }
             },
             {
@@ -283,11 +306,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "string",
-                "zodType": "z.string().optional()"
+                "zodType": "z.string().optional()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()"
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -305,7 +330,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "documentation": "is the source original or a proxy."
       },
@@ -315,7 +341,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "UUID",
-          "zodType": "z.string().uuid()"
+          "zodType": "z.string().uuid()",
+          "isArray": false
         },
         "documentation": "id of the source."
       },
@@ -330,7 +357,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -338,11 +366,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number().optional()"
+                "zodType": "z.number().optional()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
+          "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })",
+          "isArray": false
         },
         "documentation": "Source type."
       },
@@ -357,7 +387,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -365,7 +396,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "number",
-                "zodType": "z.number().optional()"
+                "zodType": "z.number().optional()",
+                "isArray": false
               }
             },
             {
@@ -373,11 +405,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": true,
               "type": {
                 "name": "string",
-                "zodType": "z.string().optional()"
+                "zodType": "z.string().optional()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()"
+          "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()",
+          "isArray": false
         },
         "documentation": ""
       }
@@ -395,7 +429,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
       },
@@ -410,7 +445,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -418,11 +454,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
+          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -432,7 +470,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "Url",
-          "zodType": "z.string().url()"
+          "zodType": "z.string().url()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -441,7 +480,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "number",
-          "zodType": "z.number()"
+          "zodType": "z.number()",
+          "isArray": false
         },
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }
@@ -459,7 +499,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "documentation": "Name of the channel, this is a unique global name.\\n@min 5"
       },
@@ -474,7 +515,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             },
             {
@@ -482,11 +524,13 @@ exports[`generateASTForProject with multiple schemas 1`] = `
               "isOptional": false,
               "type": {
                 "name": "string",
-                "zodType": "z.string()"
+                "zodType": "z.string()",
+                "isArray": false
               }
             }
           ],
-          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })"
+          "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -496,7 +540,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "type": {
           "name": "string",
           "syfttype": "Url",
-          "zodType": "z.string().url()"
+          "zodType": "z.string().url()",
+          "isArray": false
         },
         "documentation": ""
       },
@@ -505,7 +550,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "isOptional": false,
         "type": {
           "name": "number",
-          "zodType": "z.number()"
+          "zodType": "z.number()",
+          "isArray": false
         },
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }

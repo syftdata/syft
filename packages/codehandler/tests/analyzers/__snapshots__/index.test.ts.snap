@@ -10,7 +10,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "argOpt",
         "type": {
           "name": "number",
-          "zodType": "z.number().optional()"
+          "zodType": "z.number().optional()",
+          "isArray": false
         },
         "isOptional": true
       },
@@ -18,7 +19,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg2",
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "isOptional": false
       }
@@ -33,7 +35,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "eventName",
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -41,7 +44,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg1",
         "type": {
           "name": "number",
-          "zodType": "z.number()"
+          "zodType": "z.number()",
+          "isArray": false
         },
         "isOptional": true
       },
@@ -49,7 +53,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg2",
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -57,7 +62,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg3",
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "isOptional": true
       }
@@ -72,7 +78,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "path",
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -80,7 +87,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg2",
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "isOptional": false
       }
@@ -95,7 +103,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg1",
         "type": {
           "name": "number",
-          "zodType": "z.number()"
+          "zodType": "z.number()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -103,7 +112,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "arg2",
         "type": {
           "name": "boolean",
-          "zodType": "z.boolean()"
+          "zodType": "z.boolean()",
+          "isArray": false
         },
         "isOptional": false
       }
@@ -118,7 +128,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "userid",
         "type": {
           "name": "number",
-          "zodType": "z.number()"
+          "zodType": "z.number()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -126,7 +137,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "email",
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "isOptional": false
       },
@@ -134,7 +146,8 @@ exports[`analyze source code finds amplitude usages 1`] = `
         "name": "user",
         "type": {
           "name": "string",
-          "zodType": "z.string()"
+          "zodType": "z.string()",
+          "isArray": false
         },
         "isOptional": false
       }

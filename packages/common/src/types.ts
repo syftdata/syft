@@ -45,20 +45,22 @@ export interface TypeSchema extends BasicInfo {
   typeFields?: TypeField[]; // fields if the type is a complex object. for primitives, this will be empty.
   zodType: string; // for zod validation. z.string()
   syfttype?: string; // types defined in syft system. UUID, email etc.,
+
+  isArray: boolean; // if the type is an array.
 }
 
 export interface Field extends TypeField {
   defaultValue?: string; // eg: default values 1, "hello". makes the field optional.
-  relation?: DBFieldRelation;
+  dbRelation?: DBFieldRelation;
 }
 
-export interface EventSchema extends TypeSchema {
+export interface EventSchema extends Omit<TypeSchema, 'isArray'> {
   fields: Field[];
 
   destinations?: string[];
 
   eventType: SyftEventType;
-  cdcSourceDetails?: DBEventSource;
+  dbSourceDetails?: DBEventSource;
 
   exported?: boolean;
 }

@@ -8,7 +8,7 @@ function addSegmentColumns(ast: AST): void {
     extraSchemas.BQ_SEGMENT_SCHEMA.forEach((obj) =>
       schema.fields.push({
         name: obj.name,
-        type: { name: obj.type, zodType: 'z.string()' },
+        type: { name: obj.type, zodType: 'z.string()', isArray: false },
         documentation: obj.description,
         isOptional: false
       })
@@ -23,7 +23,7 @@ function addSyftColumns(ast: AST): void {
       if (existingFields.includes(obj.name)) return;
       schema.fields.push({
         name: obj.name,
-        type: { name: obj.type, zodType: 'z.string()' },
+        type: { name: obj.type, zodType: 'z.string()', isArray: false },
         documentation: obj.description,
         isOptional: false
       });
@@ -37,7 +37,7 @@ function addHeapColumns(ast: AST, platform: string): void {
     extraSchemas.BQ_HEAP_EVENT_SCHEMA_ALL.forEach((obj) =>
       schema.fields.push({
         name: obj.name,
-        type: { name: obj.type, zodType: 'z.string()' },
+        type: { name: obj.type, zodType: 'z.string()', isArray: false },
         documentation: obj.description,
         isOptional: false
       })
@@ -58,7 +58,7 @@ function addHeapColumns(ast: AST, platform: string): void {
     extraSchema.forEach((obj) =>
       schema.fields.push({
         name: obj.name,
-        type: { name: obj.type, zodType: 'z.string()' },
+        type: { name: obj.type, zodType: 'z.string()', isArray: false },
         documentation: obj.description,
         isOptional: false
       })
@@ -76,7 +76,7 @@ function addHeapColumns(ast: AST, platform: string): void {
   extraSchemas.BQ_HEAP_USERS_SCHEMA.forEach((obj) =>
     users.fields.push({
       name: obj.name,
-      type: { name: obj.type, zodType: 'z.string()' },
+      type: { name: obj.type, zodType: 'z.string()', isArray: false },
       documentation: obj.description,
       isOptional: false
     })
@@ -93,7 +93,8 @@ function addHeapColumns(ast: AST, platform: string): void {
       name: obj.name,
       type: {
         name: obj.type,
-        zodType: 'z.string()'
+        zodType: 'z.string()',
+        isArray: false
       },
       documentation: obj.description,
       isOptional: false
@@ -117,7 +118,8 @@ function addHeapColumns(ast: AST, platform: string): void {
       name: obj.name,
       type: {
         name: obj.type,
-        zodType: 'z.string()'
+        zodType: 'z.string()',
+        isArray: false
       },
       documentation: obj.description,
       isOptional: false
@@ -136,7 +138,8 @@ function addHeapColumns(ast: AST, platform: string): void {
       name: obj.name,
       type: {
         name: obj.type,
-        zodType: 'z.string()'
+        zodType: 'z.string()',
+        isArray: false
       },
       documentation: obj.description,
       isOptional: false
@@ -159,7 +162,8 @@ function addHeapColumns(ast: AST, platform: string): void {
       name: obj.name,
       type: {
         name: obj.type,
-        zodType: 'z.string()'
+        zodType: 'z.string()',
+        isArray: false
       },
       documentation: obj.description,
       isOptional: false
