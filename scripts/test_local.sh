@@ -2,7 +2,14 @@
 
 npx lerna run build
 cd packages/client
-npm pack
-cd ../cli
-npm pack
-cd ../../
+npm link
+cd - 
+cd packages/common
+npm link
+cd -
+cd packages/codehandler
+npm link
+cd -
+cd packages/cli
+npm link
+cd -

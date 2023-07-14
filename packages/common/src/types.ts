@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import { type DBEventSource, type DBFieldRelation } from './db_types';
 import { type StaticConfig, type SyftEventType } from './client_types';
 import { type Expression } from 'ts-morph';
 
@@ -48,14 +49,18 @@ export interface TypeSchema extends BasicInfo {
 
 export interface Field extends TypeField {
   defaultValue?: string; // eg: default values 1, "hello". makes the field optional.
+  relation?: DBFieldRelation;
 }
 
 export interface EventSchema extends TypeSchema {
   fields: Field[];
   traits?: string[];
+
   destinations?: string[];
 
   eventType: SyftEventType;
+  cdcSourceDetails?: DBEventSource;
+
   exported?: boolean;
 }
 
