@@ -44,7 +44,6 @@ describe('generate', () => {
         {
           name: 'TestEvent',
           fields: TEST_FIELDS,
-          traits: [],
           eventType: SyftEventType.PAGE,
           exported: false,
           zodType: TEST_ZOD_TYPE
@@ -64,7 +63,6 @@ describe('generate', () => {
         {
           name: 'TestEvent',
           fields: TEST_FIELDS,
-          traits: [],
           eventType: SyftEventType.PAGE,
           exported: true,
           zodType: TEST_ZOD_TYPE

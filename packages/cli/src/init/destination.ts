@@ -84,7 +84,6 @@ function getEventSchema(event: ApiEventSchema): EventSchema {
     documentation: event.documentation ?? '',
     fields,
     zodType: event.zodType,
-    traits: [],
     eventType: SyftEventType[event.eventType as keyof typeof SyftEventType]
   };
   return schema;

@@ -54,7 +54,6 @@ export interface Field extends TypeField {
 
 export interface EventSchema extends TypeSchema {
   fields: Field[];
-  traits?: string[];
 
   destinations?: string[];
 

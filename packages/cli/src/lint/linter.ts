@@ -1,8 +1,14 @@
 import { ESLint } from 'eslint';
-import { logUnknownError } from '@syftdata/common/lib/utils';
+import * as fs from 'fs';
+import { logInfo, logUnknownError } from '@syftdata/common/lib/utils';
 
 export async function runLinter(files: string[]): Promise<boolean> {
   try {
+    if (!fs.existsSync('syft/lint/rules')) {
+      logInfo(':warning: No custom lint rules found. Skipping linting.');
+      return true;
+    }
+
     // 1. Create an instance.
     const eslint = new ESLint({
       overrideConfigFile: 'syft/lint/config.cjs',

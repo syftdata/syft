@@ -27,7 +27,6 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
       name,
       zodType: 'z.object({})',
       fields: [],
-      traits: [],
       eventType: SyftEventType.TRACK,
       documentation: `This model generates the "${name
         .replace(/([A-Z])/g, ' $1')

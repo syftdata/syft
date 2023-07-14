@@ -66,7 +66,6 @@ exports[`generateASTForProject with event annotations 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2),\\n\\tdirection: z.enum([0, 1, 2, 3]),\\n\\tisSpammer: z.enum([\\"Yes\\", \\"No\\"]),\\n\\tisVerified: z.boolean()\\n  })"
   }
 ]"
@@ -111,7 +110,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tuserId: z.string().uuid(),\\n\\temail: z.string().email(),\\n\\tcountry: z.string().length(2)\\n  })"
   },
   {
@@ -139,7 +137,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tpage: z.string(),\\n\\ttime: z.date()\\n  })"
   },
   {
@@ -178,7 +175,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tpage: z.string(),\\n\\tloggedIn: z.boolean(),\\n\\ttime: z.date()\\n  })"
   },
   {
@@ -206,7 +202,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })"
   },
   {
@@ -297,7 +292,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()\\n  })"
   },
   {
@@ -388,7 +382,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": ""
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tisOriginal: z.boolean(),\\n\\tid: z.string().uuid(),\\n\\ttype: z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  }),\\n\\teventType: z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()\\n  })"
   },
   {
@@ -453,7 +446,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tname: z.string(),\\n\\ttype: z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  }),\\n\\twebhook: z.string().url(),\\n\\tcount: z.number()\\n  })"
   },
   {
@@ -518,7 +510,6 @@ exports[`generateASTForProject with multiple schemas 1`] = `
         "documentation": "Number of notifications fired so far.\\n@min 0"
       }
     ],
-    "traits": [],
     "zodType": "z.object({\\n    \\tname: z.string(),\\n\\ttype: z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  }),\\n\\twebhook: z.string().url(),\\n\\tcount: z.number()\\n  })"
   }
 ]"

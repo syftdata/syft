@@ -4,7 +4,9 @@ import {
   type ts,
   type Type,
   type Symbol as TSSymbol,
-  SyntaxKind
+  SyntaxKind,
+  type ObjectLiteralExpression,
+  type Expression
 } from 'ts-morph';
 import { logInfo } from '@syftdata/common/lib/utils';
 import {
@@ -21,6 +23,49 @@ export function getTags(docs: JSDoc[]): Array<JSDocTag<ts.JSDocTag>> {
   return docs.reduce<Array<JSDocTag<ts.JSDocTag>>>((prev, curr) => {
     return [...prev, ...curr.getTags()];
   }, []);
+}
+
+export function extractKVPairsFromObjectLiteral(
+  exp: ObjectLiteralExpression
+): Map<string, string> {
+  const map = extractFieldsFromObjectLiteral(exp);
+  const kvPairs = new Map<string, string>();
+  map.forEach((value, key) => {
+    const valueType = value.getType();
+    if (valueType.isStringLiteral()) {
+      kvPairs.set(key, valueType.getText());
+    }
+  });
+  return kvPairs;
+}
+
+export function extractFieldsFromObjectLiteral(
+  exp: ObjectLiteralExpression
+): Map<string, Expression<ts.Expression>> {
+  const kvPairs = new Map<string, Expression<ts.Expression>>();
+  const fields = exp.getChildrenOfKind(SyntaxKind.PropertyAssignment);
+  fields.forEach((field) => {
+    const key = field.getName();
+    const value = field.getInitializer();
+    if (key !== undefined && value !== undefined) {
+      kvPairs.set(key, value);
+    }
+  });
+  return kvPairs;
+}
+
+export function extractPropsFromObjectType(
+  type: Type<ts.Type>
+): Map<string, Type<ts.Type>> {
+  const kvPairs = new Map<string, Type<ts.Type>>();
+  // args and event-name might be merged into one ?
+  type.getProperties().forEach((prop) => {
+    const propName = prop.getName();
+    if (prop?.getDeclaredType() != null) {
+      kvPairs.set(propName, prop.getDeclaredType());
+    }
+  });
+  return kvPairs;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

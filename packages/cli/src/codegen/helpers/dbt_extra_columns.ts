@@ -71,7 +71,6 @@ function addHeapColumns(ast: AST, platform: string): void {
     name: 'users',
     zodType: 'z.object({})',
     fields: [],
-    traits: [],
     eventType: SyftEventType.IDENTIFY // HACK
   };
   extraSchemas.BQ_HEAP_USERS_SCHEMA.forEach((obj) =>
@@ -87,7 +86,6 @@ function addHeapColumns(ast: AST, platform: string): void {
     name: 'sessions',
     zodType: 'z.object({})',
     fields: [],
-    traits: [],
     eventType: SyftEventType.TRACK // HACK
   };
   extraSchemas.BQ_HEAP_SESSIONS_SCHEMA_ALL.forEach((obj) =>
@@ -130,7 +128,6 @@ function addHeapColumns(ast: AST, platform: string): void {
     name: 'pageviews',
     zodType: 'z.object({})',
     fields: [],
-    traits: [],
     eventType: SyftEventType.PAGE // HACK
   };
 

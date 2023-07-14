@@ -6,7 +6,8 @@ export enum SyftEventType {
   PAGE,
   SCREEN,
   IDENTIFY,
-  GROUP_IDENTIFY
+  GROUP_IDENTIFY,
+  DB
 }
 
 export enum NamingCase {
