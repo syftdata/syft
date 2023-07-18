@@ -136,7 +136,8 @@ export async function fetchRemoteData(
                   version: responseData.eventSchema.appVersion,
                   projectName: responseData.eventSchema.appName
                 },
-                eventSchemas
+                eventSchemas,
+                sinks: []
               },
               activeBranch: responseData.activeBranch,
               eventSchemaSha: responseData.eventSchemaSha,

@@ -65,8 +65,30 @@ export interface EventSchema extends Omit<TypeSchema, 'isArray'> {
   exported?: boolean;
 }
 
+export type SinkConfig = Record<string, string | number | boolean>;
+export interface SinkBatchOptions {
+  batchSize?: number;
+  intervalMillis?: number;
+}
+export interface SinkRetryOptions {
+  retries?: number;
+  factor?: number;
+  minTimeout?: number;
+  maxTimeout?: number;
+  randomize?: boolean;
+}
+
+export interface Sink {
+  id: string;
+  type: string;
+  config?: SinkConfig;
+  batchConfig?: SinkBatchOptions;
+  retryConfig?: SinkRetryOptions;
+}
+
 export interface AST {
   eventSchemas: EventSchema[];
   syftConfig?: Expression;
   config: StaticConfig;
+  sinks: Sink[];
 }

@@ -1,12 +1,13 @@
 import { Project, ScriptTarget } from 'ts-morph';
 import { logDetail, logError, logFatal } from '@syftdata/common/lib/utils';
-import { type AST } from '@syftdata/common/lib/types';
+import { type AST, type Sink } from '@syftdata/common/lib/types';
 import { getEventSchemas } from './visitor';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
   getConfigExpressionForProject,
-  getConfigFromExpression
+  getConfigFromExpression,
+  getSinks
 } from './config';
 
 // TODO: memoize this method.
@@ -75,11 +76,12 @@ export function generateASTForProject(project: Project): AST | undefined {
     return;
   }
   const config = getConfigFromExpression(syftConfig);
-
+  const sinks: Sink[] = getSinks(project);
   return {
     eventSchemas,
     syftConfig,
-    config
+    config,
+    sinks
   };
 }
 

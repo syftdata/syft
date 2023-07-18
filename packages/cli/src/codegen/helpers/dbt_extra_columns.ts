@@ -177,9 +177,9 @@ export function addExtraColumns(
   ast: AST,
   providerConfig: ProviderConfig
 ): void {
-  if (providerConfig.destination === 'segment') {
+  if (providerConfig.sdkType === 'segment') {
     addSegmentColumns(ast);
-  } else if (providerConfig.destination === 'heap') {
+  } else if (providerConfig.sdkType === 'heap') {
     addHeapColumns(ast, providerConfig.platform as string);
   } else {
     addSyftColumns(ast);

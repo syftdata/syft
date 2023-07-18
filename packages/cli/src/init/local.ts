@@ -195,6 +195,7 @@ export function getEventShemas(platform: string, product: string): AST {
       version: '0.0.1',
       projectName: 'test'
     },
-    eventSchemas
+    eventSchemas,
+    sinks: []
   };
 }

@@ -156,7 +156,8 @@ function extractEventProperties(
           if (kvPairs.has('table') && kvPairs.has('on')) {
             dbProperties = {
               table: kvPairs.get('table') as string,
-              on: kvPairs.get('on') as string
+              on: kvPairs.get('on') as string,
+              fields: kvPairs.get('fields') as string[]
             };
           }
         }

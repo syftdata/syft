@@ -105,6 +105,7 @@ export function analyzeAST(project: Project): AST {
     config: {
       projectName: 'Test',
       version: '0.0.1'
-    }
+    },
+    sinks: []
   };
 }

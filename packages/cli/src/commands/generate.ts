@@ -5,15 +5,9 @@ import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
 import { generate as generateDBT } from '../codegen/generators/dbt_generator';
-import {
-  BQConfig,
-  PGConfig,
-  type DestinationConfig,
-  type ProviderConfig
-} from '../config/sink_configs';
+import { type ProviderConfig } from '../config/sink_configs';
 import { getSchemaFolder } from '../utils';
 import { logDetail, logInfo } from '@syftdata/common/lib/utils';
-import { type Questions, prompt as ask } from 'inquirer';
 import { getClientPackage, updatePackageJson } from '../config/pkg';
 import { runLinter } from '../lint/linter';
 import { type AST } from '@syftdata/common/lib/types';
@@ -37,18 +31,9 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
   return (
     y
       .positional('type', {
-        // choices: ['ts', 'go', 'doc', 'dbt'] as const,
         choices: ['ts', 'dbt', 'yaml'] as const,
         default: 'ts'
       })
-      // .option('projectId', {
-      //   describe: 'GCP project ID to use for DBT',
-      //   type: 'string'
-      // })
-      // .option('dataset', {
-      //   describe: 'BigQuery dataset name to use for DBT',
-      //   type: 'string'
-      // })
       // .option('destination', {
       //   choices: ['syft', 'heap', 'segment'] as const,
       //   describe: 'Event Logging library. Currently we support syft, segment and heap',
@@ -74,32 +59,10 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
   );
 };
 
-async function getDestinationConfig(): Promise<DestinationConfig> {
-  return new PGConfig('analytics');
-  // const prompts: Questions = [];
-  // if (projectId == null) {
-  //   prompts.push({
-  //     type: 'input',
-  //     name: 'projectId',
-  //     message: 'GCP Project ID:'
-  //   });
-  // }
-  // if (dataset == null) {
-  //   prompts.push({
-  //     type: 'input',
-  //     name: 'dataset',
-  //     message: 'BigQuery Dataset (stores events):'
-  //   });
-  // }
-  // const { config } = await ask(prompts);
-  // return new BQConfig(config.projectId, config.dataset);
-}
-
 async function getProviderConfig(): Promise<ProviderConfig> {
   return {
-    destination: 'syft'
+    sdkType: 'syft'
   };
-
   //   let destinationVal = '';
   //   if (destination == null) {
   //     const { answer } = await ask([
@@ -123,11 +86,7 @@ async function getProviderConfig(): Promise<ProviderConfig> {
 async function innerHandler({
   input,
   type,
-  outDir,
-  projectId,
-  dataset,
-  destination,
-  platform
+  outDir
 }: Params): Promise<AST | undefined> {
   const ast = deserialize([input]);
   if (ast != null) {
@@ -152,9 +111,8 @@ async function innerHandler({
     } else if (type === 'go') {
       generateGo(ast, outDir ?? './golang');
     } else if (type === 'dbt') {
-      const destinationConfig = await getDestinationConfig();
       const providerConfig = await getProviderConfig();
-      generateDBT(ast, outDir ?? './dbt', destinationConfig, providerConfig);
+      generateDBT(ast, outDir ?? './dbt', providerConfig);
     } else if (type === 'yaml') {
       console.log(
         yaml.dump(ast, {

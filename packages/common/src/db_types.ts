@@ -1,6 +1,7 @@
 export interface DBEventSource {
   table: string;
   on: string | string[];
+  fields: string[];
 }
 
 export interface DBFieldRelation {

@@ -6,7 +6,8 @@ import {
   type Symbol as TSSymbol,
   SyntaxKind,
   type ObjectLiteralExpression,
-  type Expression
+  type Expression,
+  PropertyAssignment
 } from 'ts-morph';
 import { logInfo } from '@syftdata/common/lib/utils';
 import {
@@ -264,4 +265,36 @@ export function getTypeSchema(
     zodType,
     isArray: false
   };
+}
+
+interface ConfigObject {
+  [key: string]: string | boolean | number | ConfigObject;
+}
+export function getConfigObject(input: ObjectLiteralExpression): ConfigObject {
+  const configObject: ConfigObject = {};
+  input.getProperties().forEach((property) => {
+    if (property instanceof PropertyAssignment) {
+      const propertyName = property.getSymbolOrThrow().getEscapedName();
+      const initializer = property.getInitializerOrThrow();
+      const initializerType = initializer.getType();
+      if (initializerType.isStringLiteral()) {
+        configObject[propertyName] = initializer.getText().replace(/['"]/g, '');
+      } else if (initializerType.isBooleanLiteral()) {
+        configObject[propertyName] = initializer.getText() === 'true';
+      } else if (initializerType.isEnumLiteral()) {
+        configObject[propertyName] = initializer.getText();
+      } else if (initializerType.isNumberLiteral()) {
+        configObject[propertyName] = Number(initializer.getText());
+      } else if (initializerType.isObject()) {
+        configObject[propertyName] = getConfigObject(
+          initializer as ObjectLiteralExpression
+        );
+      } else {
+        logInfo(
+          `:prohibited: Unsupported type is seen on "${propertyName}: ${initializer.getText()}". using "any" for now`
+        );
+      }
+    }
+  });
+  return configObject;
 }
