@@ -81,7 +81,8 @@ export function generateASTForProject(project: Project): AST | undefined {
     eventSchemas,
     syftConfig,
     config,
-    sinks
+    sinks,
+    inputs: []
   };
 }
 

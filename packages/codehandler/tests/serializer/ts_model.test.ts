@@ -14,7 +14,8 @@ describe('serialize', () => {
               name: 'test',
               type: {
                 name: 'string',
-                zodType: 'z.string()'
+                zodType: 'z.string()',
+                isArray: false
               },
               documentation: 'This is a test field',
               isOptional: false
@@ -24,7 +25,8 @@ describe('serialize', () => {
               type: {
                 name: 'string',
                 syfttype: 'Email',
-                zodType: 'z.string().email()'
+                zodType: 'z.string().email()',
+                isArray: false
               },
               isOptional: false
             }
@@ -36,7 +38,9 @@ describe('serialize', () => {
       config: {
         projectName: 'test',
         version: '1.0.0'
-      }
+      },
+      sinks: [],
+      inputs: []
     };
     expect(serialize(ast)).toMatchSnapshot();
   });

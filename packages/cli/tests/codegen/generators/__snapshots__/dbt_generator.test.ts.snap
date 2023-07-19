@@ -4,7 +4,7 @@ exports[`generate with dbt parses an empty schema file 1`] = `
 "name: test
 version: 1.0.0
 config-version: 2
-profile: test
+profile: default
 model-paths:
   - models
 test-paths:
@@ -15,37 +15,28 @@ target-path: target
 clean-targets:
   - target
   - dbt_packages
-models:
-  test:
-    +materialized: table
 "
 `;
 
 exports[`generate with dbt parses an empty schema file 2`] = `
-"test:
+"default:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: oauth
       project: testProject
-      dataset: testDataset_dev
+      dataset: testDataset
       timeout_seconds: 300
 "
 `;
 
 exports[`generate with dbt parses an empty schema file 3`] = `
 "version: 2
-models: []
-"
-`;
-
-exports[`generate with dbt parses an empty schema file 4`] = `
-"version: 2
 sources:
   - schema: testProject
     database: testDataset
-    name: syft
+    name: testSink
     description: Loaded from Syft
     tables: []
 "
@@ -55,7 +46,7 @@ exports[`generate with dbt parses an event with HeapIO 1`] = `
 "name: test
 version: 1.0.0
 config-version: 2
-profile: test
+profile: default
 model-paths:
   - models
 test-paths:
@@ -66,341 +57,28 @@ target-path: target
 clean-targets:
   - target
   - dbt_packages
-models:
-  test:
-    +materialized: table
 "
 `;
 
 exports[`generate with dbt parses an event with HeapIO 2`] = `
-"test:
+"default:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: oauth
       project: testProject
-      dataset: testDataset_dev
+      dataset: testDataset
       timeout_seconds: 300
 "
 `;
 
 exports[`generate with dbt parses an event with HeapIO 3`] = `
-"
-SELECT
-
-backgrounded, _id, anonymous_id, context_ip, context_library_name, context_library_version, context_page_path, context_page_title, context_page_url, context_locale, context_user_agent, event, event_text, loaded_at, original_timestamp, received_at, sent_at, timestamp, uuid_ts, event_id, user_id, session_id, time, type, library, platform, device_type, country, region, city, "IP", referrer, landing_page, landing_page_query, landing_page_hash, browser, search_keyword, utm_source, utm_campaign, utm_medium, utm_term, utm_content, domain, path, hash, query, title, href, target_text, heap_previous_page
-
-FROM {{ source ('syft', 'test_event') }}"
-`;
-
-exports[`generate with dbt parses an event with HeapIO 4`] = `
-"version: 2
-models:
-  - name: stg_test_event
-    columns:
-      - name: backgrounded
-        meta:
-          type: boolean
-        quote: false
-      - name: _id
-        description: The unique ID of the track call itself.
-        meta:
-          type: number
-          metabase.semantic_type: type/PK
-        quote: false
-      - name: anonymous_id
-        description: The anonymous ID of the user.
-        meta:
-          type: string
-        quote: false
-      - name: context_ip
-        description: >-
-          The IP address of the client. Non-user-related context fields sent
-          with each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_name
-        description: >-
-          The Logging library name. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_version
-        description: >-
-          The Logging library version. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_path
-        description: The path of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_title
-        description: The title of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_url
-        description: The full url of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_locale
-        description: The browsers locale used when the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_user_agent
-        description: The browsers user-agent string.
-        meta:
-          type: string
-        quote: false
-      - name: event
-        description: The slug of the event name, so you can join the tracks table.
-        meta:
-          type: string
-        quote: false
-      - name: event_text
-        description: The name of the event.
-        meta:
-          type: string
-        quote: false
-      - name: loaded_at
-        description: >-
-          The UTC timestamp reflecting when the data was staged by the
-          processor. Bigquery only.
-        meta:
-          type: timestamp
-        quote: false
-      - name: original_timestamp
-        description: >-
-          The original timestamp set by the Segment library at the time the
-          event is created. This timestamp can be affected by device clock skew.
-        meta:
-          type: timestamp
-        quote: false
-      - name: received_at
-        description: When Segment received the track call.
-        meta:
-          type: timestamp
-        quote: false
-      - name: sent_at
-        description: >-
-          When a user triggered the track call. This timestamp can also be
-          affected by device clock skew
-        meta:
-          type: timestamp
-        quote: false
-      - name: timestamp
-        description: The UTC-converted timestamp which is set by the Segment library
-        meta:
-          type: timestamp
-        quote: false
-      - name: uuid_ts
-        description: >-
-          This is used to keep track of when the specific event was last
-          processed by our connector, specifically for deduping and debugging
-          purposes. You can generally ignore this column
-        meta:
-          type: timestamp
-        quote: false
-      - name: event_id
-        description: Unique ID of the associated event, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: user_id
-        description: Unique ID of the associated user, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: session_id
-        description: Unique ID of the associated session, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: time
-        description: Timestamp without timezone of when the event happened.
-        meta:
-          type: timestamp
-        quote: false
-      - name: type
-        description: >-
-          For web autocaptured events, can be any of view page, click, submit,
-          change, with push state events registered as view page events. For iOS
-          auto-tracked events, can be touch, edit field, or a gesture recognizer
-          you’ve defined. For custom events, this will be the custom event name.
-        meta:
-          type: string
-        quote: false
-      - name: library
-        description: >-
-          Version of Heap library on which event occurred. Can be one of “web”,
-          “iOS”, or “server”.
-        meta:
-          type: string
-        quote: false
-      - name: platform
-        description: User’s operating system.
-        meta:
-          type: string
-        quote: false
-      - name: device_type
-        description: Device type, which can be one of “Mobile”, “Tablet”, or “Desktop”.
-        meta:
-          type: string
-        quote: false
-      - name: country
-        description: Country in which user session occurred, based on IP.
-        meta:
-          type: string
-          metabase.semantic_type: type/Country
-        quote: false
-      - name: region
-        description: Region in which user session occurred, based on IP.
-        meta:
-          type: string
-        quote: false
-      - name: city
-        description: City in which user session occurred, based on IP.
-        meta:
-          type: string
-          metabase.semantic_type: type/City
-        quote: false
-      - name: IP
-        description: >-
-          The IP address for the session, which is used for determining
-          geolocation.
-        meta:
-          type: string
-        quote: true
-      - name: referrer
-        description: >-
-          URL that linked to your site and initiated the session.If the user
-          navigated directly to your site, or referral headers were stripped,
-          then this value will appear as NULL downstream and as \`direct\` in the
-          UI.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page
-        description: URL of the first pageview of the session.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page_query
-        description: The query parameters of the first page of the user’s session.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page_hash
-        description: The hash route of the first page of the user’s session.
-        meta:
-          type: string
-        quote: false
-      - name: browser
-        description: User’s browser.
-        meta:
-          type: string
-        quote: false
-      - name: search_keyword
-        description: Search term that brought the user to your site. [Deprecated]
-        meta:
-          type: string
-        quote: false
-      - name: utm_source
-        description: >-
-          GA-based utm_source tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_campaign
-        description: >-
-          GA-based utm_campaign tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_medium
-        description: >-
-          GA-based utm_medium tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_term
-        description: GA-based utm_term tag associated with the session’s initial pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_content
-        description: >-
-          GA-based utm_content tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: domain
-        description: Domain including subdomain, e.g. blog.heap.io.
-        meta:
-          type: string
-        quote: false
-      - name: path
-        description: >-
-          Portion of the current URL following your domain, e.g. /docs for
-          heap.io/docs.
-        meta:
-          type: string
-        quote: false
-      - name: hash
-        description: >-
-          Portion of the current URL following the hash sign, e.g. #install for
-          heap.io/docs#install.
-        meta:
-          type: string
-        quote: false
-      - name: query
-        description: >-
-          Query params of the page’s current URL, e.g. ?utm_id=1234 for
-          heap.io?utm_id=1234.
-        meta:
-          type: string
-        quote: false
-      - name: title
-        description: Title of the current page.
-        meta:
-          type: string
-        quote: false
-      - name: href
-        description: href property of link (used for clicks on anchor tags).
-        meta:
-          type: string
-        quote: false
-      - name: target_text
-        description: Button text of the event target.
-        meta:
-          type: string
-        quote: false
-      - name: heap_previous_page
-        description: The previous page visited in this session.
-        meta:
-          type: string
-        quote: false
-"
-`;
-
-exports[`generate with dbt parses an event with HeapIO 5`] = `
 "version: 2
 sources:
   - schema: testProject
     database: testDataset
-    name: syft
+    name: testSink
     description: Loaded from Syft
     tables:
       - name: test_event
@@ -809,7 +487,7 @@ exports[`generate with dbt parses an event with Segment 1`] = `
 "name: test
 version: 1.0.0
 config-version: 2
-profile: test
+profile: default
 model-paths:
   - models
 test-paths:
@@ -820,158 +498,28 @@ target-path: target
 clean-targets:
   - target
   - dbt_packages
-models:
-  test:
-    +materialized: table
 "
 `;
 
 exports[`generate with dbt parses an event with Segment 2`] = `
-"test:
+"default:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: oauth
       project: testProject
-      dataset: testDataset_dev
+      dataset: testDataset
       timeout_seconds: 300
 "
 `;
 
 exports[`generate with dbt parses an event with Segment 3`] = `
-"
-SELECT
-
-backgrounded, _id, anonymous_id, context_ip, context_library_name, context_library_version, context_page_path, context_page_title, context_page_url, context_locale, context_user_agent, event, event_text, loaded_at, original_timestamp, received_at, sent_at, timestamp, uuid_ts
-
-FROM {{ source ('syft', 'test_event') }}"
-`;
-
-exports[`generate with dbt parses an event with Segment 4`] = `
-"version: 2
-models:
-  - name: stg_test_event
-    columns:
-      - name: backgrounded
-        meta:
-          type: boolean
-        quote: false
-      - name: _id
-        description: The unique ID of the track call itself.
-        meta:
-          type: number
-          metabase.semantic_type: type/PK
-        quote: false
-      - name: anonymous_id
-        description: The anonymous ID of the user.
-        meta:
-          type: string
-        quote: false
-      - name: context_ip
-        description: >-
-          The IP address of the client. Non-user-related context fields sent
-          with each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_name
-        description: >-
-          The Logging library name. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_version
-        description: >-
-          The Logging library version. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_path
-        description: The path of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_title
-        description: The title of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_url
-        description: The full url of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_locale
-        description: The browsers locale used when the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_user_agent
-        description: The browsers user-agent string.
-        meta:
-          type: string
-        quote: false
-      - name: event
-        description: The slug of the event name, so you can join the tracks table.
-        meta:
-          type: string
-        quote: false
-      - name: event_text
-        description: The name of the event.
-        meta:
-          type: string
-        quote: false
-      - name: loaded_at
-        description: >-
-          The UTC timestamp reflecting when the data was staged by the
-          processor. Bigquery only.
-        meta:
-          type: timestamp
-        quote: false
-      - name: original_timestamp
-        description: >-
-          The original timestamp set by the Segment library at the time the
-          event is created. This timestamp can be affected by device clock skew.
-        meta:
-          type: timestamp
-        quote: false
-      - name: received_at
-        description: When Segment received the track call.
-        meta:
-          type: timestamp
-        quote: false
-      - name: sent_at
-        description: >-
-          When a user triggered the track call. This timestamp can also be
-          affected by device clock skew
-        meta:
-          type: timestamp
-        quote: false
-      - name: timestamp
-        description: The UTC-converted timestamp which is set by the Segment library
-        meta:
-          type: timestamp
-        quote: false
-      - name: uuid_ts
-        description: >-
-          This is used to keep track of when the specific event was last
-          processed by our connector, specifically for deduping and debugging
-          purposes. You can generally ignore this column
-        meta:
-          type: timestamp
-        quote: false
-"
-`;
-
-exports[`generate with dbt parses an event with Segment 5`] = `
 "version: 2
 sources:
   - schema: testProject
     database: testDataset
-    name: syft
+    name: testSink
     description: Loaded from Syft
     tables:
       - name: test_event
@@ -1132,7 +680,7 @@ exports[`generate with dbt parses an event with Syft 1`] = `
 "name: test
 version: 1.0.0
 config-version: 2
-profile: test
+profile: default
 model-paths:
   - models
 test-paths:
@@ -1143,384 +691,28 @@ target-path: target
 clean-targets:
   - target
   - dbt_packages
-models:
-  test:
-    +materialized: table
 "
 `;
 
 exports[`generate with dbt parses an event with Syft 2`] = `
-"test:
+"default:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: oauth
       project: testProject
-      dataset: testDataset_dev
+      dataset: testDataset
       timeout_seconds: 300
 "
 `;
 
 exports[`generate with dbt parses an event with Syft 3`] = `
-"
-SELECT
-
-backgrounded, _id, anonymous_id, context_ip, context_library_name, context_library_version, context_page_path, context_page_title, context_page_url, context_locale, context_user_agent, event, event_text, loaded_at, original_timestamp, received_at, sent_at, timestamp, uuid_ts, event_id, user_id, session_id, time, type, library, platform, device_type, country, region, city, "IP", referrer, landing_page, landing_page_query, landing_page_hash, browser, search_keyword, utm_source, utm_campaign, utm_medium, utm_term, utm_content, domain, path, hash, query, title, href, target_text, heap_previous_page, "receivedAt", "eventType", "eventName", ip, "userAgent", referer, host, origin
-
-FROM {{ source ('syft', 'test_event') }}"
-`;
-
-exports[`generate with dbt parses an event with Syft 4`] = `
-"version: 2
-models:
-  - name: stg_test_event
-    columns:
-      - name: backgrounded
-        meta:
-          type: boolean
-        quote: false
-      - name: _id
-        description: The unique ID of the track call itself.
-        meta:
-          type: number
-          metabase.semantic_type: type/PK
-        quote: false
-      - name: anonymous_id
-        description: The anonymous ID of the user.
-        meta:
-          type: string
-        quote: false
-      - name: context_ip
-        description: >-
-          The IP address of the client. Non-user-related context fields sent
-          with each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_name
-        description: >-
-          The Logging library name. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_library_version
-        description: >-
-          The Logging library version. Non-user-related context fields sent with
-          each track call.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_path
-        description: The path of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_title
-        description: The title of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_page_url
-        description: The full url of the page on which the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_locale
-        description: The browsers locale used when the event was logged.
-        meta:
-          type: string
-        quote: false
-      - name: context_user_agent
-        description: The browsers user-agent string.
-        meta:
-          type: string
-        quote: false
-      - name: event
-        description: The slug of the event name, so you can join the tracks table.
-        meta:
-          type: string
-        quote: false
-      - name: event_text
-        description: The name of the event.
-        meta:
-          type: string
-        quote: false
-      - name: loaded_at
-        description: >-
-          The UTC timestamp reflecting when the data was staged by the
-          processor. Bigquery only.
-        meta:
-          type: timestamp
-        quote: false
-      - name: original_timestamp
-        description: >-
-          The original timestamp set by the Segment library at the time the
-          event is created. This timestamp can be affected by device clock skew.
-        meta:
-          type: timestamp
-        quote: false
-      - name: received_at
-        description: When Segment received the track call.
-        meta:
-          type: timestamp
-        quote: false
-      - name: sent_at
-        description: >-
-          When a user triggered the track call. This timestamp can also be
-          affected by device clock skew
-        meta:
-          type: timestamp
-        quote: false
-      - name: timestamp
-        description: The UTC-converted timestamp which is set by the Segment library
-        meta:
-          type: timestamp
-        quote: false
-      - name: uuid_ts
-        description: >-
-          This is used to keep track of when the specific event was last
-          processed by our connector, specifically for deduping and debugging
-          purposes. You can generally ignore this column
-        meta:
-          type: timestamp
-        quote: false
-      - name: event_id
-        description: Unique ID of the associated event, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: user_id
-        description: Unique ID of the associated user, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: session_id
-        description: Unique ID of the associated session, randomly generated by Heap.
-        meta:
-          type: number
-        quote: false
-      - name: time
-        description: Timestamp without timezone of when the event happened.
-        meta:
-          type: timestamp
-        quote: false
-      - name: type
-        description: >-
-          For web autocaptured events, can be any of view page, click, submit,
-          change, with push state events registered as view page events. For iOS
-          auto-tracked events, can be touch, edit field, or a gesture recognizer
-          you’ve defined. For custom events, this will be the custom event name.
-        meta:
-          type: string
-        quote: false
-      - name: library
-        description: >-
-          Version of Heap library on which event occurred. Can be one of “web”,
-          “iOS”, or “server”.
-        meta:
-          type: string
-        quote: false
-      - name: platform
-        description: User’s operating system.
-        meta:
-          type: string
-        quote: false
-      - name: device_type
-        description: Device type, which can be one of “Mobile”, “Tablet”, or “Desktop”.
-        meta:
-          type: string
-        quote: false
-      - name: country
-        description: Country in which user session occurred, based on IP.
-        meta:
-          type: string
-          metabase.semantic_type: type/Country
-        quote: false
-      - name: region
-        description: Region in which user session occurred, based on IP.
-        meta:
-          type: string
-        quote: false
-      - name: city
-        description: City in which user session occurred, based on IP.
-        meta:
-          type: string
-          metabase.semantic_type: type/City
-        quote: false
-      - name: IP
-        description: >-
-          The IP address for the session, which is used for determining
-          geolocation.
-        meta:
-          type: string
-        quote: true
-      - name: referrer
-        description: >-
-          URL that linked to your site and initiated the session.If the user
-          navigated directly to your site, or referral headers were stripped,
-          then this value will appear as NULL downstream and as \`direct\` in the
-          UI.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page
-        description: URL of the first pageview of the session.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page_query
-        description: The query parameters of the first page of the user’s session.
-        meta:
-          type: string
-        quote: false
-      - name: landing_page_hash
-        description: The hash route of the first page of the user’s session.
-        meta:
-          type: string
-        quote: false
-      - name: browser
-        description: User’s browser.
-        meta:
-          type: string
-        quote: false
-      - name: search_keyword
-        description: Search term that brought the user to your site. [Deprecated]
-        meta:
-          type: string
-        quote: false
-      - name: utm_source
-        description: >-
-          GA-based utm_source tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_campaign
-        description: >-
-          GA-based utm_campaign tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_medium
-        description: >-
-          GA-based utm_medium tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_term
-        description: GA-based utm_term tag associated with the session’s initial pageview.
-        meta:
-          type: string
-        quote: false
-      - name: utm_content
-        description: >-
-          GA-based utm_content tag associated with the session’s initial
-          pageview.
-        meta:
-          type: string
-        quote: false
-      - name: domain
-        description: Domain including subdomain, e.g. blog.heap.io.
-        meta:
-          type: string
-        quote: false
-      - name: path
-        description: >-
-          Portion of the current URL following your domain, e.g. /docs for
-          heap.io/docs.
-        meta:
-          type: string
-        quote: false
-      - name: hash
-        description: >-
-          Portion of the current URL following the hash sign, e.g. #install for
-          heap.io/docs#install.
-        meta:
-          type: string
-        quote: false
-      - name: query
-        description: >-
-          Query params of the page’s current URL, e.g. ?utm_id=1234 for
-          heap.io?utm_id=1234.
-        meta:
-          type: string
-        quote: false
-      - name: title
-        description: Title of the current page.
-        meta:
-          type: string
-        quote: false
-      - name: href
-        description: href property of link (used for clicks on anchor tags).
-        meta:
-          type: string
-        quote: false
-      - name: target_text
-        description: Button text of the event target.
-        meta:
-          type: string
-        quote: false
-      - name: heap_previous_page
-        description: The previous page visited in this session.
-        meta:
-          type: string
-        quote: false
-      - name: receivedAt
-        description: When Syft received the track call.
-        meta:
-          type: timestamp
-          metabase.semantic_type: type/CreationTimestamp
-        quote: true
-      - name: eventType
-        description: The slug of the event name, so you can join the tracks table.
-        meta:
-          type: string
-          metabase.semantic_type: type/Category
-        quote: true
-      - name: eventName
-        description: The name of the event.
-        meta:
-          type: string
-          metabase.semantic_type: type/Category
-        quote: true
-      - name: ip
-        description: N/A
-        meta:
-          type: string
-        quote: false
-      - name: userAgent
-        description: N/A
-        meta:
-          type: string
-        quote: true
-      - name: referer
-        description: N/A
-        meta:
-          type: string
-        quote: false
-      - name: host
-        description: N/A
-        meta:
-          type: string
-        quote: false
-      - name: origin
-        description: N/A
-        meta:
-          type: string
-        quote: false
-"
-`;
-
-exports[`generate with dbt parses an event with Syft 5`] = `
 "version: 2
 sources:
   - schema: testProject
     database: testDataset
-    name: syft
+    name: testSink
     description: Loaded from Syft
     tables:
       - name: test_event

@@ -86,9 +86,16 @@ export interface Sink {
   retryConfig?: SinkRetryOptions;
 }
 
+export interface InputSource {
+  id: string;
+  type: string;
+  config?: SinkConfig;
+}
+
 export interface AST {
   eventSchemas: EventSchema[];
   syftConfig?: Expression;
   config: StaticConfig;
   sinks: Sink[];
+  inputs: InputSource[];
 }

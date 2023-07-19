@@ -196,6 +196,7 @@ export function getEventShemas(platform: string, product: string): AST {
       projectName: 'test'
     },
     eventSchemas,
-    sinks: []
+    sinks: [],
+    inputs: []
   };
 }
