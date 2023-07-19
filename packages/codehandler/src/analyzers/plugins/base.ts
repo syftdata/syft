@@ -7,7 +7,11 @@ import {
   type ts,
   type Type
 } from 'ts-morph';
-import { getTypeSchema } from '../../deserializer/ts_morph_utils';
+import {
+  extractFieldsFromObjectLiteral,
+  extractPropsFromObjectType,
+  getTypeSchema
+} from '../../deserializer/ts_morph_utils';
 import { type TypeField } from '@syftdata/common/lib/types';
 
 export abstract class BaseAnalyser {
@@ -52,39 +56,28 @@ export function handleSourceFile(
 function extractEventNameType(arg: Node<ts.Node>): Type<ts.Type> | undefined {
   const type = arg.getType();
   if (type.isObject()) {
-    // args and event-name might be merged into one ?
-    let eventNameProp = type.getProperties().find((prop) => {
-      return prop.getName() === 'event_name' || prop.getName() === 'eventName';
-    });
-    if (eventNameProp == null) {
-      // some people are using "action" instead of "event_name"
-      eventNameProp = type.getProperties().find((prop) => {
-        return prop.getName() === 'action' || prop.getName() === 'name';
-      });
-    }
-    if (eventNameProp?.getDeclaredType() != null) {
-      const eventNameType = eventNameProp.getDeclaredType();
-      if (eventNameType.isString() || eventNameType.isStringLiteral()) {
-        return eventNameType;
+    const props = extractPropsFromObjectType(type);
+    const eventNamePropType =
+      props.get('event_name') ??
+      props.get('eventName') ??
+      props.get('action') ??
+      props.get('name');
+    if (eventNamePropType != null) {
+      if (eventNamePropType.isString() || eventNamePropType.isStringLiteral()) {
+        return eventNamePropType;
       }
     }
 
+    // TODO: check if this is still needed or not.
     if (arg.isKind(SyntaxKind.ObjectLiteralExpression)) {
-      const fields = arg.getChildrenOfKind(SyntaxKind.PropertyAssignment);
-      let field = fields.find(
-        (field) =>
-          field.getName() === 'event_name' || field.getName() === 'eventName'
-      );
-      if (field == null) {
-        // some people are using "action" instead of "event_name"
-        field = fields.find(
-          (field) => field.getName() === 'action' || field.getName() === 'name'
-        );
-      }
-      if (field?.getInitializer() != null) {
-        const eventNameType = (
-          field.getInitializer() as any
-        ).getType() as Type<ts.Type>;
+      const fields = extractFieldsFromObjectLiteral(arg);
+      const field =
+        fields.get('event_name') ??
+        fields.get('eventName') ??
+        fields.get('action') ??
+        fields.get('name');
+      if (field != null) {
+        const eventNameType = field.getType();
         if (eventNameType.isString() || eventNameType.isStringLiteral()) {
           return eventNameType;
         }

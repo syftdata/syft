@@ -1,6 +1,8 @@
 import type { StaticConfig } from '@syftdata/common/lib/client_types';
-import type { ObjectLiteralExpression, Project } from 'ts-morph';
-import { SyntaxKind, PropertyAssignment } from 'ts-morph';
+import { type Sink } from '@syftdata/common/lib/types';
+import type { ArrayLiteralExpression, Project } from 'ts-morph';
+import { SyntaxKind, ObjectLiteralExpression } from 'ts-morph';
+import { getConfigObject } from './ts_morph_utils';
 
 const STATIC_CONFIG_TYPE = 'StaticConfig';
 
@@ -32,17 +34,44 @@ export function getConfigFromExpression(
     projectName: 'test',
     version: '0.0.0'
   };
-  expression.getProperties().forEach((property) => {
-    if (property instanceof PropertyAssignment) {
-      const propertyName = property.getSymbolOrThrow().getEscapedName();
-      const value = property
-        .getInitializerOrThrow()
-        .getText()
-        .replace(/['"]/g, '');
-      if (propertyName === 'version') {
-        val[propertyName] = value;
-      }
+  const config = getConfigObject(expression);
+  if (config === undefined) return val;
+  return {
+    ...val,
+    ...config
+  };
+}
+
+export function getSinks(project: Project): Sink[] {
+  let sinks: ArrayLiteralExpression | undefined;
+  for (const sourceFile of project.getSourceFiles()) {
+    const arrays = sourceFile
+      .getVariableDeclarations()
+      .map((variable) => {
+        if (variable.getName() === 'sinks') {
+          return variable.getInitializerIfKind(
+            SyntaxKind.ArrayLiteralExpression
+          );
+        }
+        return undefined;
+      })
+      .filter((x) => x !== undefined) as ArrayLiteralExpression[];
+    if (arrays.length > 0) {
+      sinks = arrays[0];
     }
-  });
-  return val;
+    if (sinks !== undefined) break;
+  }
+
+  if (sinks === undefined) return [];
+
+  const sinkObjects = sinks
+    .getElements()
+    .map((element) => {
+      if (element instanceof ObjectLiteralExpression) {
+        return getConfigObject(element);
+      }
+      return undefined;
+    })
+    .filter((x) => x !== undefined) as unknown as Sink[];
+  return sinkObjects;
 }

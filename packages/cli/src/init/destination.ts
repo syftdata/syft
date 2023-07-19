@@ -72,7 +72,8 @@ function getEventSchema(event: ApiEventSchema): EventSchema {
       isOptional: field.isOptional,
       type: {
         name: field.type.name,
-        zodType: field.type.zodType ?? 'z.any()'
+        zodType: field.type.zodType ?? 'z.any()',
+        isArray: false
       }
     };
     return val;
@@ -84,7 +85,6 @@ function getEventSchema(event: ApiEventSchema): EventSchema {
     documentation: event.documentation ?? '',
     fields,
     zodType: event.zodType,
-    traits: [],
     eventType: SyftEventType[event.eventType as keyof typeof SyftEventType]
   };
   return schema;
@@ -136,7 +136,9 @@ export async function fetchRemoteData(
                   version: responseData.eventSchema.appVersion,
                   projectName: responseData.eventSchema.appName
                 },
-                eventSchemas
+                eventSchemas,
+                sinks: [],
+                inputs: []
               },
               activeBranch: responseData.activeBranch,
               eventSchemaSha: responseData.eventSchemaSha,

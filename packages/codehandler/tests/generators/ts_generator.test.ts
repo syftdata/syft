@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { SyftEventType } from '@syftdata/client';
 import { generateSource } from '../../src/generators/ts_generator';
-import { type Field, type AST } from '@syftdata/common/lib/types';
+import { type Field, type AST, Sink } from '@syftdata/common/lib/types';
 import { getZodTypeForSchema } from '@syftdata/codehandler';
 
 const TEST_FIELDS: Field[] = [
@@ -9,7 +9,8 @@ const TEST_FIELDS: Field[] = [
     name: 'backgrounded',
     type: {
       name: 'boolean',
-      zodType: 'z.boolean()'
+      zodType: 'z.boolean()',
+      isArray: false
     },
     isOptional: false
   },
@@ -17,7 +18,8 @@ const TEST_FIELDS: Field[] = [
     name: 'has_focus',
     type: {
       name: 'boolean',
-      zodType: 'z.boolean()'
+      zodType: 'z.boolean()',
+      isArray: false
     },
     defaultValue: 'false',
     isOptional: true
@@ -33,7 +35,9 @@ describe('generate', () => {
       config: {
         projectName: 'test',
         version: '1.0.0'
-      }
+      },
+      sinks: [],
+      inputs: []
     };
     expect(generateSource(ast)).toMatchSnapshot();
   });
@@ -44,7 +48,6 @@ describe('generate', () => {
         {
           name: 'TestEvent',
           fields: TEST_FIELDS,
-          traits: [],
           eventType: SyftEventType.PAGE,
           exported: false,
           zodType: TEST_ZOD_TYPE
@@ -53,7 +56,9 @@ describe('generate', () => {
       config: {
         projectName: 'test',
         version: '1.0.0'
-      }
+      },
+      sinks: [],
+      inputs: []
     };
     expect(generateSource(ast)).toMatchSnapshot();
   });
@@ -64,7 +69,6 @@ describe('generate', () => {
         {
           name: 'TestEvent',
           fields: TEST_FIELDS,
-          traits: [],
           eventType: SyftEventType.PAGE,
           exported: true,
           zodType: TEST_ZOD_TYPE
@@ -73,7 +77,9 @@ describe('generate', () => {
       config: {
         projectName: 'test',
         version: '1.0.0'
-      }
+      },
+      sinks: [],
+      inputs: []
     };
     expect(generateSource(ast)).toMatchSnapshot();
   });

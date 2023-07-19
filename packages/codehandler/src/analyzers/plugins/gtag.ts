@@ -35,7 +35,8 @@ export class GAAnalyser extends BaseAnalyser {
           name: usage.eventName,
           type: {
             name: 'string',
-            zodType: 'z.string()'
+            zodType: 'z.string()',
+            isArray: false
           },
           isOptional: false
         });

@@ -4,7 +4,10 @@ import {
   type ts,
   type Type,
   type Symbol as TSSymbol,
-  SyntaxKind
+  SyntaxKind,
+  type ObjectLiteralExpression,
+  type Expression,
+  PropertyAssignment
 } from 'ts-morph';
 import { logInfo } from '@syftdata/common/lib/utils';
 import {
@@ -21,6 +24,59 @@ export function getTags(docs: JSDoc[]): Array<JSDocTag<ts.JSDocTag>> {
   return docs.reduce<Array<JSDocTag<ts.JSDocTag>>>((prev, curr) => {
     return [...prev, ...curr.getTags()];
   }, []);
+}
+
+export function extractKVPairsFromObjectLiteral(
+  exp: ObjectLiteralExpression
+): Map<string, string | string[]> {
+  const map = extractFieldsFromObjectLiteral(exp);
+  const kvPairs = new Map<string, string | string[]>();
+  map.forEach((value, key) => {
+    const valueType = value.getType();
+    if (valueType.isStringLiteral()) {
+      kvPairs.set(
+        key,
+        valueType.getText().substring(1, valueType.getText().length - 1)
+      );
+    } else if (value.isKind(SyntaxKind.ArrayLiteralExpression)) {
+      // get elements of the array
+      const values = value
+        .getElements()
+        .filter((e) => e.isKind(SyntaxKind.StringLiteral))
+        .map((e) => e.getText().substring(1, e.getText().length - 1));
+      kvPairs.set(key, values);
+    }
+  });
+  return kvPairs;
+}
+
+export function extractFieldsFromObjectLiteral(
+  exp: ObjectLiteralExpression
+): Map<string, Expression<ts.Expression>> {
+  const kvPairs = new Map<string, Expression<ts.Expression>>();
+  const fields = exp.getChildrenOfKind(SyntaxKind.PropertyAssignment);
+  fields.forEach((field) => {
+    const key = field.getName();
+    const value = field.getInitializer();
+    if (key !== undefined && value !== undefined) {
+      kvPairs.set(key, value);
+    }
+  });
+  return kvPairs;
+}
+
+export function extractPropsFromObjectType(
+  type: Type<ts.Type>
+): Map<string, Type<ts.Type>> {
+  const kvPairs = new Map<string, Type<ts.Type>>();
+  // args and event-name might be merged into one ?
+  type.getProperties().forEach((prop) => {
+    const propName = prop.getName();
+    if (prop?.getDeclaredType() != null) {
+      kvPairs.set(propName, prop.getDeclaredType());
+    }
+  });
+  return kvPairs;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -105,7 +161,8 @@ function getTypeSchemaForComplexObject(
   return {
     name,
     typeFields,
-    zodType
+    zodType,
+    isArray: false
   };
 }
 
@@ -127,7 +184,20 @@ export function getTypeSchema(
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
 
-  if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
+  if (typeObj.isArray()) {
+    const arrayType = typeObj.getArrayElementType();
+    if (arrayType != null) {
+      const elementType = getTypeSchema(arrayType, `${debugName}[]`);
+      return {
+        ...elementType,
+        isArray: true
+      };
+    } else {
+      debugType = 'Array type';
+      name = 'any';
+      foundUnsuppotedCloudType = true;
+    }
+  } else if (typeObj.isClassOrInterface() || name.includes(SyftypeIndex)) {
     if (name.includes(SyftypeIndex)) {
       // TODO: all types that start with "type." are treated as syft-types.
       // Downside: if syft-types are imported as something else, this doesn't work.
@@ -192,6 +262,39 @@ export function getTypeSchema(
   return {
     name,
     syfttype,
-    zodType
+    zodType,
+    isArray: false
   };
+}
+
+interface ConfigObject {
+  [key: string]: string | boolean | number | ConfigObject;
+}
+export function getConfigObject(input: ObjectLiteralExpression): ConfigObject {
+  const configObject: ConfigObject = {};
+  input.getProperties().forEach((property) => {
+    if (property instanceof PropertyAssignment) {
+      const propertyName = property.getSymbolOrThrow().getEscapedName();
+      const initializer = property.getInitializerOrThrow();
+      const initializerType = initializer.getType();
+      if (initializerType.isStringLiteral()) {
+        configObject[propertyName] = initializer.getText().replace(/['"]/g, '');
+      } else if (initializerType.isBooleanLiteral()) {
+        configObject[propertyName] = initializer.getText() === 'true';
+      } else if (initializerType.isEnumLiteral()) {
+        configObject[propertyName] = initializer.getText();
+      } else if (initializerType.isNumberLiteral()) {
+        configObject[propertyName] = Number(initializer.getText());
+      } else if (initializerType.isObject()) {
+        configObject[propertyName] = getConfigObject(
+          initializer as ObjectLiteralExpression
+        );
+      } else {
+        logInfo(
+          `:prohibited: Unsupported type is seen on "${propertyName}: ${initializer.getText()}". using "any" for now`
+        );
+      }
+    }
+  });
+  return configObject;
 }

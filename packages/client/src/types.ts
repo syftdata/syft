@@ -5,8 +5,16 @@ export enum SyftEventType {
   PAGE,
   SCREEN,
   IDENTIFY,
-  GROUP_IDENTIFY
+  GROUP_IDENTIFY,
+  DB
 }
+export const eventtype = (a: SyftEventType, b?: any) => {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  return function (constructor: Function) {};
+};
+export const relation = (b: any) => {
+  return function (target: any, propertyKey: string) {};
+};
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.

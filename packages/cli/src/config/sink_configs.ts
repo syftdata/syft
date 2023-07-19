@@ -1,19 +1,25 @@
-import { type AST } from '@syftdata/common/lib/types';
+import { type Sink, type AST } from '@syftdata/common/lib/types';
+import { logError } from '@syftdata/common/lib/utils';
 
 export interface DestinationConfig {
+  name: string;
   getSource: () => {
     schema: string;
     database?: string;
   };
   generateDBTProfile: (ast: AST) => Record<string, any>;
-  generateDBTProject: (ast: AST) => Record<string, any>;
 }
 
 export class BQConfig implements DestinationConfig {
+  name: string;
   projectId: string;
   dataset: string;
 
-  constructor(projectId: string, dataset: string) {
+  constructor(
+    name: string,
+    { projectId, dataset }: { projectId: string; dataset: string }
+  ) {
+    this.name = name;
     this.projectId = projectId;
     this.dataset = dataset;
   }
@@ -21,73 +27,82 @@ export class BQConfig implements DestinationConfig {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   getSource = () => ({ schema: this.projectId, database: this.dataset });
 
-  generateDBTProject = (ast: AST): Record<string, any> => {
-    return {
-      models: {
-        [ast.config.projectName]: {
-          '+materialized': 'table'
-        }
-      }
-    };
-  };
-
   generateDBTProfile = (ast: AST): Record<string, any> => {
     return {
-      [ast.config.projectName]: {
-        target: 'dev',
-        outputs: {
-          dev: {
-            type: 'bigquery',
-            method: 'oauth',
-            project: this.projectId,
-            dataset: `${this.dataset}_dev`,
-            timeout_seconds: 300
-          }
-        }
-      }
+      type: 'bigquery',
+      method: 'oauth',
+      project: this.projectId,
+      dataset: `${this.dataset}`,
+      timeout_seconds: 300
     };
   };
-
-  materializedModels: () => boolean = () => true;
 }
 
 export class PGConfig implements DestinationConfig {
+  name: string;
+  uri: string;
   schema: string;
+  username: string;
+  password: string;
+  host: string;
+  port: number;
+  database: string;
 
-  constructor(schema: string) {
+  constructor(name: string, { uri, schema }: { uri: string; schema: string }) {
+    this.name = name;
+    this.uri = uri;
+    const test = uri.replace('postgres://', '');
+    const [username, password, host, port, database] = test.split(/[:@/]/);
+    this.username = username;
+    this.password = password;
+    this.host = host;
+    this.port = parseInt(port, 10);
+    this.database = database;
     this.schema = schema;
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   getSource = () => ({ schema: this.schema, database: undefined });
 
-  generateDBTProject = (ast: AST): Record<string, any> => {
-    return {};
-  };
-
   generateDBTProfile = (ast: AST): Record<string, any> => {
     return {
-      [ast.config.projectName]: {
-        target: 'dev',
-        outputs: {
-          dev: {
-            type: 'postgres',
-            host: 'localhost',
-            user: 'postgres',
-            password: 'postgres',
-            port: 54322,
-            dbname: 'postgres',
-            schema: 'analytics'
-          }
-        }
-      }
+      type: 'postgres',
+      host: this.host,
+      user: this.username,
+      password: this.password,
+      port: this.port,
+      dbname: this.database,
+      schema: this.schema
     };
   };
+}
 
-  materializedModels: () => boolean = () => false;
+export function getDestinationConfig(
+  sink: Sink
+): DestinationConfig | undefined {
+  if (sink.type === 'bigquery') {
+    if (sink.config?.projectId == null || sink.config?.dataset == null) {
+      logError(`Sink ${sink.id} is missing projectId or dataset`);
+      return;
+    }
+    return new BQConfig(sink.id, {
+      projectId: sink.config.projectId as string,
+      dataset: sink.config.dataset as string
+    });
+  } else if (sink.type === 'postgres') {
+    if (sink.config?.uri == null || sink.config?.schema == null) {
+      logError(`Sink ${sink.id} is missing uri or schema`);
+      return;
+    }
+    return new PGConfig(sink.id, {
+      uri: sink.config.uri as string,
+      schema: sink.config.schema as string
+    });
+  }
+  return undefined;
 }
 
 export interface ProviderConfig {
-  destination: string;
+  sdkType: string;
   platform?: string;
 }

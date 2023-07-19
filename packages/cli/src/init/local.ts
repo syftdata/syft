@@ -27,7 +27,6 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
       name,
       zodType: 'z.object({})',
       fields: [],
-      traits: [],
       eventType: SyftEventType.TRACK,
       documentation: `This model generates the "${name
         .replace(/([A-Z])/g, ' $1')
@@ -86,7 +85,8 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
         name,
         type: {
           name: type,
-          zodType: 'z.string()'
+          zodType: 'z.string()',
+          isArray: false
         },
         isOptional: false,
         documentation
@@ -108,7 +108,8 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
         name,
         type: {
           name: type,
-          zodType: 'z.string()'
+          zodType: 'z.string()',
+          isArray: false
         },
         isOptional: false,
         documentation
@@ -119,7 +120,8 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
           name: _subModelName,
           type: {
             name: `${subModelName}[]`,
-            zodType: 'z.array()'
+            zodType: 'z.array()',
+            isArray: true
           },
           isOptional: false,
           documentation
@@ -129,7 +131,8 @@ function getEventSchemasFromFolder(folder: string): EventSchema[] {
           name: _subModelName,
           type: {
             name: `${subModelName}`,
-            zodType: 'z.object()'
+            zodType: 'z.object()',
+            isArray: false
           },
           isOptional: false,
           documentation
@@ -192,6 +195,8 @@ export function getEventShemas(platform: string, product: string): AST {
       version: '0.0.1',
       projectName: 'test'
     },
-    eventSchemas
+    eventSchemas,
+    sinks: [],
+    inputs: []
   };
 }

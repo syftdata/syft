@@ -9,6 +9,7 @@ import {
 import { createDir } from '../../utils';
 import { getSQLFriendlyEventName, logInfo } from '@syftdata/common/lib/utils';
 import {
+  getDestinationConfig,
   type DestinationConfig,
   type ProviderConfig
 } from '../../config/sink_configs';
@@ -20,11 +21,6 @@ function ignoreSchema(schema: EventSchema): boolean {
   if (!(schema.exported ?? false)) return true;
   if (EXCLUDED.includes(schema.name)) return true;
   return false;
-}
-
-function getModelName(eventName: string): string {
-  const sqlName = getSQLFriendlyEventName(eventName);
-  return `stg_${sqlName}`;
 }
 
 function getColumn(field: Field): Record<string, any> {
@@ -78,26 +74,13 @@ function getSource(schema: EventSchema) {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-function getModel(schema: EventSchema) {
-  const eventName = getSQLFriendlyEventName(schema.name);
-  const modelName = getModelName(eventName);
-  return {
-    name: modelName,
-    description: schema.documentation,
-    columns: schema.fields.map((field) => getColumn(field))
-  };
-}
-
 function generateSourcesYaml(
   ast: AST,
   destinationDir: string,
   destinationConfig: DestinationConfig
 ): void {
-  const models = ast.eventSchemas
-    .filter((val) => !ignoreSchema(val))
-    .map((val) => getSource(val));
-
+  const schemas = ast.eventSchemas.filter((val) => !ignoreSchema(val));
+  const tables = schemas.map((val) => getSource(val));
   // create source file.
   fs.writeFileSync(
     path.join(destinationDir, 'models', 'syft.yml'),
@@ -106,58 +89,74 @@ function generateSourcesYaml(
       sources: [
         {
           ...destinationConfig.getSource(),
-          name: 'syft',
+          name: destinationConfig.name,
           description: 'Loaded from Syft',
-          tables: models
+          tables
         }
       ]
     })
   );
 }
 
-function generateConfigYaml(ast: AST, destinationDir: string): void {
-  const models = ast.eventSchemas
-    .filter((val) => !ignoreSchema(val))
-    .map((val) => getModel(val));
+// function generateConfigYaml(ast: AST, destinationDir: string): void {
+//   const models = ast.eventSchemas
+//     .filter((val) => !ignoreSchema(val))
+//     .map((val) => getModel(val));
 
-  fs.writeFileSync(
-    path.join(destinationDir, 'models', 'schema.yml'),
-    yaml.dump({
-      version: 2,
-      models
-    })
-  );
-}
+//   fs.writeFileSync(
+//     path.join(destinationDir, 'models', 'schema.yml'),
+//     yaml.dump({
+//       version: 2,
+//       models
+//     })
+//   );
+// }
 
-function generateColumns(schema: EventSchema): string {
-  return schema.fields
-    .map((field) => {
-      const name = field.name;
-      if (name === name.toLowerCase()) return name;
-      return `"${name}"`;
-    })
-    .join(', ');
-}
+// function generateColumns(schema: EventSchema): string {
+//   return schema.fields
+//     .map((field) => {
+//       const name = field.name;
+//       if (name === name.toLowerCase()) return name;
+//       return `"${name}"`;
+//     })
+//     .join(', ');
+// }
 
-function generateModel(schema: EventSchema): string {
-  const sqlName = getSQLFriendlyEventName(schema.name);
-  return `
-SELECT
+// function getModelName(eventName: string): string {
+//   const sqlName = getSQLFriendlyEventName(eventName);
+//   return `stg_${sqlName}`;
+// }
 
-${generateColumns(schema)}
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// function getModel(schema: EventSchema) {
+//   const eventName = getSQLFriendlyEventName(schema.name);
+//   const modelName = getModelName(eventName);
+//   return {
+//     name: modelName,
+//     description: schema.documentation,
+//     columns: schema.fields.map((field) => getColumn(field))
+//   };
+// }
 
-FROM {{ source ('syft', '${sqlName}') }}`;
-}
+// function generateModel(schema: EventSchema): string {
+//   const sqlName = getSQLFriendlyEventName(schema.name);
+//   return `
+// SELECT
 
-function generateStagingModels(ast: AST, destinationDir: string): void {
-  ast.eventSchemas.forEach((schema) => {
-    if (ignoreSchema(schema)) return;
-    fs.writeFileSync(
-      path.join(destinationDir, 'models', `${getModelName(schema.name)}.sql`),
-      generateModel(schema)
-    );
-  });
-}
+// ${generateColumns(schema)}
+
+// FROM {{ source ('syft', '${sqlName}') }}`;
+// }
+
+// function generateStagingModels(ast: AST, destinationDir: string): void {
+//   ast.eventSchemas.forEach((schema) => {
+//     if (ignoreSchema(schema)) return;
+//     fs.writeFileSync(
+//       path.join(destinationDir, 'models', `${getModelName(schema.name)}.sql`),
+//       generateModel(schema)
+//     );
+//   });
+// }
 
 function getPostgresColumnType(name: string, type: string): string {
   if (name === '_id') return 'bigserial primary key';
@@ -219,10 +218,9 @@ function generateSeeds(ast: AST, outputDir: string): void {
 function generateDbtProject(
   ast: AST,
   outputDir: string,
-  destinationConfig: DestinationConfig
+  profileName: string
 ): void {
   const projectName = ast.config.projectName;
-  const profileName = projectName;
   const data = {
     name: projectName,
     version: ast.config?.version ?? '0.0.1',
@@ -232,18 +230,18 @@ function generateDbtProject(
     'test-paths': ['tests'],
     'seed-paths': ['seeds'],
     'target-path': 'target',
-    'clean-targets': ['target', 'dbt_packages'],
-    ...destinationConfig.generateDBTProject(ast)
+    'clean-targets': ['target', 'dbt_packages']
   };
   fs.writeFileSync(path.join(outputDir, 'dbt_project.yml'), yaml.dump(data));
 }
 
-export function generate(
+export function generateForSink(
   ast: AST,
-  outputDir: string,
+  parentDir: string,
   destinationConfig: DestinationConfig,
   providerConfig: ProviderConfig
 ): void {
+  const outputDir = path.join(parentDir, destinationConfig.name);
   createDir(outputDir);
   createDir(path.join(outputDir, 'models'));
   createDir(path.join(outputDir, 'target'));
@@ -252,25 +250,48 @@ export function generate(
 
   addExtraColumns(ast, providerConfig);
 
-  logInfo(`Generating DBT project file..`);
-  generateDbtProject(ast, outputDir, destinationConfig);
-
   logInfo(`Generating seed files..`);
   generateSeeds(ast, outputDir);
 
-  logInfo(`Generating sample DBT profiles file..`);
-  fs.writeFileSync(
-    path.join(outputDir, 'profiles.yml'),
-    yaml.dump(destinationConfig.generateDBTProfile(ast))
-  );
+  logInfo(`Generating DBT profiles file..`);
+  const PROFILE_NAME = 'default';
+  const profiles = {
+    [PROFILE_NAME]: {
+      target: 'dev',
+      outputs: {
+        dev: destinationConfig.generateDBTProfile(ast)
+      }
+    }
+  };
+  fs.writeFileSync(path.join(outputDir, 'profiles.yml'), yaml.dump(profiles));
 
-  logInfo(`Generating Sources..`);
+  logInfo(`Generating DBT project file`);
+  generateDbtProject(ast, outputDir, PROFILE_NAME);
+
+  logInfo(`Generating Sources`);
   generateSourcesYaml(ast, outputDir, destinationConfig);
 
-  logInfo(`Generating DBT models..`);
-  generateStagingModels(ast, outputDir);
+  // logInfo(`Generating DBT models..`);
+  // generateStagingModels(ast, outputDir);
+  // logInfo(`Generating documentation..`);
+  // generateConfigYaml(ast, outputDir);
+}
 
-  logInfo(`Generating documentation..`);
-  generateConfigYaml(ast, outputDir);
+export function generate(
+  ast: AST,
+  outputDir: string,
+  providerConfig: ProviderConfig
+): void {
+  const destinationConfigs = ast.sinks
+    .map((sink) => getDestinationConfig(sink))
+    .filter((val) => val != null) as DestinationConfig[];
+
+  if (destinationConfigs.length === 0) {
+    logInfo('No valid sinks found. We support BigQuery and Postgres only.');
+  }
+
+  destinationConfigs.forEach((destinationConfig) => {
+    generateForSink(ast, outputDir, destinationConfig, providerConfig);
+  });
   logInfo(`:sparkles: DBT models are generated successfully!`);
 }

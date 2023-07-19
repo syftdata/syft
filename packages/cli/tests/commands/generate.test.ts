@@ -18,7 +18,9 @@ generateAST.mockImplementation(() => {
     config: {
       projectName: 'test',
       version: '1.0.0'
-    }
+    },
+    sinks: [],
+    inputs: []
   };
 });
 

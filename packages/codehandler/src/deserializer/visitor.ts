@@ -1,11 +1,12 @@
 import {
   JSDocTypeTag,
   type ClassDeclaration,
-  type JSDocTag,
   type Project,
   type PropertyDeclaration,
   type SourceFile,
-  type ts
+  type Decorator,
+  type JSDoc,
+  SyntaxKind
 } from 'ts-morph';
 import {
   type EventSchema,
@@ -14,19 +15,31 @@ import {
 } from '@syftdata/common/lib/types';
 import { SyftEventType } from '@syftdata/common/lib/client_types';
 import { logError, logVerbose } from '@syftdata/common/lib/utils';
-import { getTags, getTypeSchema } from './ts_morph_utils';
+import {
+  extractKVPairsFromObjectLiteral,
+  getTags,
+  getTypeSchema
+} from './ts_morph_utils';
 import { getZodTypeForSchema, ZOD_ALLOWED_TAGS } from './zod_utils';
+import {
+  type DBEventSource,
+  type DBFieldRelation
+} from '@syftdata/common/lib/db_types';
 
-interface EventAnnotations {
+interface EventProperties {
   eventType?: SyftEventType;
+  dbSourceDetails?: DBEventSource;
+}
+
+interface FieldProperties {
+  zodType?: string;
+  dbRelation?: DBFieldRelation;
 }
 
 function getField(
   property: PropertyDeclaration,
   typeFields?: Map<string, TypeField>
 ): Field | undefined {
-  const tags = getTags(property.getJsDocs());
-
   const typeField = typeFields?.get(property.getName());
   if (typeField == null) {
     // TODO: add additional details
@@ -34,27 +47,16 @@ function getField(
     return;
   }
 
-  let zodType = typeField.type.zodType;
-  const allowedZodTags = ZOD_ALLOWED_TAGS[typeField.name];
-  if (allowedZodTags !== undefined) {
-    tags.forEach((tag) => {
-      const name = tag.getTagName();
-      if (allowedZodTags.includes(name)) {
-        const paramString = tag.getCommentText()?.trim();
-        if (paramString !== undefined && paramString.length > 0) {
-          if (name === 'startsWith' || name === 'endsWith') {
-            zodType = `${zodType}.${name}("${paramString}")`;
-          } else {
-            const paramInt = parseInt(paramString);
-            zodType = `${zodType}.${name}(${!isNaN(paramInt) ? paramInt : ''})`;
-          }
-        }
-      }
-    });
-  }
+  const fieldProps = extractFieldProperties(
+    typeField,
+    property.getDecorators(),
+    property.getJsDocs()
+  );
+  typeField.type.zodType = fieldProps.zodType ?? typeField.type.zodType;
 
   return {
     ...typeField,
+    dbRelation: fieldProps.dbRelation,
     documentation: property
       .getJsDocs()
       .map((doc) => doc.getInnerText())
@@ -63,10 +65,111 @@ function getField(
   };
 }
 
-function parseClassAnnotations(
-  tags: Array<JSDocTag<ts.JSDocTag>>
-): EventAnnotations {
-  let eventType;
+function extractFieldProperties(
+  typeField: TypeField,
+  decorators: Decorator[],
+  docs: JSDoc[]
+): FieldProperties {
+  const tags = getTags(docs);
+  let fieldRelationProperties: DBFieldRelation | undefined;
+  decorators.forEach((decorator) => {
+    const name = decorator.getName();
+    if (name === 'relation') {
+      const args = decorator.getArguments();
+      if (args.length === 0) {
+        logError(`@relation decorator requires an argument`);
+        return;
+      }
+      const dbArg = args[0];
+      if (dbArg.isKind(SyntaxKind.ObjectLiteralExpression)) {
+        const kvPairs = extractKVPairsFromObjectLiteral(dbArg);
+        if (
+          kvPairs.has('table') &&
+          kvPairs.has('references') &&
+          kvPairs.has('fields')
+        ) {
+          fieldRelationProperties = {
+            table: kvPairs.get('table') as string,
+            references: kvPairs.get('references') as string[],
+            fields: kvPairs.get('fields') as string[],
+            isMany: typeField.type.isArray ?? false
+          };
+        }
+      }
+      if (fieldRelationProperties === undefined) {
+        logError(
+          `relation decorator requires table, references, fields properties`
+        );
+      }
+    }
+  });
+
+  let zodType = typeField.type.zodType;
+  const allowedZodTags = ZOD_ALLOWED_TAGS[typeField.name] ?? [];
+  tags.forEach((tag) => {
+    const name = tag.getTagName();
+    if (allowedZodTags.includes(name)) {
+      const paramString = tag.getCommentText()?.trim();
+      if (paramString !== undefined && paramString.length > 0) {
+        if (name === 'startsWith' || name === 'endsWith') {
+          zodType = `${zodType}.${name}("${paramString}")`;
+        } else {
+          const paramInt = parseInt(paramString);
+          zodType = `${zodType}.${name}(${!isNaN(paramInt) ? paramInt : ''})`;
+        }
+      }
+    }
+  });
+  return {
+    zodType,
+    dbRelation: fieldRelationProperties
+  };
+}
+
+function extractEventProperties(
+  decorators: Decorator[],
+  docs: JSDoc[]
+): EventProperties {
+  const tags = getTags(docs);
+  let eventType: SyftEventType | undefined;
+  let dbProperties: DBEventSource | undefined;
+
+  decorators.forEach((decorator) => {
+    const name = decorator.getName();
+    if (name === 'eventtype') {
+      const args = decorator.getArguments();
+      if (args.length === 0) {
+        logError(`@eventtype decorator requires arguments`);
+        return;
+      }
+      const arg = args[0];
+      const eventTypeString = arg.getText();
+      if (!eventTypeString.startsWith('SyftEventType.')) {
+        logError(`@eventtype decorator requires SyftEventType enum`);
+        return;
+      }
+      eventType = SyftEventType[eventTypeString.replace('SyftEventType.', '')];
+      if (eventType === SyftEventType.DB) {
+        const dbArg = args[1];
+        if (dbArg.isKind(SyntaxKind.ObjectLiteralExpression)) {
+          const kvPairs = extractKVPairsFromObjectLiteral(dbArg);
+          if (kvPairs.has('table') && kvPairs.has('on')) {
+            dbProperties = {
+              table: kvPairs.get('table') as string,
+              on: kvPairs.get('on') as string,
+              fields: kvPairs.get('fields') as string[]
+            };
+          }
+        }
+        if (dbProperties === undefined) {
+          logError(
+            `eventtype decorator with SyftEventType.DB requires table and on properties`
+          );
+        }
+      }
+    }
+  });
+
   tags.forEach((tag) => {
     if (tag instanceof JSDocTypeTag || tag.getTagName() === 'type') {
       const fullTypeString = (tag as JSDocTypeTag)
@@ -80,7 +183,7 @@ function parseClassAnnotations(
       }
     }
   });
-  return { eventType };
+  return { eventType, dbSourceDetails: dbProperties };
 }
 
 export function getEventSchema(
@@ -102,8 +205,10 @@ export function getEventSchema(
       return getField(property, typeFieldMap);
     })
     .filter((field) => field != null) as Field[];
-  let traits = classObj.getDecorators().map((decorator) => decorator.getText());
-  const annotations = parseClassAnnotations(getTags(classObj.getJsDocs()));
+  const eventProps = extractEventProperties(
+    classObj.getDecorators(),
+    classObj.getJsDocs()
+  );
 
   const fieldMap = fields.reduce((map, field) => {
     map.set(field.name, field);
@@ -137,7 +242,6 @@ export function getEventSchema(
       documentation = baseSchema.documentation;
     }
     fields = Array.from(fieldMap.values());
-    traits = [...new Set([...(baseSchema.traits ?? []), ...traits])];
   }
 
   const zodType = getZodTypeForSchema(fields);
@@ -147,11 +251,11 @@ export function getEventSchema(
   return {
     name,
     eventType:
-      annotations.eventType ?? baseSchema?.eventType ?? SyftEventType.TRACK,
+      eventProps.eventType ?? baseSchema?.eventType ?? SyftEventType.TRACK,
     exported: classObj.isExported(),
     documentation,
     fields,
-    traits,
+    dbSourceDetails: eventProps.dbSourceDetails ?? baseSchema?.dbSourceDetails,
     zodType
   };
 }
