@@ -1,8 +1,9 @@
-import { type Sink, type AST } from '@syftdata/common/lib/types';
+import { type Sink, type AST, type Field } from '@syftdata/common/lib/types';
 import { logError } from '@syftdata/common/lib/utils';
 
 export interface DestinationConfig {
-  name: string;
+  sink: Sink;
+  getColumnType: (field: Field) => string;
   getSource: () => {
     schema: string;
     database?: string;
@@ -11,21 +12,39 @@ export interface DestinationConfig {
 }
 
 export class BQConfig implements DestinationConfig {
-  name: string;
+  sink: Sink;
   projectId: string;
   dataset: string;
 
   constructor(
-    name: string,
+    sink: Sink,
     { projectId, dataset }: { projectId: string; dataset: string }
   ) {
-    this.name = name;
+    this.sink = sink;
     this.projectId = projectId;
     this.dataset = dataset;
   }
 
+  getColumnType = (field: Field): string => {
+    if (field.name === '_id') return 'bignumeric';
+    switch (field.type.name) {
+      case 'string':
+        return 'string';
+      case 'object':
+        return 'json';
+      case 'number':
+        return 'numeric';
+      case 'boolean':
+        return 'bool';
+      case 'timestamp':
+        return 'timestamp';
+      default:
+        return 'string';
+    }
+  };
+
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  getSource = () => ({ schema: this.projectId, database: this.dataset });
+  getSource = () => ({ schema: this.dataset, database: this.projectId });
 
   generateDBTProfile = (ast: AST): Record<string, any> => {
     return {
@@ -33,13 +52,14 @@ export class BQConfig implements DestinationConfig {
       method: 'oauth',
       project: this.projectId,
       dataset: `${this.dataset}`,
-      timeout_seconds: 300
+      timeout_seconds: 300,
+      threads: 4
     };
   };
 }
 
 export class PGConfig implements DestinationConfig {
-  name: string;
+  sink: Sink;
   uri: string;
   schema: string;
   username: string;
@@ -48,8 +68,8 @@ export class PGConfig implements DestinationConfig {
   port: number;
   database: string;
 
-  constructor(name: string, { uri, schema }: { uri: string; schema: string }) {
-    this.name = name;
+  constructor(sink: Sink, { uri, schema }: { uri: string; schema: string }) {
+    this.sink = sink;
     this.uri = uri;
     const test = uri.replace('postgres://', '');
     const [username, password, host, port, database] = test.split(/[:@/]/);
@@ -60,6 +80,24 @@ export class PGConfig implements DestinationConfig {
     this.database = database;
     this.schema = schema;
   }
+
+  getColumnType = (field: Field): string => {
+    if (field.name === '_id') return 'bigserial primary key';
+    switch (field.type.name) {
+      case 'string':
+        return 'text';
+      case 'object':
+        return 'json';
+      case 'number':
+        return 'numeric';
+      case 'boolean':
+        return 'boolean';
+      case 'timestamp':
+        return 'timestamp';
+      default:
+        return 'text';
+    }
+  };
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   getSource = () => ({ schema: this.schema, database: undefined });
@@ -85,7 +123,7 @@ export function getDestinationConfig(
       logError(`Sink ${sink.id} is missing projectId or dataset`);
       return;
     }
-    return new BQConfig(sink.id, {
+    return new BQConfig(sink, {
       projectId: sink.config.projectId as string,
       dataset: sink.config.dataset as string
     });
@@ -94,7 +132,7 @@ export function getDestinationConfig(
       logError(`Sink ${sink.id} is missing uri or schema`);
       return;
     }
-    return new PGConfig(sink.id, {
+    return new PGConfig(sink, {
       uri: sink.config.uri as string,
       schema: sink.config.schema as string
     });
