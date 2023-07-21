@@ -28,14 +28,15 @@ exports[`generate with dbt parses an empty schema file 2`] = `
       project: testProject
       dataset: testDataset
       timeout_seconds: 300
+      threads: 4
 "
 `;
 
 exports[`generate with dbt parses an empty schema file 3`] = `
 "version: 2
 sources:
-  - schema: testProject
-    database: testDataset
+  - schema: testDataset
+    database: testProject
     name: testSink
     description: Loaded from Syft
     tables: []
@@ -70,14 +71,15 @@ exports[`generate with dbt parses an event with HeapIO 2`] = `
       project: testProject
       dataset: testDataset
       timeout_seconds: 300
+      threads: 4
 "
 `;
 
 exports[`generate with dbt parses an event with HeapIO 3`] = `
 "version: 2
 sources:
-  - schema: testProject
-    database: testDataset
+  - schema: testDataset
+    database: testProject
     name: testSink
     description: Loaded from Syft
     tables:
@@ -511,14 +513,15 @@ exports[`generate with dbt parses an event with Segment 2`] = `
       project: testProject
       dataset: testDataset
       timeout_seconds: 300
+      threads: 4
 "
 `;
 
 exports[`generate with dbt parses an event with Segment 3`] = `
 "version: 2
 sources:
-  - schema: testProject
-    database: testDataset
+  - schema: testDataset
+    database: testProject
     name: testSink
     description: Loaded from Syft
     tables:
@@ -704,14 +707,15 @@ exports[`generate with dbt parses an event with Syft 2`] = `
       project: testProject
       dataset: testDataset
       timeout_seconds: 300
+      threads: 4
 "
 `;
 
 exports[`generate with dbt parses an event with Syft 3`] = `
 "version: 2
 sources:
-  - schema: testProject
-    database: testDataset
+  - schema: testDataset
+    database: testProject
     name: testSink
     description: Loaded from Syft
     tables:
@@ -1139,14 +1143,14 @@ sources:
             tests:
               - not_null
           - name: ip
-            description: N/A
+            description: Request IP address
             meta:
               type: string
             quote: false
             tests:
               - not_null
           - name: userAgent
-            description: N/A
+            description: Request User Agent
             meta:
               type: string
             quote: true

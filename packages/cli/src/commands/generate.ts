@@ -1,5 +1,6 @@
 import type * as yargs from 'yargs';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
@@ -114,16 +115,15 @@ async function innerHandler({
       const providerConfig = await getProviderConfig();
       generateDBT(ast, outDir ?? './dbt', providerConfig);
     } else if (type === 'yaml') {
-      console.log(
-        yaml.dump(ast, {
-          replacer: (key, value) => {
-            if (key === 'syftConfig' || key === 'zodType') {
-              return undefined;
-            }
-            return value;
+      const astYaml = yaml.dump(ast, {
+        replacer: (key, value) => {
+          if (key === 'syftConfig' || key === 'zodType') {
+            return undefined;
           }
-        })
-      );
+          return value;
+        }
+      });
+      fs.writeFileSync(path.join(outDir ?? './', 'schema.yaml'), astYaml);
     }
   }
   return ast;

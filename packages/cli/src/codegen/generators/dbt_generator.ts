@@ -89,7 +89,7 @@ function generateSourcesYaml(
       sources: [
         {
           ...destinationConfig.getSource(),
-          name: destinationConfig.name,
+          name: destinationConfig.sink.id,
           description: 'Loaded from Syft',
           tables
         }
@@ -158,32 +158,21 @@ function generateSourcesYaml(
 //   });
 // }
 
-function getPostgresColumnType(name: string, type: string): string {
-  if (name === '_id') return 'bigserial primary key';
-  switch (type) {
-    case 'string':
-      return 'text';
-    case 'object':
-      return 'json';
-    case 'number':
-      return 'numeric';
-    case 'boolean':
-      return 'boolean';
-    case 'timestamp':
-      return 'timestamp';
-    default:
-      return 'text';
-  }
-}
-
-function getColumnTypesForSeed(schema: EventSchema): object {
+function getColumnTypesForSeed(
+  dest: DestinationConfig,
+  schema: EventSchema
+): object {
   return schema.fields.reduce((acc, field) => {
-    acc[field.name] = getPostgresColumnType(field.name, field.type.name);
+    acc[field.name] = dest.getColumnType(field);
     return acc;
   }, {});
 }
 
-function generateSeeds(ast: AST, outputDir: string): void {
+function generateSeeds(
+  ast: AST,
+  dest: DestinationConfig,
+  outputDir: string
+): void {
   const seeds = {
     version: 2,
     seeds: ast.eventSchemas
@@ -194,7 +183,7 @@ function generateSeeds(ast: AST, outputDir: string): void {
           name: tableName,
           config: {
             quote_columns: true,
-            column_types: getColumnTypesForSeed(val)
+            column_types: getColumnTypesForSeed(dest, val)
           }
         };
       })
@@ -222,7 +211,7 @@ function generateDbtProject(
 ): void {
   const projectName = ast.config.projectName;
   const data = {
-    name: projectName,
+    name: projectName.replace(/\s+/g, '_').toLowerCase(),
     version: ast.config?.version ?? '0.0.1',
     'config-version': 2,
     profile: profileName,
@@ -241,7 +230,7 @@ export function generateForSink(
   destinationConfig: DestinationConfig,
   providerConfig: ProviderConfig
 ): void {
-  const outputDir = path.join(parentDir, destinationConfig.name);
+  const outputDir = path.join(parentDir, destinationConfig.sink.id);
   createDir(outputDir);
   createDir(path.join(outputDir, 'models'));
   createDir(path.join(outputDir, 'target'));
@@ -251,7 +240,7 @@ export function generateForSink(
   addExtraColumns(ast, providerConfig);
 
   logInfo(`Generating seed files..`);
-  generateSeeds(ast, outputDir);
+  generateSeeds(ast, destinationConfig, outputDir);
 
   logInfo(`Generating DBT profiles file..`);
   const PROFILE_NAME = 'default';
