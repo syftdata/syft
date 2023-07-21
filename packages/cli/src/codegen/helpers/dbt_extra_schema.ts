@@ -22,12 +22,12 @@ export const BQ_SYFT_SCHEMA = [
   {
     name: 'ip',
     type: 'string',
-    description: 'N/A'
+    description: 'Request IP address'
   },
   {
     name: 'userAgent',
     type: 'string',
-    description: 'N/A'
+    description: 'Request User Agent'
   },
   {
     name: 'referer',
@@ -46,16 +46,6 @@ export const BQ_SYFT_SCHEMA = [
   },
   {
     name: 'country',
-    type: 'string',
-    description: 'N/A'
-  },
-  {
-    name: 'city',
-    type: 'string',
-    description: 'N/A'
-  },
-  {
-    name: 'region',
     type: 'string',
     description: 'N/A'
   }

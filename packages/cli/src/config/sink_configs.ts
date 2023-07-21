@@ -31,6 +31,7 @@ export class BQConfig implements DestinationConfig {
       case 'string':
         return 'string';
       case 'object':
+      case '__type':
         return 'json';
       case 'number':
         return 'numeric';
@@ -87,6 +88,7 @@ export class PGConfig implements DestinationConfig {
       case 'string':
         return 'text';
       case 'object':
+      case '__type':
         return 'json';
       case 'number':
         return 'numeric';
