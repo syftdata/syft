@@ -1,5 +1,5 @@
 import type { StaticConfig } from '@syftdata/common/lib/client_types';
-import { type Sink } from '@syftdata/common/lib/types';
+import { type InputSource, type Sink } from '@syftdata/common/lib/types';
 import type { ArrayLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, ObjectLiteralExpression } from 'ts-morph';
 import { getConfigObject } from './ts_morph_utils';
@@ -74,4 +74,38 @@ export function getSinks(project: Project): Sink[] {
     })
     .filter((x) => x !== undefined) as unknown as Sink[];
   return sinkObjects;
+}
+
+export function getInputs(project: Project): InputSource[] {
+  let inputs: ArrayLiteralExpression | undefined;
+  for (const sourceFile of project.getSourceFiles()) {
+    const arrays = sourceFile
+      .getVariableDeclarations()
+      .map((variable) => {
+        if (variable.getName() === 'inputs') {
+          return variable.getInitializerIfKind(
+            SyntaxKind.ArrayLiteralExpression
+          );
+        }
+        return undefined;
+      })
+      .filter((x) => x !== undefined) as ArrayLiteralExpression[];
+    if (arrays.length > 0) {
+      inputs = arrays[0];
+    }
+    if (inputs !== undefined) break;
+  }
+
+  if (inputs === undefined) return [];
+
+  const inputObjects = inputs
+    .getElements()
+    .map((element) => {
+      if (element instanceof ObjectLiteralExpression) {
+        return getConfigObject(element);
+      }
+      return undefined;
+    })
+    .filter((x) => x !== undefined) as unknown as InputSource[];
+  return inputObjects;
 }
