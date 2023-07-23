@@ -156,17 +156,17 @@ export class SnowFlakeConfig implements DestinationConfig {
   }
 
   getColumnType = (field: Field): string => {
-    if (field.name === '_id') return 'bignumeric';
+    if (field.name === '_id') return 'bigint';
     switch (field.type.name) {
       case 'string':
         return 'string';
       case 'object':
       case '__type':
-        return 'json';
+        return 'object';
       case 'number':
         return 'numeric';
       case 'boolean':
-        return 'bool';
+        return 'boolean';
       case 'timestamp':
         return 'timestamp';
       default:
@@ -175,7 +175,7 @@ export class SnowFlakeConfig implements DestinationConfig {
   };
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  getSource = () => ({ schema: undefined, database: undefined });
+  getSource = () => ({ schema: this.schema, database: this.database });
 
   generateDBTProfile = (ast: AST): Record<string, any> => {
     return {
