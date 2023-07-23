@@ -15,6 +15,9 @@ export const eventtype = (a: SyftEventType, b?: any) => {
 export const relation = (b: any) => {
   return function (target: any, propertyKey: string) {};
 };
+export const rename = (a: string) => {
+  return function (target: any, propertyKey: string) {};
+};
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.

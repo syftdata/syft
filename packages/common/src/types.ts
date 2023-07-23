@@ -6,6 +6,7 @@ import { type Expression } from 'ts-morph';
 interface BasicInfo {
   name: string;
   documentation?: string;
+  rename?: string;
 }
 
 /**

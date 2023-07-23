@@ -276,7 +276,10 @@ export function generate(
     .filter((val) => val != null) as DestinationConfig[];
 
   if (destinationConfigs.length === 0) {
-    logInfo('No valid sinks found. We support BigQuery and Postgres only.');
+    logInfo(
+      'No valid sinks found. We support BigQuery, Snowflake and Postgres only.'
+    );
+    return;
   }
 
   destinationConfigs.forEach((destinationConfig) => {

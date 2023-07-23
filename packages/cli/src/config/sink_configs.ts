@@ -5,7 +5,7 @@ export interface DestinationConfig {
   sink: Sink;
   getColumnType: (field: Field) => string;
   getSource: () => {
-    schema: string;
+    schema?: string;
     database?: string;
   };
   generateDBTProfile: (ast: AST) => Record<string, any>;
@@ -117,6 +117,80 @@ export class PGConfig implements DestinationConfig {
   };
 }
 
+export class SnowFlakeConfig implements DestinationConfig {
+  sink: Sink;
+  accountId: string;
+  user: string;
+  password: string;
+
+  warehouse: string;
+  database: string;
+  schema: string;
+
+  constructor(
+    sink: Sink,
+    {
+      accountId,
+      user,
+      password,
+      warehouse,
+      database,
+      schema
+    }: {
+      accountId: string;
+      user: string;
+      password: string;
+
+      warehouse: string;
+      database: string;
+      schema: string;
+    }
+  ) {
+    this.sink = sink;
+    this.accountId = accountId;
+    this.user = user;
+    this.password = password;
+    this.warehouse = warehouse;
+    this.database = database;
+    this.schema = schema;
+  }
+
+  getColumnType = (field: Field): string => {
+    if (field.name === '_id') return 'bignumeric';
+    switch (field.type.name) {
+      case 'string':
+        return 'string';
+      case 'object':
+      case '__type':
+        return 'json';
+      case 'number':
+        return 'numeric';
+      case 'boolean':
+        return 'bool';
+      case 'timestamp':
+        return 'timestamp';
+      default:
+        return 'string';
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  getSource = () => ({ schema: undefined, database: undefined });
+
+  generateDBTProfile = (ast: AST): Record<string, any> => {
+    return {
+      type: 'snowflake',
+      account: this.accountId,
+      user: this.user,
+      password: this.password,
+      warehouse: this.warehouse, // the instance
+      database: this.database, // parent of schema
+      schema: this.schema, // eg: public.
+      threads: 4
+    };
+  };
+}
+
 export function getDestinationConfig(
   sink: Sink
 ): DestinationConfig | undefined {
@@ -136,6 +210,28 @@ export function getDestinationConfig(
     }
     return new PGConfig(sink, {
       uri: sink.config.uri as string,
+      schema: sink.config.schema as string
+    });
+  } else if (sink.type === 'snowflake') {
+    if (
+      sink.config?.accountId == null ||
+      sink.config?.user == null ||
+      sink.config?.password == null ||
+      sink.config?.warehouse == null ||
+      sink.config?.database == null ||
+      sink.config?.schema == null
+    ) {
+      logError(
+        `Sink ${sink.id} is missing accountId, user, password, warehouse, database or schema`
+      );
+      return;
+    }
+    return new SnowFlakeConfig(sink, {
+      accountId: sink.config.accountId as string,
+      user: sink.config.user as string,
+      password: sink.config.password as string,
+      warehouse: sink.config.warehouse as string,
+      database: sink.config.database as string,
       schema: sink.config.schema as string
     });
   }
