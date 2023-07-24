@@ -277,14 +277,14 @@ export function getConfigObject(input: ObjectLiteralExpression): ConfigObject {
       const propertyName = property.getSymbolOrThrow().getEscapedName();
       const initializer = property.getInitializerOrThrow();
       const initializerType = initializer.getType();
-      if (initializerType.isStringLiteral()) {
-        configObject[propertyName] = initializer.getText().replace(/['"]/g, '');
+      const literalValue = initializerType.getLiteralValue();
+      if (
+        typeof literalValue === 'string' ||
+        typeof literalValue === 'number'
+      ) {
+        configObject[propertyName] = literalValue;
       } else if (initializerType.isBooleanLiteral()) {
         configObject[propertyName] = initializer.getText() === 'true';
-      } else if (initializerType.isEnumLiteral()) {
-        configObject[propertyName] = initializer.getText();
-      } else if (initializerType.isNumberLiteral()) {
-        configObject[propertyName] = Number(initializer.getText());
       } else if (initializerType.isObject()) {
         configObject[propertyName] = getConfigObject(
           initializer as ObjectLiteralExpression
