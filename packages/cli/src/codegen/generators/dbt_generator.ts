@@ -23,7 +23,10 @@ function ignoreSchema(schema: EventSchema): boolean {
   return false;
 }
 
-function getColumn(field: Field): Record<string, any> {
+function getColumn(
+  destinationConfig: DestinationConfig,
+  field: Field
+): Record<string, any> {
   let metabaseType: string | undefined;
   if (field.name === '_id') {
     metabaseType = 'PK';
@@ -46,7 +49,9 @@ function getColumn(field: Field): Record<string, any> {
     meta: {
       type: field.type.name
     },
-    quote: field.name !== field.name.toLowerCase()
+    quote:
+      destinationConfig.sink.type === 'snowflake' ||
+      field.name !== field.name.toLowerCase()
   };
 
   if (metabaseType != null) {
@@ -56,14 +61,14 @@ function getColumn(field: Field): Record<string, any> {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-function getSource(schema: EventSchema) {
+function getSource(destinationConfig: DestinationConfig, schema: EventSchema) {
   const tableName = getSQLFriendlyEventName(schema.name);
   return {
     name: tableName,
     description: schema.documentation,
     columns: schema.fields.map((field) => {
       const column = {
-        ...getColumn(field),
+        ...getColumn(destinationConfig, field),
         tests: [] as string[]
       };
       if (!field.isOptional) {
@@ -80,7 +85,7 @@ function generateSourcesYaml(
   destinationConfig: DestinationConfig
 ): void {
   const schemas = ast.eventSchemas.filter((val) => !ignoreSchema(val));
-  const tables = schemas.map((val) => getSource(val));
+  const tables = schemas.map((val) => getSource(destinationConfig, val));
   // create source file.
   fs.writeFileSync(
     path.join(destinationDir, 'models', 'syft.yml'),
@@ -230,6 +235,7 @@ export function generateForSink(
   destinationConfig: DestinationConfig,
   providerConfig: ProviderConfig
 ): void {
+  logInfo(`Generating DBT project for ${destinationConfig.sink.id}`);
   const outputDir = path.join(parentDir, destinationConfig.sink.id);
   createDir(outputDir);
   createDir(path.join(outputDir, 'models'));
@@ -239,11 +245,15 @@ export function generateForSink(
 
   addExtraColumns(ast, providerConfig);
 
-  logInfo(`Generating seed files..`);
-  generateSeeds(ast, destinationConfig, outputDir);
+  const PROFILE_NAME = 'default';
+
+  logInfo(`Generating DBT project file`);
+  generateDbtProject(ast, outputDir, PROFILE_NAME);
+
+  logInfo(`Generating Sources`);
+  generateSourcesYaml(ast, outputDir, destinationConfig);
 
   logInfo(`Generating DBT profiles file..`);
-  const PROFILE_NAME = 'default';
   const profiles = {
     [PROFILE_NAME]: {
       target: 'dev',
@@ -254,11 +264,8 @@ export function generateForSink(
   };
   fs.writeFileSync(path.join(outputDir, 'profiles.yml'), yaml.dump(profiles));
 
-  logInfo(`Generating DBT project file`);
-  generateDbtProject(ast, outputDir, PROFILE_NAME);
-
-  logInfo(`Generating Sources`);
-  generateSourcesYaml(ast, outputDir, destinationConfig);
+  logInfo(`Generating seed files`);
+  generateSeeds(ast, destinationConfig, outputDir);
 
   // logInfo(`Generating DBT models..`);
   // generateStagingModels(ast, outputDir);
@@ -276,7 +283,10 @@ export function generate(
     .filter((val) => val != null) as DestinationConfig[];
 
   if (destinationConfigs.length === 0) {
-    logInfo('No valid sinks found. We support BigQuery and Postgres only.');
+    logInfo(
+      'No valid sinks found. We support BigQuery, Snowflake and Postgres only.'
+    );
+    return;
   }
 
   destinationConfigs.forEach((destinationConfig) => {

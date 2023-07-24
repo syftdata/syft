@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { type DBEventSource, type DBFieldRelation } from './db_types';
-import { type StaticConfig, type SyftEventType } from './client_types';
+import {
+  type SyftSinkType,
+  type StaticConfig,
+  type SyftEventType,
+  type SyftInputType
+} from './client_types';
 import { type Expression } from 'ts-morph';
 
 interface BasicInfo {
   name: string;
   documentation?: string;
+  rename?: string;
 }
 
 /**
@@ -80,16 +86,17 @@ export interface SinkRetryOptions {
 
 export interface Sink {
   id: string;
-  type: string;
+  type: SyftSinkType;
   config?: SinkConfig;
   batchConfig?: SinkBatchOptions;
   retryConfig?: SinkRetryOptions;
 }
 
+export type InputConfig = Record<string, string | number | boolean>;
 export interface InputSource {
   id: string;
-  type: string;
-  config?: SinkConfig;
+  type: SyftInputType;
+  config?: InputConfig;
 }
 
 export interface AST {

@@ -34,6 +34,7 @@ interface EventProperties {
 interface FieldProperties {
   zodType?: string;
   dbRelation?: DBFieldRelation;
+  rename?: string;
 }
 
 function getField(
@@ -56,6 +57,7 @@ function getField(
 
   return {
     ...typeField,
+    rename: fieldProps.rename,
     dbRelation: fieldProps.dbRelation,
     documentation: property
       .getJsDocs()
@@ -72,6 +74,7 @@ function extractFieldProperties(
 ): FieldProperties {
   const tags = getTags(docs);
   let fieldRelationProperties: DBFieldRelation | undefined;
+  let rename: string | undefined;
   decorators.forEach((decorator) => {
     const name = decorator.getName();
     if (name === 'relation') {
@@ -101,6 +104,16 @@ function extractFieldProperties(
           `relation decorator requires table, references, fields properties`
         );
       }
+    } else if (name === 'rename') {
+      const args = decorator.getArguments();
+      if (args.length === 0) {
+        logError(`@rename decorator requires an argument`);
+        return;
+      }
+      const dbArg = args[0];
+      if (dbArg.isKind(SyntaxKind.StringLiteral)) {
+        rename = dbArg.getLiteralValue();
+      }
     }
   });
 
@@ -122,7 +135,8 @@ function extractFieldProperties(
   });
   return {
     zodType,
-    dbRelation: fieldRelationProperties
+    dbRelation: fieldRelationProperties,
+    rename
   };
 }
 

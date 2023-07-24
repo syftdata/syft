@@ -6,7 +6,8 @@ export enum SyftEventType {
   SCREEN,
   IDENTIFY,
   GROUP_IDENTIFY,
-  DB
+  DB,
+  OUTBOX
 }
 export const eventtype = (a: SyftEventType, b?: any) => {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -15,6 +16,22 @@ export const eventtype = (a: SyftEventType, b?: any) => {
 export const relation = (b: any) => {
   return function (target: any, propertyKey: string) {};
 };
+export const rename = (a: string) => {
+  return function (target: any, propertyKey: string) {};
+};
+
+export enum SyftInputType {
+  Debezium = 'debezium',
+  Http = 'http'
+}
+
+export enum SyftSinkType {
+  Amplitude = 'amplitude',
+  BigQuery = 'bigquery',
+  SnowFlake = 'snowflake',
+  Postgres = 'postgres',
+  Console = 'console'
+}
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.

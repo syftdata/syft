@@ -7,7 +7,21 @@ export enum SyftEventType {
   SCREEN,
   IDENTIFY,
   GROUP_IDENTIFY,
-  DB
+  DB,
+  OUTBOX
+}
+
+export enum SyftInputType {
+  Debezium = 'debezium',
+  Http = 'http'
+}
+
+export enum SyftSinkType {
+  Amplitude = 'amplitude',
+  BigQuery = 'bigquery',
+  SnowFlake = 'snowflake',
+  Postgres = 'postgres',
+  Console = 'console'
 }
 
 export enum NamingCase {
