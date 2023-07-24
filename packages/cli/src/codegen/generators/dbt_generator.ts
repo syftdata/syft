@@ -235,6 +235,7 @@ export function generateForSink(
   destinationConfig: DestinationConfig,
   providerConfig: ProviderConfig
 ): void {
+  logInfo(`Generating DBT project for ${destinationConfig.sink.id}`);
   const outputDir = path.join(parentDir, destinationConfig.sink.id);
   createDir(outputDir);
   createDir(path.join(outputDir, 'models'));
@@ -244,11 +245,15 @@ export function generateForSink(
 
   addExtraColumns(ast, providerConfig);
 
-  logInfo(`Generating seed files..`);
-  generateSeeds(ast, destinationConfig, outputDir);
+  const PROFILE_NAME = 'default';
+
+  logInfo(`Generating DBT project file`);
+  generateDbtProject(ast, outputDir, PROFILE_NAME);
+
+  logInfo(`Generating Sources`);
+  generateSourcesYaml(ast, outputDir, destinationConfig);
 
   logInfo(`Generating DBT profiles file..`);
-  const PROFILE_NAME = 'default';
   const profiles = {
     [PROFILE_NAME]: {
       target: 'dev',
@@ -259,11 +264,8 @@ export function generateForSink(
   };
   fs.writeFileSync(path.join(outputDir, 'profiles.yml'), yaml.dump(profiles));
 
-  logInfo(`Generating DBT project file`);
-  generateDbtProject(ast, outputDir, PROFILE_NAME);
-
-  logInfo(`Generating Sources`);
-  generateSourcesYaml(ast, outputDir, destinationConfig);
+  logInfo(`Generating seed files`);
+  generateSeeds(ast, destinationConfig, outputDir);
 
   // logInfo(`Generating DBT models..`);
   // generateStagingModels(ast, outputDir);

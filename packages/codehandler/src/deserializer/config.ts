@@ -3,6 +3,7 @@ import { type InputSource, type Sink } from '@syftdata/common/lib/types';
 import type { ArrayLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, ObjectLiteralExpression } from 'ts-morph';
 import { getConfigObject } from './ts_morph_utils';
+import { SyftSinkType } from '@syftdata/client';
 
 const STATIC_CONFIG_TYPE = 'StaticConfig';
 
@@ -68,11 +69,15 @@ export function getSinks(project: Project): Sink[] {
     .getElements()
     .map((element) => {
       if (element instanceof ObjectLiteralExpression) {
-        return getConfigObject(element);
+        const sink = getConfigObject(element);
+        if (typeof sink.type === 'string') {
+          sink.type = SyftSinkType[sink.type];
+        }
+        return sink as unknown as Sink;
       }
       return undefined;
     })
-    .filter((x) => x !== undefined) as unknown as Sink[];
+    .filter((x) => x !== undefined) as Sink[];
   return sinkObjects;
 }
 

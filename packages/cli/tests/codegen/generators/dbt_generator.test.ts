@@ -7,6 +7,7 @@ import { generate } from '../../../src/codegen/generators/dbt_generator';
 import { type Field, type AST } from '@syftdata/common/lib/types';
 import { type ProviderConfig } from '../../../src/config/sink_configs';
 import { getZodTypeForSchema } from '@syftdata/codehandler';
+import { SyftSinkType } from '@syftdata/common/lib/client_types';
 
 const TEST_FIELDS: Field[] = [
   {
@@ -37,7 +38,7 @@ describe('generate', () => {
       sinks: [
         {
           id: 'testSink',
-          type: 'bigquery',
+          type: SyftSinkType.BigQuery,
           config: {
             dataset: 'testDataset',
             projectId: 'testProject'
@@ -94,7 +95,7 @@ describe('generate', () => {
       sinks: [
         {
           id: 'testSink',
-          type: 'bigquery',
+          type: SyftSinkType.BigQuery,
           config: {
             dataset: 'testDataset',
             projectId: 'testProject'
@@ -156,7 +157,7 @@ describe('generate', () => {
       sinks: [
         {
           id: 'testSink',
-          type: 'bigquery',
+          type: SyftSinkType.BigQuery,
           config: {
             dataset: 'testDataset',
             projectId: 'testProject'
@@ -218,7 +219,7 @@ describe('generate', () => {
       sinks: [
         {
           id: 'testSink',
-          type: 'bigquery',
+          type: SyftSinkType.BigQuery,
           config: {
             dataset: 'testDataset',
             projectId: 'testProject'
