@@ -1,8 +1,4 @@
-import {
-  type StaticConfig,
-  SyftSinkType,
-  SyftInputType
-} from '@syftdata/common/lib/client_types';
+import { type StaticConfig } from '@syftdata/common/lib/client_types';
 import { type InputSource, type Sink } from '@syftdata/common/lib/types';
 import type { ArrayLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, ObjectLiteralExpression } from 'ts-morph';

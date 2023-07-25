@@ -45,6 +45,8 @@ export interface CountryCode {}
 export interface TypeField extends BasicInfo {
   type: TypeSchema;
   isOptional: boolean;
+  defaultValue?: string; // eg: default values 1, "hello". makes the field optional.
+  dbRelation?: DBFieldRelation;
 }
 
 export interface TypeSchema extends BasicInfo {
@@ -55,10 +57,7 @@ export interface TypeSchema extends BasicInfo {
   isArray: boolean; // if the type is an array.
 }
 
-export interface Field extends TypeField {
-  defaultValue?: string; // eg: default values 1, "hello". makes the field optional.
-  dbRelation?: DBFieldRelation;
-}
+export interface Field extends TypeField {}
 
 export interface EventSchema extends Omit<TypeSchema, 'isArray'> {
   fields: Field[];
