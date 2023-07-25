@@ -1,12 +1,8 @@
 import {
-  JSDocTypeTag,
   type ClassDeclaration,
   type Project,
   type PropertyDeclaration,
-  type SourceFile,
-  type Decorator,
-  type JSDoc,
-  SyntaxKind
+  type SourceFile
 } from 'ts-morph';
 import {
   type EventSchema,
@@ -15,27 +11,10 @@ import {
 } from '@syftdata/common/lib/types';
 import { SyftEventType } from '@syftdata/common/lib/client_types';
 import { logError, logVerbose } from '@syftdata/common/lib/utils';
-import {
-  extractKVPairsFromObjectLiteral,
-  getTags,
-  getTypeSchema
-} from './ts_morph_utils';
-import { getZodTypeForSchema, ZOD_ALLOWED_TAGS } from './zod_utils';
-import {
-  type DBEventSource,
-  type DBFieldRelation
-} from '@syftdata/common/lib/db_types';
-
-interface EventProperties {
-  eventType?: SyftEventType;
-  dbSourceDetails?: DBEventSource;
-}
-
-interface FieldProperties {
-  zodType?: string;
-  dbRelation?: DBFieldRelation;
-  rename?: string;
-}
+import { getTypeSchema } from './ts_morph_utils';
+import { getZodTypeForSchema } from './zod_utils';
+import { extractEventProperties, extractFieldProperties } from './decorators';
+import { type } from 'os';
 
 function getField(
   property: PropertyDeclaration,
@@ -67,139 +46,6 @@ function getField(
   };
 }
 
-function extractFieldProperties(
-  typeField: TypeField,
-  decorators: Decorator[],
-  docs: JSDoc[]
-): FieldProperties {
-  const tags = getTags(docs);
-  let fieldRelationProperties: DBFieldRelation | undefined;
-  let rename: string | undefined;
-  decorators.forEach((decorator) => {
-    const name = decorator.getName();
-    if (name === 'relation') {
-      const args = decorator.getArguments();
-      if (args.length === 0) {
-        logError(`@relation decorator requires an argument`);
-        return;
-      }
-      const dbArg = args[0];
-      if (dbArg.isKind(SyntaxKind.ObjectLiteralExpression)) {
-        const kvPairs = extractKVPairsFromObjectLiteral(dbArg);
-        if (
-          kvPairs.has('table') &&
-          kvPairs.has('references') &&
-          kvPairs.has('fields')
-        ) {
-          fieldRelationProperties = {
-            table: kvPairs.get('table') as string,
-            references: kvPairs.get('references') as string[],
-            fields: kvPairs.get('fields') as string[],
-            isMany: typeField.type.isArray ?? false
-          };
-        }
-      }
-      if (fieldRelationProperties === undefined) {
-        logError(
-          `relation decorator requires table, references, fields properties`
-        );
-      }
-    } else if (name === 'rename') {
-      const args = decorator.getArguments();
-      if (args.length === 0) {
-        logError(`@rename decorator requires an argument`);
-        return;
-      }
-      const dbArg = args[0];
-      if (dbArg.isKind(SyntaxKind.StringLiteral)) {
-        rename = dbArg.getLiteralValue();
-      }
-    }
-  });
-
-  let zodType = typeField.type.zodType;
-  const allowedZodTags = ZOD_ALLOWED_TAGS[typeField.name] ?? [];
-  tags.forEach((tag) => {
-    const name = tag.getTagName();
-    if (allowedZodTags.includes(name)) {
-      const paramString = tag.getCommentText()?.trim();
-      if (paramString !== undefined && paramString.length > 0) {
-        if (name === 'startsWith' || name === 'endsWith') {
-          zodType = `${zodType}.${name}("${paramString}")`;
-        } else {
-          const paramInt = parseInt(paramString);
-          zodType = `${zodType}.${name}(${!isNaN(paramInt) ? paramInt : ''})`;
-        }
-      }
-    }
-  });
-  return {
-    zodType,
-    dbRelation: fieldRelationProperties,
-    rename
-  };
-}
-
-function extractEventProperties(
-  decorators: Decorator[],
-  docs: JSDoc[]
-): EventProperties {
-  const tags = getTags(docs);
-  let eventType: SyftEventType | undefined;
-  let dbProperties: DBEventSource | undefined;
-
-  decorators.forEach((decorator) => {
-    const name = decorator.getName();
-    if (name === 'eventtype') {
-      const args = decorator.getArguments();
-      if (args.length === 0) {
-        logError(`@eventtype decorator requires arguments`);
-        return;
-      }
-      const arg = args[0];
-      const eventTypeString = arg.getText();
-      if (!eventTypeString.startsWith('SyftEventType.')) {
-        logError(`@eventtype decorator requires SyftEventType enum`);
-        return;
-      }
-      eventType = SyftEventType[eventTypeString.replace('SyftEventType.', '')];
-      if (eventType === SyftEventType.DB) {
-        const dbArg = args[1];
-        if (dbArg.isKind(SyntaxKind.ObjectLiteralExpression)) {
-          const kvPairs = extractKVPairsFromObjectLiteral(dbArg);
-          if (kvPairs.has('table') && kvPairs.has('on')) {
-            dbProperties = {
-              table: kvPairs.get('table') as string,
-              on: kvPairs.get('on') as string,
-              fields: kvPairs.get('fields') as string[]
-            };
-          }
-        }
-        if (dbProperties === undefined) {
-          logError(
-            `eventtype decorator with SyftEventType.DB requires table and on properties`
-          );
-        }
-      }
-    }
-  });
-
-  tags.forEach((tag) => {
-    if (tag instanceof JSDocTypeTag || tag.getTagName() === 'type') {
-      const fullTypeString = (tag as JSDocTypeTag)
-        .getTypeExpression()
-        ?.getTypeNode()
-        ?.getText();
-      if (fullTypeString === undefined) return;
-      const typeString = fullTypeString.replace('SyftEventType.', '');
-      if (typeString in SyftEventType) {
-        eventType = SyftEventType[typeString as keyof typeof SyftEventType];
-      }
-    }
-  });
-  return { eventType, dbSourceDetails: dbProperties };
-}
-
 export function getEventSchema(
   project: Project,
   classObj: ClassDeclaration
@@ -207,27 +53,17 @@ export function getEventSchema(
   const name = classObj.getNameOrThrow();
   logVerbose(`Parsing event: ${name}`);
   const typeSchema = getTypeSchema(classObj.getType(), name);
-  // for every field, get the TypeField object map.
-  const typeFieldMap = typeSchema.typeFields?.reduce((prev, curr) => {
-    prev.set(curr.name, curr);
-    return prev;
-  }, new Map<string, TypeField>());
-
-  let fields = classObj
-    .getProperties()
-    .map((property) => {
-      return getField(property, typeFieldMap);
-    })
-    .filter((field) => field != null) as Field[];
   const eventProps = extractEventProperties(
     classObj.getDecorators(),
     classObj.getJsDocs()
   );
 
+  let fields = typeSchema.typeFields ?? [];
+
   const fieldMap = fields.reduce((map, field) => {
     map.set(field.name, field);
     return map;
-  }, new Map<string, Field>());
+  }, new Map<string, TypeField>());
 
   // TODO: remove type field, which is the last one usually.
   let documentation = classObj
@@ -274,14 +110,44 @@ export function getEventSchema(
   };
 }
 
+/**
+ * This is a hack where we include classes as fields in parent classes.
+ * and the child classes have decorators that we want to inclue in the parent class.
+ * @param schemas
+ * @returns
+ */
+function attachFieldProps(schemas: EventSchema[]): EventSchema[] {
+  // const map = schemas.reduce((map, schema) => {
+  //   map.set(schema.name, schema);
+  //   return map;
+  // }, new Map<string, EventSchema>());
+
+  // schemas.forEach((schema) => {
+  //   schema.fields.forEach((field) => {
+  //     if (field.type.name in map) {
+  //       const childSchema = map.get(field.type.name);
+  //       if (childSchema != null) {
+  //         field.dbRelation = childSchema.dbSourceDetails;
+  //         field.rename = childSchema.name;
+  //       }
+  //     }
+  //   });
+  // });
+  return schemas;
+}
+
 export function getEventSchemas(
   project: Project,
   source: SourceFile
 ): EventSchema[] {
   // Walk the tree to search for classes
-  return source
+  const schemas = source
     .getClasses()
     .map((classObj) => getEventSchema(project, classObj));
+
+  // attach field props to the schema. (rename, dbRelation, zodType)
+
+  return attachFieldProps(schemas);
 }
 
 export function getImports(project: Project, source: SourceFile): string[] {

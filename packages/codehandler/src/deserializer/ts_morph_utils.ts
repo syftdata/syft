@@ -7,7 +7,11 @@ import {
   SyntaxKind,
   type ObjectLiteralExpression,
   type Expression,
-  PropertyAssignment
+  PropertyAssignment,
+  PropertyDeclaration,
+  PropertySignature,
+  type Node,
+  ShorthandPropertyAssignment
 } from 'ts-morph';
 import { logInfo } from '@syftdata/common/lib/utils';
 import {
@@ -16,6 +20,7 @@ import {
   type TypeSchema
 } from '@syftdata/common/lib/types';
 import { getZodType, getZodTypeForSchema } from './zod_utils';
+import { extractFieldProperties } from './decorators';
 
 // const SyftypeModuleIndex = 'client/src/index".type.'
 const SyftypeIndex = 'type.';
@@ -100,8 +105,11 @@ function printType(type: Type): void {
  * @param property
  * @returns
  */
-function getTypeField(property: TSSymbol, debugName: string): TypeField {
-  const declaration = property.getValueDeclarationOrThrow();
+function getTypeField(
+  property: TSSymbol,
+  declaration: Node<ts.Node>,
+  debugName: string
+): TypeField {
   const type = getTypeSchema(declaration.getType(), debugName);
   const hasQuestion =
     declaration.getFirstChildByKind(SyntaxKind.QuestionToken) != null;
@@ -114,10 +122,38 @@ function getTypeField(property: TSSymbol, debugName: string): TypeField {
     type.zodType = `${type.zodType}.optional()`;
   }
 
-  return {
+  const typeField = {
     name: property.getName(),
     isOptional,
     type
+  };
+
+  const decorators =
+    declaration instanceof PropertyDeclaration
+      ? declaration.getDecorators()
+      : [];
+  const jsDocs =
+    declaration instanceof PropertyDeclaration ||
+    declaration instanceof PropertySignature
+      ? declaration.getJsDocs()
+      : [];
+  const initializer =
+    declaration instanceof PropertyDeclaration ||
+    declaration instanceof PropertySignature ||
+    declaration instanceof PropertyAssignment ||
+    declaration instanceof ShorthandPropertyAssignment
+      ? declaration.getInitializer()
+      : undefined;
+
+  const fieldProps = extractFieldProperties(typeField, decorators, jsDocs);
+  typeField.type.zodType = fieldProps.zodType ?? typeField.type.zodType;
+
+  return {
+    ...typeField,
+    rename: fieldProps.rename,
+    dbRelation: fieldProps.dbRelation,
+    documentation: jsDocs.map((doc) => doc.getInnerText()).join('\n'),
+    defaultValue: initializer?.getText()
   };
 }
 
@@ -135,7 +171,6 @@ function getTypeSchemaForComplexObject(
   if (typeObj.isAnonymous()) {
     name = typeObj.getAliasSymbol()?.getEscapedName() ?? name;
   }
-
   const typeFields = typeObj
     .getApparentProperties()
     .map((property) => {
@@ -152,6 +187,7 @@ function getTypeSchemaForComplexObject(
       }
       return getTypeField(
         property,
+        declaration,
         `${debugName}.${property.getEscapedName()}`
       );
     })
@@ -277,14 +313,14 @@ export function getConfigObject(input: ObjectLiteralExpression): ConfigObject {
       const propertyName = property.getSymbolOrThrow().getEscapedName();
       const initializer = property.getInitializerOrThrow();
       const initializerType = initializer.getType();
-      if (initializerType.isStringLiteral()) {
-        configObject[propertyName] = initializer.getText().replace(/['"]/g, '');
+      const literalValue = initializerType.getLiteralValue();
+      if (
+        typeof literalValue === 'string' ||
+        typeof literalValue === 'number'
+      ) {
+        configObject[propertyName] = literalValue;
       } else if (initializerType.isBooleanLiteral()) {
         configObject[propertyName] = initializer.getText() === 'true';
-      } else if (initializerType.isEnumLiteral()) {
-        configObject[propertyName] = initializer.getText();
-      } else if (initializerType.isNumberLiteral()) {
-        configObject[propertyName] = Number(initializer.getText());
       } else if (initializerType.isObject()) {
         configObject[propertyName] = getConfigObject(
           initializer as ObjectLiteralExpression

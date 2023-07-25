@@ -13,7 +13,12 @@ export const eventtype = (a: SyftEventType, b?: any) => {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return function (constructor: Function) {};
 };
-export const relation = (b: any) => {
+interface TableRelation {
+  table: string;
+  fields: string[];
+  references: string[];
+}
+export const relation = (b: TableRelation) => {
   return function (target: any, propertyKey: string) {};
 };
 export const rename = (a: string) => {

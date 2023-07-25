@@ -260,7 +260,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "source_id",
@@ -269,7 +270,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "number",
                 "zodType": "z.number().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })",
@@ -290,7 +292,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "id",
@@ -299,7 +302,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "number",
                 "zodType": "z.number().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "test_field",
@@ -308,7 +312,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()",
@@ -359,7 +364,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "source_id",
@@ -368,7 +374,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "number",
                 "zodType": "z.number().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tsource_name: z.string(),\\n\\tsource_id: z.number().optional()\\n  })",
@@ -389,7 +396,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "id",
@@ -398,7 +406,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "number",
                 "zodType": "z.number().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "test_field",
@@ -407,7 +416,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string().optional()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tname: z.string(),\\n\\tid: z.number().optional(),\\n\\ttest_field: z.string().optional()\\n  }).optional()",
@@ -447,7 +457,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "channel_type",
@@ -456,7 +467,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })",
@@ -517,7 +529,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             },
             {
               "name": "channel_type",
@@ -526,7 +539,8 @@ exports[`generateASTForProject with multiple schemas 1`] = `
                 "name": "string",
                 "zodType": "z.string()",
                 "isArray": false
-              }
+              },
+              "documentation": ""
             }
           ],
           "zodType": "z.object({\\n    \\tchannel_name: z.string(),\\n\\tchannel_type: z.string()\\n  })",

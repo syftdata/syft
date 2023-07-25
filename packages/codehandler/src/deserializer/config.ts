@@ -1,9 +1,8 @@
-import type { StaticConfig } from '@syftdata/common/lib/client_types';
+import { type StaticConfig } from '@syftdata/common/lib/client_types';
 import { type InputSource, type Sink } from '@syftdata/common/lib/types';
 import type { ArrayLiteralExpression, Project } from 'ts-morph';
 import { SyntaxKind, ObjectLiteralExpression } from 'ts-morph';
 import { getConfigObject } from './ts_morph_utils';
-import { SyftSinkType } from '@syftdata/client';
 
 const STATIC_CONFIG_TYPE = 'StaticConfig';
 
@@ -43,13 +42,16 @@ export function getConfigFromExpression(
   };
 }
 
-export function getSinks(project: Project): Sink[] {
+function getArrayLiteralExpression(
+  project: Project,
+  name: string
+): ArrayLiteralExpression | undefined {
   let sinks: ArrayLiteralExpression | undefined;
   for (const sourceFile of project.getSourceFiles()) {
     const arrays = sourceFile
       .getVariableDeclarations()
       .map((variable) => {
-        if (variable.getName() === 'sinks') {
+        if (variable.getName() === name) {
           return variable.getInitializerIfKind(
             SyntaxKind.ArrayLiteralExpression
           );
@@ -62,18 +64,17 @@ export function getSinks(project: Project): Sink[] {
     }
     if (sinks !== undefined) break;
   }
+  return sinks;
+}
 
+export function getSinks(project: Project): Sink[] {
+  const sinks = getArrayLiteralExpression(project, 'sinks');
   if (sinks === undefined) return [];
-
   const sinkObjects = sinks
     .getElements()
     .map((element) => {
       if (element instanceof ObjectLiteralExpression) {
-        const sink = getConfigObject(element);
-        if (typeof sink.type === 'string') {
-          sink.type = SyftSinkType[sink.type];
-        }
-        return sink as unknown as Sink;
+        return getConfigObject(element) as unknown as Sink;
       }
       return undefined;
     })
@@ -82,35 +83,16 @@ export function getSinks(project: Project): Sink[] {
 }
 
 export function getInputs(project: Project): InputSource[] {
-  let inputs: ArrayLiteralExpression | undefined;
-  for (const sourceFile of project.getSourceFiles()) {
-    const arrays = sourceFile
-      .getVariableDeclarations()
-      .map((variable) => {
-        if (variable.getName() === 'inputs') {
-          return variable.getInitializerIfKind(
-            SyntaxKind.ArrayLiteralExpression
-          );
-        }
-        return undefined;
-      })
-      .filter((x) => x !== undefined) as ArrayLiteralExpression[];
-    if (arrays.length > 0) {
-      inputs = arrays[0];
-    }
-    if (inputs !== undefined) break;
-  }
-
+  const inputs = getArrayLiteralExpression(project, 'inputs');
   if (inputs === undefined) return [];
-
   const inputObjects = inputs
     .getElements()
     .map((element) => {
       if (element instanceof ObjectLiteralExpression) {
-        return getConfigObject(element);
+        return getConfigObject(element) as unknown as InputSource;
       }
       return undefined;
     })
-    .filter((x) => x !== undefined) as unknown as InputSource[];
+    .filter((x) => x !== undefined) as InputSource[];
   return inputObjects;
 }
