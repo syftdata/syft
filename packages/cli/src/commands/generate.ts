@@ -108,13 +108,22 @@ async function innerHandler({
       pkg.json.version = `${currentVersion}+${Date.now()}`;
       updatePackageJson(pkg);
     } else if (type === 'doc') {
+      ast.eventSchemas = ast.eventSchemas.filter((schema) => {
+        return schema.exported === true;
+      });
       generateDocs(ast, outDir ?? './docs');
     } else if (type === 'go') {
       generateGo(ast, outDir ?? './golang');
     } else if (type === 'dbt') {
+      ast.eventSchemas = ast.eventSchemas.filter((schema) => {
+        return schema.exported === true;
+      });
       const providerConfig = await getProviderConfig();
       generateDBT(ast, outDir ?? './dbt', providerConfig);
     } else if (type === 'yaml') {
+      ast.eventSchemas = ast.eventSchemas.filter((schema) => {
+        return schema.exported === true;
+      });
       const astYaml = yaml.dump(ast, {
         replacer: (key, value) => {
           if (key === 'syftConfig' || key === 'zodType') {
