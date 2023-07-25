@@ -220,6 +220,14 @@ export function getTypeSchema(
   let syfttype: string | undefined;
   let foundUnsuppotedCloudType = false;
 
+  const symbol = typeObj.getSymbol();
+  if (typeObj.isAnonymous() && symbol != null) {
+    // This case is to handle anonymous inner classes and interfaces types.
+    if (symbol.getDeclaredType().isClassOrInterface()) {
+      return getTypeSchemaForComplexObject(symbol.getDeclaredType(), debugName);
+    }
+  }
+
   if (typeObj.isArray()) {
     const arrayType = typeObj.getArrayElementType();
     if (arrayType != null) {
