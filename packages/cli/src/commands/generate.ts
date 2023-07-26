@@ -1,9 +1,8 @@
 import type * as yargs from 'yargs';
 import * as fs from 'fs';
-import * as path from 'path';
-import * as yaml from 'js-yaml';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
+import { generate as generateYaml } from '../codegen/generators/yaml_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
 import { generate as generateDBT } from '../codegen/generators/dbt_generator';
 import { type ProviderConfig } from '../config/sink_configs';
@@ -121,18 +120,7 @@ async function innerHandler({
       const providerConfig = await getProviderConfig();
       generateDBT(ast, outDir ?? './dbt', providerConfig);
     } else if (type === 'yaml') {
-      ast.eventSchemas = ast.eventSchemas.filter((schema) => {
-        return schema.exported === true;
-      });
-      const astYaml = yaml.dump(ast, {
-        replacer: (key, value) => {
-          if (key === 'syftConfig' || key === 'zodType') {
-            return undefined;
-          }
-          return value;
-        }
-      });
-      fs.writeFileSync(path.join(outDir ?? './', 'schema.yaml'), astYaml);
+      generateYaml(ast, outDir ?? './');
     }
   }
   return ast;
