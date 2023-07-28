@@ -44,7 +44,7 @@ function getColumn(
     metabaseType = 'Email';
   }
   const data = {
-    name: field.name,
+    name: field.rename ?? field.name,
     description: field.documentation,
     meta: {
       type: field.type.name
@@ -60,21 +60,33 @@ function getColumn(
   return data;
 }
 
+function getFieldsFromField(field: Field): Field[] {
+  if (field.type.name === '__type' || field.type.name === '__class') {
+    if (field.rename === '') {
+      return field.type.typeFields as Field[];
+    }
+  }
+  return [field];
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function getSource(destinationConfig: DestinationConfig, schema: EventSchema) {
   const tableName = getSQLFriendlyEventName(schema.name);
   return {
     name: tableName,
     description: schema.documentation,
-    columns: schema.fields.map((field) => {
-      const column = {
-        ...getColumn(destinationConfig, field),
-        tests: [] as string[]
-      };
-      if (!field.isOptional) {
-        column.tests.push('not_null');
-      }
-      return column;
+    columns: schema.fields.flatMap((field) => {
+      const fields = getFieldsFromField(field);
+      return fields.map((field) => {
+        const column = {
+          ...getColumn(destinationConfig, field),
+          tests: [] as string[]
+        };
+        // if (!field.isOptional) {
+        //   column.tests.push('not_null');
+        // }
+        return column;
+      });
     })
   };
 }
@@ -168,7 +180,10 @@ function getColumnTypesForSeed(
   schema: EventSchema
 ): object {
   return schema.fields.reduce((acc, field) => {
-    acc[field.name] = dest.getColumnType(field);
+    const fields = getFieldsFromField(field);
+    fields.forEach((field) => {
+      acc[field.rename ?? field.name] = dest.getColumnType(field);
+    });
     return acc;
   }, {});
 }
@@ -204,7 +219,11 @@ function generateSeeds(
     const tableName = getSQLFriendlyEventName(schema.name);
     fs.writeFileSync(
       path.join(outputDir, 'seeds', `${tableName}.csv`),
-      schema.fields.map((field) => field.name).join(',')
+      schema.fields
+        .flatMap((field) =>
+          getFieldsFromField(field).map((field) => field.rename ?? field.name)
+        )
+        .join(',')
     );
   });
 }
