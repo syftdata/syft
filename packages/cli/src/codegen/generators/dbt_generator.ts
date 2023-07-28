@@ -82,9 +82,9 @@ function getSource(destinationConfig: DestinationConfig, schema: EventSchema) {
           ...getColumn(destinationConfig, field),
           tests: [] as string[]
         };
-        // if (!field.isOptional) {
-        //   column.tests.push('not_null');
-        // }
+        if (!field.isOptional) {
+          column.tests.push('not_null');
+        }
         return column;
       });
     })
