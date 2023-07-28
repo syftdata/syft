@@ -153,7 +153,10 @@ function getTypeField(
     rename: fieldProps.rename,
     dbRelation: fieldProps.dbRelation,
     documentation: jsDocs.map((doc) => doc.getInnerText()).join('\n'),
-    defaultValue: initializer?.getText()
+    defaultValue:
+      initializer != null && !initializer.isKind(SyntaxKind.ClassExpression)
+        ? initializer.getText()
+        : undefined
   };
 }
 
@@ -165,7 +168,8 @@ function getTypeField(
  */
 function getTypeSchemaForComplexObject(
   typeObj: Type<ts.Type>,
-  debugName: string
+  debugName: string,
+  classType: boolean = false
 ): TypeSchema {
   let name = typeObj.getSymbol()?.getEscapedName() ?? 'Unknown';
   if (typeObj.isAnonymous()) {
@@ -224,7 +228,11 @@ export function getTypeSchema(
   if (typeObj.isAnonymous() && symbol != null) {
     // This case is to handle anonymous inner classes and interfaces types.
     if (symbol.getDeclaredType().isClassOrInterface()) {
-      return getTypeSchemaForComplexObject(symbol.getDeclaredType(), debugName);
+      return getTypeSchemaForComplexObject(
+        symbol.getDeclaredType(),
+        debugName,
+        true
+      );
     }
   }
 

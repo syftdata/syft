@@ -7,7 +7,7 @@ function changeType(value: any): any {
   if (typeof value.name !== 'string') {
     return value;
   }
-  if (value.name === '__type') {
+  if (value.name === '__type' || value.name === '__class') {
     return {
       ...value,
       name: 'object'
