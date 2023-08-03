@@ -32,6 +32,7 @@ const createAnEmptyField = (): ApiField => ({
   type: {
     name: "string",
     zodType: "z.string()",
+    isArray: false,
   },
   isOptional: false,
 });
@@ -40,27 +41,32 @@ const updateFieldType = (field: ApiField, type: FieldType) => {
   if (type === FieldType.NUMBER) {
     return {
       ...field,
-      type: { name: "number", zodType: "z.number()" },
+      type: { name: "number", zodType: "z.number()", isArray: false },
     };
   } else if (type === FieldType.STRING) {
     return {
       ...field,
-      type: { name: "string", zodType: "z.string()" },
+      type: { name: "string", zodType: "z.string()", isArray: false },
     };
   } else if (type === FieldType.BOOLEAN) {
     return {
       ...field,
-      type: { name: "boolean", zodType: "z.boolean()" },
+      type: { name: "boolean", zodType: "z.boolean()", isArray: false },
     };
   } else if (type === FieldType.DATE) {
     return {
       ...field,
-      type: { name: "Date", zodType: "z.date()" },
+      type: { name: "Date", zodType: "z.date()", isArray: false },
     };
   } else if (type === FieldType.UUID) {
     return {
       ...field,
-      type: { name: "string", syfttype: "UUID", zodType: "z.string().uuid()" },
+      type: {
+        name: "string",
+        syfttype: "UUID",
+        zodType: "z.string().uuid()",
+        isArray: false,
+      },
     };
   } else if (type === FieldType.EMAIL) {
     return {
@@ -69,17 +75,23 @@ const updateFieldType = (field: ApiField, type: FieldType) => {
         name: "string",
         syfttype: "Email",
         zodType: "z.string().email()",
+        isArray: false,
       },
     };
   } else if (type === FieldType.URL) {
     return {
       ...field,
-      type: { name: "string", syfttype: "Url", zodType: "z.string().url()" },
+      type: {
+        name: "string",
+        syfttype: "Url",
+        zodType: "z.string().url()",
+        isArray: false,
+      },
     };
   } else if (type === FieldType.ANY) {
     return {
       ...field,
-      type: { name: "any", zodType: "z.any()" },
+      type: { name: "any", zodType: "z.any()", isArray: false },
     };
   }
   return field;
@@ -167,7 +179,6 @@ const EditEventView = ({
         documentation,
         eventType,
         fields,
-        traits: [],
         zodType: "z.any()",
       },
       event

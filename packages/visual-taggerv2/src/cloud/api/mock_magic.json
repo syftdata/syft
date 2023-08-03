@@ -196,7 +196,8 @@
                "name":"title",
                "type":{
                   "name":"string",
-                  "zodType":"z.string()"
+                  "zodType":"z.string()",
+                  "isArray": false
                },
                "documentation":"Title of the ToDo",
                "isOptional":false
@@ -205,7 +206,8 @@
                "name":"created_at",
                "type":{
                   "name":"Date",
-                  "zodType":"z.date()"
+                  "zodType":"z.date()",
+                  "isArray": false
                },
                "documentation":"Time when the ToDo was created",
                "isOptional":false
@@ -214,14 +216,12 @@
                "name":"id",
                "type":{
                   "name":"number",
-                  "zodType":"z.number()"
+                  "zodType":"z.number()",
+                  "isArray": false
                },
                "documentation":"ID of the ToDo",
                "isOptional":false
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \ttitle: z.string(),\n\tcreated_at: z.date(),\n\tid: z.number()\n  })",
@@ -236,7 +236,8 @@
                "name":"is_done",
                "type":{
                   "name":"boolean",
-                  "zodType":"z.boolean()"
+                  "zodType":"z.boolean()",
+                  "isArray": false                  
                },
                "documentation":"True when the ToDo item is marked as done",
                "isOptional":false
@@ -245,14 +246,12 @@
                "name":"id",
                "type":{
                   "name":"number",
-                  "zodType":"z.number()"
+                  "zodType":"z.number()",
+                  "isArray": false
                },
                "documentation":"ID of the ToDo",
                "isOptional":false
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \tis_done: z.boolean(),\n\tid: z.number()\n  })",
@@ -267,14 +266,12 @@
                "name":"id",
                "type":{
                   "name":"number",
-                  "zodType":"z.number()"
+                  "zodType":"z.number()",
+                  "isArray": false
                },
                "documentation":"ID of the ToDo",
                "isOptional":false
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \tid: z.number()\n  })",
@@ -289,14 +286,12 @@
                "name":"id",
                "type":{
                   "name":"number",
-                  "zodType":"z.number()"
+                  "zodType":"z.number()",
+                  "isArray": false
                },
                "documentation":"ID of the ToDo",
                "isOptional":false
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \tid: z.number()\n  })",
@@ -311,15 +306,13 @@
                "name":"name",
                "type":{
                   "name":"string",
-                  "zodType":"z.string()"
+                  "zodType":"z.string()",
+                  "isArray": false
                },
                "documentation":"Name of the page",
                "isOptional":false,
                "defaultValue":"\"index\""
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \tname: z.string()\n  })",
@@ -335,14 +328,12 @@
                "type":{
                   "name":"string",
                   "zodType":"z.string().uuid()",
-                  "syfttype":"UUID"
+                  "syfttype":"UUID",
+                  "isArray": false
                },
                "documentation":"Id of the user",
                "isOptional":false
             }
-         ],
-         "traits":[
-            
          ],
          "exported":true,
          "zodType":"z.object({\n    \tuserId: z.string().uuid()\n  })",

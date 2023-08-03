@@ -28,7 +28,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@iconicicons/react": "^1.5.1",
-    "@syftdata/common": "^0.1.13",
+    "@syftdata/common": "^0.1.24",
     "antd": "^5.4.3",
     "framer-motion": "^10.12.7",
     "lodash.debounce": "^4.0.8",

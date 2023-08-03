@@ -7,9 +7,14 @@ import {
   TagName,
 } from "../types";
 
-export function getReactSourceFileForElement(ele: HTMLElement) {
+export function getReactSourceFileForElement(
+  ele: HTMLElement
+): ReactSource | undefined {
   const syftSource = ele.getAttribute("data-syft-source");
   if (syftSource == null) {
+    if (ele.parentElement != null) {
+      return getReactSourceFileForElement(ele.parentElement);
+    }
     return undefined;
   }
   const source = JSON.parse(syftSource) as ReactSource;

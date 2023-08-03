@@ -34,8 +34,10 @@ export function computeAllHtmlToReactComponentMapping() {
       const element = fiber.stateNode;
       const source = getReactHierarchy(fiber);
 
-      element.setAttribute("data-syft-source", JSON.stringify(source));
-
+      if (source != null) {
+        eleToReact.set(element, source);
+        element.setAttribute("data-syft-source", JSON.stringify(source));
+      }
       const val = Object.values(props).findIndex(
         (val: any) => typeof val === "function"
       );

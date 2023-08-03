@@ -31,9 +31,13 @@ function getElementFromSelectors(eventTag: EventTag) {
     if (selector == null) {
       continue;
     }
-    const ele = document.querySelector(selector);
-    if (ele != null) {
-      return ele;
+    try {
+      const ele = document.querySelector(selector);
+      if (ele != null) {
+        return ele;
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
   return undefined;

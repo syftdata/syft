@@ -12,6 +12,12 @@ export async function updateEventSchemas(
   eventTags: Action[],
   user: UserSession
 ): Promise<void> {
+  // remove screenshots from events to reduce the payload size.
+  eventTags.forEach((eventTag) => {
+    eventTag.events?.forEach((event) => {
+      delete event.screenshot;
+    });
+  });
   const response = await post("/api/catalog", user, {
     sourceId,
     branch,
