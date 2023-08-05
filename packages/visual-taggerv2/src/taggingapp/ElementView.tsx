@@ -13,10 +13,7 @@ export default function ElementView({ action }: ElementViewProps) {
   return (
     <Flex.Col gap={8} className={Css.padding(8)}>
       <LabelledValue label="DOM Event" value={action.type} />
-      <LabelledValue
-        label="React Component"
-        value={action.eventSource?.parent?.name}
-      />
+      <LabelledValue label="React Component" value={action.eventSource?.name} />
       <LabelledValue
         label="CSS Selector"
         value={getBestSelectorForAction(action, ScriptType.Playwright)}

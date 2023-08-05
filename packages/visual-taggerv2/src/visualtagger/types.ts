@@ -1,7 +1,7 @@
 import { EventTag } from "../types";
 
 export type ComputedEventTag = EventTag & {
-  ele: HTMLElement;
+  eles: HTMLElement[];
 };
 
 // function getEventTag(def: ComputedEventTag) {

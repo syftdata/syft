@@ -132,7 +132,7 @@ async function handleMessageAsync(
   message: any,
   port: chrome.runtime.Port
 ): Promise<boolean> {
-  console.debug("[Syft][Background] Received a message", message, port);
+  console.debug("[Syft][Background] Received a message", message.type);
   switch (message.type) {
     case MessageType.InitDevTools:
       connections[message.tabId] = port;
@@ -167,6 +167,15 @@ async function handleMessageAsync(
     case MessageType.StopTagging:
       await stopPreview();
       break;
+    case MessageType.MagicWand:
+      const data = await chrome.tabs.sendMessage(message.tabId, {
+        type: MessageType.MagicWand,
+      });
+      port.postMessage({
+        type: MessageType.MagicWandInput,
+        data,
+      });
+      break;
   }
   return true;
 }
@@ -181,10 +190,6 @@ chrome.runtime.onConnect.addListener(async function (port) {
 
   const extensionListener = (message: any, port: chrome.runtime.Port) => {
     if (message.type == null) {
-      console.warn(
-        '[Syft][Background] Received a message without a "type" field',
-        message
-      );
       return;
     }
     handleMessageAsync(message, port).catch((err) => {
@@ -211,9 +216,14 @@ chrome.runtime.onConnect.addListener(async function (port) {
 // current tab
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Messages from content scripts should have sender.tab set
+  let tabId: string | undefined;
   if (sender.tab) {
-    const tabId = sender.tab.id?.toString();
-    if (tabId != null && tabId in connections) {
+    tabId = sender.tab.id?.toString();
+  } else if (request.tabId != null) {
+    tabId = request.tabId.toString();
+  }
+  if (tabId != null) {
+    if (tabId in connections) {
       connections[tabId].postMessage(request);
       sendResponse(true);
     } else {
@@ -225,22 +235,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         Object.keys(connections)
       );
     }
-  } else if (request.tabId != null) {
-    const tabId = request.tabId.toString();
-    if (tabId in connections) {
-      connections[tabId].postMessage(request);
-      sendResponse(true);
-    } else {
-      console.warn(
-        "Tab not found in connection list 2.",
-        request,
-        tabId,
-        Object.keys(connections)
-      );
-    }
   } else {
     console.warn(
-      "[Syft][Background] Received a message from Devtools?",
+      "[Syft][Background] Received a message without tabId",
       request
     );
   }

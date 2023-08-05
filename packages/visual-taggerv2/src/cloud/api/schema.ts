@@ -18,6 +18,7 @@ export async function updateEventSchemas(
       delete event.screenshot;
     });
   });
+  console.log(">>>>> updateEventSchemas", eventTags);
   const response = await post("/api/catalog", user, {
     sourceId,
     branch,
@@ -28,12 +29,17 @@ export async function updateEventSchemas(
   await handleGitInfoResponse(response);
 }
 
-export async function magicAPI(user: UserSession): Promise<GitInfo> {
+export async function magicAPI1(
+  user: UserSession,
+  possibleActions: Action[]
+): Promise<GitInfo> {
   const state = await getGitInfoState();
   if (state?.info == null) {
     throw new Error("GitInfo not found");
   }
   await new Promise((resolve) => setTimeout(resolve, 1000));
+  // lets translate the possible actions to the actual actions.
+
   const newGitInfo: GitInfo = {
     ...state.info,
     eventSchema: {
@@ -43,4 +49,23 @@ export async function magicAPI(user: UserSession): Promise<GitInfo> {
     eventTags: data.eventTags as unknown as Action[],
   };
   return newGitInfo;
+}
+
+export async function magicAPI(
+  user: UserSession,
+  possibleEventTags: Action[]
+): Promise<GitInfo> {
+  const state = await getGitInfoState();
+  if (state?.info == null) {
+    throw new Error("GitInfo not found");
+  }
+
+  console.log(">>>>> magicAPI", possibleEventTags);
+  const response = await post("/api/magic_events", user, {
+    possibleEventTags,
+    eventTags: state.info.eventTags,
+    eventSchema: state.info.eventSchema,
+  });
+  const data = (await response.json()) as GitInfo;
+  return data;
 }

@@ -40,7 +40,7 @@ export function getTagIndexFromElement(ele?: Element) {
 }
 
 export function buildBaseAction(
-  event: Event,
+  event: { target: EventTarget | null; timeStamp: DOMHighResTimeStamp },
   overrideTarget?: HTMLElement
 ): BaseAction {
   const target = overrideTarget ?? (event.target as HTMLElement);

@@ -1,6 +1,6 @@
 import { GitInfo, UserSession } from "../../types";
 import { get, post } from "./utils";
-import { getGitInfoState, setGitInfoState } from "../state/gitinfo";
+import { setGitInfoState } from "../state/gitinfo";
 import { GitInfoState, LoadingState } from "../state/types";
 
 export async function handleGitInfoResponse(
@@ -10,7 +10,9 @@ export async function handleGitInfoResponse(
     const data = (await response.json()) as GitInfo;
     data.eventTags = data.eventTags ?? [];
     data.eventTags.forEach((eventTag) => {
-      eventTag.committed = true;
+      if (eventTag.committed === undefined) {
+        eventTag.committed = true;
+      }
     });
     const gitInfoState: GitInfoState = {
       state: LoadingState.LOADED,

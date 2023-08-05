@@ -23,11 +23,13 @@ import ActionList from "./ActionList";
 export interface TaggingAppProps {
   startTagging: () => void;
   stopTagging: () => void;
+  magicWand: () => void;
 }
 
 export default function TaggingApp({
   startTagging,
   stopTagging,
+  magicWand,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
@@ -57,16 +59,7 @@ export default function TaggingApp({
   }
 
   const onMagicWand = () => {
-    dispatch({
-      type: GitInfoActionType.FETCH_MAGIC_CHANGES,
-    });
-    magicAPI(userSession).then((g) => {
-      dispatch({
-        type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
-        data: g,
-      });
-      startTagging();
-    });
+    magicWand();
   };
 
   const onUpdateTag = (index: number, action?: Action) => {

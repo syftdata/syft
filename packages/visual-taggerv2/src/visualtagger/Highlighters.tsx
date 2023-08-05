@@ -21,7 +21,7 @@ export interface HighlightersProps {
   onPreviewClick: (action: Action, tagIndex: number) => void;
 }
 
-function getElementFromSelectors(eventTag: EventTag) {
+function getElementsFromSelectors(eventTag: EventTag) {
   const selectors = getBestSelectorsForAction(
     eventTag,
     ScriptType.Playwright
@@ -32,13 +32,11 @@ function getElementFromSelectors(eventTag: EventTag) {
       continue;
     }
     try {
-      const ele = document.querySelector(selector);
+      const ele = document.querySelectorAll(selector);
       if (ele != null) {
         return ele;
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   }
   return undefined;
 }
@@ -64,14 +62,21 @@ export default function Highlighters({
     []
   );
 
+  const [scrollPosition, setScrollPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
   useEffect(() => {
     if (previewAction) {
-      const element = getElementFromSelectors(previewAction);
-      if (element instanceof HTMLElement) {
-        setClickedElement(element);
-      } else {
-        setClickedElement(undefined);
+      const elements = getElementsFromSelectors(previewAction);
+      let ele: HTMLElement | undefined;
+      if (elements != null) {
+        ele = [...elements.values()].find(
+          (e) => e instanceof HTMLElement
+        ) as HTMLElement;
       }
+      setClickedElement(ele);
     } else {
       // hide the clicked element
       setClickedElement(undefined);
@@ -97,6 +102,16 @@ export default function Highlighters({
         }
         setHoveredElement(element);
       }
+    }, 100),
+    []
+  );
+
+  const handleScroll = useCallback(
+    throttle((event: Event) => {
+      setScrollPosition({
+        x: window.scrollX,
+        y: window.scrollY,
+      });
     }, 100),
     []
   );
@@ -129,7 +144,7 @@ export default function Highlighters({
         onPreviewClick(action, matchedIndex);
       }
       eatUpEvent(event);
-    }, 100),
+    }, 5),
     []
   );
 
@@ -141,47 +156,54 @@ export default function Highlighters({
     });
     const cActions = actions
       .map((action, idx) => {
-        const element = getElementFromSelectors(action);
-        if (!element) {
+        const eles = getElementsFromSelectors(action);
+        if (eles == null || eles.length === 0) {
           return undefined;
         }
-        element.setAttribute("data-tag-index", idx.toString());
+
+        eles.forEach((ele) => {
+          ele.setAttribute("data-tag-index", idx.toString());
+        });
         return {
           ...action,
-          ele: element,
+          eles: [...eles.values()],
         };
       })
-      .filter((event) => event != null) as ComputedEventTag[];
+      .filter((action) => action != null) as ComputedEventTag[];
     setComputedActions(cActions);
 
     document.addEventListener("mousemove", handleMouseMove, true);
+    document.addEventListener("scroll", handleScroll, true);
     document.addEventListener("click", handleClick, true);
     document.addEventListener("keyup", eatUpEvent, true);
     document.addEventListener("keydown", eatUpEvent, true);
     return () => {
       document.removeEventListener("mousemove", handleMouseMove, true);
+      document.removeEventListener("scroll", handleScroll, true);
       document.removeEventListener("click", handleClick, true);
       document.removeEventListener("keyup", eatUpEvent, true);
       document.removeEventListener("keydown", eatUpEvent, true);
     };
-  }, [actions, handleMouseMove]);
+  }, [actions, handleMouseMove, handleScroll]);
 
   const tagIndex = getTagIndexFromElement(hoveredElement);
 
   return (
     <>
       <style>{HighlighterStyle}</style>
-      {computedActions.map((def, idx) => {
-        return (
-          <Highlighter
-            key={idx}
-            tagIndex={idx}
-            rect={def.ele.getBoundingClientRect()}
-            defined={true}
-            clicked={clickedElement === def.ele}
-            committed={def.committed}
-          />
-        );
+      {computedActions.flatMap((def, idx) => {
+        return def.eles.map((ele, elementIdx) => {
+          return (
+            <Highlighter
+              key={`${idx}-${elementIdx}`}
+              tagIndex={idx}
+              rect={ele.getBoundingClientRect()}
+              defined={true}
+              clicked={clickedElement === ele}
+              committed={def.committed}
+            />
+          );
+        });
       })}
       {hoveredElement != null && tagIndex === -1 && (
         <Highlighter rect={hoveredElement.getBoundingClientRect()} />

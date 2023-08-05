@@ -46,6 +46,8 @@ export const isSupportedActionType = (actionType: ActionType) =>
 export interface ReactSource {
   name: string;
   source: string;
+  line: number;
+  props: Record<string, unknown>;
   parent?: ReactSource;
 }
 
@@ -176,6 +178,7 @@ export interface SyftEvent {
 export enum MessageType {
   // Background to DevTools.
   SyftEvent = "syft-event",
+  MagicWandInput = "magic-wand-input",
 
   // DevTools to background
   InitDevTools = "init-devtools",
@@ -188,6 +191,8 @@ export enum MessageType {
   // DevTools -> Background -> Content
   StartTagging = "start-tagging",
   StopTagging = "stop-tagging",
+  MagicWand = "magic-wand",
+  // needs to collect elements from content and fire magicAPI.
 
   // Extension Native UI to DevTools.
   OnSearch = "on-search",

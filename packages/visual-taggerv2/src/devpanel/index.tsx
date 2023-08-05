@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { MessageType, SyftEvent } from "../types";
+import { Action, MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
@@ -18,11 +18,15 @@ import {
   getGitInfoState,
   useGitInfoState,
 } from "../cloud/state/gitinfo";
-import { GitInfoActionType } from "../cloud/state/types";
+import { GitInfoAction, GitInfoActionType } from "../cloud/state/types";
+import { magicAPI } from "../cloud/api/schema";
 
 let existingConnection: chrome.runtime.Port | undefined;
 
-function init(onNewEvent: (event: SyftEvent) => void) {
+function init(
+  onNewEvent: (event: SyftEvent) => void,
+  dispatch: React.Dispatch<GitInfoAction>
+) {
   if (existingConnection) {
     return;
   }
@@ -64,6 +68,20 @@ function init(onNewEvent: (event: SyftEvent) => void) {
       //   existingConnection.disconnect();
       //   existingConnection = undefined;
       // }
+    } else if (message.type === MessageType.MagicWandInput) {
+      getUserSession().then((userSession) => {
+        // now wait for the reply.
+        if (userSession == null) {
+          return;
+        }
+        magicAPI(userSession, message.data as Action[]).then((g) => {
+          dispatch({
+            type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
+            data: g,
+          });
+          startTagging();
+        });
+      });
     } else {
       console.warn(
         "[Syft][Devtools] Received unknown message ",
@@ -116,7 +134,7 @@ const App = () => {
   const [gitInfoState, dispatch] = useGitInfoState();
   const [userSession] = useUserSession();
 
-  useEffect(() => init(insertEvent), []);
+  useEffect(() => init(insertEvent, dispatch), []);
 
   useEffect(() => {
     if (userSession != null) {
@@ -130,12 +148,30 @@ const App = () => {
     setEvents((events) => [event, ...events]);
   };
 
+  const magicWand = () => {
+    if (userSession == null) {
+      return;
+    }
+    dispatch({
+      type: GitInfoActionType.FETCH_MAGIC_CHANGES,
+    });
+    console.log(">>>> posting message to background magicwand");
+    existingConnection?.postMessage({
+      type: MessageType.MagicWand,
+      tabId: chrome.devtools.inspectedWindow.tabId,
+    });
+  };
+
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: `Visual Editor`,
       children: (
-        <TaggingApp startTagging={startTagging} stopTagging={stopTagging} />
+        <TaggingApp
+          startTagging={startTagging}
+          stopTagging={stopTagging}
+          magicWand={magicWand}
+        />
       ),
     },
     {

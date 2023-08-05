@@ -35,7 +35,7 @@ export default function Highlighter({
           border: clicked ? `1px solid ${Colors.Branding.V5}` : undefined,
           backgroundColor: rectBackgroundColor(
             clicked
-              ? Colors.Branding.V3
+              ? Colors.Branding.V5
               : committed
               ? Colors.Secondary.Green
               : defined

@@ -2,6 +2,12 @@ import { MessageType, SyftEvent } from "../types";
 // @ts-ignore
 import reactDevtools from "./react_devtools?script&module";
 
+/**
+ * This module is injected into the page as content script.
+ * This has access to the pages DOM and JS context.
+ * This is used to listen to events from the page and show them in the Syft Debugger.
+ */
+
 // This method gets the properties of the element that triggered the event.
 function getFromSyftEvent(event: CustomEvent): SyftEvent {
   const syftevent: SyftEvent = event.detail as SyftEvent;
