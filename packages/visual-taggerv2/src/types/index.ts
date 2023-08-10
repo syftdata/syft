@@ -5,12 +5,6 @@ export enum ActionsMode {
   Code = "code",
 }
 
-export enum ScriptType {
-  Puppeteer = "puppeteer",
-  Playwright = "playwright",
-  Cypress = "cypress",
-}
-
 export enum ActionType {
   AwaitText = "awaitText",
   Click = "click",
@@ -23,6 +17,7 @@ export enum ActionType {
   Navigate = "navigate",
   Resize = "resize",
   Wheel = "wheel",
+  ReactElement = "react-ele", // used specifically to represent an element. THIS IS HACK. Ideally we should build a new type for this.
 }
 
 export enum TagName {
@@ -37,6 +32,7 @@ export enum TagName {
   TextArea = "TEXTAREA",
   Div = "DIV",
   Window = "WINDOW",
+  Button = "BUTTON",
 }
 
 // (TODO) -> move to utils
@@ -48,6 +44,9 @@ export interface ReactSource {
   source: string;
   line: number;
   props: Record<string, unknown>;
+  urlPath: string;
+
+  handlers: string[];
   parent?: ReactSource;
 }
 
@@ -60,9 +59,19 @@ export class BaseAction {
   timestamp: number;
   isPassword: boolean;
   hasOnlyText: boolean; // If the element only has text content inside (hint to use text selector)
+}
 
-  events?: SyftEvent[];
-  eventSource?: ReactSource;
+export class ReactElement extends BaseAction {
+  declare type: ActionType.ReactElement;
+  reactSource: ReactSource;
+
+  // to show the tree hierarchy.
+  children?: ReactElement[];
+
+  // we need to maintain a mapping between handlernames and events.
+  handlerToEvents: Record<string, string[]>;
+  committed?: boolean;
+  instrumented?: boolean;
 }
 
 export class KeydownAction extends BaseAction {
@@ -139,12 +148,10 @@ export type Action =
   | WheelAction
   | FullScreenshotAction
   | AwaitTextAction
-  | ResizeAction;
+  | ResizeAction
+  | ReactElement;
 
-export type EventTag = Action & {
-  committed?: boolean;
-  instrumented?: boolean;
-};
+export type EventTag = ReactElement;
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.
@@ -178,20 +185,18 @@ export interface SyftEvent {
 export enum MessageType {
   // Background to DevTools.
   SyftEvent = "syft-event",
-  MagicWandInput = "magic-wand-input",
 
   // DevTools to background
   InitDevTools = "init-devtools",
   CleanupDevTools = "cleanup-devtools",
 
   // Content to Content Script.
-  GetSourceFile = "get-source-file",
-  GetSourceFileResponse = "get-source-file-response",
+  GetReactEles = "get-react-eles",
+  ReactElesResp = "react-eles-resp",
 
   // DevTools -> Background -> Content
-  StartTagging = "start-tagging",
-  StopTagging = "stop-tagging",
-  MagicWand = "magic-wand",
+  StartPreview = "start-preview",
+  StopPreview = "stop-preview",
   // needs to collect elements from content and fire magicAPI.
 
   // Extension Native UI to DevTools.
@@ -252,18 +257,17 @@ export interface GitInfo {
   eventTagsSha?: string; // used to update the file without overwriting others changes.
 }
 
-export enum RecordingMode {
-  NONE,
-  RECORDING,
-  PREVIEW,
+export enum VisualMode {
+  SELECTED,
+  ALL,
+  ALL_ELEMENTS,
 }
 
 export interface RecordingState {
-  mode: RecordingMode;
-  recordingTabId?: number;
-  recordingFrameId?: number;
-  recording: Action[];
+  mode: VisualMode;
+  tabId?: number;
+  frameId?: number;
 
-  previewAction?: Action;
-  previewActionMatchedTagIndex?: number;
+  elements: ReactElement[];
+  selectedIndex?: number;
 }

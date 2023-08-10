@@ -54,20 +54,12 @@ export async function recordNavigationEvent(
   url: string,
   transitionType: string
 ) {
-  const navigationEvent = {
-    type: ActionType.Navigate,
-    url,
-    source: transitionType,
-  } as NavigateAction;
-  await insertNewAction(navigationEvent);
-}
-
-export async function insertNewAction(action: Action, index?: number) {
-  return await updateRecordingState((state) => {
-    const newRecording = [...state.recording];
-    newRecording.splice(index ?? newRecording.length, 0, action);
-    return { ...state, recording: newRecording };
-  });
+  // const navigationEvent = {
+  //   type: ActionType.Navigate,
+  //   url,
+  //   source: transitionType,
+  // } as NavigateAction;
+  // await insertNewAction(navigationEvent);
 }
 
 export function shallowEqual(

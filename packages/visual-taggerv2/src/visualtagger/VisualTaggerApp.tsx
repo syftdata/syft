@@ -1,20 +1,12 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Recorder from "./recorder";
 
-import {
-  Action,
-  ActionType,
-  ClickAction,
-  MessageType,
-  RecordingMode,
-} from "../types";
+import { ReactElement, VisualMode } from "../types";
 import Highlighters from "./Highlighters";
-import { useGitInfoState } from "../cloud/state/gitinfo";
 import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import { buildBaseAction } from "./utils";
 
 /**
  * This is the main component that sits in the web page and is responsible for
@@ -23,68 +15,35 @@ import { buildBaseAction } from "./utils";
  */
 export default function VisualTaggerApp() {
   const recorderRef = useRef<Recorder | null>(null);
-  const [recordingMode, setRecordingMode] = useState(RecordingMode.RECORDING);
   const { recordingState } = useRecordingState();
-  const [gitInfoState] = useGitInfoState();
 
-  const onPreviewClick = useCallback((action: Action, tagIndex: number) => {
+  const onHighlightClick = useCallback((idx: number, element: ReactElement) => {
     updateRecordingState((state) => ({
       ...state,
-      previewAction: action,
-      previewActionMatchedTagIndex: tagIndex,
+      selectedIndex: idx,
     }));
   }, []);
 
   useEffect(() => {
-    if (recordingState.mode !== recordingMode) {
-      setRecordingMode(recordingState.mode);
-    }
-  }, [recordingState]);
+    recorderRef.current = new Recorder();
+    return () => {
+      recorderRef.current?.deregister();
+      recorderRef.current = null;
+    };
+  }, []);
 
-  useEffect(() => {
-    if (recordingMode === RecordingMode.RECORDING) {
-      recorderRef.current = new Recorder();
-      return () => {
-        recorderRef.current?.deregister();
-        recorderRef.current = null;
-      };
-    }
-  }, [recordingMode]);
-
-  if (!gitInfoState.info) {
-    return <></>;
+  const elements = recordingState.elements;
+  let selectedIndex = recordingState.selectedIndex;
+  if (selectedIndex != null) {
+    selectedIndex = selectedIndex < elements.length ? selectedIndex : 0;
   }
 
-  const gitInfo = gitInfoState?.modifiedInfo ?? gitInfoState?.info;
-  if (recordingMode === RecordingMode.PREVIEW) {
-    return (
-      <Highlighters
-        actions={gitInfo.eventTags}
-        previewAction={recordingState.previewAction}
-        onPreviewClick={onPreviewClick}
-      />
-    );
-  }
-  return <></>;
+  return (
+    <Highlighters
+      elements={elements}
+      mode={recordingState.mode}
+      selectedIndex={selectedIndex}
+      onClick={onHighlightClick}
+    />
+  );
 }
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === MessageType.MagicWand) {
-    const possibleActions: ClickAction[] = [];
-    document
-      .querySelectorAll('[data-syft-has-handler="true"]')
-      .forEach((el) => {
-        // build a list of actions, event sources.
-        possibleActions.push({
-          ...buildBaseAction({
-            target: el,
-            timeStamp: Date.now(),
-          }),
-          type: ActionType.Click,
-          offsetX: 0,
-          offsetY: 0,
-        });
-      });
-    sendResponse(possibleActions);
-  }
-});

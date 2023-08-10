@@ -1,4 +1,4 @@
-import { Action, RecordingMode } from "../types";
+import { EventTag, ReactElement, VisualMode } from "../types";
 
 import {
   IconButton,
@@ -6,7 +6,7 @@ import {
 } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import { useUserSession } from "../cloud/state/usersession";
-import PreviewEditor from "./PreviewEditor";
+import EventTagsEditor from "./EventTagsEditor";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
 import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
@@ -17,19 +17,16 @@ import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import Section from "../common/components/core/Section";
-import ActionList from "./ActionList";
+import { mergeEventTags1 } from "./merge";
 
 export interface TaggingAppProps {
-  startTagging: () => void;
-  stopTagging: () => void;
-  magicWand: () => void;
+  startPreview: () => void;
+  stopPreview: () => void;
 }
 
 export default function TaggingApp({
-  startTagging,
-  stopTagging,
-  magicWand,
+  startPreview,
+  stopPreview,
 }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
@@ -39,7 +36,6 @@ export default function TaggingApp({
     return <></>;
   }
 
-  const actions = recordingState.recording;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return (
@@ -58,11 +54,27 @@ export default function TaggingApp({
     );
   }
 
+  const enrichedElements = mergeEventTags1(
+    recordingState.elements,
+    gitInfo.eventTags
+  );
+  const schemas = gitInfo.eventSchema.events;
+
   const onMagicWand = () => {
-    magicWand();
+    // now wait for the reply.
+    if (userSession == null) {
+      return;
+    }
+    magicAPI(userSession, enrichedElements).then((g) => {
+      dispatch({
+        type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
+        data: g,
+      });
+      startPreview();
+    });
   };
 
-  const onUpdateTag = (index: number, action?: Action) => {
+  const onUpdateTag = (index: number, action?: EventTag) => {
     const newTags = [...gitInfo.eventTags];
     if (action != null) {
       newTags.splice(index, 1, action);
@@ -74,68 +86,28 @@ export default function TaggingApp({
       data: newTags,
     });
   };
-
-  const getPreviewView = () => {
-    const tags = gitInfo.eventTags ?? [];
-    const schemas = gitInfo.eventSchema.events ?? [];
-    return (
-      <>
-        <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <PrimaryIconButton icon="highlighter" onClick={stopTagging} />
-        </FlexExtra.RowWithDivider>
-        <PreviewEditor
-          tags={tags}
-          actions={actions}
-          schemas={schemas}
-          previewAction={recordingState.previewAction}
-          previewActionMatchedTagIndex={
-            recordingState.previewActionMatchedTagIndex
-          }
-          onUpdateTag={onUpdateTag}
-          onSelectTag={(index) => {
-            updateRecordingState((state) => ({
-              ...state,
-              previewActionMatchedTagIndex: index,
-              previewAction: tags[index],
-            }));
-          }}
-        />
-      </>
-    );
-  };
-
-  const getRecordingView = () => {
-    return (
-      <>
-        <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <IconButton icon="highlighter" onClick={startTagging} />
-          <IconButton icon="magic-wand" onClick={onMagicWand} />
-        </FlexExtra.RowWithDivider>
-        <Section
-          title="Interactions"
-          className={Flex.grow(1)}
-          expandable={true}
-          defaultExpanded={true}
-        >
-          <ActionList actions={actions} className={Flex.grow(1)} />
-        </Section>
-      </>
-    );
-  };
-
-  const getView = () => {
-    switch (recordingState.mode) {
-      case RecordingMode.RECORDING:
-        return getRecordingView();
-      case RecordingMode.PREVIEW:
-        return getPreviewView();
-    }
-    return <></>;
-  };
-
   return (
     <Flex.Col className={Css.height("calc(100vh - 80px)")}>
-      {getView()}
+      <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
+        {recordingState.mode === VisualMode.ALL ? (
+          <PrimaryIconButton icon="highlighter" onClick={stopPreview} />
+        ) : (
+          <IconButton icon="highlighter" onClick={startPreview} />
+        )}
+        <IconButton icon="magic-wand" onClick={onMagicWand} />
+      </FlexExtra.RowWithDivider>
+      <EventTagsEditor
+        tags={enrichedElements}
+        schemas={schemas}
+        selectedIndex={recordingState.selectedIndex ?? 0}
+        onUpdateTag={onUpdateTag}
+        onSelectTag={(index, tag) => {
+          updateRecordingState((state) => ({
+            ...state,
+            selectedIndex: index,
+          }));
+        }}
+      />
     </Flex.Col>
   );
 }

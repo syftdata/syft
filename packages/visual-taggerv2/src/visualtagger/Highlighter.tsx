@@ -3,11 +3,12 @@ import { Colors } from "../common/styles/colors";
 export type HighlighterProps = {
   rect: DOMRect;
   label?: string;
-  tagIndex?: number;
 
-  clicked?: boolean;
+  selected?: boolean;
   defined?: boolean;
   committed?: boolean;
+
+  onClick?: () => void;
 };
 
 export const rectBackgroundColor = (backgroundColor: string) =>
@@ -15,26 +16,28 @@ export const rectBackgroundColor = (backgroundColor: string) =>
 
 export default function Highlighter({
   label,
-  tagIndex,
   rect,
 
-  clicked,
+  selected,
   defined,
   committed,
+
+  onClick,
 }: HighlighterProps) {
   return (
     <>
       <div
         className="Syft-Highlighter-outline"
-        data-tag-index={tagIndex}
+        syft-highlight={true}
+        onClick={onClick}
         style={{
           top: rect.top,
           left: rect.left,
           width: rect.width,
           height: rect.height,
-          border: clicked ? `1px solid ${Colors.Branding.V5}` : undefined,
+          border: selected ? `1px solid ${Colors.Branding.V5}` : undefined,
           backgroundColor: rectBackgroundColor(
-            clicked
+            selected
               ? Colors.Branding.V5
               : committed
               ? Colors.Secondary.Green

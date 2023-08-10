@@ -11,6 +11,8 @@ import {
   InputAction,
   KeydownAction,
   MessageType,
+  ReactElement,
+  ReactSource,
   ResizeAction,
   WheelAction,
 } from "../types";
@@ -45,27 +47,30 @@ function _shouldGenerateKeyPressFor(event: KeyboardEvent): boolean {
 export default class Recorder {
   private _actions: Action[];
   private currentEventHandleType: string | null = null;
-  // private lastContextMenuEvent: MouseEvent | null = null;
+
+  private onReactElesResp = (event: MessageEvent) => {
+    if (event.data.type === MessageType.ReactElesResp) {
+      const reactElements = event.data.data as ReactElement[];
+      updateRecordingState((state) => ({ ...state, elements: reactElements }));
+    }
+  };
 
   private appendToActions = (action: Action) => {
-    this._actions.push(action);
-    updateRecordingState((state) => ({ ...state, recording: this._actions }));
-    // capture current state of the world.
+    //this._actions.push(action);
     window.postMessage({
-      type: MessageType.GetSourceFile,
+      type: MessageType.GetReactEles,
     });
   };
 
   private updateLastRecordedAction = (actionUpdate: any) => {
-    const lastAction = this._actions[this._actions.length - 1];
-    const newAction = {
-      ...lastAction,
-      ...actionUpdate,
-    };
-    this._actions[this._actions.length - 1] = newAction;
-    updateRecordingState((state) => ({ ...state, recording: this._actions }));
+    // const lastAction = this._actions[this._actions.length - 1];
+    // const newAction = {
+    //   ...lastAction,
+    //   ...actionUpdate,
+    // };
+    // this._actions[this._actions.length - 1] = newAction;
     window.postMessage({
-      type: MessageType.GetSourceFile,
+      type: MessageType.GetReactEles,
     });
   };
 
@@ -92,7 +97,6 @@ export default class Recorder {
     chrome.storage.onChanged.addListener(this.onStorageChange);
 
     window.addEventListener("click", this.onClick, true);
-    // window.addEventListener("contextmenu", this.onContextMenu, true);
     window.addEventListener("dragstart", this.onDrag, true);
     window.addEventListener("drop", this.onDrag, true);
     window.addEventListener("input", this.onInput, true);
@@ -100,24 +104,23 @@ export default class Recorder {
     window.addEventListener("resize", this.debouncedOnResize, true);
     window.addEventListener("wheel", this.onMouseWheel, true);
 
-    // We listen to a context menu action
-    // chrome.runtime.onMessage.addListener(this.onBackgroundMessage);
-
     this.appendToActions(
       buildLoadAction(window.location.href, window.document.title)
     );
+
+    window.addEventListener("message", this.onReactElesResp, true);
   }
 
   deregister() {
     chrome.storage.onChanged.removeListener(this.onStorageChange);
     window.removeEventListener("click", this.onClick, true);
-    // window.removeEventListener("contextmenu", this.onContextMenu, true);
     window.removeEventListener("dragstart", this.onDrag, true);
     window.removeEventListener("drop", this.onDrag, true);
     window.removeEventListener("input", this.onInput, true);
     window.removeEventListener("keydown", this.onKeyDown, true);
     window.removeEventListener("resize", this.debouncedOnResize, true);
     window.removeEventListener("wheel", this.onMouseWheel, true);
+    window.removeEventListener("message", this.onReactElesResp, true);
   }
 
   private onStorageChange = (changes: {
@@ -230,44 +233,6 @@ export default class Recorder {
     this.appendToActions(action);
   };
 
-  // private onContextMenu = (event: MouseEvent) => {
-  //   this.lastContextMenuEvent = event;
-  // };
-
-  // private onBackgroundMessage = (request: any) => {
-  //   // Context menu was clicked, pull last context menu element
-  //   if (request === null) return;
-  //   if (this.lastContextMenuEvent != null) {
-  //     let action: Action | undefined;
-  //     switch (request.type) {
-  //       case "onHoverCtxMenu":
-  //         action = {
-  //           ...buildBaseAction(this.lastContextMenuEvent),
-  //           type: ActionType.Hover,
-  //           selectors:
-  //             genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
-  //             {},
-  //           offsetX: this.lastContextMenuEvent.offsetX,
-  //           offsetY: this.lastContextMenuEvent.offsetY,
-  //         };
-  //         break;
-  //       case "onAwaitTextCtxMenu":
-  //         action = {
-  //           ...buildBaseAction(this.lastContextMenuEvent),
-  //           type: ActionType.AwaitText,
-  //           text: request.selectionText,
-  //           selectors:
-  //             genSelectors(this.lastContextMenuEvent.target as HTMLElement) ??
-  //             {},
-  //         };
-  //         break;
-  //     }
-  //     if (action != null) {
-  //       this.appendToRecording(action);
-  //     }
-  //   }
-  // };
-
   private onInput = (event: Event) => {
     if (this.checkAndSetDuplicateEventHandle(event)) {
       return;
@@ -321,11 +286,4 @@ export default class Recorder {
   };
 
   private debouncedOnResize = debounce(this.onResize, 300);
-
-  public onFullScreenshot = (): void => {
-    const action = {
-      type: ActionType.FullScreenshot,
-    } as FullScreenshotAction;
-    this.appendToActions(action);
-  };
 }

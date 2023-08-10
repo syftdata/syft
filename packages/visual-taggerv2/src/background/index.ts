@@ -1,6 +1,6 @@
 import { recordNavigationEvent } from "../common/utils";
 import { executeCleanUp, executeContentScript } from "../common/scripting";
-import { MessageType, RecordingMode } from "../types";
+import { MessageType, VisualMode } from "../types";
 
 import {
   getRecordingState,
@@ -18,11 +18,7 @@ async function onNavEvent(
   const recordingState = await getRecordingState();
 
   // Check if it's a parent frame, we're recording, and it's the right tabid
-  if (
-    tabId !== recordingState?.recordingTabId ||
-    frameId !== recordingState?.recordingFrameId ||
-    recordingState?.mode !== RecordingMode.RECORDING
-  ) {
+  if (tabId !== recordingState?.tabId || frameId !== recordingState?.frameId) {
     return;
   }
 
@@ -32,7 +28,7 @@ async function onNavEvent(
 // Set recording as ended when the recording tab is closed
 chrome.tabs.onRemoved.addListener(async (tabId) => {
   const recordingState = await getRecordingState();
-  if (tabId == recordingState?.recordingTabId) {
+  if (tabId == recordingState?.tabId) {
     await stopPreview();
   }
 });
@@ -46,11 +42,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
   const recordingState = await getRecordingState();
 
   // if the page moves to another location, insert content script again.
-  if (
-    tabId !== recordingState?.recordingTabId ||
-    frameId !== recordingState?.recordingFrameId ||
-    recordingState?.mode === RecordingMode.NONE
-  ) {
+  if (tabId !== recordingState?.tabId || frameId !== recordingState?.frameId) {
     return;
   }
 
@@ -140,9 +132,8 @@ async function handleMessageAsync(
       updateRecordingState((state) => {
         return {
           ...state,
-          recordingTabId: message.tabId,
-          recordingFrameId: 0,
-          mode: RecordingMode.RECORDING,
+          tabId: message.tabId,
+          frameId: 0,
         };
       });
       await executeCleanUp(message.tabId, 0);
@@ -155,26 +146,16 @@ async function handleMessageAsync(
       updateRecordingState((state) => {
         return {
           ...state,
-          recordingTabId: undefined,
-          recordingFrameId: 0,
-          mode: RecordingMode.NONE,
+          tabId: undefined,
+          frameId: 0,
         };
       });
       break;
-    case MessageType.StartTagging:
+    case MessageType.StartPreview:
       await startPreview();
       break;
-    case MessageType.StopTagging:
+    case MessageType.StopPreview:
       await stopPreview();
-      break;
-    case MessageType.MagicWand:
-      const data = await chrome.tabs.sendMessage(message.tabId, {
-        type: MessageType.MagicWand,
-      });
-      port.postMessage({
-        type: MessageType.MagicWandInput,
-        data,
-      });
       break;
   }
   return true;

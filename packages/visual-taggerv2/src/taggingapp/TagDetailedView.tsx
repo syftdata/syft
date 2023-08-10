@@ -1,45 +1,70 @@
-import { Action, ActionType, EventTag } from "../types";
-import Section from "../common/components/core/Section";
-import { SelectedSchemaView } from "../schemaapp/selector";
+import { EventTag } from "../types";
 import { EventSchema } from "@syftdata/common/lib/types";
-import ElementView from "./ElementView";
+import ReactElementView from "./ReactElementView";
+import TagHandlerList from "./TagTriggerList";
+import { useState } from "react";
+import AttachEventModal from "./AttachEventModal";
+import { EventsView } from "./EventsView";
 
 export interface TagDetailedViewProps {
-  tag?: EventTag;
-
-  startEditTagFlow: () => void;
-  onUpdateTag: (action?: Action) => void;
+  tag: EventTag;
+  onUpdateTag: (action?: EventTag) => void;
   schemas: EventSchema[];
 }
 
 export default function TagDetailedView({
   tag,
-  startEditTagFlow,
   onUpdateTag,
   schemas,
 }: TagDetailedViewProps) {
-  if (!tag) {
-    return <></>;
-  }
+  const handlers = [...Object.keys(tag.handlerToEvents)].sort();
+  const [selectedHandler, setSelectedHandler] = useState<string>(
+    handlers[0] ?? "onClick"
+  );
+  const [showActionModal, setShowActionModal] = useState(false);
 
   return (
     <>
-      <SelectedSchemaView
-        action={tag}
-        onEdit={startEditTagFlow}
-        setEvents={(events) => {
+      <TagHandlerList
+        tag={tag}
+        handlers={handlers}
+        selectedHandler={selectedHandler}
+        onSelect={setSelectedHandler}
+      />
+      <EventsView
+        tag={tag}
+        handler={selectedHandler}
+        onEdit={() => setShowActionModal(true)}
+        setEvents={(handler, events) => {
           onUpdateTag({
             ...tag,
-            events,
+            handlerToEvents: {
+              ...tag.handlerToEvents,
+              [handler]: events,
+            },
           });
         }}
         schemas={schemas}
       />
-      {tag.type !== ActionType.Load && (
-        <Section title="Interaction">
-          <ElementView action={tag} />
-        </Section>
-      )}
+      <ReactElementView element={tag} />
+      <AttachEventModal
+        key={`${tag.reactSource.name}:${selectedHandler}`}
+        open={showActionModal}
+        schemas={schemas}
+        tag={tag}
+        handler={selectedHandler}
+        setEvents={(handler, events) => {
+          onUpdateTag({
+            ...tag,
+            handlerToEvents: {
+              ...tag.handlerToEvents,
+              [handler]: events,
+            },
+          });
+          setShowActionModal(false);
+        }}
+        onCancel={() => setShowActionModal(false)}
+      />
     </>
   );
 }

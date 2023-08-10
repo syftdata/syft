@@ -43,18 +43,6 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
     gitInfoOriginal.eventSchema.events.map((e) => e.name)
   );
 
-  const eventSchemaToEventTags = useMemo(() => {
-    const map = new Map<string, SyftEvent[]>();
-    gitInfo.eventTags.forEach((tag) => {
-      tag.events?.forEach((e) => {
-        const eventTags = map.get(e.name) ?? [];
-        eventTags.push(e);
-        map.set(e.name, eventTags);
-      });
-    });
-    return map;
-  }, [gitInfo]);
-
   const addEventModel = (newEvent: EventSchema) => {
     dispatch({
       type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
@@ -155,7 +143,6 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
             <SchemaPropsRenderer
               data={{
                 schema: item,
-                event: eventSchemaToEventTags.get(item.name)?.at(0),
               }}
             />
           ),

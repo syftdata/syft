@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { EventSchema } from "@syftdata/common/lib/types";
-import { Action, SyftEvent } from "../types";
+import { EventTag } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono } from "../common/styles/fonts";
@@ -12,64 +12,61 @@ import Section from "../common/components/core/Section";
 
 // Attached Events view.
 export interface SelectedSchemaProps {
-  setEvents: (events: SyftEvent[]) => void;
+  setEvents: (handler: string, events: string[]) => void;
   onEdit: () => void;
-  action?: Action;
+  tag: EventTag;
+  handler: string;
   schemas: EventSchema[];
-  className?: string;
 }
 export const SelectedSchemaView = ({
   setEvents,
   onEdit,
-  action,
+  tag,
+  handler,
   schemas,
-  className,
 }: SelectedSchemaProps) => {
-  const expectedEvents = action?.events ?? [];
+  const eventNamesOfHandler = tag.handlerToEvents[handler] ?? [];
   const schemaAndEvents = React.useMemo(() => {
-    const map = new Map<string, SyftEvent>();
-    expectedEvents.forEach((event) => {
-      map.set(event.name, event);
-    });
     return schemas
       .map((schema) => {
-        return { schema, event: map.get(schema.name) } as SchemaAndEvents;
+        if (eventNamesOfHandler.includes(schema.name)) {
+          return {
+            schema,
+            event: {
+              name: schema.name,
+              createdAt: new Date(),
+              props: tag.reactSource.props,
+              syft_status: { track: "", valid: "" },
+            },
+          };
+        }
       })
-      .filter((i) => i.event != null);
-  }, [schemas, expectedEvents]);
-
-  if (!action) {
-    return null;
-  }
+      .filter((e) => e != null) as SchemaAndEvents[];
+  }, [schemas, eventNamesOfHandler]);
 
   const removeSchema = (schema: EventSchema) => {
-    const index = expectedEvents.findIndex((i) => i.name === schema.name);
+    const index = eventNamesOfHandler.findIndex((i) => i === schema.name);
     if (index > -1) {
-      const expectedEvents1 = [...expectedEvents];
+      const expectedEvents1 = [...eventNamesOfHandler];
       expectedEvents1.splice(index, 1);
-      setEvents(expectedEvents1);
+      setEvents(handler, expectedEvents1);
     }
   };
 
   const updateSchema = (schema: SchemaAndEvents) => {
-    const events = [...expectedEvents];
-    const index = events.findIndex((i) => i.name === schema.schema.name);
-    if (index > -1 && schema.event) {
-      events[index] = schema.event;
-      setEvents(events);
-    }
+    // TODO: update element props some how ?
   };
 
   let filteredSchemas = schemaAndEvents;
   return (
     <Section
-      title="Attached Events"
+      title="Tracked Events"
       extraButtons={<IconButton icon="edit" onClick={onEdit} />}
     >
-      <Flex.Col className={className}>
+      <Flex.Col>
         <List<SchemaAndEvents>
           data={filteredSchemas}
-          emptyMessage="No events attached"
+          emptyMessage={`No events tracked for ${handler}`}
           renderItem={(item) => {
             return (
               <Flex.Row
@@ -106,50 +103,48 @@ export const SelectedSchemaView = ({
 
 // Used to attach events to an action
 export interface SchemaSelectorProps {
-  setEvents: (events: SyftEvent[]) => void;
-  action?: Action;
+  setEvents: (handler: string, events: string[]) => void;
+  action: EventTag;
+  handler: string;
   schemas: EventSchema[];
-  className?: string;
 }
 const SchemaSelector = ({
   setEvents,
   action,
+  handler,
   schemas,
 }: SchemaSelectorProps) => {
-  const expectedEvents = action?.events ?? [];
+  const eventNamesOfHandler = action.handlerToEvents[handler] ?? [];
+  const schemaAndEvents = React.useMemo(() => {
+    return schemas
+      .map((schema) => {
+        if (eventNamesOfHandler.includes(schema.name)) {
+          return {
+            schema,
+            event: {
+              name: schema.name,
+              createdAt: new Date(),
+              props: action.reactSource.props,
+              syft_status: { track: "", valid: "" },
+            },
+          };
+        }
+      })
+      .filter((e) => e != null) as SchemaAndEvents[];
+  }, [schemas, eventNamesOfHandler]);
   const [search, setSearch] = useState("");
-  const schemaAndEvents = useMemo(() => {
-    const map = new Map<string, SyftEvent>();
-    expectedEvents.forEach((event) => {
-      map.set(event.name, event);
-    });
-    return schemas.map((schema) => {
-      return { schema, event: map.get(schema.name) } as SchemaAndEvents;
-    });
-  }, [schemas, expectedEvents]);
 
-  if (!action) {
-    return null;
-  }
-
-  const attachEvent = (schema: EventSchema) => {
-    const expectedEvents1 = [
-      ...expectedEvents,
-      {
-        name: schema.name,
-        props: {},
-        createdAt: new Date(),
-        syft_status: { valid: "valid", track: "" },
-      },
-    ];
-    setEvents(expectedEvents1);
+  const addSchema = (schema: EventSchema) => {
+    setEvents(handler, [...eventNamesOfHandler, schema.name]);
   };
 
-  const detachEvent = (schema: EventSchema) => {
-    const expectedEvents1 = expectedEvents.filter(
-      (e) => e.name === schema.name
-    );
-    setEvents(expectedEvents1);
+  const removeSchema = (schema: EventSchema) => {
+    const index = eventNamesOfHandler.findIndex((i) => i === schema.name);
+    if (index > -1) {
+      const expectedEvents1 = [...eventNamesOfHandler];
+      expectedEvents1.splice(index, 1);
+      setEvents(handler, expectedEvents1);
+    }
   };
 
   let filteredSchemas = schemaAndEvents;
@@ -177,20 +172,20 @@ const SchemaSelector = ({
             {item.event != null && (
               <IconButton
                 icon="minus-circle"
-                onClick={() => detachEvent(item.schema)}
+                onClick={() => removeSchema(item.schema)}
               />
             )}
             {item.event == null && (
               <IconButton
                 icon="plus-circle"
-                onClick={() => attachEvent(item.schema)}
+                onClick={() => addSchema(item.schema)}
               />
             )}
           </Flex.Row>
         );
       }}
       search={{
-        searchPlaceHolder: "Search for Event Models",
+        searchPlaceHolder: "Search for Schemas",
         search,
         setSearch,
       }}
