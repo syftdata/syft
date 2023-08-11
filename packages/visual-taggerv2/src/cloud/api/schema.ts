@@ -29,7 +29,7 @@ export async function updateEventSchemas(
 
 export async function magicAPI(
   user: UserSession,
-  possibleEventTags: ReactElement[]
+  rootElement: ReactElement
 ): Promise<GitInfo> {
   const state = await getGitInfoState();
   if (state?.info == null) {
@@ -37,7 +37,7 @@ export async function magicAPI(
   }
 
   const response = await post("/api/magic_events", user, {
-    possibleEventTags,
+    rootElement,
     eventTags: state.info.eventTags,
     eventSchema: state.info.eventSchema,
   });

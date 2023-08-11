@@ -107,12 +107,14 @@ export interface SchemaSelectorProps {
   action: EventTag;
   handler: string;
   schemas: EventSchema[];
+  onMagicWand: () => void;
 }
 const SchemaSelector = ({
   setEvents,
   action,
   handler,
   schemas,
+  onMagicWand,
 }: SchemaSelectorProps) => {
   const eventNamesOfHandler = action.handlerToEvents[handler] ?? [];
   const schemaAndEvents = React.useMemo(() => {
@@ -157,7 +159,7 @@ const SchemaSelector = ({
   return (
     <List<SchemaAndEvents>
       data={filteredSchemas}
-      emptyMessage={<NoSchemasView />}
+      emptyMessage={<NoSchemasView onMagicWand={onMagicWand} />}
       renderItem={(item) => {
         return (
           <Flex.Row

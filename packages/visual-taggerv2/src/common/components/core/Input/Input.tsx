@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import AntdInput, { type InputProps as AntdInputProps } from "antd/lib/input";
 import { Colors } from "../../../styles/colors";
 import { Css, Flex } from "../../../styles/common.styles";
-import { Subheading } from "../../../styles/fonts";
+import { Label, Subheading } from "../../../styles/fonts";
 import { getInputSize } from "./input.styles";
 import { type Size } from "../../../constants/types";
 
@@ -13,7 +13,7 @@ interface InputProps extends Omit<AntdInputProps, "size"> {
 const Input = ({ label, size = "small", ...otherInputProps }: InputProps) => {
   return (
     <Flex.Col gap={4}>
-      <Subheading.SH12 color={Colors.Gray.V7}>{label}</Subheading.SH12>
+      <Label.L10 color={Colors.Gray.V5}>{label}</Label.L10>
       <AntdInput
         {...otherInputProps}
         className={css(

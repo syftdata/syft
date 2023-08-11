@@ -3,18 +3,22 @@ import { EventSchema } from "@syftdata/common/lib/types";
 import ReactElementView from "./ReactElementView";
 import TagHandlerList from "./TagTriggerList";
 import { useState } from "react";
-import AttachEventModal from "./AttachEventModal";
 import { EventsView } from "./EventsView";
+import SimpleEventModal from "./SimpleEventModal";
 
 export interface TagDetailedViewProps {
   tag: EventTag;
   onUpdateTag: (action?: EventTag) => void;
+  onAddSchema: (schema: EventSchema) => void;
+  onMagicWand: () => void;
   schemas: EventSchema[];
 }
 
 export default function TagDetailedView({
   tag,
+  onAddSchema,
   onUpdateTag,
+  onMagicWand,
   schemas,
 }: TagDetailedViewProps) {
   const handlers = [...Object.keys(tag.handlerToEvents)].sort();
@@ -47,20 +51,21 @@ export default function TagDetailedView({
         schemas={schemas}
       />
       <ReactElementView element={tag} />
-      <AttachEventModal
+      <SimpleEventModal
         key={`${tag.reactSource.name}:${selectedHandler}`}
         open={showActionModal}
-        schemas={schemas}
         tag={tag}
+        schemas={schemas}
+        onMagicWand={() => {
+          onMagicWand();
+          setShowActionModal(false);
+        }}
         handler={selectedHandler}
-        setEvents={(handler, events) => {
-          onUpdateTag({
-            ...tag,
-            handlerToEvents: {
-              ...tag.handlerToEvents,
-              [handler]: events,
-            },
-          });
+        addSchema={(tag, schema) => {
+          if (schema) {
+            onAddSchema(schema);
+          }
+          onUpdateTag(tag);
           setShowActionModal(false);
         }}
         onCancel={() => setShowActionModal(false)}

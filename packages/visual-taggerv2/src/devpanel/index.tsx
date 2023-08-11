@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { Action, MessageType, SyftEvent } from "../types";
+import { MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
-import SchemaApp from "../schemaapp";
 import SettingsApp from "../settingsapp";
 import { GitView } from "../cloud/views/gitview";
 import { getCurrentTabId } from "../common/utils";
@@ -198,3 +197,15 @@ ReactDOM.createRoot(target).render(
     <App />
   </React.StrictMode>
 );
+chrome.devtools.panels.elements.onSelectionChanged.addListener(() => {
+  chrome.devtools.inspectedWindow.eval(
+    `(() => {
+      // call a method in the content script to change the selection.
+      console.log($0);
+    })()`,
+    {
+      useContentScriptContext: true,
+    }
+  );
+  console.debug("onSelectionChanged");
+});

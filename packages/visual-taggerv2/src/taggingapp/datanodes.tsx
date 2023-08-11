@@ -1,9 +1,10 @@
 import { DataNode } from "antd/es/tree";
-import { ReactSource } from "../types";
+import { ReactElement, ReactSource } from "../types";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Paragraph } from "../common/styles/fonts";
 import { Colors } from "../common/styles/colors";
 
+export const ROOT_TREE_KEY = "";
 function getKey(parentKey: string | undefined, fieldName: string): string {
   if (parentKey == null) return fieldName;
   return `${parentKey}.${fieldName}`;
@@ -30,7 +31,6 @@ function getDataNodesFromObj(
         isLeaf = false;
         title = <Paragraph.P12>{key}</Paragraph.P12>;
       } else {
-        const valueSubstring = `${value}`.substring(0, 10);
         title = (
           <Flex.Row gap={8}>
             <Paragraph.P12 color={Colors.Branding.DarkBlue}>
@@ -40,7 +40,7 @@ function getDataNodesFromObj(
               color={Colors.Secondary.Orange}
               className={Css.textOverflow("elipsis")}
             >
-              {valueSubstring}
+              {value}
             </Paragraph.P10>
           </Flex.Row>
         );
@@ -59,7 +59,7 @@ function getDataNodesFromObj(
   return nodes;
 }
 
-export function getDataNodes(
+export function getPropDataNodes(
   source: ReactSource,
   filterNulls: boolean,
   dataKey?: string
@@ -68,7 +68,7 @@ export function getDataNodes(
   let nodes = getDataNodesFromObj(reactProps, filterNulls, dataKey);
   if (source.parent) {
     const parentKey = getKey(dataKey, "parent");
-    const children = getDataNodes(source.parent, filterNulls, parentKey);
+    const children = getPropDataNodes(source.parent, filterNulls, parentKey);
     if (children != null && children.length > 0) {
       nodes = nodes ?? [];
       nodes.push({
@@ -80,4 +80,50 @@ export function getDataNodes(
     }
   }
   return nodes;
+}
+
+export function getReactElementDataNodes(element: ReactElement) {
+  const elementMap = new Map<string, ReactElement>();
+  const traverse = (element: ReactElement, key: string) => {
+    if (element == null) {
+      return null;
+    }
+    const text = element.reactSource.name ?? element.tagName;
+    const subText = element.selectors.text;
+    const eventCount = Object.values(element.handlerToEvents).reduce(
+      (val, events) => val + events.length,
+      0
+    );
+
+    const node: DataNode = {
+      title: (
+        <Flex.Row gap={8}>
+          <Paragraph.P12>{text}</Paragraph.P12>
+          <Paragraph.P10 color={Colors.Secondary.Orange}>
+            {subText && subText.length <= 30 ? subText : ""}
+          </Paragraph.P10>
+          {eventCount > 0 && (
+            <Paragraph.P10 color={Colors.Secondary.Green}>
+              {eventCount} Events
+            </Paragraph.P10>
+          )}
+        </Flex.Row>
+      ),
+      key,
+    };
+    elementMap.set(key, element);
+    if (element.children) {
+      node.children = element.children
+        .map((child, idx) => traverse(child, getKey(key, `${idx}`)))
+        .filter((n) => n != null) as DataNode[];
+    }
+    return node;
+  };
+  return {
+    root: traverse(element, ROOT_TREE_KEY) ?? {
+      title: "None",
+      key: ROOT_TREE_KEY,
+    },
+    map: elementMap,
+  };
 }

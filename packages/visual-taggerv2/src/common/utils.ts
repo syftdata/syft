@@ -1,6 +1,3 @@
-import { updateRecordingState } from "../cloud/state/recordingstate";
-import { Action, ActionType, GitInfo, NavigateAction } from "../types";
-
 // TODO: nages added this global to resolve compilation issues.
 declare global {
   namespace browser {
@@ -82,4 +79,23 @@ export function shallowEqual(
   }
 
   return true;
+}
+
+export function lowerize(s: string): string {
+  return s[0].toLocaleLowerCase() + s.slice(1);
+}
+
+export function capitalize(s: string): string {
+  return s[0].toLocaleUpperCase() + s.slice(1);
+}
+
+/** Used to match words composed of alphanumeric characters. */
+// eslint-disable-next-line no-control-regex
+const reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+export function asciiWords(val: string): string[] {
+  return val.replace(/['\u2019]/g, "").match(reAsciiWord) ?? [];
+}
+
+export function getHumanizedName(name: string): string {
+  return asciiWords(name).map(capitalize).join(" ");
 }

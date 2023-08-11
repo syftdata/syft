@@ -42,6 +42,7 @@ import {
   WarningTriangleIcon,
   PauseIcon,
   CopyIcon,
+  CursorIcon,
 } from "@iconicicons/react";
 import type { Size } from "../../../constants/types";
 import { Colors } from "../../../styles/colors";
@@ -98,7 +99,8 @@ export type IconName =
   | "github"
   | "notebook"
   | "magic-wand"
-  | "highlighter";
+  | "highlighter"
+  | "cursor";
 
 const getIcon = (icon: IconName) => {
   switch (icon) {
@@ -194,6 +196,8 @@ const getIcon = (icon: IconName) => {
       return <FontAwesomeIcon icon={faMagicWandSparkles} />;
     case "highlighter":
       return <FontAwesomeIcon icon={faHighlighter} />;
+    case "cursor":
+      return <CursorIcon />;
   }
 };
 

@@ -23,16 +23,25 @@ export enum ActionType {
 export enum TagName {
   A = "A",
   B = "B",
+  Body = "BODY",
+  BR = "BR",
+  Button = "BUTTON",
   Cite = "CITE",
+  Code = "CODE",
+  Div = "DIV",
   EM = "EM",
+  EMBED = "EMBED",
+  HTML = "HTML",
+  Img = "IMG",
   Input = "INPUT",
+  Section = "SECTION",
   Select = "SELECT",
   Span = "SPAN",
   Strong = "STRONG",
+  Table = "TABLE",
   TextArea = "TEXTAREA",
-  Div = "DIV",
+  Video = "VIDEO",
   Window = "WINDOW",
-  Button = "BUTTON",
 }
 
 // (TODO) -> move to utils
@@ -268,6 +277,8 @@ export interface RecordingState {
   tabId?: number;
   frameId?: number;
 
-  elements: ReactElement[];
+  rootElement?: ReactElement;
+
   selectedIndex?: number;
+  elements: ReactElement[];
 }

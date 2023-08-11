@@ -6,7 +6,6 @@ import {
 } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import { useUserSession } from "../cloud/state/usersession";
-import EventTagsEditor from "./EventTagsEditor";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
 import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
@@ -17,7 +16,10 @@ import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import { mergeEventTags1 } from "./merge";
+import { getUniqueKey, mergeEventTags1 } from "./merge";
+import ReactElementTree from "./ReactElementTree";
+import TagDetailedView from "./TagDetailedView";
+import { shallowEqual } from "../common/utils";
 
 export interface TaggingAppProps {
   startPreview: () => void;
@@ -54,23 +56,35 @@ export default function TaggingApp({
     );
   }
 
-  const enrichedElements = mergeEventTags1(
-    recordingState.elements,
-    gitInfo.eventTags
-  );
+  const elements = recordingState.elements;
+  const rootElement = elements[0] as ReactElement;
+  const enrichedElements = mergeEventTags1(elements, gitInfo.eventTags);
   const schemas = gitInfo.eventSchema.events;
+
+  const selectedIndex = Math.max(recordingState.selectedIndex ?? 0, 0);
+  const selectedTag = enrichedElements[selectedIndex];
+  const selectedElement = elements[selectedIndex];
+
+  console.log(
+    "selectedTag",
+    selectedTag,
+    selectedElement,
+    selectedIndex,
+    elements,
+    enrichedElements
+  );
 
   const onMagicWand = () => {
     // now wait for the reply.
     if (userSession == null) {
       return;
     }
-    magicAPI(userSession, enrichedElements).then((g) => {
+    magicAPI(userSession, rootElement).then((g) => {
       dispatch({
         type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
         data: g,
       });
-      startPreview();
+      // startPreview();
     });
   };
 
@@ -86,28 +100,54 @@ export default function TaggingApp({
       data: newTags,
     });
   };
+
   return (
     <Flex.Col className={Css.height("calc(100vh - 80px)")}>
       <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
+        <IconButton icon="cursor" onClick={() => {}} />
+        <IconButton icon="magic-wand" onClick={onMagicWand} />
         {recordingState.mode === VisualMode.ALL ? (
           <PrimaryIconButton icon="highlighter" onClick={stopPreview} />
         ) : (
           <IconButton icon="highlighter" onClick={startPreview} />
         )}
-        <IconButton icon="magic-wand" onClick={onMagicWand} />
       </FlexExtra.RowWithDivider>
-      <EventTagsEditor
-        tags={enrichedElements}
-        schemas={schemas}
-        selectedIndex={recordingState.selectedIndex ?? 0}
-        onUpdateTag={onUpdateTag}
-        onSelectTag={(index, tag) => {
-          updateRecordingState((state) => ({
-            ...state,
-            selectedIndex: index,
-          }));
-        }}
-      />
+      {rootElement && (
+        <ReactElementTree
+          element={rootElement}
+          selectedElement={selectedElement}
+          onClick={(element) => {
+            const idx = elements.findIndex(
+              (t) => getUniqueKey(t) === getUniqueKey(element)
+            );
+            if (idx != -1) {
+              updateRecordingState((state) => ({
+                ...state,
+                selectedIndex: idx,
+              }));
+            } else {
+              console.log(">>> couldnt find the element ", element, elements);
+            }
+          }}
+        />
+      )}
+      {selectedTag && (
+        <TagDetailedView
+          key={getUniqueKey(selectedTag)}
+          tag={selectedTag}
+          schemas={schemas}
+          onMagicWand={onMagicWand}
+          onAddSchema={(schema) => {
+            dispatch({
+              type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+              data: [...gitInfo.eventSchema.events, schema],
+            });
+          }}
+          onUpdateTag={(action) => {
+            onUpdateTag(selectedIndex, action);
+          }}
+        />
+      )}
     </Flex.Col>
   );
 }

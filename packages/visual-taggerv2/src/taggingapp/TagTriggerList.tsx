@@ -5,6 +5,7 @@ import { Mono } from "../common/styles/fonts";
 import { Colors, backgroundCss } from "../common/styles/colors";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
+import { getHumanizedName } from "../common/utils";
 
 export interface TagHandlerListProps {
   tag: EventTag;
@@ -12,6 +13,7 @@ export interface TagHandlerListProps {
   selectedHandler: string;
   onSelect: (handler: string) => void;
 }
+
 export default function TagHandlerList({
   tag,
   handlers,
@@ -19,10 +21,11 @@ export default function TagHandlerList({
   onSelect,
 }: TagHandlerListProps) {
   return (
-    <Section title="Triggers">
+    <Section title="When" expandable={true}>
       <List<string>
         data={handlers}
         renderItem={(handler) => {
+          const humanizedName = getHumanizedName(handler);
           const eventCount = tag.handlerToEvents[handler]?.length;
           return (
             <Flex.Row
@@ -41,7 +44,7 @@ export default function TagHandlerList({
                 onSelect(handler);
               }}
             >
-              <Mono.M12>{handler}</Mono.M12>
+              <Mono.M12>{humanizedName}</Mono.M12>
               {eventCount != null && eventCount > 0 && (
                 <Mono.M10>{eventCount} Events</Mono.M10>
               )}

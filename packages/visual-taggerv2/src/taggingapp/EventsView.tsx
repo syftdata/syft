@@ -3,11 +3,13 @@ import { EventSchema } from "@syftdata/common/lib/types";
 import { EventTag } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
-import { Mono } from "../common/styles/fonts";
+import { Label, Mono } from "../common/styles/fonts";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
-import EventPropsView from "./EventPropsView";
+import EventPropsView, { SchemaAndElement } from "./EventPropsView";
+import Button from "../common/components/core/Button/Button";
+import { Colors } from "../common/styles/colors";
 
 // Attached Events view.
 export interface EventsViewProps {
@@ -18,10 +20,6 @@ export interface EventsViewProps {
   schemas: EventSchema[];
 }
 
-type SchemaAndTag = {
-  schema: EventSchema;
-  tag: EventTag;
-};
 export const EventsView = ({
   setEvents,
   onEdit,
@@ -42,7 +40,7 @@ export const EventsView = ({
         }
       })
       .filter((e) => e != null);
-  }, [schemas, eventNamesOfHandler]) as SchemaAndTag[];
+  }, [schemas, eventNamesOfHandler]) as SchemaAndElement[];
 
   const removeEvent = (schema: EventSchema) => {
     const index = eventNamesOfHandler.findIndex((i) => i === schema.name);
@@ -59,11 +57,12 @@ export const EventsView = ({
 
   return (
     <Section
-      title="Tracked Events"
-      extraButtons={<IconButton icon="edit" onClick={onEdit} />}
+      title="Events"
+      extraButtons={<IconButton icon="plus" onClick={onEdit} />}
+      expandable={true}
     >
       <Flex.Col>
-        <List<SchemaAndTag>
+        <List<SchemaAndElement>
           data={schemaAndTags}
           emptyMessage={`No events tracked for ${handler}`}
           renderItem={(item) => {
@@ -85,17 +84,9 @@ export const EventsView = ({
             );
           }}
           expandable={{
-            isExpanded: (item) => false,
+            isExpanded: (item) => true,
             renderItem: (item) => (
-              <EventPropsView
-                element={item.tag}
-                filterNulls={true}
-                onEdit={(schema) => {
-                  console.log("Modified schema is ", schema);
-                }}
-                schema={item.schema}
-                className={Css.margin("0px 12px")}
-              />
+              <EventPropsView data={item} onUpdate={updateSchema} />
             ),
           }}
         />

@@ -28,7 +28,7 @@ export default function Highlighter({
     <>
       <div
         className="Syft-Highlighter-outline"
-        syft-highlight={true}
+        syft-highlight="true"
         onClick={onClick}
         style={{
           top: rect.top,
