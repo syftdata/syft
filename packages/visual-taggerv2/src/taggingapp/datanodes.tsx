@@ -3,6 +3,7 @@ import { ReactElement, ReactSource } from "../types";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Paragraph } from "../common/styles/fonts";
 import { Colors } from "../common/styles/colors";
+import { getUniqueKey } from "./merge";
 
 export const ROOT_TREE_KEY = "";
 function getKey(parentKey: string | undefined, fieldName: string): string {
@@ -84,6 +85,7 @@ export function getPropDataNodes(
 
 export function getReactElementDataNodes(element: ReactElement) {
   const elementMap = new Map<string, ReactElement>();
+  const uniqueKeyToPathMap = new Map<string, string>();
   const traverse = (element: ReactElement, key: string) => {
     if (element == null) {
       return null;
@@ -112,6 +114,7 @@ export function getReactElementDataNodes(element: ReactElement) {
       key,
     };
     elementMap.set(key, element);
+    uniqueKeyToPathMap.set(getUniqueKey(element), key);
     if (element.children) {
       node.children = element.children
         .map((child, idx) => traverse(child, getKey(key, `${idx}`)))
@@ -124,6 +127,7 @@ export function getReactElementDataNodes(element: ReactElement) {
       title: "None",
       key: ROOT_TREE_KEY,
     },
-    map: elementMap,
+    elementMap,
+    uniqueKeyToPathMap,
   };
 }

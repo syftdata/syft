@@ -75,7 +75,7 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
         type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
         data: g,
       });
-      // startPreview();
+      setVisualMode(VisualMode.ALL);
     });
   };
 
@@ -137,6 +137,7 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
               (t) => getUniqueKey(t) === getUniqueKey(element)
             );
             if (idx != -1) {
+              console.log(">>> setting the selected index from extension", idx);
               updateRecordingState((state) => ({
                 ...state,
                 selectedIndex: idx,

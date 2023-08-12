@@ -110,14 +110,13 @@ export default function Highlighters({
             if (Object.keys(def.element.handlerToEvents).length === 0) {
               return;
             }
-            // TODO: handlerToEvents is not populated
-            // const events = Object.values(def.element.handlerToEvents).reduce(
-            //   (val, events) => val + events.length,
-            //   0
-            // );
-            // if (events === 0) {
-            //   return <></>;
-            // }
+            const events = Object.values(def.element.handlerToEvents).reduce(
+              (val, events) => val + events.length,
+              0
+            );
+            if (events === 0) {
+              return <></>;
+            }
           }
         }
         return def.eles.map((ele, elementIdx) => {

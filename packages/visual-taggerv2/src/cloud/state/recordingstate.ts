@@ -32,7 +32,6 @@ export async function updateRecordingState(
   const state = (await getRecordingState()) ?? DEFAULT_RECORDING_STATE;
   const newState = updater(state);
   setRecordingState(newState);
-  console.log(">>> someone is updating recording state", newState);
   return newState;
 }
 

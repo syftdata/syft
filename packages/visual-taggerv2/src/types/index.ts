@@ -276,8 +276,6 @@ export interface RecordingState {
   tabId?: number;
   frameId?: number;
 
-  rootElement?: ReactElement;
-
   selectedIndex?: number;
   elements: ReactElement[];
 }

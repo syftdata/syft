@@ -7,6 +7,8 @@ import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
+import { useGitInfoContext } from "../cloud/state/gitinfo";
+import { enrichElementsWithTags } from "../taggingapp/merge";
 
 /**
  * This is the main component that sits in the web page and is responsible for
@@ -18,6 +20,7 @@ export default function VisualTaggerApp() {
   const { recordingState } = useRecordingState();
 
   const onHighlightClick = useCallback((idx: number, element: ReactElement) => {
+    console.log(">>>>>> onHighlightClick", idx);
     updateRecordingState((state) => ({
       ...state,
       selectedIndex: idx,
@@ -32,7 +35,15 @@ export default function VisualTaggerApp() {
     };
   }, []);
 
+  // const { gitInfoState } = useGitInfoContext();
+  // const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
+  // console.log(">>>>>> gitInfo", gitInfo, recordingState);
+  // if (!gitInfo) {
+  //   return null;
+  // }
+
   const elements = recordingState.elements;
+  // enrichElementsWithTags(elements, gitInfo.eventTags);
   let selectedIndex = recordingState.selectedIndex;
   if (selectedIndex != null) {
     selectedIndex = selectedIndex < elements.length ? selectedIndex : 0;

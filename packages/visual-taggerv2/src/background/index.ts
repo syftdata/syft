@@ -55,6 +55,7 @@ async function handleMessageAsync(
   console.debug("[Syft][Background] Received a message", message.type);
   switch (message.type) {
     case MessageType.InitDevTools:
+      console.log(">>> init dev tools");
       connections[message.tabId] = port;
       // update the recording state to active
       updateRecordingState((state) => {
@@ -73,6 +74,7 @@ async function handleMessageAsync(
       await executeCleanUp(message.tabId, 0);
       break;
     case MessageType.SetVisualMode:
+      console.log(">>> set visual mode");
       await updateRecordingState((state) => ({
         ...state,
         mode: message.mode as VisualMode,
