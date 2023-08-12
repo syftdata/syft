@@ -39,7 +39,7 @@ function getDataNodesFromObj(
             </Paragraph.P12>
             <Paragraph.P10
               color={Colors.Secondary.Orange}
-              className={Css.textOverflow("elipsis")}
+              className={Css.textTruncate(1)}
             >
               {value}
             </Paragraph.P10>
@@ -90,7 +90,11 @@ export function getReactElementDataNodes(element: ReactElement) {
     if (element == null) {
       return null;
     }
-    const text = element.reactSource.name ?? element.tagName;
+    const componentName = element.reactSource.name;
+    const text =
+      componentName != null && componentName != ""
+        ? componentName
+        : element.tagName;
     const subText = element.selectors.text;
     const eventCount = Object.values(element.handlerToEvents).reduce(
       (val, events) => val + events.length,
