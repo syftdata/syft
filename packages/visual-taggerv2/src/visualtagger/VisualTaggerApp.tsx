@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import Recorder from "./recorder";
 
-import { ReactElement, VisualMode } from "../types";
+import { ReactElement } from "../types";
 import Highlighters from "./Highlighters";
 import {
   updateRecordingState,

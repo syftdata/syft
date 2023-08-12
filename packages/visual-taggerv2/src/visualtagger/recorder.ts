@@ -133,7 +133,7 @@ export default class Recorder {
       changes[RECORDING_STORAGE_KEY].newValue !==
         changes[RECORDING_STORAGE_KEY].oldValue
     ) {
-      this._actions = changes[RECORDING_STORAGE_KEY].newValue.recording;
+      this._actions = changes[RECORDING_STORAGE_KEY].newValue.recording ?? [];
     }
   };
 

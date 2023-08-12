@@ -4,7 +4,7 @@ export default defineManifest(async (env) => ({
   name: env.mode === "production" ? "Syft Tagger" : "[Dev] Syft Tagger",
   description:
     "Automagically analyze your application and collect high quality analytic events.",
-  version: "0.0.4",
+  version: "0.0.5",
   manifest_version: 3,
   permissions: [
     "activeTab",

@@ -40,7 +40,7 @@ export const EventsView = ({
         }
       })
       .filter((e) => e != null);
-  }, [schemas, eventNamesOfHandler]) as SchemaAndElement[];
+  }, [schemas, tag, eventNamesOfHandler]) as SchemaAndElement[];
 
   const removeEvent = (schema: EventSchema) => {
     const index = eventNamesOfHandler.findIndex((i) => i === schema.name);

@@ -1,7 +1,4 @@
-import {
-  getBestSelectorForAction,
-  getBestSelectorsForAction,
-} from "../builders/selector";
+import { getBestSelectorsForAction } from "../builders/selector";
 import LabelledValue from "../common/components/core/LabelledValue/LabelledValue";
 import Section from "../common/components/core/Section";
 import { Colors } from "../common/styles/colors";
@@ -9,7 +6,6 @@ import { Css, Flex } from "../common/styles/common.styles";
 import { Mono, Paragraph } from "../common/styles/fonts";
 import { ReactElement } from "../types";
 import ReactPropsView from "./ReactPropsView";
-import Screenshots from "./Screenshots";
 
 export interface ReactElementViewProps {
   element: ReactElement;
@@ -33,24 +29,22 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
         <LabelledValue label="Available Props">
           <ReactPropsView element={element} filterNulls={true} />
         </LabelledValue>
-        <LabelledValue
-          label="Source"
-          value={`${source.source} L${source.line}`}
-        />
+        {source.source && (
+          <LabelledValue
+            label="Source"
+            value={`${source.source} L${source.line}`}
+          />
+        )}
         <LabelledValue label="CSS Selectors">
           {selectors.map(
-            (selector) =>
+            (selector, idx) =>
               selector && (
-                <Paragraph.P10 color={Colors.Gray.V5}>{selector}</Paragraph.P10>
+                <Paragraph.P10 key={idx} color={Colors.Gray.V5}>
+                  {selector}
+                </Paragraph.P10>
               )
           )}
         </LabelledValue>
-        {/* {screenshots && screenshots.length > 0 && (
-          <LabelledValue
-            label="Screenshot"
-            children={<Screenshots screenshot={screenshots[0]!} />}
-          />
-        )} */}
       </Flex.Col>
     </Section>
   );

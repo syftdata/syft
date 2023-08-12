@@ -19,22 +19,8 @@ async function setRecordingState(recording: RecordingState | undefined) {
   }
 }
 
-export async function startPreview() {
-  await updateRecordingState((state) => ({
-    ...state,
-    mode: VisualMode.ALL,
-  }));
-}
-
-export async function stopPreview() {
-  await updateRecordingState((state) => ({
-    ...state,
-    mode: VisualMode.SELECTED,
-  }));
-}
-
 const DEFAULT_RECORDING_STATE: RecordingState = {
-  mode: VisualMode.ALL,
+  mode: VisualMode.SELECTED,
   tabId: undefined,
   frameId: 0,
   elements: [],

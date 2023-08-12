@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Label, Paragraph } from "../common/styles/fonts";
-import { EventTag } from "../types";
+import { EventTag, ReactSource } from "../types";
 import { Field, EventSchema } from "@syftdata/common/lib/types";
 import Input from "../common/components/core/Input/Input";
 import { IconButton } from "../common/components/core/Button/IconButton";
@@ -18,9 +18,6 @@ export interface SchemaAndElement {
 }
 
 const getValue = (fields: string[], props: Record<string, any>): any => {
-  if (fields.length === 0) {
-    return undefined;
-  }
   const field = fields.shift()!;
   try {
     const value = props[field];
@@ -28,9 +25,17 @@ const getValue = (fields: string[], props: Record<string, any>): any => {
       return getValue(fields, value);
     }
     return value;
-  } catch (e) {
-    console.log(">>> Failed to get value ", field, props, e);
+  } catch (e) {}
+};
+
+const getValueFromSource = (fields: string[], source: ReactSource): any => {
+  if (fields.length === 0) {
     return undefined;
+  }
+  if (fields[0] !== "parent") {
+    return getValue(fields, source.props);
+  } else if (source.parent != null) {
+    return getValueFromSource(fields.slice(1), source.parent);
   }
 };
 
@@ -38,15 +43,14 @@ const FieldRenderer = ({
   data,
   field,
   onUpdate,
-  props,
 }: {
   data: SchemaAndElement;
   field: Field;
   onUpdate: (field: Field) => void;
-  props: Record<string, any>;
 }) => {
+  const reactSource = data.tag.reactSource;
   const sourceField = field.rename ?? field.name;
-  const value = getValue(sourceField.split("."), props);
+  const value = getValueFromSource(sourceField.split("."), reactSource);
   const [showActionModal, setShowActionModal] = useState(false);
 
   const onChangeAttempt = () => {
@@ -74,7 +78,12 @@ const FieldRenderer = ({
           <Paragraph.P10>{field.rename}</Paragraph.P10>
         </LabelledValue>
       )}
-      <Paragraph.P10 color={Colors.Secondary.Orange}>{value}</Paragraph.P10>
+      <Paragraph.P10
+        color={Colors.Secondary.Orange}
+        className={Css.textEllipsisCss}
+      >
+        {value}
+      </Paragraph.P10>
       <Flex.Row className={Flex.grow(1)}></Flex.Row>
       <IconButton icon="edit" onClick={onChangeAttempt} />
       <PropSelectorModal
@@ -107,7 +116,6 @@ const EventPropsView = ({
           key={index}
           data={data}
           field={field}
-          props={data.tag.reactSource.props}
           onUpdate={(newField) => {
             const schema = {
               ...data.schema,

@@ -103,7 +103,7 @@ export function mergeEventTags(eventTags: EventTag[]): EventTag[] {
   return [...mappedTags.values()].map((tags) => mergeEventTagsIntoOne(tags));
 }
 
-export function mergeEventTags1(
+export function enrichElementsWithTags(
   elements: ReactElement[],
   tags: EventTag[]
 ): EventTag[] {
@@ -115,7 +115,7 @@ export function mergeEventTags1(
   return elements.map((element) => {
     const key = getUniqueKey(element);
     if (mappedTags.has(key)) {
-      return mergeEventTagsIntoOne([element, mappedTags.get(key)!]);
+      element.handlerToEvents = mappedTags.get(key)!.handlerToEvents;
     }
     return element;
   });

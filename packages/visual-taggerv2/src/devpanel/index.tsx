@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { MessageType, SyftEvent } from "../types";
+import { MessageType, SyftEvent, VisualMode } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
@@ -96,17 +96,11 @@ function init(onNewEvent: (event: SyftEvent) => void) {
   chrome.devtools.network.onNavigated.addListener(refreshConnection);
 }
 
-const startPreview = () => {
+const setVisualMode = (mode: VisualMode) => {
   existingConnection?.postMessage({
-    type: MessageType.StartPreview,
+    type: MessageType.SetVisualMode,
     tabId: chrome.devtools.inspectedWindow.tabId,
-  });
-};
-
-const stopPreview = () => {
-  existingConnection?.postMessage({
-    type: MessageType.StopPreview,
-    tabId: chrome.devtools.inspectedWindow.tabId,
+    mode,
   });
 };
 
@@ -133,15 +127,8 @@ const App = () => {
     {
       key: "1",
       label: `Visual Editor`,
-      children: (
-        <TaggingApp startPreview={startPreview} stopPreview={stopPreview} />
-      ),
+      children: <TaggingApp setVisualMode={setVisualMode} />,
     },
-    // {
-    //   key: "2",
-    //   label: `Catalog`,
-    //   children: <SchemaApp />,
-    // },
     {
       key: "3",
       label: `Debugger`,
@@ -197,15 +184,15 @@ ReactDOM.createRoot(target).render(
     <App />
   </React.StrictMode>
 );
-chrome.devtools.panels.elements.onSelectionChanged.addListener(() => {
-  chrome.devtools.inspectedWindow.eval(
-    `(() => {
-      // call a method in the content script to change the selection.
-      console.log($0);
-    })()`,
-    {
-      useContentScriptContext: true,
-    }
-  );
-  console.debug("onSelectionChanged");
-});
+// chrome.devtools.panels.elements.onSelectionChanged.addListener(() => {
+//   chrome.devtools.inspectedWindow.eval(
+//     `(() => {
+//       // call a method in the content script to change the selection.
+//       console.log($0);
+//     })()`,
+//     {
+//       useContentScriptContext: true,
+//     }
+//   );
+//   console.debug("onSelectionChanged");
+// });

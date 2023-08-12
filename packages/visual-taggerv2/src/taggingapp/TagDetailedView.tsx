@@ -26,7 +26,7 @@ export default function TagDetailedView({
     handlers[0] ?? "onClick"
   );
   const [showActionModal, setShowActionModal] = useState(false);
-
+  console.log(">>> TagDetailedView", tag.reactSource.props);
   return (
     <>
       <TagHandlerList

@@ -44,30 +44,6 @@ export default function Highlighters({
     y: number;
   }>({ x: 0, y: 0 });
 
-  const handleScroll = useCallback(
-    throttle((event: Event) => {
-      setScrollPosition({
-        x: window.scrollX,
-        y: window.scrollY,
-      });
-    }, 20),
-    []
-  );
-
-  const eatUpEvent = (event: Event) => {
-    if (mode !== VisualMode.ALL) {
-      return;
-    }
-    const target = event.target;
-    if (target instanceof HTMLDivElement) {
-      const divTarget = target;
-      if (divTarget.hasAttribute("syft-highlight")) return;
-    }
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    event.stopPropagation();
-  };
-
   const cTags = useMemo(() => {
     // remove the old data-tag-index
     return elements.map((element) => {
@@ -80,12 +56,36 @@ export default function Highlighters({
   }, [elements]);
 
   useEffect(() => {
+    const handleScroll = throttle((event: Event) => {
+      setScrollPosition({
+        x: window.scrollX,
+        y: window.scrollY,
+      });
+    }, 20);
     document.addEventListener("scroll", handleScroll, true);
+    return () => {
+      document.removeEventListener("scroll", handleScroll, true);
+    };
+  }, []);
+
+  useEffect(() => {
+    const eatUpEvent = (event: Event) => {
+      const target = event.target;
+      if (target instanceof HTMLDivElement) {
+        const divTarget = target;
+        if (divTarget.hasAttribute("syft-highlight")) return;
+      }
+      if (mode === VisualMode.SELECTED) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
     document.addEventListener("click", eatUpEvent, true);
     document.addEventListener("keyup", eatUpEvent, true);
     document.addEventListener("keydown", eatUpEvent, true);
     return () => {
-      document.removeEventListener("scroll", handleScroll, true);
       document.removeEventListener("click", eatUpEvent, true);
       document.removeEventListener("keyup", eatUpEvent, true);
       document.removeEventListener("keydown", eatUpEvent, true);
@@ -99,21 +99,38 @@ export default function Highlighters({
     <>
       <style>{HighlighterStyle}</style>
       {cTags.flatMap((def, idx) => {
-        return def.eles.map((ele, elementIdx) => {
-          if (selectedElement !== def.element) {
-            if (mode === VisualMode.SELECTED) {
-              return <></>;
-            } else if (mode === VisualMode.ALL) {
-              // not updated yet to show only which are instrumented.
-            }
+        const label = def.element.reactSource.name ?? def.element.tagName;
+        const selected = selectedElement === def.element;
+        const committed = def.element.committed;
+        const defined = true;
+        if (!selected) {
+          if (mode === VisualMode.SELECTED) {
+            return;
           }
+          if (mode === VisualMode.ALL) {
+            if (Object.keys(def.element.handlerToEvents).length === 0) {
+              return;
+            }
+            // TODO: handlerToEvents is not populated
+            // const events = Object.values(def.element.handlerToEvents).reduce(
+            //   (val, events) => val + events.length,
+            //   0
+            // );
+            // if (events === 0) {
+            //   return <></>;
+            // }
+          }
+        }
+        return def.eles.map((ele, elementIdx) => {
           return (
             <Highlighter
               key={`${idx}-${elementIdx}`}
               rect={ele.getBoundingClientRect()}
-              defined={true}
+              mode={mode}
+              defined={defined}
               selected={selectedElement === def.element}
-              committed={def.element.committed}
+              committed={committed}
+              label={label}
               onClick={() => {
                 if (onClick) onClick(idx, def.element);
               }}

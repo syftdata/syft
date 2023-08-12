@@ -16,20 +16,15 @@ import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import { getUniqueKey, mergeEventTags1 } from "./merge";
+import { getUniqueKey, enrichElementsWithTags } from "./merge";
 import ReactElementTree from "./ReactElementTree";
 import TagDetailedView from "./TagDetailedView";
-import { shallowEqual } from "../common/utils";
 
 export interface TaggingAppProps {
-  startPreview: () => void;
-  stopPreview: () => void;
+  setVisualMode: (mode: VisualMode) => void;
 }
 
-export default function TaggingApp({
-  startPreview,
-  stopPreview,
-}: TaggingAppProps) {
+export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
   const { recordingState } = useRecordingState();
@@ -58,20 +53,16 @@ export default function TaggingApp({
 
   const elements = recordingState.elements;
   const rootElement = elements[0] as ReactElement;
-  const enrichedElements = mergeEventTags1(elements, gitInfo.eventTags);
+  enrichElementsWithTags(elements, gitInfo.eventTags);
   const schemas = gitInfo.eventSchema.events;
 
   const selectedIndex = Math.max(recordingState.selectedIndex ?? 0, 0);
-  const selectedTag = enrichedElements[selectedIndex];
+  const selectedTag = elements[selectedIndex];
   const selectedElement = elements[selectedIndex];
-
   console.log(
-    "selectedTag",
-    selectedTag,
-    selectedElement,
-    selectedIndex,
-    elements,
-    enrichedElements
+    ">>>>> got a change ",
+    recordingState.mode,
+    recordingState.selectedIndex
   );
 
   const onMagicWand = () => {
@@ -104,13 +95,38 @@ export default function TaggingApp({
   return (
     <Flex.Col className={Css.height("calc(100vh - 80px)")}>
       <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-        <IconButton icon="cursor" onClick={() => {}} />
-        <IconButton icon="magic-wand" onClick={onMagicWand} />
-        {recordingState.mode === VisualMode.ALL ? (
-          <PrimaryIconButton icon="highlighter" onClick={stopPreview} />
+        {recordingState.mode === VisualMode.INSPECT ? (
+          <PrimaryIconButton
+            icon="cursor"
+            onClick={() => {
+              setVisualMode(VisualMode.SELECTED);
+            }}
+          />
         ) : (
-          <IconButton icon="highlighter" onClick={startPreview} />
+          <IconButton
+            icon="cursor"
+            onClick={() => {
+              setVisualMode(VisualMode.INSPECT);
+            }}
+          />
         )}
+        {recordingState.mode === VisualMode.ALL ? (
+          <PrimaryIconButton
+            icon="highlighter"
+            onClick={() => {
+              setVisualMode(VisualMode.SELECTED);
+            }}
+          />
+        ) : (
+          <IconButton
+            icon="highlighter"
+            onClick={() => {
+              setVisualMode(VisualMode.ALL);
+            }}
+          />
+        )}
+        <div className={Flex.grow(1)} />
+        <IconButton icon="magic-wand" onClick={onMagicWand} />
       </FlexExtra.RowWithDivider>
       {rootElement && (
         <ReactElementTree

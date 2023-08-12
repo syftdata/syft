@@ -204,8 +204,7 @@ export enum MessageType {
   ReactElesResp = "react-eles-resp",
 
   // DevTools -> Background -> Content
-  StartPreview = "start-preview",
-  StopPreview = "stop-preview",
+  SetVisualMode = "set-visual-mode",
   // needs to collect elements from content and fire magicAPI.
 
   // Extension Native UI to DevTools.
@@ -268,8 +267,8 @@ export interface GitInfo {
 
 export enum VisualMode {
   SELECTED,
+  INSPECT,
   ALL,
-  ALL_ELEMENTS,
 }
 
 export interface RecordingState {
