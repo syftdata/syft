@@ -28,6 +28,7 @@ function getDataNodesFromObj(
 
       if (typeof value === "object") {
         children = getDataNodesFromObj(value, filterNulls, dataKey2);
+        if (children == null || children.length === 0) return;
         checkable = false;
         isLeaf = false;
         title = <Paragraph.P12>{key}</Paragraph.P12>;

@@ -16,7 +16,7 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
   const source = element.reactSource;
   const selectors = getBestSelectorsForAction(element);
   return (
-    <Section title="Element Details" expandable={true} defaultExpanded={false}>
+    <Section title="Element Details" expandable={true} defaultExpanded={true}>
       <Flex.Col gap={8} className={Css.padding(8)}>
         <LabelledValue label="Component">
           <Flex.Row gap={8}>

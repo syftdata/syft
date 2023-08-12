@@ -6,12 +6,14 @@ const cleanupObj = (
   obj: Record<string, any>,
   maxDepth: number = 3,
   depth: number = 0
-): Record<string, any> => {
-  if (obj == null) return obj;
+): Record<string, any> | undefined => {
   const data = { ...obj };
   Object.entries(data).forEach(([key, value]) => {
     if (typeof value === "object" && depth < maxDepth) {
-      data[key] = cleanupObj(value, maxDepth, depth + 1);
+      const cleanedObj = cleanupObj(value, maxDepth, depth + 1);
+      if (cleanedObj != null) {
+        data[key] = cleanedObj;
+      }
     } else if (
       !["bigint", "string", "boolean", "number", "undefined"].includes(
         typeof value
@@ -21,12 +23,15 @@ const cleanupObj = (
     }
   });
   delete data.children;
+  if (Object.keys(data).length === 0) {
+    return undefined;
+  }
   return data;
 };
 
 const getCleanerState = (node: any): Record<string, any> => {
   const state = node.memoizedState?.memoizedState ?? {};
-  const { deps, next, inst, lanes, tag, ...cleanerState } = state;
+  const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
   return cleanerState;
 };
 
@@ -132,7 +137,7 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
   };
 
   source.handlers = figureOutTriggers(fiber, source);
-  source.props = cleanupObj(source.props);
+  source.props = cleanupObj(source.props) ?? {};
   return source;
 }
 
