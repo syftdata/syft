@@ -31,7 +31,8 @@ export default function ReactElementTree({
         showLine={true}
         treeData={[data.root]}
         autoExpandParent={true}
-        defaultExpandedKeys={[ROOT_TREE_KEY]}
+        defaultExpandParent={true}
+        expandedKeys={[ROOT_TREE_KEY, path]}
         selectedKeys={[path]}
         onSelect={(selectedKeys) => {
           const key = (selectedKeys[0] as string) ?? ROOT_TREE_KEY;

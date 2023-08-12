@@ -49,10 +49,10 @@ export default class Recorder {
   private onReactElesResp = (event: MessageEvent) => {
     if (event.data.type === MessageType.ReactElesResp) {
       const reactElements = event.data.data as ReactElement[];
+      console.log(">>> onReactElesResp");
       updateRecordingState((state) => ({
         ...state,
         elements: reactElements,
-        rootElement: reactElements[0],
       }));
     }
   };

@@ -20,6 +20,7 @@ export default function VisualTaggerApp() {
   const { recordingState } = useRecordingState();
 
   const onHighlightClick = useCallback((idx: number, element: ReactElement) => {
+    console.log(">>> onHighlightClick ", idx);
     updateRecordingState((state) => ({
       ...state,
       selectedIndex: idx,
