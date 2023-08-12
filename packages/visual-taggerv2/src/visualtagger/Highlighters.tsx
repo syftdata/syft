@@ -106,8 +106,7 @@ export default function Highlighters({
         if (!selected) {
           if (mode === VisualMode.SELECTED) {
             return;
-          }
-          if (mode === VisualMode.ALL) {
+          } else if (mode === VisualMode.ALL) {
             if (Object.keys(def.element.handlerToEvents).length === 0) {
               return;
             }

@@ -28,10 +28,15 @@ export default function Highlighter({
   onClick,
 }: HighlighterProps) {
   let className = "Syft-Highlighter-outline";
+
   if (mode === VisualMode.SELECTED) {
+    // in selected mode, the page is interactable. so, keep highlighters disabled.
     committed = false;
     defined = false;
     className += " disabled";
+  } else if (mode === VisualMode.INSPECT) {
+    committed = false;
+    defined = false;
   }
 
   const borderColor = selected ? Colors.Branding.V5 : undefined;
@@ -40,7 +45,7 @@ export default function Highlighter({
     : committed
     ? Colors.Secondary.Green
     : defined
-    ? Colors.Transparent.Light.V3
+    ? Colors.Secondary.Yellow
     : undefined;
 
   return (

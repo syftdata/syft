@@ -1,3 +1,5 @@
+import { unicodeWords } from "./naming";
+
 // TODO: nages added this global to resolve compilation issues.
 declare global {
   namespace browser {
@@ -47,18 +49,6 @@ export function getCurrentTabId() {
   return chrome.devtools.inspectedWindow.tabId;
 }
 
-export async function recordNavigationEvent(
-  url: string,
-  transitionType: string
-) {
-  // const navigationEvent = {
-  //   type: ActionType.Navigate,
-  //   url,
-  //   source: transitionType,
-  // } as NavigateAction;
-  // await insertNewAction(navigationEvent);
-}
-
 export function shallowEqual(
   object1?: { [key: string]: any },
   object2?: { [key: string]: any }
@@ -89,13 +79,6 @@ export function capitalize(s: string): string {
   return s[0].toLocaleUpperCase() + s.slice(1);
 }
 
-/** Used to match words composed of alphanumeric characters. */
-// eslint-disable-next-line no-control-regex
-const reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
-export function asciiWords(val: string): string[] {
-  return val.replace(/['\u2019]/g, "").match(reAsciiWord) ?? [];
-}
-
 export function getHumanizedName(name: string): string {
-  return asciiWords(name).map(capitalize).join(" ");
+  return unicodeWords(name).map(capitalize).join(" ");
 }

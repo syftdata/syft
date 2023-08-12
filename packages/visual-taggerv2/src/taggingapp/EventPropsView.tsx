@@ -82,7 +82,7 @@ const FieldRenderer = ({
         color={Colors.Secondary.Orange}
         className={Css.textEllipsisCss}
       >
-        {value}
+        {value ? value.toString().substring(0, 20) : "N/A"}
       </Paragraph.P10>
       <Flex.Row className={Flex.grow(1)}></Flex.Row>
       <IconButton icon="edit" onClick={onChangeAttempt} />

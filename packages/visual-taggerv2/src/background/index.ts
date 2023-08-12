@@ -1,4 +1,3 @@
-import { recordNavigationEvent } from "../common/utils";
 import { executeCleanUp, executeContentScript } from "../common/scripting";
 import { MessageType, VisualMode } from "../types";
 
@@ -20,7 +19,14 @@ async function onNavEvent(
     return;
   }
 
-  await recordNavigationEvent(url, transitionType);
+  await chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    func: () => {
+      window.postMessage({
+        type: MessageType.GetReactEles,
+      });
+    },
+  });
 }
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(onNavEvent);
@@ -67,12 +73,10 @@ async function handleMessageAsync(
       await executeCleanUp(message.tabId, 0);
       break;
     case MessageType.SetVisualMode:
-      console.log(">>> SetVisualMode", message.mode);
       await updateRecordingState((state) => ({
         ...state,
         mode: message.mode as VisualMode,
       }));
-      console.log(">>> SetVisualMode Done");
       break;
   }
   return true;
