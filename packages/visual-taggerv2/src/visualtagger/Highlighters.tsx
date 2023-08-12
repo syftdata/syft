@@ -3,7 +3,7 @@ import throttle from "lodash.throttle";
 import Highlighter from "./Highlighter";
 
 import HighlighterStyle from "./Highlighter.css";
-import { ReactElement, VisualMode } from "../types";
+import { ReactElement, TagName, VisualMode } from "../types";
 import { getBestSelectorsForAction } from "../builders/selector";
 
 export interface HighlightersProps {
@@ -107,7 +107,7 @@ export default function Highlighters({
           if (mode === VisualMode.SELECTED) {
             return;
           } else if (mode === VisualMode.ALL) {
-            if (Object.keys(def.element.handlerToEvents).length === 0) {
+            if (def.element.tagName === TagName.Body) {
               return;
             }
             const events = Object.values(def.element.handlerToEvents).reduce(
@@ -115,7 +115,7 @@ export default function Highlighters({
               0
             );
             if (events === 0) {
-              return <></>;
+              return;
             }
           }
         }

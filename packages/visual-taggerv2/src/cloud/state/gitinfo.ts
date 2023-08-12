@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { localStorageGet } from "../../common/utils";
 import {
   GitInfoAction,
@@ -28,14 +34,15 @@ export async function setGitInfoState(gitInfoState: GitInfoState | undefined) {
   }
 }
 
+const DEFAULT_GITINFO_STATE: GitInfoState = {
+  state: LoadingState.NOT_INITIALIZED,
+  isModified: false,
+};
 export function useGitInfoState() {
   const [userSession] = useUserSession();
   const [gitInfoState, dispatch] = useReducer(
     reducer(userSession),
-    {
-      state: LoadingState.NOT_INITIALIZED,
-      isModified: false,
-    } as GitInfoState,
+    DEFAULT_GITINFO_STATE,
     (a) => a
   );
 
@@ -65,6 +72,32 @@ export function useGitInfoState() {
   }, []);
 
   return [gitInfoState, dispatch] as const;
+}
+
+// user-session and stuff is not working in the webapp context.
+export function useSimpleGitInfoState() {
+  const [gitInfoState, _setGitInfoState] = useState<GitInfoState>(
+    DEFAULT_GITINFO_STATE
+  );
+  useEffect(() => {
+    getGitInfoState().then((storedState) => {
+      if (storedState != null) {
+        _setGitInfoState(storedState);
+      }
+    });
+    // changes flow through the storage listener
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes[GIT_INFO_STATE_KEY] != null) {
+        if (
+          changes[GIT_INFO_STATE_KEY].newValue !=
+          changes[GIT_INFO_STATE_KEY].oldValue
+        ) {
+          _setGitInfoState(changes[GIT_INFO_STATE_KEY].newValue);
+        }
+      }
+    });
+  }, []);
+  return gitInfoState;
 }
 
 type GitInfoContextType = {
