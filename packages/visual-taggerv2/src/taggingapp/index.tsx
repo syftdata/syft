@@ -52,8 +52,8 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
   }
 
   const elements = recordingState.elements;
-  const rootElement = elements[0] as ReactElement;
   enrichElementsWithTags(elements, gitInfo.eventTags);
+  const rootElement = elements[0] as ReactElement;
   const schemas = gitInfo.eventSchema.events;
 
   const selectedIndex = Math.max(recordingState.selectedIndex ?? 0, 0);
@@ -130,12 +130,11 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
       </FlexExtra.RowWithDivider>
       {rootElement && (
         <ReactElementTree
-          element={rootElement}
+          rootElement={rootElement}
+          elements={elements}
           selectedElement={selectedElement}
           onClick={(element) => {
-            const idx = elements.findIndex(
-              (t) => getUniqueKey(t) === getUniqueKey(element)
-            );
+            const idx = elements.findIndex((t) => t === element);
             if (idx != -1) {
               console.log(">>> setting the selected index from extension", idx);
               updateRecordingState((state) => ({

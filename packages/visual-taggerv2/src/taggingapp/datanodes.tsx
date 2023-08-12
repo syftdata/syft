@@ -83,20 +83,34 @@ export function getPropDataNodes(
   return nodes;
 }
 
-export function getReactElementDataNodes(element: ReactElement) {
+export function getReactElementDataNodes(
+  element: ReactElement,
+  enrichedElements: ReactElement[]
+) {
   const elementMap = new Map<string, ReactElement>();
   const uniqueKeyToPathMap = new Map<string, string>();
+
+  const _uniqueKeyToEnrichedhMap = new Map<string, ReactElement>();
+  enrichedElements.forEach((e) => {
+    _uniqueKeyToEnrichedhMap.set(getUniqueKey(e), e);
+  });
+
   const traverse = (element: ReactElement, key: string) => {
     if (element == null) {
       return null;
     }
-    const componentName = element.reactSource.name;
+    const uniqueKey = getUniqueKey(element);
+    uniqueKeyToPathMap.set(uniqueKey, key);
+    const enrichedElement = _uniqueKeyToEnrichedhMap.get(uniqueKey) ?? element;
+    elementMap.set(key, enrichedElement);
+
+    const componentName = enrichedElement.reactSource.name;
     const text =
       componentName != null && componentName != ""
         ? componentName
-        : element.tagName;
-    const subText = element.selectors.text;
-    const eventCount = Object.values(element.handlerToEvents).reduce(
+        : enrichedElement.tagName;
+    const subText = enrichedElement.selectors.text;
+    const eventCount = Object.values(enrichedElement.handlerToEvents).reduce(
       (val, events) => val + events.length,
       0
     );
@@ -117,8 +131,6 @@ export function getReactElementDataNodes(element: ReactElement) {
       ),
       key,
     };
-    elementMap.set(key, element);
-    uniqueKeyToPathMap.set(getUniqueKey(element), key);
     if (element.children) {
       node.children = element.children
         .map((child, idx) => traverse(child, getKey(key, `${idx}`)))

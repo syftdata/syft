@@ -103,6 +103,7 @@ export function mergeEventTags(eventTags: EventTag[]): EventTag[] {
   return [...mappedTags.values()].map((tags) => mergeEventTagsIntoOne(tags));
 }
 
+// TODO: use memo
 export function enrichElementsWithTags(
   elements: ReactElement[],
   tags: EventTag[]
@@ -115,7 +116,9 @@ export function enrichElementsWithTags(
   return elements.map((element) => {
     const key = getUniqueKey(element);
     if (mappedTags.has(key)) {
-      element.handlerToEvents = mappedTags.get(key)!.handlerToEvents;
+      element.handlerToEvents = {
+        ...mappedTags.get(key)!.handlerToEvents,
+      };
     }
     return element;
   });
