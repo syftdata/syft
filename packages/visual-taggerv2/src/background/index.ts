@@ -11,7 +11,7 @@ import {
 async function onNavEvent(
   details: chrome.webNavigation.WebNavigationTransitionCallbackDetails
 ) {
-  const { tabId, url, transitionType, frameId } = details;
+  const { tabId, frameId } = details;
   const recordingState = await getRecordingState();
 
   // Check if it's a parent frame, we're recording, and it's the right tabid
@@ -21,11 +21,15 @@ async function onNavEvent(
 
   await chrome.scripting.executeScript({
     target: { tabId, frameIds: [frameId] },
-    func: () => {
-      window.postMessage({
-        type: MessageType.GetReactEles,
-      });
+    func: (message) => {
+      window.postMessage(message);
     },
+    injectImmediately: true,
+    args: [
+      {
+        type: MessageType.GetReactEles,
+      },
+    ],
   });
 }
 

@@ -30,7 +30,7 @@ export function buildBaseAction1(target: HTMLElement): BaseAction {
     isPassword:
       target instanceof HTMLInputElement &&
       target.type.toLowerCase() === "password",
-    type: ActionType.Click, // UNKNOWN
+    type: ActionType.ReactElement, // UNKNOWN
     tagName: target.tagName as TagName,
     inputType: target instanceof HTMLInputElement ? target.type : undefined,
     selectors: genSelectors(target) ?? {

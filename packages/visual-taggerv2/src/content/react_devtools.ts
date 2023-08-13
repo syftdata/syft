@@ -4,15 +4,25 @@ import { buildBaseAction1 } from "../visualtagger/utils";
 
 const cleanupObj = (
   obj: Record<string, any>,
-  maxDepth: number = 3,
+  maxDepth: number = 2,
   depth: number = 0
 ): Record<string, any> | undefined => {
   const data = { ...obj };
   Object.entries(data).forEach(([key, value]) => {
+    // we don't take html elements in json.
+    if (
+      value != null &&
+      (value instanceof HTMLElement || value.constructor?.name === "FiberNode")
+    ) {
+      delete data[key];
+    }
+
     if (typeof value === "object" && depth < maxDepth) {
       const cleanedObj = cleanupObj(value, maxDepth, depth + 1);
       if (cleanedObj != null) {
         data[key] = cleanedObj;
+      } else {
+        delete data[key];
       }
     } else if (
       !["bigint", "string", "boolean", "number", "undefined"].includes(
@@ -23,6 +33,7 @@ const cleanupObj = (
     }
   });
   delete data.children;
+
   if (Object.keys(data).length === 0) {
     return undefined;
   }
@@ -31,7 +42,7 @@ const cleanupObj = (
 
 const getCleanerState = (node: any): Record<string, any> => {
   const state = node.memoizedState?.memoizedState ?? {};
-  const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
+  const { deps, next, inst, lanes, tag, ...cleanerState } = state;
   return cleanerState;
 };
 
@@ -102,29 +113,23 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
     };
   }
 
-  let source: ReactSource | undefined;
-  if (fiber.type != null && typeof fiber.type !== "string") {
-    source = {
-      name:
-        fiber.type.name ?? fiber.type.displayName ?? fiber.type.render?.name,
-      source: fiber._debugSource?.fileName,
-      line: fiber._debugSource?.lineNumber,
-      handlers: [],
-      props: {},
-      urlPath: window.location.pathname,
-    };
-  } else {
+  if (fiber.type == null || typeof fiber.type === "string") {
     return;
   }
-  if (source == null) return;
-  if (fiber._debugOwner != null) {
-    source.parent = getReactHierarchy(fiber._debugOwner);
-  }
+  const source: ReactSource = {
+    name: fiber.type.name ?? fiber.type.displayName ?? fiber.type.render?.name,
+    source: fiber._debugSource?.fileName,
+    line: fiber._debugSource?.lineNumber,
+    handlers: [],
+    props: {},
+    urlPath: window.location.pathname,
+  };
 
   // find src folder and remove everything before it. This is to make the source path relative.
   source.source = source.source?.substring(source.source.indexOf("/src/"));
   const memoizedState = getCleanerState(fiber);
   const memoizedContext = getContextValues(fiber);
+
   source.props = {
     ...source.props,
     ...fiber.memoizedProps,
@@ -135,7 +140,6 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
     //   userAgent: window.navigator.userAgent,
     // },
   };
-
   source.handlers = figureOutTriggers(fiber, source);
   source.props = cleanupObj(source.props) ?? {};
   return source;
@@ -208,17 +212,21 @@ export function computeReactComponents() {
   }
 
   const htmlElement: ReactElement = rootReactElements[0];
-  // build hierarchy
-
-  // flatten the hierarchy
+  // flatten the hierarchy and assign parents to react source.
   const reactElements: ReactElement[] = [];
-  const traverseReactElements = (element: ReactElement) => {
+  const traverseReactElements = (
+    element: ReactElement,
+    parent?: ReactElement
+  ) => {
     reactElements.push(element);
+    if (parent != null) {
+      element.reactSource.parent = parent.reactSource;
+    }
     if (element.children != null) {
-      element.children.forEach(traverseReactElements);
+      element.children.forEach((ch) => traverseReactElements(ch, element));
     }
   };
-  traverseReactElements(htmlElement);
+  traverseReactElements(htmlElement, undefined);
 
   // filter out non-interesting elements.
   return reactElements;
@@ -231,12 +239,22 @@ export function computeReactComponents() {
 }
 
 window.addEventListener("message", (event) => {
+  // stateNode
   if (event.data.type === MessageType.GetReactEles) {
     const reactElements = computeReactComponents();
-    window.postMessage({
-      type: MessageType.ReactElesResp,
-      data: mergeEventTags(reactElements),
-    });
+    try {
+      window.postMessage({
+        type: MessageType.ReactElesResp,
+        data: mergeEventTags(reactElements),
+      });
+    } catch (e) {
+      try {
+        JSON.stringify(reactElements[0]);
+      } catch (e) {
+        console.error("Could not stringify react elements", e);
+      }
+      console.error(e);
+    }
   }
   return true;
 });
