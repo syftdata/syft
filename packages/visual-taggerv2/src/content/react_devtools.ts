@@ -7,42 +7,41 @@ const cleanupObj = (
   maxDepth: number = 2,
   depth: number = 0
 ): Record<string, any> | undefined => {
-  const data = { ...obj };
-  Object.entries(data).forEach(([key, value]) => {
-    // we don't take html elements in json.
-    if (
-      value != null &&
-      (value instanceof HTMLElement || value.constructor?.name === "FiberNode")
-    ) {
-      delete data[key];
-    }
-
-    if (typeof value === "object" && depth < maxDepth) {
-      const cleanedObj = cleanupObj(value, maxDepth, depth + 1);
-      if (cleanedObj != null) {
-        data[key] = cleanedObj;
-      } else {
-        delete data[key];
+  if (obj == null) return;
+  const transformed = Object.entries(obj)
+    .map(([key, value]) => {
+      if (
+        key.startsWith("_") ||
+        key == "children" ||
+        (value != null &&
+          (value instanceof HTMLElement ||
+            value.constructor?.name === "FiberNode"))
+      ) {
+        return;
       }
-    } else if (
-      !["bigint", "string", "boolean", "number", "undefined"].includes(
-        typeof value
-      )
-    ) {
-      delete data[key];
-    }
-  });
-  delete data.children;
-
-  if (Object.keys(data).length === 0) {
-    return undefined;
+      if (typeof value === "object" && depth < maxDepth) {
+        const cleanedObj = cleanupObj(value, maxDepth, depth + 1);
+        if (cleanedObj != null) {
+          return [key, cleanedObj];
+        }
+      } else if (
+        ["bigint", "string", "boolean", "number", "undefined"].includes(
+          typeof value
+        )
+      ) {
+        return [key, value];
+      }
+    })
+    .filter((v) => v != null) as [string, any][];
+  if (transformed.length === 0) {
+    return;
   }
-  return data;
+  return Object.fromEntries(transformed);
 };
 
 const getCleanerState = (node: any): Record<string, any> => {
   const state = node.memoizedState?.memoizedState ?? {};
-  const { deps, next, inst, lanes, tag, ...cleanerState } = state;
+  const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
   return cleanerState;
 };
 
@@ -142,6 +141,9 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
   };
   source.handlers = figureOutTriggers(fiber, source);
   source.props = cleanupObj(source.props) ?? {};
+  if (source.name === "InfiniteProducts") {
+    console.log(">>>>> ", source);
+  }
   return source;
 }
 
@@ -220,7 +222,7 @@ export function computeReactComponents() {
   ) => {
     reactElements.push(element);
     if (parent != null) {
-      element.reactSource.parent = parent.reactSource;
+      element.parent = parent;
     }
     if (element.children != null) {
       element.children.forEach((ch) => traverseReactElements(ch, element));

@@ -81,6 +81,8 @@ export class ReactElement extends BaseAction {
   handlerToEvents: Record<string, string[]>;
   committed?: boolean;
   instrumented?: boolean;
+
+  parent?: ReactElement;
 }
 
 export class KeydownAction extends BaseAction {

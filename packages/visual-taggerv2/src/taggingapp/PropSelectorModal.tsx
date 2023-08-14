@@ -1,38 +1,33 @@
 import Modal from "../common/components/core/Modal/Modal";
 import { ReactElement } from "../types";
-import { EventSchema } from "@syftdata/common/lib/types";
-import ReactPropsView from "./ReactPropsView";
+import PropSelectionView from "./PropSelectionView";
 
 export interface PropSelectorModalProps {
   tag: ReactElement;
-  schema: EventSchema;
   open: boolean;
   addProp(prop: string): void;
-  onCancel(): void;
+  onClose(): void;
 }
 const PropSelectorModal = ({
   tag,
-  schema,
   open,
   addProp,
-  onCancel,
+  onClose,
 }: PropSelectorModalProps) => {
-  const innerAddProp = () => {
-    addProp("test");
-  };
   return (
     <Modal
-      title={`Select a prop to add to ${schema.name}`}
+      title={`Select a source prop`}
       open={open}
-      okText="Save"
-      onOk={innerAddProp}
-      onCancel={onCancel}
+      onOk={onClose}
+      onCancel={onClose}
     >
-      <ReactPropsView
+      <PropSelectionView
         element={tag}
-        schema={schema}
         filterNulls={true}
-        expandAll={true}
+        onAddField={(key) => {
+          addProp(key);
+          // close the modal
+        }}
       />
     </Modal>
   );

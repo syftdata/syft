@@ -36,7 +36,7 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   const gitInfoOriginal = gitInfoState.info;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo || !gitInfoOriginal) {
-    return <Spinner />;
+    return <Spinner center={true} />;
   }
 
   const existingEventSchemas = new Set(

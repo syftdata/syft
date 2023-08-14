@@ -11,7 +11,7 @@ import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { magicAPI } from "../cloud/api/schema";
-import { GitInfoActionType } from "../cloud/state/types";
+import { GitInfoActionType, LoadingState } from "../cloud/state/types";
 import {
   updateRecordingState,
   useRecordingState,
@@ -45,12 +45,13 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
           Connecting to your Syft Studio workspace..
         </Subheading.SH12>
         <Flex.Row>
-          <Spinner />
+          <Spinner center={true} />
         </Flex.Row>
       </Flex.Col>
     );
   }
 
+  const isLoading = gitInfoState.state === LoadingState.LOADING;
   const elements = recordingState.elements;
   enrichElementsWithTags(elements, gitInfo.eventTags);
   const rootElement = elements[0] as ReactElement;
@@ -70,6 +71,9 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
     if (userSession == null) {
       return;
     }
+    dispatch({
+      type: GitInfoActionType.FETCH_MAGIC_CHANGES,
+    });
     magicAPI(userSession, rootElement).then((g) => {
       dispatch({
         type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
@@ -125,7 +129,14 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
             }}
           />
         )}
-        <div className={Flex.grow(1)} />
+        <div className={Flex.grow(1)}>
+          {isLoading && (
+            <Flex.Row gap={8} alignItems="center">
+              <Spinner />
+              Analyzing...
+            </Flex.Row>
+          )}
+        </div>
         <IconButton icon="magic-wand" onClick={onMagicWand} />
       </FlexExtra.RowWithDivider>
       {rootElement && (
@@ -158,6 +169,17 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
               type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
               data: [...gitInfo.eventSchema.events, schema],
             });
+          }}
+          onUpdateSchema={(schema) => {
+            const newSchemas = [...gitInfo.eventSchema.events];
+            const idx = newSchemas.findIndex((s) => s.name === schema.name);
+            if (idx != -1) {
+              newSchemas.splice(idx, 1, schema);
+              dispatch({
+                type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+                data: newSchemas,
+              });
+            }
           }}
           onUpdateTag={(action) => {
             onUpdateTag(selectedIndex, action);

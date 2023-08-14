@@ -9,6 +9,7 @@ import SimpleEventModal from "./SimpleEventModal";
 export interface TagDetailedViewProps {
   tag: EventTag;
   onUpdateTag: (action?: EventTag) => void;
+  onUpdateSchema: (schema: EventSchema) => void;
   onAddSchema: (schema: EventSchema) => void;
   onMagicWand: () => void;
   schemas: EventSchema[];
@@ -17,6 +18,7 @@ export interface TagDetailedViewProps {
 export default function TagDetailedView({
   tag,
   onAddSchema,
+  onUpdateSchema,
   onUpdateTag,
   onMagicWand,
   schemas,
@@ -26,7 +28,6 @@ export default function TagDetailedView({
     handlers[0] ?? "onClick"
   );
   const [showActionModal, setShowActionModal] = useState(false);
-  console.log(">>> TagDetailedView", tag.reactSource.props);
   return (
     <>
       <TagHandlerList
@@ -39,6 +40,9 @@ export default function TagDetailedView({
         tag={tag}
         handler={selectedHandler}
         onEdit={() => setShowActionModal(true)}
+        updateSchema={(schema) => {
+          onUpdateSchema(schema);
+        }}
         setEvents={(handler, events) => {
           onUpdateTag({
             ...tag,

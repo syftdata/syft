@@ -26,7 +26,7 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
             </Mono.M10>
           </Flex.Row>
         </LabelledValue>
-        <LabelledValue label="Available Props">
+        <LabelledValue label="React Props">
           <ReactPropsView element={element} filterNulls={true} />
         </LabelledValue>
         {source.source && (
@@ -35,7 +35,7 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
             value={`${source.source} L${source.line}`}
           />
         )}
-        <LabelledValue label="CSS Selectors">
+        {/* <LabelledValue label="CSS Selectors">
           {selectors.map(
             (selector, idx) =>
               selector && (
@@ -44,7 +44,7 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
                 </Paragraph.P10>
               )
           )}
-        </LabelledValue>
+        </LabelledValue> */}
       </Flex.Col>
     </Section>
   );

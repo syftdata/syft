@@ -1,7 +1,7 @@
 import { DataNode } from "antd/es/tree";
 import { ReactElement, ReactSource } from "../types";
 import { Css, Flex } from "../common/styles/common.styles";
-import { Paragraph } from "../common/styles/fonts";
+import { Mono, Paragraph } from "../common/styles/fonts";
 import { Colors } from "../common/styles/colors";
 import { getUniqueKey } from "./merge";
 
@@ -11,7 +11,7 @@ function getKey(parentKey: string | undefined, fieldName: string): string {
   return `${parentKey}.${fieldName}`;
 }
 
-function getDataNodesFromObj(
+export function getDataNodesFromObj(
   obj: Record<string, any> | Array<any> | undefined,
   filterNulls: boolean,
   datakey?: string
@@ -34,7 +34,7 @@ function getDataNodesFromObj(
         title = <Paragraph.P12>{key}</Paragraph.P12>;
       } else {
         title = (
-          <Flex.Row gap={8}>
+          <Flex.Row gap={8} alignItems="center">
             <Paragraph.P12 color={Colors.Branding.DarkBlue}>
               {key}
             </Paragraph.P12>
@@ -62,19 +62,24 @@ function getDataNodesFromObj(
 }
 
 export function getPropDataNodes(
-  source: ReactSource,
+  element: ReactElement,
   filterNulls: boolean,
   dataKey?: string
 ): DataNode[] | undefined {
-  const reactProps = source.props ?? {};
+  const reactProps = element.reactSource.props ?? {};
   let nodes = getDataNodesFromObj(reactProps, filterNulls, dataKey);
-  if (source.parent) {
+  if (element.parent) {
+    const parentElement = element.parent;
     const parentKey = getKey(dataKey, "parent");
-    const children = getPropDataNodes(source.parent, filterNulls, parentKey);
+    const children = getPropDataNodes(parentElement, filterNulls, parentKey);
     if (children != null && children.length > 0) {
       nodes = nodes ?? [];
       nodes.push({
-        title: <Paragraph.P12>Parent</Paragraph.P12>,
+        title: (
+          <Paragraph.P12>
+            {parentElement.reactSource.name ?? parentElement.tagName} (parent)
+          </Paragraph.P12>
+        ),
         key: parentKey,
         children,
         checkable: false,
@@ -82,6 +87,48 @@ export function getPropDataNodes(
     }
   }
   return nodes;
+}
+
+// Put parent prop at the first.
+export function getPropDataNodesV2(
+  element: ReactElement,
+  filterNulls: boolean,
+  dataKey: string = ""
+): { root?: DataNode; current?: DataNode } {
+  // element should return its parent if it has one, and put itself in parent's children nodes.
+  const reactProps = element.reactSource.props ?? {};
+  const childrenNodes =
+    getDataNodesFromObj(reactProps, filterNulls, dataKey) ?? [];
+
+  if (childrenNodes.length === 0 && filterNulls) {
+    return {};
+  }
+
+  const current: DataNode = {
+    title: (
+      <Paragraph.P12>
+        {element.reactSource.name ?? element.tagName}
+      </Paragraph.P12>
+    ),
+    key: dataKey,
+    children: childrenNodes,
+    checkable: false,
+  };
+
+  if (element.parent) {
+    const parentData = getPropDataNodesV2(
+      element.parent,
+      filterNulls,
+      getKey(dataKey, "parent")
+    );
+    const { root, current: parentNode } = parentData;
+    if (parentNode != null) {
+      // create a node with children as parentNodes + current node.
+      parentNode.children = [current, ...(parentNode.children ?? [])];
+    }
+    return { root, current };
+  }
+  return { root: current, current };
 }
 
 export function getReactElementDataNodes(
@@ -118,15 +165,13 @@ export function getReactElementDataNodes(
 
     const node: DataNode = {
       title: (
-        <Flex.Row gap={8}>
+        <Flex.Row gap={8} alignItems="center">
           <Paragraph.P12>{text}</Paragraph.P12>
           <Paragraph.P10 color={Colors.Secondary.Orange}>
             {subText && subText.length <= 30 ? subText : ""}
           </Paragraph.P10>
           {eventCount > 0 && (
-            <Paragraph.P10 color={Colors.Secondary.Green}>
-              {eventCount} Events
-            </Paragraph.P10>
+            <Mono.M10 color={Colors.Gray.V5}>{eventCount} Event(s)</Mono.M10>
           )}
         </Flex.Row>
       ),
@@ -147,4 +192,22 @@ export function getReactElementDataNodes(
     elementMap,
     uniqueKeyToPathMap,
   };
+}
+
+export function getDefaultExpandedKeys(
+  nodes: DataNode[] | undefined
+): string[] {
+  if (nodes == null || nodes.length === 0) {
+    return [];
+  }
+  // if there is only one node, expand its children.
+  if (nodes.length === 1 && nodes[0].children != null) {
+    const childKeys = getDefaultExpandedKeys(nodes[0].children);
+    if (childKeys.length > 0) {
+      return childKeys;
+    }
+  }
+
+  // always expand first level of nodes.
+  return nodes.map((n) => n.key as string);
 }

@@ -57,3 +57,27 @@ export function buildLoadAction(url: string, title: string): LoadAction {
     tagName: TagName.Window,
   };
 }
+
+const MutationObserver = window.MutationObserver;
+export function observeDOM(obj: Node, callback: () => void) {
+  if (!obj || obj.nodeType !== 1) return;
+
+  let mutationObserver: MutationObserver | undefined;
+  if (MutationObserver) {
+    // define a new observer
+    mutationObserver = new MutationObserver(callback);
+    // have the observer observe for changes in children
+    mutationObserver.observe(obj, { childList: true, subtree: true });
+  } else {
+    obj.addEventListener("DOMNodeInserted", callback, false);
+    obj.addEventListener("DOMNodeRemoved", callback, false);
+  }
+  return () => {
+    if (mutationObserver) {
+      mutationObserver?.disconnect();
+    } else {
+      obj.removeEventListener("DOMNodeInserted", callback, false);
+      obj.removeEventListener("DOMNodeRemoved", callback, false);
+    }
+  };
+}

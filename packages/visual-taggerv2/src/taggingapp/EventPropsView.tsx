@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 import { Colors } from "../common/styles/colors";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Label, Paragraph } from "../common/styles/fonts";
-import { EventTag, ReactSource } from "../types";
+import { EventTag, ReactElement } from "../types";
 import { Field, EventSchema } from "@syftdata/common/lib/types";
 import Input from "../common/components/core/Input/Input";
 import { IconButton } from "../common/components/core/Button/IconButton";
@@ -28,14 +28,14 @@ const getValue = (fields: string[], props: Record<string, any>): any => {
   } catch (e) {}
 };
 
-const getValueFromSource = (fields: string[], source: ReactSource): any => {
+const getValueFromSource = (fields: string[], element: ReactElement): any => {
   if (fields.length === 0) {
     return undefined;
   }
   if (fields[0] !== "parent") {
-    return getValue(fields, source.props);
-  } else if (source.parent != null) {
-    return getValueFromSource(fields.slice(1), source.parent);
+    return getValue(fields, element.reactSource.props);
+  } else if (element.parent != null) {
+    return getValueFromSource(fields.slice(1), element.parent);
   }
 };
 
@@ -43,14 +43,15 @@ const FieldRenderer = ({
   data,
   field,
   onUpdate,
+  onDelete,
 }: {
   data: SchemaAndElement;
   field: Field;
   onUpdate: (field: Field) => void;
+  onDelete: (field: Field) => void;
 }) => {
-  const reactSource = data.tag.reactSource;
   const sourceField = field.rename ?? field.name;
-  const value = getValueFromSource(sourceField.split("."), reactSource);
+  const value = getValueFromSource(sourceField.split("."), data.tag);
   const [showActionModal, setShowActionModal] = useState(false);
 
   const onChangeAttempt = () => {
@@ -86,14 +87,18 @@ const FieldRenderer = ({
       </Paragraph.P10>
       <Flex.Row className={Flex.grow(1)}></Flex.Row>
       <IconButton icon="edit" onClick={onChangeAttempt} />
+      <IconButton icon="trash" onClick={() => onDelete(field)} />
       <PropSelectorModal
         open={showActionModal}
         tag={data.tag}
-        schema={data.schema}
         addProp={(prop) => {
+          onUpdate({
+            ...field,
+            rename: prop,
+          });
           setShowActionModal(false);
         }}
-        onCancel={() => setShowActionModal(false)}
+        onClose={() => setShowActionModal(false)}
       />
     </Flex.Row>
   );
@@ -122,6 +127,16 @@ const EventPropsView = ({
               fields: data.schema.fields.map((f) =>
                 f.name === field.name ? newField : f
               ),
+            };
+            onUpdate({
+              schema,
+              tag: data.tag,
+            });
+          }}
+          onDelete={(field) => {
+            const schema = {
+              ...data.schema,
+              fields: data.schema.fields.filter((f) => f.name !== field.name),
             };
             onUpdate({
               schema,

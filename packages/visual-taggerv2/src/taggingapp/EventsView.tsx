@@ -3,17 +3,16 @@ import { EventSchema } from "@syftdata/common/lib/types";
 import { EventTag } from "../types";
 import List from "../common/components/core/List";
 import { Css, Flex } from "../common/styles/common.styles";
-import { Label, Mono } from "../common/styles/fonts";
+import { Mono } from "../common/styles/fonts";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
 import EventPropsView, { SchemaAndElement } from "./EventPropsView";
-import Button from "../common/components/core/Button/Button";
-import { Colors } from "../common/styles/colors";
 
 // Attached Events view.
 export interface EventsViewProps {
   setEvents: (handler: string, events: string[]) => void;
+  updateSchema: (schema: EventSchema) => void;
   onEdit: () => void;
   tag: EventTag;
   handler: string;
@@ -22,6 +21,7 @@ export interface EventsViewProps {
 
 export const EventsView = ({
   setEvents,
+  updateSchema,
   onEdit,
   tag,
   handler,
@@ -51,8 +51,9 @@ export const EventsView = ({
     }
   };
 
-  const updateSchema = (schema: any) => {
+  const onUpdateSchema = (data: SchemaAndElement) => {
     // TODO: update element props some how ?
+    updateSchema(data.schema);
   };
 
   return (
@@ -86,7 +87,7 @@ export const EventsView = ({
           expandable={{
             isExpanded: (item) => true,
             renderItem: (item) => (
-              <EventPropsView data={item} onUpdate={updateSchema} />
+              <EventPropsView data={item} onUpdate={onUpdateSchema} />
             ),
           }}
         />
