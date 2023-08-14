@@ -2,7 +2,7 @@ import { ReactElement } from "../types";
 import { Css } from "../common/styles/common.styles";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Tree from "antd/es/tree/Tree";
 import { ROOT_TREE_KEY, getReactElementDataNodes } from "./datanodes";
 import { getUniqueKey } from "./merge";
@@ -21,22 +21,38 @@ export default function ReactElementTree({
   selectedElement,
   onClick,
 }: ReactElementTreeProps) {
-  // TODO: use memo
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
+
   const data = useMemo(() => {
     return getReactElementDataNodes(rootElement, elements);
   }, [rootElement, elements]);
+
   const key = getUniqueKey(selectedElement);
   const path = data.uniqueKeyToPathMap.get(key) ?? ROOT_TREE_KEY;
+  useEffect(() => {
+    setExpandedKeys((expandedKeys) => {
+      if (expandedKeys.includes(path)) {
+        return expandedKeys;
+      }
+      return [...expandedKeys, path];
+    });
+    setAutoExpandParent(true);
+  }, [path]);
+
   return (
     <Section title="Elements" expandable={true} defaultExpanded={true}>
       <Tree
         selectable={true}
         showLine={true}
         treeData={[data.root]}
-        autoExpandParent={true}
-        defaultExpandParent={true}
-        expandedKeys={[ROOT_TREE_KEY, path]}
+        autoExpandParent={autoExpandParent}
+        expandedKeys={expandedKeys}
         selectedKeys={[path]}
+        onExpand={(expandedKeys) => {
+          setExpandedKeys(expandedKeys as string[]);
+          setAutoExpandParent(false);
+        }}
         onSelect={(selectedKeys) => {
           const key = (selectedKeys[0] as string) ?? ROOT_TREE_KEY;
           onClick(data.elementMap.get(key) ?? rootElement);

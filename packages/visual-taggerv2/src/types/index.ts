@@ -53,10 +53,8 @@ export interface ReactSource {
   source: string;
   line: number;
   props: Record<string, unknown>;
-  urlPath: string;
 
   handlers: string[];
-  parent?: ReactSource;
 }
 
 export class BaseAction {

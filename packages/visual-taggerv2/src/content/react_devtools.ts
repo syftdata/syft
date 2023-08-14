@@ -39,6 +39,22 @@ const cleanupObj = (
   return Object.fromEntries(transformed);
 };
 
+const getDOMProps = (source: ReactSource, fiber: any): Record<string, any> => {
+  const data: Record<string, any> = {};
+  data.name = source.name;
+
+  const element = getStateNode(fiber);
+  if (element == null) return data;
+  Object.entries(element.dataset).forEach(([key, value]) => {
+    data[key] = value;
+  });
+  data.tagName = element.tagName;
+  data.id = element.id;
+  data.className = element.className;
+  data.innerText = element.innerText.substring(0, 10);
+  return data;
+};
+
 const getCleanerState = (node: any): Record<string, any> => {
   const state = node.memoizedState?.memoizedState ?? {};
   const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
@@ -64,36 +80,51 @@ const getContextValues = (node: any): Record<string, any> => {
  * This has access to the pages DOM and JS context.
  * This is used to access the React Devtools and get the React Hierarchy.
  */
-const HTML_HANDLERS = ["onclick", "onhover", "href"];
+const HTML_HANDLERS = [
+  ["onclick", "onClick"],
+  ["onhover", "onHover"],
+  ["href", "onClick"],
+];
 const COMP_WITH_RENDER_HANDLERS = new Set(["InfiniteProducts", "ProductInfo"]);
 const COMP_WITH_CLICK_HANDLERS = new Set(["ProductPreview", "Button"]);
-function figureOutTriggers(fiber: any, source: ReactSource): string[] {
-  // extract handlers.
+function getStateNode(fiber: any): HTMLElement | undefined {
+  if (fiber == null) return;
+  if (fiber.stateNode instanceof HTMLElement) {
+    return fiber.stateNode;
+  }
+  if (fiber.child?.stateNode instanceof HTMLElement) {
+    return fiber.child.stateNode;
+  }
+}
+
+function figureOutTriggers(source: ReactSource, fiber: any): string[] {
   const triggers: string[] = [];
+  const element =
+    fiber.stateNode instanceof HTMLElement ? fiber.stateNode : null;
   HTML_HANDLERS.forEach((handler) => {
     if (
-      (fiber.stateNode instanceof HTMLElement &&
-        fiber.stateNode.getAttribute(handler) != null) ||
-      source.props[handler] != null
+      element?.hasAttribute(handler[0]) ||
+      source.props.hasOwnProperty(handler[0])
     ) {
-      triggers.push(handler);
+      if (!triggers.includes(handler[1])) triggers.push(handler[1]);
     }
   });
+
   Object.entries(source.props).forEach(([key, value]) => {
     if (typeof value === "function") {
-      triggers.push(key);
+      if (!triggers.includes(key)) triggers.push(key);
     }
   });
   if (COMP_WITH_RENDER_HANDLERS.has(source.name)) {
-    triggers.push("onRender");
+    if (!triggers.includes("onRender")) triggers.push("onRender");
   }
   if (COMP_WITH_CLICK_HANDLERS.has(source.name)) {
-    triggers.push("onClick");
+    if (!triggers.includes("onClick")) triggers.push("onClick");
   }
   return triggers;
 }
 
-function getReactHierarchy(fiber: any): ReactSource | undefined {
+function getReactSourceFromFiber(fiber: any): ReactSource | undefined {
   if (fiber.type === "body") {
     return {
       name: "Page",
@@ -107,8 +138,7 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
         name: document.title,
         referrer: document.referrer,
       },
-      urlPath: window.location.pathname,
-      handlers: ["onload"],
+      handlers: ["onLoad"],
     };
   }
 
@@ -121,44 +151,38 @@ function getReactHierarchy(fiber: any): ReactSource | undefined {
     line: fiber._debugSource?.lineNumber,
     handlers: [],
     props: {},
-    urlPath: window.location.pathname,
   };
 
   // find src folder and remove everything before it. This is to make the source path relative.
   source.source = source.source?.substring(source.source.indexOf("/src/"));
   const memoizedState = getCleanerState(fiber);
   const memoizedContext = getContextValues(fiber);
+  const domProps = getDOMProps(source, fiber);
 
   source.props = {
     ...source.props,
     ...fiber.memoizedProps,
     ...memoizedState,
     ...memoizedContext,
+    dom: domProps,
     // global: {
     //   location: window.location,
     //   userAgent: window.navigator.userAgent,
     // },
   };
-  source.handlers = figureOutTriggers(fiber, source);
+  source.handlers = figureOutTriggers(source, fiber);
   source.props = cleanupObj(source.props) ?? {};
-  if (source.name === "InfiniteProducts") {
-    console.log(">>>>> ", source);
-  }
   return source;
 }
 
 function extractReactElement(fiber: any): ReactElement | undefined {
   if (fiber == null) return;
 
-  const reactSource = getReactHierarchy(fiber);
+  const reactSource = getReactSourceFromFiber(fiber);
   if (reactSource != null) {
-    let stateNode = fiber.stateNode;
-    if (stateNode == null && fiber.child?.stateNode instanceof HTMLElement) {
-      stateNode = fiber.child.stateNode;
-    }
-
+    const stateNode = getStateNode(fiber);
     // two hide error boundaries, invisible elements.
-    if (stateNode == null || !(stateNode instanceof HTMLElement)) {
+    if (stateNode == null) {
       return;
     }
 
