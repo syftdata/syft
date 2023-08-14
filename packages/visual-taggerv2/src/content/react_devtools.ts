@@ -4,7 +4,7 @@ import { buildBaseAction1 } from "../visualtagger/utils";
 
 const cleanupObj = (
   obj: Record<string, any>,
-  maxDepth: number = 2,
+  maxDepth: number = 3,
   depth: number = 0
 ): Record<string, any> | undefined => {
   if (obj == null) return;

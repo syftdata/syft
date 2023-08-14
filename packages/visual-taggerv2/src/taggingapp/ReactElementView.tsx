@@ -19,7 +19,7 @@ export default function ReactElementView({ element }: ReactElementViewProps) {
     <Section title="Element Details" expandable={true} defaultExpanded={true}>
       <Flex.Col gap={8} className={Css.padding(8)}>
         <LabelledValue label="Component">
-          <Flex.Row gap={8}>
+          <Flex.Row gap={8} alignItems="center">
             <Paragraph.P12>{source.name}</Paragraph.P12>
             <Mono.M10 color={Colors.Secondary.Orange}>
               {element.tagName}

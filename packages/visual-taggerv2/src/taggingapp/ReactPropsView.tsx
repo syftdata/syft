@@ -25,7 +25,7 @@ export default function ReactPropsView({
       showLine={true}
       treeData={treeData}
       autoExpandParent={true}
-      expandedKeys={elementKeys}
+      defaultExpandedKeys={elementKeys}
       className={className}
     />
   );
