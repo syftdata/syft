@@ -91,9 +91,12 @@ const FieldRenderer = ({
       <PropSelectorModal
         open={showActionModal}
         tag={data.tag}
+        fieldName={field.name}
         addProp={(prop) => {
+          const props = prop.split(".");
           onUpdate({
             ...field,
+            name: field.name != "" ? field.name : props[props.length - 1],
             rename: prop,
           });
           setShowActionModal(false);

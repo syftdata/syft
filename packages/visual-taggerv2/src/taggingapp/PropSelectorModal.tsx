@@ -4,12 +4,14 @@ import PropSelectionView from "./PropSelectionView";
 
 export interface PropSelectorModalProps {
   tag: ReactElement;
+  fieldName: string;
   open: boolean;
   addProp(prop: string): void;
   onClose(): void;
 }
 const PropSelectorModal = ({
   tag,
+  fieldName,
   open,
   addProp,
   onClose,
@@ -23,6 +25,7 @@ const PropSelectorModal = ({
     >
       <PropSelectionView
         element={tag}
+        defaultSearchValue={fieldName}
         filterNulls={true}
         onAddField={(key) => {
           addProp(key);

@@ -12,7 +12,7 @@ import { Flex } from "../common/styles/common.styles";
 
 export interface PropSelectionViewProps {
   element: ReactElement;
-
+  defaultSearchValue?: string;
   onAddField: (key: string) => void;
 
   filterNulls: boolean;
@@ -21,12 +21,13 @@ export interface PropSelectionViewProps {
 
 export default function PropSelectionView({
   element,
+  defaultSearchValue,
   onAddField,
 
   filterNulls,
   className,
 }: PropSelectionViewProps) {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(defaultSearchValue ?? "");
 
   // const { root } = getPropDataNodesV2(element, filterNulls);
   // const treeData = root ? root.children : [];
@@ -72,10 +73,20 @@ export default function PropSelectionView({
     }
   };
 
+  const onSelect: TreeProps["onSelect"] = (selectedKeys, info) => {
+    if (info.selected) {
+      onAddField(info.node.key as string);
+    }
+  };
+
   const elementKeys = getDefaultExpandedKeys(treeData);
   return (
     <Flex.Col gap={8}>
-      <Search placeholder="Search" onChange={onSearchChange} />
+      <Search
+        placeholder="Search"
+        onChange={onSearchChange}
+        defaultValue={defaultSearchValue}
+      />
       <Tree
         checkable={true}
         autoExpandParent={true}
@@ -83,6 +94,7 @@ export default function PropSelectionView({
         defaultExpandedKeys={elementKeys}
         showLine={true}
         onCheck={onCheck}
+        onSelect={onSelect}
         treeData={treeData}
         className={className}
       />
