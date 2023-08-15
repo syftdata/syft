@@ -20,7 +20,7 @@ export default class PortManager {
     port.onMessage.removeListener(this.listener!);
   }
 
-  refreshConnection() {
+  refreshConnection = () => {
     console.info("[Syft][Devtools] Attempting to refresh connection");
     if (this.existingConnection) {
       this.existingConnection.disconnect();
@@ -30,7 +30,7 @@ export default class PortManager {
       name: this.name,
     });
     this.existingConnection.onDisconnect.addListener(this.onDisconnect);
-  }
+  };
 
   postMessage(message: any) {
     try {

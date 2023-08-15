@@ -1,79 +1,13 @@
 import { mergeEventTags } from "../taggingapp/merge";
 import { ActionType, MessageType, ReactElement, ReactSource } from "../types";
 import { buildBaseAction1 } from "../visualtagger/utils";
-
-const cleanupObj = (
-  obj: Record<string, any>,
-  maxDepth: number = 3,
-  depth: number = 0
-): Record<string, any> | undefined => {
-  if (obj == null) return;
-  const transformed = Object.entries(obj)
-    .map(([key, value]) => {
-      if (
-        key.startsWith("_") ||
-        key == "children" ||
-        (value != null &&
-          (value instanceof HTMLElement ||
-            value.constructor?.name === "FiberNode"))
-      ) {
-        return;
-      }
-      if (typeof value === "object" && depth < maxDepth) {
-        const cleanedObj = cleanupObj(value, maxDepth, depth + 1);
-        if (cleanedObj != null) {
-          return [key, cleanedObj];
-        }
-      } else if (
-        ["bigint", "string", "boolean", "number", "undefined"].includes(
-          typeof value
-        )
-      ) {
-        return [key, value];
-      }
-    })
-    .filter((v) => v != null) as [string, any][];
-  if (transformed.length === 0) {
-    return;
-  }
-  return Object.fromEntries(transformed);
-};
-
-const getDOMProps = (source: ReactSource, fiber: any): Record<string, any> => {
-  const data: Record<string, any> = {};
-  data.name = source.name;
-
-  const element = getStateNode(fiber);
-  if (element == null) return data;
-  Object.entries(element.dataset).forEach(([key, value]) => {
-    data[key] = value;
-  });
-  data.tagName = element.tagName;
-  data.id = element.id;
-  data.className = element.className;
-  data.innerText = element.innerText.substring(0, 10);
-  return data;
-};
-
-const getCleanerState = (node: any): Record<string, any> => {
-  const state = node.memoizedState?.memoizedState ?? {};
-  const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
-  return cleanerState;
-};
-
-const getContextValues = (node: any): Record<string, any> => {
-  let data: Record<string, any> = {};
-  Object.entries(node.dependencies ?? {}).map(([key, dependent]) => {
-    const val = (dependent as any).memoizedValue;
-    if (val != null) {
-      data = {
-        ...data,
-        [key]: val,
-      };
-    }
-  });
-  return data;
-};
+import {
+  cleanupObj,
+  getCleanerState,
+  getContextValues,
+  getDOMProps,
+  getStateNode,
+} from "./utils";
 
 /**
  * This module is injected into the page as content script.
@@ -86,16 +20,7 @@ const HTML_HANDLERS = [
   ["href", "onClick"],
 ];
 const COMP_WITH_RENDER_HANDLERS = new Set(["InfiniteProducts", "ProductInfo"]);
-const COMP_WITH_CLICK_HANDLERS = new Set(["ProductPreview", "Button"]);
-function getStateNode(fiber: any): HTMLElement | undefined {
-  if (fiber == null) return;
-  if (fiber.stateNode instanceof HTMLElement) {
-    return fiber.stateNode;
-  }
-  if (fiber.child?.stateNode instanceof HTMLElement) {
-    return fiber.child.stateNode;
-  }
-}
+const COMP_WITH_CLICK_HANDLERS = new Set(["Button"]);
 
 function figureOutTriggers(source: ReactSource, fiber: any): string[] {
   const triggers: string[] = [];
@@ -176,13 +101,16 @@ function getReactSourceFromFiber(fiber: any): ReactSource | undefined {
 }
 
 function extractReactElement(fiber: any): ReactElement | undefined {
-  if (fiber == null) return;
-
   const reactSource = getReactSourceFromFiber(fiber);
   if (reactSource != null) {
-    const stateNode = getStateNode(fiber);
-    // two hide error boundaries, invisible elements.
+    const stateNode = getStateNode(reactSource, fiber);
+    // to hide error boundaries and invisible elements.
     if (stateNode == null) {
+      // console.log(
+      //   ">>>> state node not found ",
+      //   reactSource.name,
+      //   reactSource.props
+      // );
       return;
     }
 
