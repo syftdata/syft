@@ -29,32 +29,24 @@ export default function Highlighter({
 }: HighlighterProps) {
   let className = "Syft-Highlighter-outline";
   let bgClassName = "Syft-Highlighter-bg";
-
+  let eleColor: string | undefined;
   if (mode === VisualMode.SELECTED) {
     // in selected mode, the page is interactable. so, keep highlighters disabled.
-    committed = false;
-    defined = false;
     className += " disabled";
   } else if (mode === VisualMode.INSPECT) {
-    committed = false;
-    defined = false;
+    eleColor = Colors.Branding.V3;
     bgClassName += " visibleOnHover";
+  } else if (mode === VisualMode.ALL) {
+    eleColor = Colors.Branding.V1; // light color.
   }
 
-  const borderColor = selected
-    ? Colors.Branding.V5
-    : committed
-    ? Colors.Secondary.Green
-    : defined
-    ? Colors.Secondary.Yellow
-    : Colors.Branding.V3;
-  const backgroundColor = selected
-    ? Colors.Branding.V5
-    : committed
-    ? Colors.Secondary.Green
-    : defined
-    ? Colors.Secondary.Yellow
-    : Colors.Branding.V3;
+  if (selected) {
+    eleColor = Colors.Branding.V5;
+  } else if (committed) {
+    eleColor = Colors.Secondary.Green;
+  } else if (defined) {
+    eleColor = Colors.Secondary.Yellow;
+  }
 
   return (
     <div
@@ -73,12 +65,14 @@ export default function Highlighter({
       <div
         className={bgClassName}
         syft-highlight="true"
-        style={{
-          border: borderColor ? `1px solid ${borderColor}` : undefined,
-          backgroundColor: backgroundColor
-            ? rectBackgroundColor(backgroundColor)
-            : undefined,
-        }}
+        style={
+          eleColor
+            ? {
+                border: `1px solid ${eleColor}`,
+                backgroundColor: rectBackgroundColor(eleColor),
+              }
+            : undefined
+        }
       >
         {label && (
           <div

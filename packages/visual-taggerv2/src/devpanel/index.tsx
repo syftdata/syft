@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { MessageType, SyftEvent, VisualMode } from "../types";
+import { MessageType, SyftEvent } from "../types";
 import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
 import SettingsApp from "../settingsapp";
 import { GitView } from "../cloud/views/gitview";
-import { getCurrentTabId } from "../common/utils";
 import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession, useUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
@@ -18,10 +17,10 @@ import {
   useGitInfoState,
 } from "../cloud/state/gitinfo";
 import { GitInfoActionType } from "../cloud/state/types";
+import PortManager from "./PortManager";
+import { getCurrentTabId } from "../common/utils";
 
-let existingConnection: chrome.runtime.Port | undefined;
-let postMessage: (message: any) => void | undefined;
-function init(onNewEvent: (event: SyftEvent) => void) {
+function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
   const listener = (message: any, port: chrome.runtime.Port) => {
     if (message.type === MessageType.SyftEvent) {
       const event = message.data as SyftEvent;
@@ -68,56 +67,10 @@ function init(onNewEvent: (event: SyftEvent) => void) {
       );
     }
   };
-
-  const refreshConnection = () => {
-    console.info("[Syft][Devtools] Attempting to refresh connection");
-    if (existingConnection) {
-      existingConnection.disconnect();
-    }
-    const tabId = getCurrentTabId();
-    console.info("[Syft][Devtools] Initializing/Refreshing tab ", tabId);
-    //Create a connection to the service worker
-    existingConnection = chrome.runtime.connect({
-      name: "syft-devtools",
-    });
-    existingConnection.onDisconnect.addListener((port) => {
-      console.info("[Syft][Devtools] Getting disconnected", tabId);
-      port.onMessage.removeListener(listener);
-    });
-    existingConnection.onMessage.addListener(listener);
-    existingConnection.postMessage({
-      type: MessageType.InitDevTools,
-      tabId,
-    });
-    return existingConnection;
-  };
-  refreshConnection();
-  chrome.devtools.network.onNavigated.addListener(refreshConnection);
-
-  postMessage = (message: any) => {
-    try {
-      existingConnection?.postMessage(message);
-    } catch (e) {
-      console.warn(
-        "[Syft][Devtools] Error sending message. refreshing connection.",
-        message,
-        e
-      );
-      refreshConnection();
-      existingConnection?.postMessage(message);
-    }
-  };
+  return listener;
 }
 
-const setVisualMode = (mode: VisualMode) => {
-  if (postMessage) {
-    postMessage({
-      type: MessageType.SetVisualMode,
-      tabId: chrome.devtools.inspectedWindow.tabId,
-      mode,
-    });
-  }
-};
+const portManager = new PortManager("syft-devtools");
 
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
@@ -128,7 +81,14 @@ const App = () => {
     setEvents((events) => [event, ...events]);
   };
 
-  useEffect(() => init(insertEvent), []);
+  useEffect(() => {
+    portManager.init(createMessageHandler(insertEvent));
+    const tabId = getCurrentTabId();
+    portManager.postMessage({
+      type: MessageType.InitDevTools,
+      tabId,
+    });
+  }, []);
 
   useEffect(() => {
     if (userSession != null) {
@@ -142,7 +102,17 @@ const App = () => {
     {
       key: "1",
       label: `Visual Editor`,
-      children: <TaggingApp setVisualMode={setVisualMode} />,
+      children: (
+        <TaggingApp
+          setVisualMode={(mode) => {
+            portManager.postMessage({
+              type: MessageType.SetVisualMode,
+              tabId: chrome.devtools.inspectedWindow.tabId,
+              mode,
+            });
+          }}
+        />
+      ),
     },
     {
       key: "3",

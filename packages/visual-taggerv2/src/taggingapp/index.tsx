@@ -96,6 +96,7 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
         {recordingState.mode === VisualMode.INSPECT ? (
           <PrimaryIconButton
             icon="cursor"
+            size="medium"
             onClick={() => {
               setVisualMode(VisualMode.SELECTED);
             }}
@@ -103,6 +104,7 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
         ) : (
           <IconButton
             icon="cursor"
+            size="medium"
             onClick={() => {
               setVisualMode(VisualMode.INSPECT);
             }}

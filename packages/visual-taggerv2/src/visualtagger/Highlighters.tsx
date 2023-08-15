@@ -103,9 +103,16 @@ export default function Highlighters({
           return;
         }
         const label = def.element.reactSource.name ?? def.element.tagName;
+        const definedEvents = Object.values(def.element.handlerToEvents).reduce(
+          (sum, eves) => sum + eves.length,
+          0
+        );
+        // if (definedEvents > 0) {
+        //   label = `${label} (${definedEvents})`;
+        // }
         const selected = selectedElement === def.element;
         const committed = def.element.committed;
-        const defined = true;
+        const defined = definedEvents > 0;
         if (!selected) {
           if (mode === VisualMode.SELECTED) {
             return;
