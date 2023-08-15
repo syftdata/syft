@@ -8,35 +8,6 @@ import {
 
 /// *** Navigation Events *** ///
 
-async function onNavEvent(
-  details: chrome.webNavigation.WebNavigationTransitionCallbackDetails
-) {
-  const { tabId, frameId } = details;
-  const recordingState = await getRecordingState();
-
-  // Check if it's a parent frame, we're recording, and it's the right tabid
-  if (tabId !== recordingState?.tabId || frameId !== recordingState?.frameId) {
-    return;
-  }
-
-  await chrome.scripting.executeScript({
-    target: { tabId, frameIds: [frameId] },
-    func: (message) => {
-      window.postMessage(message);
-    },
-    injectImmediately: true,
-    args: [
-      {
-        type: MessageType.GetReactEles,
-      },
-    ],
-  });
-}
-
-chrome.webNavigation.onHistoryStateUpdated.addListener(onNavEvent);
-chrome.webNavigation.onReferenceFragmentUpdated.addListener(onNavEvent);
-chrome.webNavigation.onCommitted.addListener(onNavEvent);
-
 chrome.webNavigation.onCompleted.addListener(async (details) => {
   const { tabId, frameId } = details;
   const recordingState = await getRecordingState();
@@ -90,9 +61,9 @@ async function handleMessageAsync(
 
 // this handles the connections from devtools page.
 chrome.runtime.onConnect.addListener(async function (port) {
-  console.debug("[Syft][Background] Received a connection", port);
+  console.info("[Syft][Background] Received a connection", port);
   if (port.name !== "syft-devtools") {
-    console.debug("[Syft][Background] Ignoring the connection");
+    console.warn("[Syft][Background] Ignoring the connection..");
     return;
   }
 
@@ -109,6 +80,7 @@ chrome.runtime.onConnect.addListener(async function (port) {
   // Listen to messages sent from the DevTools page
   port.onMessage.addListener(extensionListener);
   port.onDisconnect.addListener((port) => {
+    console.log("[Syft][Background] Received a disconnect", port);
     port.onMessage.removeListener(extensionListener);
     var tabs = Object.keys(connections);
     for (var i = 0, len = tabs.length; i < len; i++) {

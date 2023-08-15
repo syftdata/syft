@@ -20,11 +20,8 @@ import {
 import { GitInfoActionType } from "../cloud/state/types";
 
 let existingConnection: chrome.runtime.Port | undefined;
-
+let postMessage: (message: any) => void | undefined;
 function init(onNewEvent: (event: SyftEvent) => void) {
-  if (existingConnection) {
-    return;
-  }
   const listener = (message: any, port: chrome.runtime.Port) => {
     if (message.type === MessageType.SyftEvent) {
       const event = message.data as SyftEvent;
@@ -73,16 +70,18 @@ function init(onNewEvent: (event: SyftEvent) => void) {
   };
 
   const refreshConnection = () => {
+    console.info("[Syft][Devtools] Attempting to refresh connection");
     if (existingConnection) {
       existingConnection.disconnect();
     }
     const tabId = getCurrentTabId();
-    console.debug("[Syft][Devtools] Initializing/Refreshing tab ", tabId);
+    console.info("[Syft][Devtools] Initializing/Refreshing tab ", tabId);
     //Create a connection to the service worker
     existingConnection = chrome.runtime.connect({
       name: "syft-devtools",
     });
     existingConnection.onDisconnect.addListener((port) => {
+      console.info("[Syft][Devtools] Getting disconnected", tabId);
       port.onMessage.removeListener(listener);
     });
     existingConnection.onMessage.addListener(listener);
@@ -93,15 +92,31 @@ function init(onNewEvent: (event: SyftEvent) => void) {
     return existingConnection;
   };
   refreshConnection();
-  //chrome.devtools.network.onNavigated.addListener(refreshConnection);
+  chrome.devtools.network.onNavigated.addListener(refreshConnection);
+
+  postMessage = (message: any) => {
+    try {
+      existingConnection?.postMessage(message);
+    } catch (e) {
+      console.warn(
+        "[Syft][Devtools] Error sending message. refreshing connection.",
+        message,
+        e
+      );
+      refreshConnection();
+      existingConnection?.postMessage(message);
+    }
+  };
 }
 
 const setVisualMode = (mode: VisualMode) => {
-  existingConnection?.postMessage({
-    type: MessageType.SetVisualMode,
-    tabId: chrome.devtools.inspectedWindow.tabId,
-    mode,
-  });
+  if (postMessage) {
+    postMessage({
+      type: MessageType.SetVisualMode,
+      tabId: chrome.devtools.inspectedWindow.tabId,
+      mode,
+    });
+  }
 };
 
 const App = () => {
