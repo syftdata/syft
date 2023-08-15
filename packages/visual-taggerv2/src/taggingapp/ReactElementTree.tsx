@@ -11,7 +11,7 @@ export interface ReactElementTreeProps {
   rootElement: ReactElement;
   elements: ReactElement[];
   selectedElement: ReactElement;
-  onClick: (element: ReactElement) => void;
+  onClick: (element?: ReactElement) => void;
 }
 
 // calculate datanodes for the tree
@@ -53,9 +53,13 @@ export default function ReactElementTree({
           setExpandedKeys(expandedKeys as string[]);
           setAutoExpandParent(false);
         }}
-        onSelect={(selectedKeys) => {
-          const key = (selectedKeys[0] as string) ?? ROOT_TREE_KEY;
-          onClick(data.elementMap.get(key) ?? rootElement);
+        onSelect={(selectedKeys, info) => {
+          if (info.selected === false) {
+            onClick();
+          } else {
+            const key = info.node.key as string;
+            onClick(data.elementMap.get(key));
+          }
         }}
         className={css(Css.height(300), Css.overflow("scroll"))}
       />

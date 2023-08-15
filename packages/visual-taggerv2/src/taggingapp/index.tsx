@@ -60,14 +60,8 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
   const selectedIndex = Math.max(recordingState.selectedIndex ?? 0, 0);
   const selectedTag = elements[selectedIndex];
   const selectedElement = elements[selectedIndex];
-  console.log(
-    ">>>>> got a change ",
-    recordingState.mode,
-    recordingState.selectedIndex
-  );
 
   const onMagicWand = () => {
-    // now wait for the reply.
     if (userSession == null) {
       return;
     }
@@ -147,13 +141,16 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
           onClick={(element) => {
             const idx = elements.findIndex((t) => t === element);
             if (idx != -1) {
-              console.log(">>> setting the selected index from extension", idx);
               updateRecordingState((state) => ({
                 ...state,
                 selectedIndex: idx,
               }));
             } else {
-              console.log(">>> couldnt find the element ", element, elements);
+              // if nothing is selected or found, select the top element.
+              updateRecordingState((state) => ({
+                ...state,
+                selectedIndex: 0,
+              }));
             }
           }}
         />

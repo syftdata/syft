@@ -24,6 +24,7 @@ export default function TagHandlerList({
     <Section title="When" expandable={true}>
       <List<string>
         data={handlers}
+        emptyMessage="Sorry, we don't see any handlers in the code."
         renderItem={(handler) => {
           const humanizedName = getHumanizedName(handler);
           const eventCount = tag.handlerToEvents[handler]?.length;

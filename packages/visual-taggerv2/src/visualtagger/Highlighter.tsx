@@ -28,6 +28,7 @@ export default function Highlighter({
   onClick,
 }: HighlighterProps) {
   let className = "Syft-Highlighter-outline";
+  let bgClassName = "Syft-Highlighter-bg";
 
   if (mode === VisualMode.SELECTED) {
     // in selected mode, the page is interactable. so, keep highlighters disabled.
@@ -37,39 +38,53 @@ export default function Highlighter({
   } else if (mode === VisualMode.INSPECT) {
     committed = false;
     defined = false;
+    bgClassName += " visibleOnHover";
   }
 
-  const borderColor = selected ? Colors.Branding.V5 : undefined;
+  const borderColor = selected
+    ? Colors.Branding.V5
+    : committed
+    ? Colors.Secondary.Green
+    : defined
+    ? Colors.Secondary.Yellow
+    : Colors.Branding.V3;
   const backgroundColor = selected
     ? Colors.Branding.V5
     : committed
     ? Colors.Secondary.Green
     : defined
     ? Colors.Secondary.Yellow
-    : undefined;
+    : Colors.Branding.V3;
 
   return (
     <div
       className={className}
       syft-highlight="true"
-      onClick={onClick}
+      onClick={() => {
+        if (onClick) onClick();
+      }}
       style={{
         top: rect.top,
         left: rect.left,
         width: rect.width,
         height: rect.height,
-        border: borderColor ? `1px solid ${borderColor}` : undefined,
-        backgroundColor: backgroundColor
-          ? rectBackgroundColor(backgroundColor)
-          : undefined,
       }}
     >
-      <div style={{ position: "relative" }}>
+      <div
+        className={bgClassName}
+        syft-highlight="true"
+        style={{
+          border: borderColor ? `1px solid ${borderColor}` : undefined,
+          backgroundColor: backgroundColor
+            ? rectBackgroundColor(backgroundColor)
+            : undefined,
+        }}
+      >
         {label && (
           <div
             className="Syft-Highlighter-label"
             style={{
-              backgroundColor: Colors.Gray.V3,
+              backgroundColor: Colors.Gray.V5,
               color: Colors.White,
             }}
           >

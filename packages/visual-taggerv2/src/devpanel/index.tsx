@@ -36,10 +36,10 @@ function init(onNewEvent: (event: SyftEvent) => void) {
       onNewEvent(event);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
-      console.debug(
-        "OnShown called. refreshing connection and re-fetching git info."
-      );
-      refreshConnection();
+      // console.debug(
+      //   "OnShown called. refreshing connection and re-fetching git info."
+      // );
+      // refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
           getGitInfoState().then((state) => {
@@ -93,7 +93,7 @@ function init(onNewEvent: (event: SyftEvent) => void) {
     return existingConnection;
   };
   refreshConnection();
-  chrome.devtools.network.onNavigated.addListener(refreshConnection);
+  //chrome.devtools.network.onNavigated.addListener(refreshConnection);
 }
 
 const setVisualMode = (mode: VisualMode) => {
@@ -109,6 +109,10 @@ const App = () => {
   const [gitInfoState, dispatch] = useGitInfoState();
   const [userSession] = useUserSession();
 
+  const insertEvent = (event: SyftEvent) => {
+    setEvents((events) => [event, ...events]);
+  };
+
   useEffect(() => init(insertEvent), []);
 
   useEffect(() => {
@@ -118,10 +122,6 @@ const App = () => {
       });
     }
   }, [userSession]);
-
-  const insertEvent = (event: SyftEvent) => {
-    setEvents((events) => [event, ...events]);
-  };
 
   const items: TabsProps["items"] = [
     {

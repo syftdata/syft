@@ -1,7 +1,7 @@
 import { EventTag } from "../types";
 import { EventSchema } from "@syftdata/common/lib/types";
 import ReactElementView from "./ReactElementView";
-import TagHandlerList from "./TagTriggerList";
+import TagHandlerList from "./TagHandlerList";
 import { useState } from "react";
 import { EventsView } from "./EventsView";
 import SimpleEventModal from "./SimpleEventModal";
@@ -24,9 +24,7 @@ export default function TagDetailedView({
   schemas,
 }: TagDetailedViewProps) {
   const handlers = [...Object.keys(tag.handlerToEvents)].sort();
-  const [selectedHandler, setSelectedHandler] = useState<string>(
-    handlers[0] ?? "onClick"
-  );
+  const [selectedHandler, setSelectedHandler] = useState<string>(handlers[0]);
   const [showActionModal, setShowActionModal] = useState(false);
   return (
     <>
@@ -36,24 +34,26 @@ export default function TagDetailedView({
         selectedHandler={selectedHandler}
         onSelect={setSelectedHandler}
       />
-      <EventsView
-        tag={tag}
-        handler={selectedHandler}
-        onEdit={() => setShowActionModal(true)}
-        updateSchema={(schema) => {
-          onUpdateSchema(schema);
-        }}
-        setEvents={(handler, events) => {
-          onUpdateTag({
-            ...tag,
-            handlerToEvents: {
-              ...tag.handlerToEvents,
-              [handler]: events,
-            },
-          });
-        }}
-        schemas={schemas}
-      />
+      {selectedHandler && (
+        <EventsView
+          tag={tag}
+          handler={selectedHandler}
+          onEdit={() => setShowActionModal(true)}
+          updateSchema={(schema) => {
+            onUpdateSchema(schema);
+          }}
+          setEvents={(handler, events) => {
+            onUpdateTag({
+              ...tag,
+              handlerToEvents: {
+                ...tag.handlerToEvents,
+                [handler]: events,
+              },
+            });
+          }}
+          schemas={schemas}
+        />
+      )}
       <ReactElementView element={tag} />
       <SimpleEventModal
         key={`${tag.reactSource.name}:${selectedHandler}`}

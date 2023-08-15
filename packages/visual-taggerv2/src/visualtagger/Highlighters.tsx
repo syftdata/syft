@@ -99,6 +99,9 @@ export default function Highlighters({
     <>
       <style>{HighlighterStyle}</style>
       {cTags.flatMap((def, idx) => {
+        if (def.element.tagName === TagName.Body) {
+          return;
+        }
         const label = def.element.reactSource.name ?? def.element.tagName;
         const selected = selectedElement === def.element;
         const committed = def.element.committed;
@@ -107,14 +110,7 @@ export default function Highlighters({
           if (mode === VisualMode.SELECTED) {
             return;
           } else if (mode === VisualMode.ALL) {
-            if (def.element.tagName === TagName.Body) {
-              return;
-            }
-            const events = Object.values(def.element.handlerToEvents).reduce(
-              (val, events) => val + events.length,
-              0
-            );
-            if (events === 0) {
+            if (def.element.reactSource.handlers.length === 0) {
               return;
             }
           }

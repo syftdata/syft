@@ -3,24 +3,34 @@ div.Syft-Highlighter-outline {
   position: fixed !important;  
   z-index: 2147483600 !important;
   cursor: pointer !important;
+  pointer-events: fill !important;
 }
 
 div.Syft-Highlighter-outline.disabled {
   pointer-events: none !important;
 }
 
+div.Syft-Highlighter-outline .visibleOnHover {
+  display: none !important;
+}
+
+div.Syft-Highlighter-outline:hover .visibleOnHover {
+  display: block !important;
+}
+
+.Syft-Highlighter-bg {
+  width: 100% !important;
+  height: 100% !important;  
+  position: relative;
+}
+
 .Syft-Highlighter-label {
   pointer-events: none !important;
   position: absolute !important;
-  padding: 2px !important;
+  padding: 3px !important;
   font-family: monospace !important;
   border-radius: 6px !important;
   z-index: 2147483600 !important;
   top: -6px;
   left: -6px;
-  display: none;
-}
-
-div.Syft-Highlighter-outline:hover .Syft-Highlighter-label {
-  display: block;
 }

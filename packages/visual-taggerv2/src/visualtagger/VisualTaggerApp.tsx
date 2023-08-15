@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import Recorder from "./recorder";
 
-import { ReactElement } from "../types";
+import { ReactElement, VisualMode } from "../types";
 import Highlighters from "./Highlighters";
 import {
   updateRecordingState,
@@ -20,11 +20,15 @@ export default function VisualTaggerApp() {
   const { recordingState } = useRecordingState();
 
   const onHighlightClick = useCallback((idx: number, element: ReactElement) => {
-    console.log(">>> onHighlightClick ", idx);
-    updateRecordingState((state) => ({
-      ...state,
-      selectedIndex: idx,
-    }));
+    updateRecordingState((state) => {
+      const mode =
+        state.mode === VisualMode.INSPECT ? VisualMode.SELECTED : state.mode;
+      return {
+        ...state,
+        selectedIndex: idx,
+        mode,
+      };
+    });
   }, []);
 
   useEffect(() => {
