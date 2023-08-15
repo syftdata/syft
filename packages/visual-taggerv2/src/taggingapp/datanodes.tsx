@@ -1,5 +1,5 @@
 import { DataNode } from "antd/es/tree";
-import { ReactElement, ReactSource } from "../types";
+import { ReactElement } from "../types";
 import { Css, Flex } from "../common/styles/common.styles";
 import { Mono, Paragraph } from "../common/styles/fonts";
 import { Colors } from "../common/styles/colors";
@@ -11,11 +11,15 @@ function getKey(parentKey: string | undefined, fieldName: string): string {
   return `${parentKey}.${fieldName}`;
 }
 
+export type MyDataNode = DataNode & {
+  value?: any;
+};
+
 export function getDataNodesFromObj(
   obj: Record<string, any> | Array<any> | undefined,
   filterNulls: boolean,
   datakey?: string
-): DataNode[] | undefined {
+): MyDataNode[] | undefined {
   let nodes = Object.entries(obj ?? {})
     .map(([key, value]) => {
       if (filterNulls && value == null) return;
@@ -53,9 +57,10 @@ export function getDataNodesFromObj(
         children,
         checkable,
         isLeaf,
+        value,
       };
     })
-    .filter((node) => node != null) as DataNode[];
+    .filter((node) => node != null) as MyDataNode[];
 
   if (nodes.length === 0 && filterNulls) return undefined;
   return nodes;
@@ -65,7 +70,7 @@ export function getPropDataNodes(
   element: ReactElement,
   filterNulls: boolean,
   dataKey?: string
-): DataNode[] | undefined {
+): MyDataNode[] | undefined {
   const reactProps = element.reactSource.props ?? {};
   let nodes = getDataNodesFromObj(reactProps, filterNulls, dataKey);
   if (element.parent) {
@@ -94,7 +99,7 @@ export function getPropDataNodesV2(
   element: ReactElement,
   filterNulls: boolean,
   dataKey: string = ""
-): { root?: DataNode; current?: DataNode } {
+): { root?: MyDataNode; current?: MyDataNode } {
   // element should return its parent if it has one, and put itself in parent's children nodes.
   const reactProps = element.reactSource.props ?? {};
   const childrenNodes =
@@ -104,7 +109,7 @@ export function getPropDataNodesV2(
     return {};
   }
 
-  const current: DataNode = {
+  const current: MyDataNode = {
     title: (
       <Paragraph.P12>
         {element.reactSource.name ?? element.tagName}
@@ -163,7 +168,7 @@ export function getReactElementDataNodes(
       0
     );
 
-    const node: DataNode = {
+    const node: MyDataNode = {
       title: (
         <Flex.Row gap={8} alignItems="center">
           <Paragraph.P12>{text}</Paragraph.P12>
@@ -180,7 +185,7 @@ export function getReactElementDataNodes(
     if (element.children) {
       node.children = element.children
         .map((child, idx) => traverse(child, getKey(key, `${idx}`)))
-        .filter((n) => n != null) as DataNode[];
+        .filter((n) => n != null) as MyDataNode[];
     }
     return node;
   };
@@ -195,7 +200,7 @@ export function getReactElementDataNodes(
 }
 
 export function getDefaultExpandedKeys(
-  nodes: DataNode[] | undefined
+  nodes: MyDataNode[] | undefined
 ): string[] {
   if (nodes == null || nodes.length === 0) {
     return [];

@@ -1,6 +1,7 @@
 import Tree, { DataNode, TreeProps } from "antd/es/tree";
 import { ReactElement } from "../types";
 import {
+  MyDataNode,
   getDefaultExpandedKeys,
   getPropDataNodes,
   getPropDataNodesV2,
@@ -37,7 +38,8 @@ export default function PropSelectionView({
   };
 
   const treeData = useMemo(() => {
-    const loop = (data: DataNode[]): DataNode[] => {
+    const query = searchValue.toLowerCase();
+    const loop = (data: MyDataNode[]): MyDataNode[] => {
       return data
         .map((item) => {
           if (item.children) {
@@ -46,9 +48,15 @@ export default function PropSelectionView({
               return { ...item, children: matchedChildren };
             }
           }
-          const key = item.key as string;
-          const index = key.indexOf(searchValue);
-          if (index > -1) {
+          const key = (item.key as string).toLowerCase();
+          if (key.includes(query)) {
+            return item;
+          }
+          // search for value as well.
+          if (
+            item.value &&
+            item.value.toString().toLowerCase().includes(query)
+          ) {
             return item;
           }
         })
