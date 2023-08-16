@@ -11,6 +11,7 @@ import PropSelectorModal from "./PropSelectorModal";
 import { useState } from "react";
 import Button from "../common/components/core/Button/Button";
 import { FieldType } from "../types/schema";
+import { on } from "events";
 
 export interface SchemaAndElement {
   schema: EventSchema;
@@ -47,7 +48,7 @@ const FieldRenderer = ({
 }: {
   data: SchemaAndElement;
   field: Field;
-  onUpdate: (field: Field) => void;
+  onUpdate: (field: Field, oldField: Field) => void;
   onDelete: (field: Field) => void;
 }) => {
   const sourceField = field.rename ?? field.name;
@@ -64,16 +65,9 @@ const FieldRenderer = ({
       className={css(Flex.grow(1), Css.padding("0px 12px"))}
       alignItems="end"
     >
-      <Input
-        label="Name"
-        value={field.name}
-        onChange={(e) =>
-          onUpdate({
-            ...field,
-            name: e.target.value,
-          })
-        }
-      />
+      <LabelledValue label="Name" onClick={onChangeAttempt}>
+        <Paragraph.P10>{field.name}</Paragraph.P10>
+      </LabelledValue>
       {field.rename && (
         <LabelledValue label="Source" onClick={onChangeAttempt}>
           <Paragraph.P10>{field.rename}</Paragraph.P10>
@@ -91,15 +85,9 @@ const FieldRenderer = ({
       <PropSelectorModal
         open={showActionModal}
         tag={data.tag}
-        fieldName={field.name}
-        addProp={(prop) => {
-          const props = prop.split(".");
-          onUpdate({
-            ...field,
-            name: field.name != "" ? field.name : props[props.length - 1],
-            rename: prop,
-          });
-          setShowActionModal(false);
+        field={field}
+        updateField={(newField) => {
+          onUpdate(newField, field);
         }}
         onClose={() => setShowActionModal(false)}
       />
@@ -114,6 +102,7 @@ const EventPropsView = ({
   data: SchemaAndElement;
   onUpdate: (data: SchemaAndElement) => void;
 }) => {
+  const [showActionModal, setShowActionModal] = useState(false);
   return (
     <Flex.Col
       gap={4}
@@ -124,11 +113,11 @@ const EventPropsView = ({
           key={index}
           data={data}
           field={field}
-          onUpdate={(newField) => {
+          onUpdate={(newField, oldField) => {
             const schema = {
               ...data.schema,
               fields: data.schema.fields.map((f) =>
-                f.name === field.name ? newField : f
+                f === oldField ? newField : f
               ),
             };
             onUpdate({
@@ -139,7 +128,7 @@ const EventPropsView = ({
           onDelete={(field) => {
             const schema = {
               ...data.schema,
-              fields: data.schema.fields.filter((f) => f.name !== field.name),
+              fields: data.schema.fields.filter((f) => f !== field),
             };
             onUpdate({
               schema,
@@ -151,23 +140,7 @@ const EventPropsView = ({
       <Flex.Col alignItems="center">
         <Button
           onClick={() => {
-            const newField: Field = {
-              name: "",
-              isOptional: false,
-              type: {
-                name: FieldType.STRING,
-                zodType: "",
-                isArray: false,
-              },
-            };
-            const schema = {
-              ...data.schema,
-              fields: [...data.schema.fields, newField],
-            };
-            onUpdate({
-              schema,
-              tag: data.tag,
-            });
+            setShowActionModal(true);
           }}
           type="Clear"
           size="small"
@@ -176,6 +149,21 @@ const EventPropsView = ({
           <Label.L10 color={Colors.Branding.Blue}>+Add Field</Label.L10>
         </Button>
       </Flex.Col>
+      <PropSelectorModal
+        open={showActionModal}
+        tag={data.tag}
+        updateField={(newField) => {
+          const schema = {
+            ...data.schema,
+            fields: [...data.schema.fields, newField],
+          };
+          onUpdate({
+            schema,
+            tag: data.tag,
+          });
+        }}
+        onClose={() => setShowActionModal(false)}
+      />
     </Flex.Col>
   );
 };

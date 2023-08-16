@@ -102,17 +102,19 @@ export default function Highlighters({
         if (def.element.tagName === TagName.Body) {
           return;
         }
-        const label = def.element.reactSource.name ?? def.element.tagName;
-        const definedEvents = Object.values(def.element.handlerToEvents).reduce(
-          (sum, eves) => sum + eves.length,
-          0
-        );
+        const events = [
+          ...new Set(
+            Object.values(def.element.handlerToEvents).flatMap((e) => e)
+          ),
+        ];
         // if (definedEvents > 0) {
         //   label = `${label} (${definedEvents})`;
         // }
+        // const label = def.element.reactSource.name ?? def.element.tagName;
+        const label = events.join(", ");
         const selected = selectedElement === def.element;
         const committed = def.element.committed;
-        const defined = definedEvents > 0;
+        const defined = events.length > 0;
         if (!selected) {
           if (mode === VisualMode.SELECTED) {
             return;
