@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { generate as generateTS } from '../codegen/generators/ts_generator';
 import { generate as generateDocs } from '../codegen/generators/doc_generator';
 import { generate as generateYaml } from '../codegen/generators/yaml_generator';
+import { generate as generateJson } from '../codegen/generators/json_generator';
 import { generate as generateGo } from '../codegen/generators/go_generator';
 import { generate as generateDBT } from '../codegen/generators/dbt_generator';
 import { type ProviderConfig } from '../config/sink_configs';
@@ -31,7 +32,7 @@ export const builder = (y: yargs.Argv): yargs.Argv => {
   return (
     y
       .positional('type', {
-        choices: ['ts', 'dbt', 'yaml'] as const,
+        choices: ['ts', 'dbt', 'yaml', 'json'] as const,
         default: 'ts'
       })
       // .option('destination', {
@@ -121,6 +122,8 @@ async function innerHandler({
       generateDBT(ast, outDir ?? './dbt', providerConfig);
     } else if (type === 'yaml') {
       generateYaml(ast, outDir ?? './');
+    } else if (type === 'json') {
+      generateJson(ast, outDir ?? './');
     }
   }
   return ast;

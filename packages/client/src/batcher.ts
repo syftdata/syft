@@ -79,41 +79,58 @@ export default class Batcher {
       );
     }
 
+    const props: Record<string, any> = {};
+    for (const key of Object.getOwnPropertyNames(orig)) {
+      if (key === 'syft') continue;
+      const newKey = convertCase(key, this.config.propertyNameCase);
+      props[newKey] = orig[key];
+    }
+
     // apply naming conventions.
     const event: SyftEvent = {
+      ...props,
       syft: {
         ...orig.syft,
         eventName: convertCase(orig.syft.eventName, this.config.eventNameCase)
       }
     };
-    for (const key of Object.getOwnPropertyNames(orig)) {
-      if (key === 'syft') continue;
-      const newKey = convertCase(key, this.config.propertyNameCase);
-      event[newKey] = orig[key];
-    }
-
     for (const plugin of this.plugins) {
       if (!plugin.logEvent(event)) {
         return false;
       }
     }
+    this.dispatcher.dispatch({
+      type: 'syft-event',
+      detail: {
+        name: event.syft.eventName,
+        props,
+        syft_status: {
+          instrument: SyftEventInstrumentStatus.INSTRUMENTED,
+          track: SyftEventTrackStatus.TRACKED,
+          valid: event.syft.isValid
+            ? SyftEventValidStatus.VALID
+            : SyftEventValidStatus.NOT_VALID
+        }
+      }
+    });
     return true;
   }
 
   reflectEvent(name: string, props: Record<string, any>): void {
-    if (!this.config.monitor.disabled) {
-      this.dispatcher.dispatch({
-        type: 'syft-event',
-        detail: {
-          name,
-          props: props ?? {},
-          syft_status: {
-            instrument: SyftEventInstrumentStatus.INSTRUMENTED,
-            track: SyftEventTrackStatus.NOT_TRACKED,
-            valid: SyftEventValidStatus.UNKNOWN
-          }
+    this.dispatcher.dispatch({
+      type: 'syft-event',
+      detail: {
+        name,
+        props: props ?? {},
+        syft_status: {
+          instrument: SyftEventInstrumentStatus.INSTRUMENTED,
+          track: SyftEventTrackStatus.NOT_TRACKED,
+          valid: SyftEventValidStatus.UNKNOWN
         }
-      });
+      }
+    });
+    if (!this.config.monitor.disabled) {
+      // TODO: upload to our backend.
     }
   }
 

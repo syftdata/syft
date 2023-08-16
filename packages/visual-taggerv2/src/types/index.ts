@@ -5,12 +5,6 @@ export enum ActionsMode {
   Code = "code",
 }
 
-export enum ScriptType {
-  Puppeteer = "puppeteer",
-  Playwright = "playwright",
-  Cypress = "cypress",
-}
-
 export enum ActionType {
   AwaitText = "awaitText",
   Click = "click",
@@ -23,19 +17,30 @@ export enum ActionType {
   Navigate = "navigate",
   Resize = "resize",
   Wheel = "wheel",
+  ReactElement = "react-ele", // used specifically to represent an element. THIS IS HACK. Ideally we should build a new type for this.
 }
 
 export enum TagName {
   A = "A",
   B = "B",
+  Body = "BODY",
+  BR = "BR",
+  Button = "BUTTON",
   Cite = "CITE",
+  Code = "CODE",
+  Div = "DIV",
   EM = "EM",
+  EMBED = "EMBED",
+  HTML = "HTML",
+  Img = "IMG",
   Input = "INPUT",
+  Section = "SECTION",
   Select = "SELECT",
   Span = "SPAN",
   Strong = "STRONG",
+  Table = "TABLE",
   TextArea = "TEXTAREA",
-  Div = "DIV",
+  Video = "VIDEO",
   Window = "WINDOW",
 }
 
@@ -46,7 +51,10 @@ export const isSupportedActionType = (actionType: ActionType) =>
 export interface ReactSource {
   name: string;
   source: string;
-  parent?: ReactSource;
+  line: number;
+  props: Record<string, unknown>;
+
+  handlers: string[];
 }
 
 export class BaseAction {
@@ -58,9 +66,21 @@ export class BaseAction {
   timestamp: number;
   isPassword: boolean;
   hasOnlyText: boolean; // If the element only has text content inside (hint to use text selector)
+}
 
-  events?: SyftEvent[];
-  eventSource?: ReactSource;
+export class ReactElement extends BaseAction {
+  declare type: ActionType.ReactElement;
+  reactSource: ReactSource;
+
+  // to show the tree hierarchy.
+  children?: ReactElement[];
+
+  // we need to maintain a mapping between handlernames and events.
+  handlerToEvents: Record<string, string[]>;
+  committed?: boolean;
+  instrumented?: boolean;
+
+  parent?: ReactElement;
 }
 
 export class KeydownAction extends BaseAction {
@@ -137,12 +157,10 @@ export type Action =
   | WheelAction
   | FullScreenshotAction
   | AwaitTextAction
-  | ResizeAction;
+  | ResizeAction
+  | ReactElement;
 
-export type EventTag = Action & {
-  committed?: boolean;
-  instrumented?: boolean;
-};
+export type EventTag = ReactElement;
 
 export enum SyftEventTrackStatus {
   TRACKED, // event is modeled and instrumented using syft.
@@ -179,15 +197,14 @@ export enum MessageType {
 
   // DevTools to background
   InitDevTools = "init-devtools",
-  CleanupDevTools = "cleanup-devtools",
 
   // Content to Content Script.
-  GetSourceFile = "get-source-file",
-  GetSourceFileResponse = "get-source-file-response",
+  GetReactEles = "get-react-eles",
+  ReactElesResp = "react-eles-resp",
 
   // DevTools -> Background -> Content
-  StartTagging = "start-tagging",
-  StopTagging = "stop-tagging",
+  SetVisualMode = "set-visual-mode",
+  // needs to collect elements from content and fire magicAPI.
 
   // Extension Native UI to DevTools.
   OnSearch = "on-search",
@@ -247,18 +264,17 @@ export interface GitInfo {
   eventTagsSha?: string; // used to update the file without overwriting others changes.
 }
 
-export enum RecordingMode {
-  NONE,
-  RECORDING,
-  PREVIEW,
+export enum VisualMode {
+  SELECTED,
+  INSPECT,
+  ALL,
 }
 
 export interface RecordingState {
-  mode: RecordingMode;
-  recordingTabId?: number;
-  recordingFrameId?: number;
-  recording: Action[];
+  mode: VisualMode;
+  tabId?: number;
+  frameId?: number;
 
-  previewAction?: Action;
-  previewActionMatchedTagIndex?: number;
+  selectedIndex?: number;
+  elements: ReactElement[];
 }

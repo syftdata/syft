@@ -1,45 +1,79 @@
-import { Action, ActionType, EventTag } from "../types";
-import Section from "../common/components/core/Section";
-import { SelectedSchemaView } from "../schemaapp/selector";
+import { EventTag } from "../types";
 import { EventSchema } from "@syftdata/common/lib/types";
-import ElementView from "./ElementView";
+import ReactElementView from "./ReactElementView";
+import TagHandlerList from "./TagHandlerList";
+import { useState } from "react";
+import { EventsView } from "./EventsView";
+import SimpleEventModal from "./SimpleEventModal";
 
 export interface TagDetailedViewProps {
-  tag?: EventTag;
-
-  startEditTagFlow: () => void;
-  onUpdateTag: (action?: Action) => void;
+  tag: EventTag;
+  onUpdateTag: (action?: EventTag) => void;
+  onUpdateSchema: (schema: EventSchema) => void;
+  onAddSchema: (schema: EventSchema) => void;
+  onMagicWand: () => void;
   schemas: EventSchema[];
 }
 
 export default function TagDetailedView({
   tag,
-  startEditTagFlow,
+  onAddSchema,
+  onUpdateSchema,
   onUpdateTag,
+  onMagicWand,
   schemas,
 }: TagDetailedViewProps) {
-  if (!tag) {
-    return <></>;
-  }
-
+  const handlers = [...Object.keys(tag.handlerToEvents)].sort();
+  const [selectedHandler, setSelectedHandler] = useState<string>(handlers[0]);
+  const [showActionModal, setShowActionModal] = useState(false);
   return (
     <>
-      <SelectedSchemaView
-        action={tag}
-        onEdit={startEditTagFlow}
-        setEvents={(events) => {
-          onUpdateTag({
-            ...tag,
-            events,
-          });
-        }}
-        schemas={schemas}
+      <TagHandlerList
+        tag={tag}
+        handlers={handlers}
+        selectedHandler={selectedHandler}
+        onSelect={setSelectedHandler}
       />
-      {tag.type !== ActionType.Load && (
-        <Section title="Interaction">
-          <ElementView action={tag} />
-        </Section>
+      {selectedHandler && (
+        <EventsView
+          tag={tag}
+          handler={selectedHandler}
+          onEdit={() => setShowActionModal(true)}
+          updateSchema={(schema) => {
+            onUpdateSchema(schema);
+          }}
+          setEvents={(handler, events) => {
+            onUpdateTag({
+              ...tag,
+              handlerToEvents: {
+                ...tag.handlerToEvents,
+                [handler]: events,
+              },
+            });
+          }}
+          schemas={schemas}
+        />
       )}
+      <ReactElementView element={tag} />
+      <SimpleEventModal
+        key={`${tag.reactSource.name}:${selectedHandler}`}
+        open={showActionModal}
+        tag={tag}
+        schemas={schemas}
+        onMagicWand={() => {
+          onMagicWand();
+          setShowActionModal(false);
+        }}
+        handler={selectedHandler}
+        addSchema={(tag, schema) => {
+          if (schema) {
+            onAddSchema(schema);
+          }
+          onUpdateTag(tag);
+          setShowActionModal(false);
+        }}
+        onCancel={() => setShowActionModal(false)}
+      />
     </>
   );
 }

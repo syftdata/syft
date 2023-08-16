@@ -1,4 +1,4 @@
-import { Action, RecordingMode } from "../types";
+import { EventTag, ReactElement, VisualMode } from "../types";
 
 import {
   IconButton,
@@ -6,29 +6,25 @@ import {
 } from "../common/components/core/Button/IconButton";
 import { Css, Flex, FlexExtra } from "../common/styles/common.styles";
 import { useUserSession } from "../cloud/state/usersession";
-import PreviewEditor from "./PreviewEditor";
 import { useGitInfoContext } from "../cloud/state/gitinfo";
 import { Subheading } from "../common/styles/fonts";
 import { css } from "@emotion/css";
 import Spinner from "../common/components/core/Spinner/Spinner";
 import { magicAPI } from "../cloud/api/schema";
-import { GitInfoActionType } from "../cloud/state/types";
+import { GitInfoActionType, LoadingState } from "../cloud/state/types";
 import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
-import Section from "../common/components/core/Section";
-import ActionList from "./ActionList";
+import { getUniqueKey, enrichElementsWithTags } from "./merge";
+import ReactElementTree from "./ReactElementTree";
+import TagDetailedView from "./TagDetailedView";
 
 export interface TaggingAppProps {
-  startTagging: () => void;
-  stopTagging: () => void;
+  setVisualMode: (mode: VisualMode) => void;
 }
 
-export default function TaggingApp({
-  startTagging,
-  stopTagging,
-}: TaggingAppProps) {
+export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
   const [userSession] = useUserSession();
   const { gitInfoState, dispatch } = useGitInfoContext();
   const { recordingState } = useRecordingState();
@@ -37,7 +33,6 @@ export default function TaggingApp({
     return <></>;
   }
 
-  const actions = recordingState.recording;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo) {
     return (
@@ -50,26 +45,39 @@ export default function TaggingApp({
           Connecting to your Syft Studio workspace..
         </Subheading.SH12>
         <Flex.Row>
-          <Spinner />
+          <Spinner center={true} />
         </Flex.Row>
       </Flex.Col>
     );
   }
 
+  const isLoading = gitInfoState.state === LoadingState.LOADING;
+  const elements = recordingState.elements;
+  enrichElementsWithTags(elements, gitInfo.eventTags);
+  const rootElement = elements[0] as ReactElement;
+  const schemas = gitInfo.eventSchema.events;
+
+  const selectedIndex = Math.max(recordingState.selectedIndex ?? 0, 0);
+  const selectedTag = elements[selectedIndex];
+  const selectedElement = elements[selectedIndex];
+
   const onMagicWand = () => {
+    if (userSession == null) {
+      return;
+    }
     dispatch({
       type: GitInfoActionType.FETCH_MAGIC_CHANGES,
     });
-    magicAPI(userSession).then((g) => {
+    magicAPI(userSession, rootElement).then((g) => {
       dispatch({
         type: GitInfoActionType.FETCHED_MAGIC_CHANGES,
         data: g,
       });
-      startTagging();
+      setVisualMode(VisualMode.ALL);
     });
   };
 
-  const onUpdateTag = (index: number, action?: Action) => {
+  const onUpdateTag = (index: number, action?: EventTag) => {
     const newTags = [...gitInfo.eventTags];
     if (action != null) {
       newTags.splice(index, 1, action);
@@ -82,67 +90,101 @@ export default function TaggingApp({
     });
   };
 
-  const getPreviewView = () => {
-    const tags = gitInfo.eventTags ?? [];
-    const schemas = gitInfo.eventSchema.events ?? [];
-    return (
-      <>
-        <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <PrimaryIconButton icon="highlighter" onClick={stopTagging} />
-        </FlexExtra.RowWithDivider>
-        <PreviewEditor
-          tags={tags}
-          actions={actions}
-          schemas={schemas}
-          previewAction={recordingState.previewAction}
-          previewActionMatchedTagIndex={
-            recordingState.previewActionMatchedTagIndex
-          }
-          onUpdateTag={onUpdateTag}
-          onSelectTag={(index) => {
-            updateRecordingState((state) => ({
-              ...state,
-              previewActionMatchedTagIndex: index,
-              previewAction: tags[index],
-            }));
-          }}
-        />
-      </>
-    );
-  };
-
-  const getRecordingView = () => {
-    return (
-      <>
-        <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-          <IconButton icon="highlighter" onClick={startTagging} />
-          <IconButton icon="magic-wand" onClick={onMagicWand} />
-        </FlexExtra.RowWithDivider>
-        <Section
-          title="Interactions"
-          className={Flex.grow(1)}
-          expandable={true}
-          defaultExpanded={true}
-        >
-          <ActionList actions={actions} className={Flex.grow(1)} />
-        </Section>
-      </>
-    );
-  };
-
-  const getView = () => {
-    switch (recordingState.mode) {
-      case RecordingMode.RECORDING:
-        return getRecordingView();
-      case RecordingMode.PREVIEW:
-        return getPreviewView();
-    }
-    return <></>;
-  };
-
   return (
     <Flex.Col className={Css.height("calc(100vh - 80px)")}>
-      {getView()}
+      <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
+        {recordingState.mode === VisualMode.INSPECT ? (
+          <PrimaryIconButton
+            icon="cursor"
+            size="medium"
+            onClick={() => {
+              setVisualMode(VisualMode.SELECTED);
+            }}
+          />
+        ) : (
+          <IconButton
+            icon="cursor"
+            size="medium"
+            onClick={() => {
+              setVisualMode(VisualMode.INSPECT);
+            }}
+          />
+        )}
+        {recordingState.mode === VisualMode.ALL ? (
+          <PrimaryIconButton
+            icon="highlighter"
+            onClick={() => {
+              setVisualMode(VisualMode.SELECTED);
+            }}
+          />
+        ) : (
+          <IconButton
+            icon="highlighter"
+            onClick={() => {
+              setVisualMode(VisualMode.ALL);
+            }}
+          />
+        )}
+        <div className={Flex.grow(1)}>
+          {isLoading && (
+            <Flex.Row gap={8} alignItems="center">
+              <Spinner />
+              Analyzing...
+            </Flex.Row>
+          )}
+        </div>
+        <IconButton icon="magic-wand" onClick={onMagicWand} />
+      </FlexExtra.RowWithDivider>
+      {rootElement && (
+        <ReactElementTree
+          rootElement={rootElement}
+          elements={elements}
+          selectedElement={selectedElement}
+          onClick={(element) => {
+            const idx = elements.findIndex((t) => t === element);
+            if (idx != -1) {
+              updateRecordingState((state) => ({
+                ...state,
+                selectedIndex: idx,
+              }));
+            } else {
+              // if nothing is selected or found, select the top element.
+              updateRecordingState((state) => ({
+                ...state,
+                selectedIndex: 0,
+              }));
+            }
+          }}
+        />
+      )}
+      {selectedTag && (
+        <TagDetailedView
+          key={getUniqueKey(selectedTag)}
+          tag={selectedTag}
+          schemas={schemas}
+          onMagicWand={onMagicWand}
+          onAddSchema={(schema) => {
+            dispatch({
+              type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+              data: [...gitInfo.eventSchema.events, schema],
+            });
+          }}
+          onUpdateSchema={(schema) => {
+            const newSchemas = [...gitInfo.eventSchema.events];
+            const idx = newSchemas.findIndex((s) => s.name === schema.name);
+            if (idx != -1) {
+              newSchemas.splice(idx, 1, schema);
+              dispatch({
+                type: GitInfoActionType.UPDATE_EVENT_SCHEMA,
+                data: newSchemas,
+              });
+            }
+          }}
+          onUpdateTag={(action) => {
+            onUpdateTag(selectedIndex, action);
+          }}
+        />
+      )}
     </Flex.Col>
   );
 }

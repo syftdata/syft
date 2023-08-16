@@ -14,7 +14,7 @@ export function GitView() {
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
 
   // TODO: show selected items at the top.
-  if (!userSession || !gitInfo) {
+  if (!userSession || !gitInfo || !gitInfo.sources?.length) {
     return <></>;
   }
 

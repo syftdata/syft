@@ -1,7 +1,7 @@
 import finder from "./finder";
 
 import type { Action } from "../types";
-import { ActionType, ScriptType, TagName } from "../types";
+import { ActionType, TagName } from "../types";
 
 function genAttributeSet(element: HTMLElement, attributes: string[]) {
   return new Set(
@@ -107,18 +107,50 @@ export default function genSelectors(element: HTMLElement | null) {
   } as { [key: string]: string | null };
 }
 
-export function getBestSelectorsForAction(action: Action, library: ScriptType) {
+export function getBestSelectorsForAction(action: Action) {
   switch (action.type) {
+    case ActionType.ReactElement:
+      const selectors = action.selectors;
+      const textSelector =
+        selectors?.text?.length != null && action.hasOnlyText
+          ? `text=${selectors.text}`
+          : null;
+      // prefer text selector for span and buttons.
+      if (
+        action.tagName === TagName.Span ||
+        action.tagName === TagName.Button ||
+        action.tagName === TagName.EM ||
+        action.tagName === TagName.Cite ||
+        action.tagName === TagName.B ||
+        action.tagName === TagName.Strong
+      ) {
+        return [
+          selectors.testIdSelector,
+          selectors.id,
+          selectors.accessibilitySelector,
+          textSelector,
+          selectors.generalSelector,
+          selectors.hrefSelector,
+          selectors.attrSelector,
+        ];
+      }
+      return [
+        selectors.testIdSelector,
+        selectors.id,
+        selectors.formSelector,
+        selectors.accessibilitySelector,
+        selectors.generalSelector,
+        selectors.hrefSelector,
+        selectors.attrSelector,
+        textSelector,
+      ];
     case ActionType.Click:
     case ActionType.Hover:
     case ActionType.DragAndDrop: {
       const selectors = action.selectors;
       // Only supported for playwright, less than 25 characters, and element only has text inside
       const textSelector =
-        library === ScriptType.Playwright &&
-        selectors?.text?.length != null &&
-        selectors?.text?.length < 25 &&
-        action.hasOnlyText
+        selectors?.text?.length != null && action.hasOnlyText
           ? `text=${selectors.text}`
           : null;
 
@@ -188,34 +220,11 @@ export function getBestSelectorsForAction(action: Action, library: ScriptType) {
   return [];
 }
 
-export function getBestSelectorForAction(action: Action, library: ScriptType) {
-  const selectors = getBestSelectorsForAction(action, library).filter(
+export function getBestSelectorForAction(action: Action) {
+  const selectors = getBestSelectorsForAction(action).filter(
     (s) => s != null
   ) as string[];
   if (selectors.length > 0) {
     return selectors[0];
   }
-}
-
-export function getBestSelector(element?: HTMLElement) {
-  if (element == null) {
-    return null;
-  }
-  const selectors = genSelectors(element);
-  return getBestSelectorForAction(
-    {
-      type: ActionType.Hover,
-      tagName: (element.tagName ?? "") as TagName,
-      inputType: undefined,
-      value: undefined,
-      selectors: selectors || {},
-      timestamp: 0,
-      isPassword: false,
-      hasOnlyText:
-        element.children?.length === 0 && element.innerText?.length > 0,
-      offsetX: 0,
-      offsetY: 0,
-    },
-    ScriptType.Playwright
-  );
 }

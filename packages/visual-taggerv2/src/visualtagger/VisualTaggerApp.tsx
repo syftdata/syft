@@ -1,57 +1,63 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Recorder from "./recorder";
 
-import { Action, RecordingMode } from "../types";
+import { ReactElement, VisualMode } from "../types";
 import Highlighters from "./Highlighters";
-import { useGitInfoState } from "../cloud/state/gitinfo";
 import {
   updateRecordingState,
   useRecordingState,
 } from "../cloud/state/recordingstate";
+import { useSimpleGitInfoState } from "../cloud/state/gitinfo";
+import { enrichElementsWithTags } from "../taggingapp/merge";
 
+/**
+ * This is the main component that sits in the web page and is responsible for
+ * rendering the highlighters/markers and listening to user interactions.
+ * @returns
+ */
 export default function VisualTaggerApp() {
   const recorderRef = useRef<Recorder | null>(null);
-  const [recordingMode, setRecordingMode] = useState(RecordingMode.RECORDING);
   const { recordingState } = useRecordingState();
-  const [gitInfoState] = useGitInfoState();
 
-  const onPreviewClick = useCallback((action: Action, tagIndex: number) => {
-    updateRecordingState((state) => ({
-      ...state,
-      previewAction: action,
-      previewActionMatchedTagIndex: tagIndex,
-    }));
+  const onHighlightClick = useCallback((idx: number, element: ReactElement) => {
+    updateRecordingState((state) => {
+      const mode =
+        state.mode === VisualMode.INSPECT ? VisualMode.SELECTED : state.mode;
+      return {
+        ...state,
+        selectedIndex: idx,
+        mode,
+      };
+    });
   }, []);
 
   useEffect(() => {
-    if (recordingState.mode !== recordingMode) {
-      setRecordingMode(recordingState.mode);
-    }
-  }, [recordingState]);
+    recorderRef.current = new Recorder();
+    return () => {
+      recorderRef.current?.deregister();
+      recorderRef.current = null;
+    };
+  }, []);
 
-  useEffect(() => {
-    if (recordingMode === RecordingMode.RECORDING) {
-      recorderRef.current = new Recorder();
-      return () => {
-        recorderRef.current?.deregister();
-        recorderRef.current = null;
-      };
-    }
-  }, [recordingMode]);
-
-  if (!gitInfoState.info) {
-    return <></>;
+  const gitInfoState = useSimpleGitInfoState();
+  const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
+  if (!gitInfo) {
+    return null;
   }
 
-  const gitInfo = gitInfoState?.modifiedInfo ?? gitInfoState?.info;
-  if (recordingMode === RecordingMode.PREVIEW) {
-    return (
-      <Highlighters
-        actions={gitInfo.eventTags}
-        previewAction={recordingState.previewAction}
-        onPreviewClick={onPreviewClick}
-      />
-    );
+  const elements = recordingState.elements;
+  enrichElementsWithTags(elements, gitInfo.eventTags);
+  let selectedIndex = recordingState.selectedIndex;
+  if (selectedIndex != null) {
+    selectedIndex = selectedIndex < elements.length ? selectedIndex : 0;
   }
-  return <></>;
+
+  return (
+    <Highlighters
+      elements={elements}
+      mode={recordingState.mode}
+      selectedIndex={selectedIndex}
+      onClick={onHighlightClick}
+    />
+  );
 }

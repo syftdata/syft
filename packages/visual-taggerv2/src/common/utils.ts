@@ -1,5 +1,4 @@
-import { updateRecordingState } from "../cloud/state/recordingstate";
-import { Action, ActionType, GitInfo, NavigateAction } from "../types";
+import { unicodeWords } from "./naming";
 
 // TODO: nages added this global to resolve compilation issues.
 declare global {
@@ -50,26 +49,6 @@ export function getCurrentTabId() {
   return chrome.devtools.inspectedWindow.tabId;
 }
 
-export async function recordNavigationEvent(
-  url: string,
-  transitionType: string
-) {
-  const navigationEvent = {
-    type: ActionType.Navigate,
-    url,
-    source: transitionType,
-  } as NavigateAction;
-  await insertNewAction(navigationEvent);
-}
-
-export async function insertNewAction(action: Action, index?: number) {
-  return await updateRecordingState((state) => {
-    const newRecording = [...state.recording];
-    newRecording.splice(index ?? newRecording.length, 0, action);
-    return { ...state, recording: newRecording };
-  });
-}
-
 export function shallowEqual(
   object1?: { [key: string]: any },
   object2?: { [key: string]: any }
@@ -90,4 +69,16 @@ export function shallowEqual(
   }
 
   return true;
+}
+
+export function lowerize(s: string): string {
+  return s[0].toLocaleLowerCase() + s.slice(1);
+}
+
+export function capitalize(s: string): string {
+  return s[0].toLocaleUpperCase() + s.slice(1);
+}
+
+export function getHumanizedName(name: string): string {
+  return unicodeWords(name).map(capitalize).join(" ");
 }

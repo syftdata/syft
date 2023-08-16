@@ -36,24 +36,12 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
   const gitInfoOriginal = gitInfoState.info;
   const gitInfo = gitInfoState.modifiedInfo ?? gitInfoState.info;
   if (!gitInfo || !gitInfoOriginal) {
-    return <Spinner />;
+    return <Spinner center={true} />;
   }
 
   const existingEventSchemas = new Set(
     gitInfoOriginal.eventSchema.events.map((e) => e.name)
   );
-
-  const eventSchemaToEventTags = useMemo(() => {
-    const map = new Map<string, SyftEvent[]>();
-    gitInfo.eventTags.forEach((tag) => {
-      tag.events?.forEach((e) => {
-        const eventTags = map.get(e.name) ?? [];
-        eventTags.push(e);
-        map.set(e.name, eventTags);
-      });
-    });
-    return map;
-  }, [gitInfo]);
 
   const addEventModel = (newEvent: EventSchema) => {
     dispatch({
@@ -155,7 +143,6 @@ const SchemaApp = ({ className }: SchemaAppProps) => {
             <SchemaPropsRenderer
               data={{
                 schema: item,
-                event: eventSchemaToEventTags.get(item.name)?.at(0),
               }}
             />
           ),

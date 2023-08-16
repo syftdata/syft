@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { localStorageGet } from "../../common/utils";
-import { RecordingMode, RecordingState } from "../../types";
+import { VisualMode, RecordingState } from "../../types";
 
 export const RECORDING_STORAGE_KEY = "recording";
 
@@ -19,27 +19,11 @@ async function setRecordingState(recording: RecordingState | undefined) {
   }
 }
 
-export async function startPreview() {
-  await updateRecordingState((state) => ({
-    ...state,
-    mode: RecordingMode.PREVIEW,
-  }));
-}
-
-export async function stopPreview() {
-  await updateRecordingState((state) => ({
-    ...state,
-    mode: RecordingMode.RECORDING,
-    previewAction: undefined,
-    previewActionMatchedTagIndex: undefined,
-  }));
-}
-
-const DEFAULT_RECORDING_STATE = {
-  mode: RecordingMode.NONE,
-  recordingTabId: undefined,
-  recordingFrameId: 0,
-  recording: [],
+const DEFAULT_RECORDING_STATE: RecordingState = {
+  mode: VisualMode.SELECTED,
+  tabId: undefined,
+  frameId: 0,
+  elements: [],
 };
 
 export async function updateRecordingState(

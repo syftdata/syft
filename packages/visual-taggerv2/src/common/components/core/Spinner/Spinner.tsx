@@ -5,15 +5,16 @@ import { css } from "@emotion/css";
 
 interface SpinnerProps {
   color?: string;
+  center?: boolean;
 }
-const Spinner = ({ color }: SpinnerProps) => {
+const Spinner = ({ color, center }: SpinnerProps) => {
   return (
     <motion.div
       animate={{
         transform: ["rotate(0deg)", "rotate(360deg)"],
       }}
       transition={{ repeat: Infinity, duration: 2 }}
-      className={css(Css.width(25), Css.centerCss)}
+      className={css(Css.width(25), center ? Css.centerCss : "")}
     >
       <Icon icon="spinner" size="medium" color={color} />
     </motion.div>

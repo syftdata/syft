@@ -3,8 +3,8 @@ import { defineManifest } from "@crxjs/vite-plugin";
 export default defineManifest(async (env) => ({
   name: env.mode === "production" ? "Syft Tagger" : "[Dev] Syft Tagger",
   description:
-    "Record browser interactions to auto generate event tests, and auto-magically instrument application code.",
-  version: "0.0.0.3",
+    "Automagically analyze your application and collect high quality analytic events.",
+  version: "0.0.5",
   manifest_version: 3,
   permissions: [
     "activeTab",

@@ -121,7 +121,11 @@ export default function reducer(userSession: UserSession | undefined) {
       newState.state = LoadingState.LOADING;
     }
     setGitInfoState(newState);
-    console.log(">> gitinfo new state and action type ", newState, action.type);
+    console.log(
+      ">> Updating the new state and action type ",
+      newState,
+      action.type
+    );
     return newState;
   };
 }

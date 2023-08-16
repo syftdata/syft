@@ -5,10 +5,8 @@ import EventApp from "./eventapp";
 import TaggingApp from "../taggingapp";
 import Tabs, { TabsProps } from "antd/es/tabs";
 import { Colors } from "../common/styles/colors";
-import SchemaApp from "../schemaapp";
 import SettingsApp from "../settingsapp";
 import { GitView } from "../cloud/views/gitview";
-import { getCurrentTabId } from "../common/utils";
 import { fetchGitInfo } from "../cloud/api/git";
 import { getUserSession, useUserSession } from "../cloud/state/usersession";
 import { Css, Flex } from "../common/styles/common.styles";
@@ -19,28 +17,27 @@ import {
   useGitInfoState,
 } from "../cloud/state/gitinfo";
 import { GitInfoActionType } from "../cloud/state/types";
+import PortManager from "./PortManager";
+import { getCurrentTabId } from "../common/utils";
+import SchemaApp from "../schemaapp";
 
-let existingConnection: chrome.runtime.Port | undefined;
-
-function init(onNewEvent: (event: SyftEvent) => void) {
-  if (existingConnection) {
-    return;
-  }
+function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
   const listener = (message: any, port: chrome.runtime.Port) => {
+    console.log("[Syft][Devtools] received a message ", message);
     if (message.type === MessageType.SyftEvent) {
       const event = message.data as SyftEvent;
-      if (event.syft_status.track !== "TRACKED") {
-        console.warn("[Syft][Devtools] Received untracked event ", event);
-        return;
-      }
+      // if (event.syft_status.track !== "TRACKED") {
+      //   console.warn("[Syft][Devtools] Received untracked event ", event);
+      //   return;
+      // }
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.OnShown) {
       // refresh connection and re-fetch git info.
-      console.debug(
-        "OnShown called. refreshing connection and re-fetching git info."
-      );
-      refreshConnection();
+      // console.debug(
+      //   "OnShown called. refreshing connection and re-fetching git info."
+      // );
+      // refreshConnection();
       getUserSession().then((userSession) => {
         if (userSession != null) {
           getGitInfoState().then((state) => {
@@ -72,51 +69,23 @@ function init(onNewEvent: (event: SyftEvent) => void) {
       );
     }
   };
-
-  const refreshConnection = () => {
-    if (existingConnection) {
-      existingConnection.disconnect();
-    }
-    const tabId = getCurrentTabId();
-    console.debug("[Syft][Devtools] Initializing/Refreshing tab ", tabId);
-    //Create a connection to the service worker
-    existingConnection = chrome.runtime.connect({
-      name: "syft-devtools",
-    });
-    existingConnection.onDisconnect.addListener((port) => {
-      port.onMessage.removeListener(listener);
-    });
-    existingConnection.onMessage.addListener(listener);
-    existingConnection.postMessage({
-      type: MessageType.InitDevTools,
-      tabId,
-    });
-    return existingConnection;
-  };
-  refreshConnection();
-  chrome.devtools.network.onNavigated.addListener(refreshConnection);
+  return listener;
 }
 
-const startTagging = () => {
-  existingConnection?.postMessage({
-    type: MessageType.StartTagging,
-    tabId: chrome.devtools.inspectedWindow.tabId,
-  });
-};
-
-const stopTagging = () => {
-  existingConnection?.postMessage({
-    type: MessageType.StopTagging,
-    tabId: chrome.devtools.inspectedWindow.tabId,
-  });
-};
-
+const portManager = new PortManager("syft-devtools");
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
   const [gitInfoState, dispatch] = useGitInfoState();
   const [userSession] = useUserSession();
 
-  useEffect(() => init(insertEvent), []);
+  const insertEvent = (event: SyftEvent) => {
+    setEvents((events) => [event, ...events]);
+  };
+
+  useEffect(() => {
+    console.log(">>> Initializing Syft Dev Tools UI");
+    portManager.init(createMessageHandler(insertEvent));
+  }, []);
 
   useEffect(() => {
     if (userSession != null) {
@@ -126,16 +95,20 @@ const App = () => {
     }
   }, [userSession]);
 
-  const insertEvent = (event: SyftEvent) => {
-    setEvents((events) => [event, ...events]);
-  };
-
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: `Visual Editor`,
       children: (
-        <TaggingApp startTagging={startTagging} stopTagging={stopTagging} />
+        <TaggingApp
+          setVisualMode={(mode) => {
+            portManager.postMessage({
+              type: MessageType.SetVisualMode,
+              tabId: chrome.devtools.inspectedWindow.tabId,
+              mode,
+            });
+          }}
+        />
       ),
     },
     {
@@ -198,3 +171,15 @@ ReactDOM.createRoot(target).render(
     <App />
   </React.StrictMode>
 );
+// chrome.devtools.panels.elements.onSelectionChanged.addListener(() => {
+//   chrome.devtools.inspectedWindow.eval(
+//     `(() => {
+//       // call a method in the content script to change the selection.
+//       console.log($0);
+//     })()`,
+//     {
+//       useContentScriptContext: true,
+//     }
+//   );
+//   console.debug("onSelectionChanged");
+// });
