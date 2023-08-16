@@ -197,7 +197,6 @@ export enum MessageType {
 
   // DevTools to background
   InitDevTools = "init-devtools",
-  CleanupDevTools = "cleanup-devtools",
 
   // Content to Content Script.
   GetReactEles = "get-react-eles",

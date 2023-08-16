@@ -1,3 +1,6 @@
+import { getCurrentTabId } from "../common/utils";
+import { MessageType } from "../types";
+
 export type MessageListener = (message: any, port: chrome.runtime.Port) => void;
 export default class PortManager {
   existingConnection: chrome.runtime.Port | undefined;
@@ -9,19 +12,29 @@ export default class PortManager {
   }
 
   init(listener: MessageListener) {
-    this.refreshConnection();
     this.listener = listener;
-    this.existingConnection?.onMessage.addListener(listener);
-    chrome.devtools.network.onNavigated.addListener(this.refreshConnection);
+    this.refreshConnection();
+    chrome.devtools.network.onNavigated.addListener(this.onNavigated);
   }
 
-  onDisconnect(port: chrome.runtime.Port) {
-    console.info("[Syft][Devtools] Getting disconnected", port.name);
+  onNavigated = (url: string) => {
+    console.debug("[Syft][Devtools] Navigated to ", url);
+    this.refreshConnection();
+  };
+
+  onDisconnect = (port: chrome.runtime.Port) => {
+    console.debug("[Syft][Devtools] Getting disconnected", port.name);
     port.onMessage.removeListener(this.listener!);
-  }
+  };
 
   refreshConnection = () => {
-    console.info("[Syft][Devtools] Attempting to refresh connection");
+    if (!this.listener) {
+      console.warn(
+        "[Syft][Devtools] No listener found. Cannot refresh connection"
+      );
+      return;
+    }
+    console.debug("[Syft][Devtools] Attempting to refresh connection");
     if (this.existingConnection) {
       this.existingConnection.disconnect();
     }
@@ -30,6 +43,13 @@ export default class PortManager {
       name: this.name,
     });
     this.existingConnection.onDisconnect.addListener(this.onDisconnect);
+    this.existingConnection.onMessage.addListener(this.listener);
+    // initialize the connection.
+    const tabId = getCurrentTabId();
+    this.postMessage({
+      type: MessageType.InitDevTools,
+      tabId,
+    });
   };
 
   postMessage(message: any) {

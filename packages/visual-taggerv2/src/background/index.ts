@@ -5,33 +5,16 @@ import {
   getRecordingState,
   updateRecordingState,
 } from "../cloud/state/recordingstate";
-
-/// *** Navigation Events *** ///
-
-chrome.webNavigation.onCompleted.addListener(async (details) => {
-  const { tabId, frameId } = details;
-  const recordingState = await getRecordingState();
-
-  // if the page moves to another location, insert content script again.
-  if (tabId !== recordingState?.tabId || frameId !== recordingState?.frameId) {
-    return;
-  }
-
-  await executeContentScript(tabId, frameId);
-});
+import ConnectionManager, { MessageListener2 } from "./ConnectionManager";
 
 /// *** Devtools Panel Communication *** ///
-
-const connections: Record<string, chrome.runtime.Port> = {};
-async function handleMessageAsync(
+async function asyncMessageListener(
   message: any,
   port: chrome.runtime.Port
-): Promise<boolean> {
-  console.debug("[Syft][Background] Received a message", message.type);
+): Promise<void> {
   switch (message.type) {
     case MessageType.InitDevTools:
-      console.log(">>> init dev tools");
-      connections[message.tabId] = port;
+      console.info("[Syft][Background] init dev tools, business logic");
       // update the recording state to active
       updateRecordingState((state) => {
         return {
@@ -44,96 +27,50 @@ async function handleMessageAsync(
       await executeCleanUp(message.tabId, 0);
       await executeContentScript(message.tabId, 0);
       break;
-    case MessageType.CleanupDevTools:
-      delete connections[message.tabId];
-      await executeCleanUp(message.tabId, 0);
-      break;
     case MessageType.SetVisualMode:
-      console.log(">>> set visual mode");
       await updateRecordingState((state) => ({
         ...state,
         mode: message.mode as VisualMode,
       }));
       break;
   }
-  return true;
 }
+const messageListener = (message: any, port: chrome.runtime.Port) => {
+  asyncMessageListener(message, port).catch((err) => {
+    console.warn("[Syft][Background] Error handling message! ", err);
+  });
+  return true;
+};
+const externalMessageListener: MessageListener2 = (
+  request,
+  sender,
+  sendResponse
+) => {
+  if (request.type === MessageType.LoggedIn) {
+    if (request.jwt) {
+      sendResponse({ success: true, message: "Token has been received" });
+    } else {
+      sendResponse({ success: false, message: "Token not found" });
+    }
+  }
+};
 
-// this handles the connections from devtools page.
-chrome.runtime.onConnect.addListener(async function (port) {
-  console.info("[Syft][Background] Received a connection", port);
-  if (port.name !== "syft-devtools") {
-    console.warn("[Syft][Background] Ignoring the connection..");
+const connectionManager = new ConnectionManager();
+connectionManager.init(messageListener, externalMessageListener);
+
+/// *** Navigation Events *** ///
+
+chrome.webNavigation.onCompleted.addListener(async (details) => {
+  const { tabId, frameId } = details;
+  const recordingState = await getRecordingState();
+  if (tabId !== recordingState?.tabId || frameId !== recordingState?.frameId) {
     return;
   }
 
-  const extensionListener = (message: any, port: chrome.runtime.Port) => {
-    if (message.type == null) {
-      return;
-    }
-    handleMessageAsync(message, port).catch((err) => {
-      console.warn("[Syft][Background] Error handling message! ", err);
-    });
-    return true;
-  };
-
-  // Listen to messages sent from the DevTools page
-  port.onMessage.addListener(extensionListener);
-  port.onDisconnect.addListener((port) => {
-    console.log("[Syft][Background] Received a disconnect", port);
-    port.onMessage.removeListener(extensionListener);
-    var tabs = Object.keys(connections);
-    for (var i = 0, len = tabs.length; i < len; i++) {
-      if (connections[tabs[i]] == port) {
-        delete connections[tabs[i]];
-        break;
-      }
-    }
-  });
+  // if the page moves to another location, insert content script again.
+  console.debug("[Syft][Background] Inserting content script on navigation");
+  await executeContentScript(tabId, frameId);
 });
 
-// Receive message from content script and relay to the devTools page for the
-// current tab
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  // Messages from content scripts should have sender.tab set
-  let tabId: string | undefined;
-  if (sender.tab) {
-    tabId = sender.tab.id?.toString();
-  } else if (request.tabId != null) {
-    tabId = request.tabId.toString();
-  }
-  if (tabId != null) {
-    if (tabId in connections) {
-      connections[tabId].postMessage(request);
-      sendResponse(true);
-    } else {
-      console.warn(
-        "Tab not found in connection list.",
-        request,
-        sender.tab,
-        tabId,
-        Object.keys(connections)
-      );
-    }
-  } else {
-    console.warn(
-      "[Syft][Background] Received a message without tabId",
-      request
-    );
-  }
-});
-
-///// Listen from Webapp
-chrome.runtime.onMessageExternal.addListener(
-  (request, sender, sendResponse) => {
-    if (request.type === MessageType.LoggedIn) {
-      if (request.jwt) {
-        sendResponse({ success: true, message: "Token has been received" });
-      } else {
-        sendResponse({ success: false, message: "Token not found" });
-      }
-    }
-  }
-);
-
+console.log("[Syft][Background] Background script loaded");
 export {};

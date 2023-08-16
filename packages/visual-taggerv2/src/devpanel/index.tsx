@@ -22,12 +22,13 @@ import { getCurrentTabId } from "../common/utils";
 
 function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
   const listener = (message: any, port: chrome.runtime.Port) => {
+    console.log("[Syft][Devtools] received a message ", message);
     if (message.type === MessageType.SyftEvent) {
       const event = message.data as SyftEvent;
-      if (event.syft_status.track !== "TRACKED") {
-        console.warn("[Syft][Devtools] Received untracked event ", event);
-        return;
-      }
+      // if (event.syft_status.track !== "TRACKED") {
+      //   console.warn("[Syft][Devtools] Received untracked event ", event);
+      //   return;
+      // }
       event.createdAt = new Date(event.createdAt);
       onNewEvent(event);
     } else if (message.type === MessageType.OnShown) {
@@ -71,7 +72,6 @@ function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
 }
 
 const portManager = new PortManager("syft-devtools");
-
 const App = () => {
   const [events, setEvents] = useState<Array<SyftEvent>>([]);
   const [gitInfoState, dispatch] = useGitInfoState();
@@ -82,12 +82,8 @@ const App = () => {
   };
 
   useEffect(() => {
+    console.log(">>> Initializing Syft Dev Tools UI");
     portManager.init(createMessageHandler(insertEvent));
-    const tabId = getCurrentTabId();
-    portManager.postMessage({
-      type: MessageType.InitDevTools,
-      tabId,
-    });
   }, []);
 
   useEffect(() => {
