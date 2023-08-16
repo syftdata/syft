@@ -8,7 +8,7 @@ const NoSchemasView = ({ onMagicWand }: { onMagicWand?: () => void }) => {
   return (
     <Flex.Col gap={8} alignItems="center" className={Css.margin("36px 0px")}>
       <Paragraph.P14>
-        Or, Magic Wand automagically creates events based on the page content.
+        Magic Wand automagically creates events based on the page content.
       </Paragraph.P14>
       <Button onClick={onMagicWand} type="Primary">
         <Flex.Row gap={8} alignItems="center">

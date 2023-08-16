@@ -19,6 +19,7 @@ import {
 import { GitInfoActionType } from "../cloud/state/types";
 import PortManager from "./PortManager";
 import { getCurrentTabId } from "../common/utils";
+import SchemaApp from "../schemaapp";
 
 function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
   const listener = (message: any, port: chrome.runtime.Port) => {
@@ -109,6 +110,11 @@ const App = () => {
           }}
         />
       ),
+    },
+    {
+      key: "2",
+      label: `Catalog`,
+      children: <SchemaApp />,
     },
     {
       key: "3",
