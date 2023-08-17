@@ -38,7 +38,7 @@ handlebars.registerPartial(
   'interface',
   `interface {{name}} {
     {{#each typeFields}}
-    {{name}}{{#if isOptional}}?{{/if}}: {{type.name}};
+    {{name}}{{#if isOptional}}?{{/if}}: {{type.name}}{{#if type.isArray}}[]{{/if}};
     {{/each}}
 }
 
@@ -55,7 +55,7 @@ export interface {{name}} {
     /**
      {{> ts_documentation}}
      */
-    {{name}}{{#if isOptional}}?{{/if}}: {{type.name}};
+    {{name}}{{#if isOptional}}?{{/if}}: {{type.name}}{{#if type.isArray}}[]{{/if}};
     {{/each}}
 }
 

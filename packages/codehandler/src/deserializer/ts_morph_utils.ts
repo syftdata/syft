@@ -242,6 +242,7 @@ export function getTypeSchema(
       const elementType = getTypeSchema(arrayType, `${debugName}[]`);
       return {
         ...elementType,
+        zodType: `z.array(${elementType.zodType})`,
         isArray: true
       };
     } else {

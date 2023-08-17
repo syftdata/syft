@@ -78,13 +78,12 @@ const App = () => {
   const [gitInfoState, dispatch] = useGitInfoState();
   const [userSession] = useUserSession();
 
-  const insertEvent = (event: SyftEvent) => {
-    setEvents((events) => [event, ...events]);
-  };
-
   useEffect(() => {
-    console.log(">>> Initializing Syft Dev Tools UI");
-    portManager.init(createMessageHandler(insertEvent));
+    portManager.init(
+      createMessageHandler((event: SyftEvent) => {
+        setEvents((events) => [event, ...events]);
+      })
+    );
   }, []);
 
   useEffect(() => {

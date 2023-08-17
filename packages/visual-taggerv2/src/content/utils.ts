@@ -1,5 +1,10 @@
 import { ReactSource } from "../types";
 
+// https://github.com/facebook/react/blob/6e4f7c788603dac7fccd227a4852c110b072fe16/packages/react-reconciler/src/ReactFiber.js#L78
+// https://indepth.dev/posts/1008/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react
+// https://www.velotio.com/engineering-blog/react-fiber-algorithm
+// https://indepth.dev/posts/1007/the-how-and-why-on-reacts-usage-of-linked-list-in-fiber-to-walk-the-components-tree
+
 export function getStateNode(
   source: ReactSource,
   fiber: any
@@ -74,22 +79,60 @@ export const getDOMProps = (
   return data;
 };
 
-export const getCleanerState = (node: any): Record<string, any> => {
-  const state = node.memoizedState?.memoizedState ?? {};
-  const { deps, next, inst, lanes, tag, current, ...cleanerState } = state;
-  return cleanerState;
+const getStateProps = (
+  source: ReactSource,
+  state: any,
+  index: number
+): Record<string, any> | undefined => {
+  if (!state) return;
+  let result: Record<string, any> = {};
+  if (state.memoizedState) {
+    const { create, deps, next, inst, lanes, tag, current, ...rest } =
+      state.memoizedState;
+    result[index.toString()] = rest;
+  }
+  const nextObj = getStateProps(source, state.next, index + 1);
+  if (nextObj) {
+    result = {
+      ...result,
+      ...nextObj,
+    };
+  }
+  return result;
 };
 
-export const getContextValues = (node: any): Record<string, any> => {
-  let data: Record<string, any> = {};
-  Object.entries(node.dependencies ?? {}).map(([key, dependent]) => {
-    const val = (dependent as any).memoizedValue;
-    if (val != null) {
-      data = {
-        ...data,
-        [key]: val,
-      };
-    }
-  });
-  return data;
+const getContextProps = (
+  source: ReactSource,
+  context: any,
+  index: number
+): Record<string, any> | undefined => {
+  if (!context) return;
+  let result: Record<string, any> = {};
+  if (context.memoizedValue) {
+    const { create, deps, next, inst, lanes, tag, current, ...rest } =
+      context.memoizedValue;
+    result[index.toString()] = rest;
+  }
+  const nextObj = getContextProps(source, context.next, index + 1);
+  if (nextObj) {
+    result = {
+      ...nextObj,
+      ...result,
+    };
+  }
+  return result;
+};
+
+export const getFiberState = (
+  source: ReactSource,
+  node: any
+): Record<string, any> => {
+  return getStateProps(source, node.memoizedState, 0) ?? {};
+};
+
+export const getFiberContext = (
+  source: ReactSource,
+  node: any
+): Record<string, any> => {
+  return getContextProps(source, node.dependencies?.firstContext, 0) ?? {};
 };

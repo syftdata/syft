@@ -3,8 +3,8 @@ import { ActionType, MessageType, ReactElement, ReactSource } from "../types";
 import { buildBaseAction1 } from "../visualtagger/utils";
 import {
   cleanupObj,
-  getCleanerState,
-  getContextValues,
+  getFiberState,
+  getFiberContext,
   getDOMProps,
   getStateNode,
 } from "./utils";
@@ -19,7 +19,14 @@ const HTML_HANDLERS = [
   ["onhover", "onHover"],
   ["href", "onClick"],
 ];
-const COMP_WITH_RENDER_HANDLERS = new Set(["InfiniteProducts", "ProductInfo"]);
+const COMP_WITH_RENDER_HANDLERS = new Set([
+  "InfiniteProducts",
+  "RelatedProducts",
+  "ProductInfo",
+  "CartTemplate",
+  "CheckoutForm",
+  "OrderCompletedTemplate",
+]);
 const COMP_WITH_CLICK_HANDLERS = new Set(["Button"]);
 
 function figureOutTriggers(source: ReactSource, fiber: any): string[] {
@@ -80,15 +87,15 @@ function getReactSourceFromFiber(fiber: any): ReactSource | undefined {
 
   // find src folder and remove everything before it. This is to make the source path relative.
   source.source = source.source?.substring(source.source.indexOf("/src/"));
-  const memoizedState = getCleanerState(fiber);
-  const memoizedContext = getContextValues(fiber);
+  const memoizedState = getFiberState(source, fiber);
+  const memoizedContext = getFiberContext(source, fiber);
   const domProps = getDOMProps(source, fiber);
 
   source.props = {
     ...source.props,
     ...fiber.memoizedProps,
-    ...memoizedState,
-    ...memoizedContext,
+    state: memoizedState,
+    context: memoizedContext,
     dom: domProps,
     // global: {
     //   location: window.location,
@@ -96,7 +103,7 @@ function getReactSourceFromFiber(fiber: any): ReactSource | undefined {
     // },
   };
   source.handlers = figureOutTriggers(source, fiber);
-  source.props = cleanupObj(source.props) ?? {};
+  source.props = cleanupObj(source.props, 4) ?? {};
   return source;
 }
 

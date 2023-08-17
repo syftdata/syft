@@ -35,11 +35,11 @@ export async function magicAPI(
   if (state?.info == null) {
     throw new Error("GitInfo not found");
   }
-
+  const info = state.modifiedInfo ?? state.info;
   const response = await post("/api/magic_events", user, {
     rootElement,
-    eventTags: state.info.eventTags,
-    eventSchema: state.info.eventSchema,
+    eventTags: info.eventTags,
+    eventSchema: info.eventSchema,
   });
   const data = (await response.json()) as GitInfo;
   return data;
