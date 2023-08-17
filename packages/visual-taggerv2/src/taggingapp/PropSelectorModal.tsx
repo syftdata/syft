@@ -28,10 +28,10 @@ const PropSelectorModal = ({
     name: "",
     type: {
       name: "string",
-      zodType: "z.string()",
+      zodType: "z.string().optional()",
       isArray: false,
     },
-    isOptional: false,
+    isOptional: true,
   };
   const [name, setName] = useState(originalField.name);
   const [disableSearch, setDisableSearch] = useState(false);
@@ -61,7 +61,7 @@ const PropSelectorModal = ({
           extraButtons={
             <IconButton
               icon="magic-wand"
-              color={disableSearch ? Colors.Secondary.Salmon : Colors.Gray.V3}
+              color={disableSearch ? Colors.Gray.V3 : Colors.Branding.V5}
               onClick={() => setDisableSearch(!disableSearch)}
             />
           }
