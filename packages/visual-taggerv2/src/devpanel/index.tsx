@@ -18,8 +18,8 @@ import {
 } from "../cloud/state/gitinfo";
 import { GitInfoActionType } from "../cloud/state/types";
 import PortManager from "./PortManager";
-import { getCurrentTabId } from "../common/utils";
 import SchemaApp from "../schemaapp";
+import StickyBox from "react-sticky-box";
 
 function createMessageHandler(onNewEvent: (event: SyftEvent) => void) {
   const listener = (message: any, port: chrome.runtime.Port) => {
@@ -94,6 +94,19 @@ const App = () => {
     }
   }, [userSession]);
 
+  const renderTabBar: TabsProps["renderTabBar"] = (props, DefaultTabBar) => (
+    <StickyBox offsetTop={-5} offsetBottom={15} style={{ zIndex: 1 }}>
+      <DefaultTabBar
+        {...props}
+        style={{
+          marginBottom: 0,
+          backgroundColor: Colors.Gray.V1,
+          paddingLeft: 8,
+          borderBottom: `1px solid ${Colors.Gray.V3}`,
+        }}
+      />
+    </StickyBox>
+  );
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -135,7 +148,7 @@ const App = () => {
   return (
     <Flex.Col
       className={css(
-        Css.minWidth(500),
+        Css.minWidth(450),
         Css.overflow("auto auto"),
         Css.height("100%")
       )}
@@ -153,12 +166,7 @@ const App = () => {
           items={items}
           size="small"
           style={{ height: "calc(100vh - 80px)" }}
-          tabBarStyle={{
-            marginBottom: 0,
-            backgroundColor: Colors.Gray.V1,
-            paddingLeft: 8,
-            borderBottom: `1px solid ${Colors.Gray.V3}`,
-          }}
+          renderTabBar={renderTabBar}
         />
       </GitInfoContext.Provider>
     </Flex.Col>

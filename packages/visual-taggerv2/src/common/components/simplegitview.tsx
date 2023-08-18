@@ -94,14 +94,14 @@ export function SimpleGitView({
           onClick={() => onCommit()}
         />
       )}
-      <Button
+      {/* <Button
         onClick={showModal}
         type="Clear"
         size="small"
         className={Css.padding(0)}
       >
         <Label.L12 color={Colors.Branding.Blue}>+Add Branch</Label.L12>
-      </Button>
+      </Button> */}
       <Modal
         open={isModalOpen}
         okText="Create"

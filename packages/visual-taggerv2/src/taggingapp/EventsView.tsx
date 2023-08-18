@@ -85,7 +85,7 @@ export const EventsView = ({
             );
           }}
           expandable={{
-            isExpanded: (item) => true,
+            isExpanded: (item) => false,
             renderItem: (item) => (
               <EventPropsView data={item} onUpdate={onUpdateSchema} />
             ),

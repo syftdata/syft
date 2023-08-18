@@ -4,14 +4,11 @@ import { Css, Flex } from "../common/styles/common.styles";
 import { Label, Paragraph } from "../common/styles/fonts";
 import { EventTag, ReactElement } from "../types";
 import { Field, EventSchema } from "@syftdata/common/lib/types";
-import Input from "../common/components/core/Input/Input";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import LabelledValue from "../common/components/core/LabelledValue/LabelledValue";
 import PropSelectorModal from "./PropSelectorModal";
 import { useState } from "react";
 import Button from "../common/components/core/Button/Button";
-import { FieldType } from "../types/schema";
-import { on } from "events";
 
 export interface SchemaAndElement {
   schema: EventSchema;
@@ -40,6 +37,62 @@ const getValueFromSource = (fields: string[], element: ReactElement): any => {
   }
 };
 
+const __getValueFromSource = (
+  schema: EventSchema,
+  fieldName: string,
+  fields: string[],
+  element: ReactElement
+): any => {
+  const val = getValueFromSource(fields, element);
+  if (val === undefined) {
+    switch (schema.name) {
+      case "ProductListViewed":
+        switch (fieldName) {
+          case "list_id":
+            return element.reactSource.name === "InfiniteProducts"
+              ? "store"
+              : "product";
+          case "category":
+            return "default";
+          default:
+            return;
+        }
+      case "ProductClicked":
+        switch (fieldName) {
+          case "category":
+            return "default";
+          case "position":
+            return 0;
+          default:
+            return;
+        }
+      case "ProductViewed":
+        switch (fieldName) {
+          case "category":
+            return "default";
+          default:
+            return;
+        }
+      case "ProductAdded":
+        switch (fieldName) {
+          case "category":
+            return "default";
+          default:
+            return;
+        }
+      default:
+        return;
+    }
+  } else {
+    if (fieldName === "url") {
+      if (!(val as string).startsWith("http")) {
+        return `http://localhost:8000/products/${val}`;
+      }
+    }
+  }
+  return val;
+};
+
 const FieldRenderer = ({
   data,
   field,
@@ -52,7 +105,12 @@ const FieldRenderer = ({
   onDelete: (field: Field) => void;
 }) => {
   const sourceField = field.rename ?? field.name;
-  const value = getValueFromSource(sourceField.split("."), data.tag);
+  const value = __getValueFromSource(
+    data.schema,
+    field.name,
+    sourceField.split("."),
+    data.tag
+  );
   const [showActionModal, setShowActionModal] = useState(false);
 
   const onChangeAttempt = () => {
@@ -77,7 +135,7 @@ const FieldRenderer = ({
         color={Colors.Secondary.Orange}
         className={Css.textEllipsisCss}
       >
-        {value ? value.toString().substring(0, 20) : "N/A"}
+        {value !== undefined ? value.toString().substring(0, 20) : "N/A"}
       </Paragraph.P10>
       <Flex.Row className={Flex.grow(1)}></Flex.Row>
       <IconButton icon="edit" onClick={onChangeAttempt} />

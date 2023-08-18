@@ -9,6 +9,7 @@ import Section from "../common/components/core/Section";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { Colors } from "../common/styles/colors";
 import type RcTree from "rc-tree";
+import LabelledValue from "../common/components/core/LabelledValue/LabelledValue";
 
 export interface PropSelectorModalProps {
   tag: ReactElement;
@@ -34,6 +35,7 @@ const PropSelectorModal = ({
     isOptional: true,
   };
   const [name, setName] = useState(originalField.name);
+  const [transfrom, setTransform] = useState(originalField.name);
   const [disableSearch, setDisableSearch] = useState(false);
   const treeRef = useRef<RcTree>(null);
 
@@ -61,7 +63,7 @@ const PropSelectorModal = ({
           extraButtons={
             <IconButton
               icon="magic-wand"
-              color={disableSearch ? Colors.Gray.V3 : Colors.Branding.V5}
+              color={disableSearch ? Colors.Gray.V3 : Colors.Branding.Blue}
               onClick={() => setDisableSearch(!disableSearch)}
             />
           }
@@ -73,6 +75,13 @@ const PropSelectorModal = ({
             searchValue={!disableSearch ? name : undefined}
             filterNulls={true}
             checkedKey={field?.rename}
+          />
+        </Section>
+        <Section title="Customize" defaultExpanded={false} expandable={true}>
+          <Input
+            label="Transform"
+            defaultValue={name}
+            onChange={(e) => setTransform(e.target.value)}
           />
         </Section>
       </Flex.Col>

@@ -1,11 +1,6 @@
-import Tree, { DataNode, TreeProps } from "antd/es/tree";
+import Tree, { DataNode } from "antd/es/tree";
 import { ReactElement } from "../types";
-import {
-  MyDataNode,
-  getDefaultExpandedKeys,
-  getPropDataNodes,
-  getPropDataNodesV2,
-} from "./datanodes";
+import { MyDataNode, getPropDataNodes, getPropDataNodesV2 } from "./datanodes";
 import { forwardRef, useMemo } from "react";
 import type RcTree from "rc-tree";
 
@@ -21,7 +16,6 @@ const PropSelectionView = forwardRef<RcTree, PropSelectionViewProps>(
   ({ element, checkedKey, searchValue, filterNulls, className }, ref) => {
     // const { root } = getPropDataNodesV2(element, filterNulls);
     // const treeData = root ? root.children : [];
-
     const defaultData = getPropDataNodes(element, filterNulls);
 
     const treeData = useMemo(() => {
@@ -57,15 +51,13 @@ const PropSelectionView = forwardRef<RcTree, PropSelectionViewProps>(
       };
       return loop(defaultData ?? []);
     }, [searchValue, defaultData]);
-
-    const elementKeys = getDefaultExpandedKeys(treeData);
     return (
       <Tree
         ref={ref}
         checkable={true}
         autoExpandParent={true}
+        defaultExpandAll={searchValue != null && searchValue != ""}
         defaultExpandParent={true}
-        defaultExpandedKeys={elementKeys}
         defaultCheckedKeys={checkedKey ? [checkedKey] : []}
         showLine={true}
         treeData={treeData}

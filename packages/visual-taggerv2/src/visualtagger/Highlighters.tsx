@@ -111,7 +111,7 @@ export default function Highlighters({
         //   label = `${label} (${definedEvents})`;
         // }
         // const label = def.element.reactSource.name ?? def.element.tagName;
-        const label = events.join(", ");
+        const label = events.filter((e) => e !== "ElementClicked").join(", ");
         const selected = selectedElement === def.element;
         const committed = def.element.committed;
         const defined = events.length > 0;

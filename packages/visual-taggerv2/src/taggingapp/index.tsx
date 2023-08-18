@@ -19,6 +19,8 @@ import {
 import { getUniqueKey, enrichElementsWithTags } from "./merge";
 import ReactElementTree from "./ReactElementTree";
 import TagDetailedView from "./TagDetailedView";
+import StickyBox from "react-sticky-box";
+import { Colors } from "../common/styles/colors";
 
 export interface TaggingAppProps {
   setVisualMode: (mode: VisualMode) => void;
@@ -92,49 +94,55 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
 
   return (
     <Flex.Col className={Css.height("calc(100vh - 80px)")}>
-      <FlexExtra.RowWithDivider gap={16} className={Css.padding(8)}>
-        {recordingState.mode === VisualMode.INSPECT ? (
-          <PrimaryIconButton
-            icon="cursor"
-            size="medium"
-            onClick={() => {
-              setVisualMode(VisualMode.SELECTED);
-            }}
-          />
-        ) : (
-          <IconButton
-            icon="cursor"
-            size="medium"
-            onClick={() => {
-              setVisualMode(VisualMode.INSPECT);
-            }}
-          />
-        )}
-        {recordingState.mode === VisualMode.ALL ? (
-          <PrimaryIconButton
-            icon="highlighter"
-            onClick={() => {
-              setVisualMode(VisualMode.SELECTED);
-            }}
-          />
-        ) : (
-          <IconButton
-            icon="highlighter"
-            onClick={() => {
-              setVisualMode(VisualMode.ALL);
-            }}
-          />
-        )}
-        <div className={Flex.grow(1)}>
-          {isLoading && (
-            <Flex.Row gap={8} alignItems="center">
-              <Spinner />
-              Analyzing...
-            </Flex.Row>
+      <StickyBox
+        offsetTop={35}
+        offsetBottom={55}
+        style={{ zIndex: 2, backgroundColor: Colors.White }}
+      >
+        <FlexExtra.RowWithDivider gap={12} className={Css.padding(2)}>
+          {recordingState.mode === VisualMode.INSPECT ? (
+            <PrimaryIconButton
+              icon="cursor"
+              size="medium"
+              onClick={() => {
+                setVisualMode(VisualMode.SELECTED);
+              }}
+            />
+          ) : (
+            <IconButton
+              icon="cursor"
+              size="medium"
+              onClick={() => {
+                setVisualMode(VisualMode.INSPECT);
+              }}
+            />
           )}
-        </div>
-        <IconButton icon="magic-wand" onClick={onMagicWand} />
-      </FlexExtra.RowWithDivider>
+          {recordingState.mode === VisualMode.ALL ? (
+            <PrimaryIconButton
+              icon="highlighter"
+              onClick={() => {
+                setVisualMode(VisualMode.SELECTED);
+              }}
+            />
+          ) : (
+            <IconButton
+              icon="highlighter"
+              onClick={() => {
+                setVisualMode(VisualMode.ALL);
+              }}
+            />
+          )}
+          <div className={Flex.grow(1)}>
+            {isLoading && (
+              <Flex.Row gap={8} alignItems="center">
+                <Spinner />
+                Analyzing...
+              </Flex.Row>
+            )}
+          </div>
+          <IconButton icon="magic-wand" onClick={onMagicWand} />
+        </FlexExtra.RowWithDivider>
+      </StickyBox>
       {rootElement && (
         <ReactElementTree
           rootElement={rootElement}

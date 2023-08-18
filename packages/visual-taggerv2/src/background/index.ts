@@ -20,6 +20,7 @@ async function asyncMessageListener(
         return {
           mode: VisualMode.SELECTED,
           tabId: message.tabId,
+          selectedIndex: undefined,
           frameId: 0,
           elements: [],
         };
@@ -28,10 +29,19 @@ async function asyncMessageListener(
       await executeContentScript(message.tabId, 0);
       break;
     case MessageType.SetVisualMode:
-      await updateRecordingState((state) => ({
-        ...state,
-        mode: message.mode as VisualMode,
-      }));
+      await updateRecordingState((state) => {
+        if (state.mode === message.mode) return state;
+
+        let selectedIndex = state.selectedIndex;
+        if (state.mode === VisualMode.ALL) {
+          selectedIndex = undefined;
+        }
+        return {
+          ...state,
+          selectedIndex,
+          mode: message.mode as VisualMode,
+        };
+      });
       break;
   }
 }

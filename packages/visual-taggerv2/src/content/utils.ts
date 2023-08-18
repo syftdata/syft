@@ -79,6 +79,7 @@ export const getDOMProps = (
   return data;
 };
 
+// https://the-guild.dev/blog/react-hooks-system use this to understand the naming and give it a proper name.
 const getStateProps = (
   source: ReactSource,
   state: any,

@@ -19,7 +19,7 @@ const HTML_HANDLERS = [
   ["onhover", "onHover"],
   ["href", "onClick"],
 ];
-const COMP_WITH_RENDER_HANDLERS = new Set([
+const COMP_WITH_VIEW_HANDLERS = new Set([
   "InfiniteProducts",
   "RelatedProducts",
   "ProductInfo",
@@ -47,8 +47,8 @@ function figureOutTriggers(source: ReactSource, fiber: any): string[] {
       if (!triggers.includes(key)) triggers.push(key);
     }
   });
-  if (COMP_WITH_RENDER_HANDLERS.has(source.name)) {
-    if (!triggers.includes("onRender")) triggers.push("onRender");
+  if (COMP_WITH_VIEW_HANDLERS.has(source.name)) {
+    if (!triggers.includes("onView")) triggers.push("onView");
   }
   if (COMP_WITH_CLICK_HANDLERS.has(source.name)) {
     if (!triggers.includes("onClick")) triggers.push("onClick");
@@ -70,7 +70,7 @@ function getReactSourceFromFiber(fiber: any): ReactSource | undefined {
         name: document.title,
         referrer: document.referrer,
       },
-      handlers: ["onLoad"],
+      handlers: ["onView"],
     };
   }
 
