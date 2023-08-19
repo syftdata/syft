@@ -76,7 +76,7 @@ const PropSelectorModal = ({
             element={tag}
             searchValue={!disableSearch ? name : undefined}
             filterNulls={true}
-            checkedKey={field?.rename}
+            checkedKey={field?.rename ?? field?.name}
           />
         </Section>
         <Section title="Customize" defaultExpanded={false} expandable={true}>
