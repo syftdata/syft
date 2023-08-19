@@ -15,7 +15,16 @@ async function setRecordingState(recording: RecordingState | undefined) {
   if (recording == null) {
     await chrome.storage.local.remove([RECORDING_STORAGE_KEY]);
   } else {
-    await chrome.storage.local.set({ [RECORDING_STORAGE_KEY]: recording });
+    try {
+      await chrome.storage.local.set({ [RECORDING_STORAGE_KEY]: recording });
+    } catch (e) {
+      console.warn("Failed to set the recording state", recording, e);
+      // we need to drop some props to make it work.
+      recording.elements.forEach((el) => {
+        el.reactSource.props = {};
+      });
+      await chrome.storage.local.set({ [RECORDING_STORAGE_KEY]: recording });
+    }
   }
 }
 

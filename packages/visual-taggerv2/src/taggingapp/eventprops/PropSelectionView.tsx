@@ -1,6 +1,6 @@
 import Tree, { DataNode } from "antd/es/tree";
-import { ReactElement } from "../types";
-import { MyDataNode, getPropDataNodes, getPropDataNodesV2 } from "./datanodes";
+import { ReactElement } from "../../types";
+import { MyDataNode, getPropDataNodes, getPropDataNodesV2 } from "../datanodes";
 import { forwardRef, useMemo } from "react";
 import type RcTree from "rc-tree";
 

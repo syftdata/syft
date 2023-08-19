@@ -7,7 +7,7 @@ import { Mono } from "../common/styles/fonts";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
 import Section from "../common/components/core/Section";
-import EventPropsView, { SchemaAndElement } from "./EventPropsView";
+import EventPropsViewV2, { SchemaAndElement } from "./eventprops";
 
 // Attached Events view.
 export interface EventsViewProps {
@@ -87,7 +87,8 @@ export const EventsView = ({
           expandable={{
             isExpanded: (item) => false,
             renderItem: (item) => (
-              <EventPropsView data={item} onUpdate={onUpdateSchema} />
+              // <EventPropsView data={item} onUpdate={onUpdateSchema} />
+              <EventPropsViewV2 data={item} onUpdate={onUpdateSchema} />
             ),
           }}
         />

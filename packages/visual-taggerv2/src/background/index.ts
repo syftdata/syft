@@ -31,16 +31,15 @@ async function asyncMessageListener(
     case MessageType.SetVisualMode:
       await updateRecordingState((state) => {
         if (state.mode === message.mode) return state;
-
-        let selectedIndex = state.selectedIndex;
-        if (state.mode === VisualMode.ALL) {
-          selectedIndex = undefined;
-        }
-        return {
+        const newstate = {
           ...state,
-          selectedIndex,
           mode: message.mode as VisualMode,
         };
+        if (state.mode === VisualMode.ALL) {
+          newstate.selectedIndex = undefined;
+        }
+        console.log(">>> new state is ", newstate);
+        return newstate;
       });
       break;
   }

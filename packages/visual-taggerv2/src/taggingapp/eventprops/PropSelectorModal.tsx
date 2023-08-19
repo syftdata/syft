@@ -1,15 +1,14 @@
 import { Field } from "@syftdata/common/lib/types";
-import Modal from "../common/components/core/Modal/Modal";
-import { ReactElement } from "../types";
+import Modal from "../../common/components/core/Modal/Modal";
+import { ReactElement } from "../../types";
 import PropSelectionView from "./PropSelectionView";
-import Input from "../common/components/core/Input/Input";
+import Input from "../../common/components/core/Input/Input";
 import { useRef, useState } from "react";
-import { Flex } from "../common/styles/common.styles";
-import Section from "../common/components/core/Section";
-import { IconButton } from "../common/components/core/Button/IconButton";
-import { Colors } from "../common/styles/colors";
+import { Flex } from "../../common/styles/common.styles";
+import Section from "../../common/components/core/Section";
+import { IconButton } from "../../common/components/core/Button/IconButton";
+import { Colors } from "../../common/styles/colors";
 import type RcTree from "rc-tree";
-import LabelledValue from "../common/components/core/LabelledValue/LabelledValue";
 
 export interface PropSelectorModalProps {
   tag: ReactElement;
@@ -40,11 +39,14 @@ const PropSelectorModal = ({
   const treeRef = useRef<RcTree>(null);
 
   const onOK = () => {
+    const source = treeRef.current?.state.checkedKeys[0] as string;
+    const _name =
+      (name !== "" ? name : (source.split(".").pop() as string)) ?? "";
     updateField(
       {
         ...originalField,
-        name,
-        rename: treeRef.current?.state.checkedKeys[0] as string,
+        name: _name,
+        rename: source,
       },
       field
     );
