@@ -118,6 +118,7 @@ const App = () => {
               type: MessageType.SetVisualMode,
               tabId: chrome.devtools.inspectedWindow.tabId,
               mode,
+              explicit: true,
             });
           }}
         />

@@ -56,7 +56,7 @@ const PropSelectionView = forwardRef<RcTree, PropSelectionViewProps>(
         ref={ref}
         checkable={true}
         autoExpandParent={true}
-        defaultExpandAll={searchValue != null && searchValue != ""}
+        defaultExpandAll={searchValue != null}
         defaultExpandParent={true}
         defaultCheckedKeys={checkedKey ? [checkedKey] : []}
         showLine={true}

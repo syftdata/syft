@@ -107,11 +107,11 @@ export default function Highlighters({
             Object.values(def.element.handlerToEvents).flatMap((e) => e)
           ),
         ];
-        // if (definedEvents > 0) {
-        //   label = `${label} (${definedEvents})`;
-        // }
-        // const label = def.element.reactSource.name ?? def.element.tagName;
-        const label = events.filter((e) => e !== "ElementClicked").join(", ");
+        const eventNames = events
+          .filter((e) => e !== "ElementClicked")
+          .join(", ");
+        const componentName =
+          def.element.reactSource.name ?? def.element.tagName;
         const selected = selectedElement === def.element;
         const committed = def.element.committed;
         const defined = events.length > 0;
@@ -133,7 +133,8 @@ export default function Highlighters({
               defined={defined}
               selected={selectedElement === def.element}
               committed={committed}
-              label={label}
+              eventNames={eventNames}
+              componentName={componentName}
               onClick={() => {
                 if (onClick) onClick(idx, def.element);
               }}

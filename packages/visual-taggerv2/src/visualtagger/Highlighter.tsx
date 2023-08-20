@@ -4,7 +4,8 @@ import { VisualMode } from "../types";
 export type HighlighterProps = {
   rect: DOMRect;
   mode: VisualMode;
-  label?: string;
+  componentName: string;
+  eventNames?: string;
 
   selected?: boolean;
   defined?: boolean;
@@ -19,7 +20,8 @@ export const rectBackgroundColor = (backgroundColor: string) =>
 export default function Highlighter({
   rect,
   mode,
-  label,
+  componentName,
+  eventNames,
 
   selected,
   defined,
@@ -30,6 +32,7 @@ export default function Highlighter({
   let className = "Syft-Highlighter-outline";
   let bgClassName = "Syft-Highlighter-bg";
   let eleColor: string | undefined;
+
   if (mode === VisualMode.SELECTED) {
     // in selected mode, the page is interactable. so, keep highlighters disabled.
     className += " disabled";
@@ -74,17 +77,23 @@ export default function Highlighter({
             : undefined
         }
       >
-        {label && (
-          <div
-            className="Syft-Highlighter-label"
-            style={{
-              backgroundColor: Colors.Gray.V5,
-              color: Colors.White,
-            }}
-          >
-            {label}
-          </div>
-        )}
+        <div
+          className="Syft-Highlighter-label"
+          style={{
+            backgroundColor: Colors.Gray.V7,
+            color: Colors.White,
+          }}
+        >
+          <span>
+            <b>{componentName}</b>
+          </span>
+          {eventNames && eventNames.length > 0 && (
+            <>
+              <br />
+              <span>&nbsp;&nbsp;{eventNames}</span>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

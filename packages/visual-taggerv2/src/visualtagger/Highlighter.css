@@ -1,7 +1,7 @@
 div.Syft-Highlighter-outline {
   box-sizing: border-box;  
   position: fixed !important;  
-  z-index: 2147483600 !important;
+  z-index: 2147483599 !important;
   cursor: pointer !important;
   pointer-events: fill !important;
 }
@@ -25,7 +25,6 @@ div.Syft-Highlighter-outline:hover .visibleOnHover {
 }
 
 .Syft-Highlighter-label {
-  pointer-events: none !important;
   position: absolute !important;
   padding: 2px !important;
   font-family: monospace !important;
@@ -37,8 +36,8 @@ div.Syft-Highlighter-outline:hover .visibleOnHover {
 
   -webkit-box-orient: vertical;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal;
+  white-space: nowrap;
 }

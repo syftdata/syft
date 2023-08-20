@@ -35,10 +35,10 @@ async function asyncMessageListener(
           ...state,
           mode: message.mode as VisualMode,
         };
-        if (state.mode === VisualMode.ALL) {
+        if (message.explicit === true) {
           newstate.selectedIndex = undefined;
         }
-        console.log(">>> new state is ", newstate);
+        console.log(">>>> set visual mode ", state, newstate);
         return newstate;
       });
       break;

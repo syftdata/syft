@@ -156,10 +156,10 @@ export default function TaggingApp({ setVisualMode }: TaggingAppProps) {
                 selectedIndex: idx,
               }));
             } else {
-              // if nothing is selected or found, select the top element.
+              // if nothing is selected or found, unset.
               updateRecordingState((state) => ({
                 ...state,
-                selectedIndex: 0,
+                selectedIndex: undefined,
               }));
             }
           }}
