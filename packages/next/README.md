@@ -21,6 +21,12 @@ Syft lets you do event transformations and routing from your backend giving you 
 
 ## Usage
 
+### Installation
+
+```
+npm install --save @syftdata/next
+```
+
 ### Include the Analytics Script
 
 To enable Syft analytics in your app you'll need to expose the Syft context. Include `<SyftProvider />`, at the top level of your application inside [`_app.js`](https://nextjs.org/docs/advanced-features/custom-app):
@@ -59,7 +65,7 @@ export default function RootLayout({ children }) {
 ### Collect Events
 
 ```jsx
-import { useSyft } from "@syft/next";
+import { useSyft } from "@syftdata/next";
 
 export default function MyButton() {
   const { track } = useSyft();
@@ -83,26 +89,10 @@ export default function MyButton() {
 }
 ```
 
-If you use Typescript you can type check your custom events like this:
-
-```tsx
-import { useSyft } from "@syft/next";
-
-type MyEvents = {
-  customEventName: { buttonId?: string };
-  event2: { prop2: string; prop3: number };
-  event3: never;
-};
-
-const syft = useSyft<MyEvents>();
-```
-
-Only those events with the right props will be allowed to be sent using the `syft` function.
-
 ### Event Routing / Data Destinations
 
 ```js
-const { withSyft } = require("@syft/next");
+const { withSyft } = require("@syftdata/next");
 
 module.exports = withSyft({
   destinations: [
@@ -132,25 +122,6 @@ To avoid being blocked by adblockers all analytics providers recommend to serve 
 **Notes:**
 
 - Proxying will only work if you serve your site using `next start`. Statically generated sites won't be able to rewrite the requests.
-- Bear in mind that tracking requests will be made to the same domain, so cookies will be forwarded. If this is an issue for you, from `next@13.0.0` you can use [middleware](https://nextjs.org/docs/advanced-features/middleware#setting-headers) to strip the cookies like this:
-
-  ```js
-  import { NextResponse } from "next/server";
-
-  export function middleware(request) {
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("cookie", "");
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  }
-
-  export const config = {
-    matcher: "/proxy/api/event",
-  };
-  ```
 
 ### Event Transformations / Enrichment
 
@@ -159,7 +130,7 @@ You can define event transformations in TS with the same conventions as request 
 ```js
 import { SyftEvent } from "@syftdata/client";
 
-export function middleware(event: SyftEvent) {
+export function transform(event: SyftEvent) {
   event.revenue = Number(event.revenue);
   if (event.eventName.startsWith("OrderCancelled")) {
     event.cancelledAt = new Date();
@@ -178,6 +149,68 @@ export function middleware(event: SyftEvent) {
 export const config = {
   matcher: "Order*",
 };
+```
+
+## Other client features
+
+### Type safety
+
+If you use Typescript you can type check your custom events like this:
+
+```tsx
+import { useSyft } from "@syft/next";
+
+type MyEvents = {
+  customEventName: { buttonId?: string };
+  event2: { prop2: string; prop3: number };
+  event3: never;
+};
+
+const syft = useSyft<MyEvents>();
+```
+
+Only those events with the right props will be allowed to be sent using the `syft` function.
+
+### Page views
+
+To track page views set the `trackPageViews` prop of the `SyftProvider` component to true.
+
+```js
+// pages/_app.js
+...
+    <SyftProvider trackPageViews />
+...
+```
+
+By default it will be trigger on hash changes if `trackPageViews` is enabled, but you can ignore hash changes by providing an object to the `trackPageViews` prop:
+
+```js
+// pages/_app.js
+...
+    <SyftProvider trackPageViews={{ ignoreHashChange: true }} />
+...
+```
+
+### User Identity / .identify()
+
+Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage (so that the developer has access to it both on the server and the client). This annonymous-id gets included in every event that is generated.
+
+Annonymous-ids get reset when `.reset` method is called (or when an user clears their cookies and local-storage.)
+
+For more info refer to [this](https://segment-docs.netlify.app/docs/connections/sources/catalog/libraries/website/javascript/identity/)
+
+### Consent
+
+You can use the `consent` function to update your users' cookie preferences (GDPR). You can set the consent at event name level.
+
+```js
+const consentValue: "denied" | "granted" | "not-set" =
+  getUserCookiePreference();
+consent({
+  arg: "update",
+  consent: consentValue,
+  match: "*",
+});
 ```
 
 ## Support
