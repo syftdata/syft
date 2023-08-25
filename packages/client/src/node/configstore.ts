@@ -1,7 +1,11 @@
+import { type IConfigStore } from '../types';
+
 // this TS class stores key-value pairs in browser local storage.
-class ConfigStore {
+class UniversalConfigStore implements IConfigStore {
   // create an in-memory store for the current session
   private readonly store: Record<string, any> = {};
+
+  constructor(private readonly stores: IConfigStore[]) {}
 
   set(key: string, value: any): void {
     this.store[key] = value;
@@ -19,4 +23,4 @@ class ConfigStore {
     this.store.delete(key);
   }
 }
-export default ConfigStore;
+export default UniversalConfigStore;

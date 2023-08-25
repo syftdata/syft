@@ -48,6 +48,10 @@ export default class BaseSyft implements IReflector {
     }
   }
 
+  resetUser(): void {
+    this.batcher.resetUser();
+  }
+
   /**
    * Use it only in your unit-tests.
    * @returns

@@ -1,6 +1,6 @@
 import { ESLint } from 'eslint';
 import * as fs from 'fs';
-import { logInfo, logUnknownError } from '@syftdata/common/lib/utils';
+import { logInfo } from '@syftdata/common/lib/utils';
 
 export async function runLinter(files: string[]): Promise<boolean> {
   try {
@@ -29,10 +29,10 @@ export async function runLinter(files: string[]): Promise<boolean> {
     console.log(resultText);
     return errors.length === 0;
   } catch (e) {
-    logUnknownError(
-      ':warning: Failed to run linter. Ignoring linting for now.',
-      e
-    );
+    // logUnknownError(
+    //   ':warning: Failed to run linter. Ignoring linting for now.',
+    //   e
+    // );
     return true;
   }
 }
