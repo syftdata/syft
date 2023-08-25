@@ -99,13 +99,16 @@ export class SyftCustomPlugin implements ISyftPlugin {
       if (userId != null) {
         let newUserProps = identifyProps;
         if (this.userId == null || this.userId === userId) {
-          newUserProps = { ...this.userProperties, ...identifyProps };
+          newUserProps = {
+            ...this.userProperties,
+            ...identifyProps
+          };
         }
         this.__storeUser(userId, newUserProps);
-        return true;
       } else {
         this.__storeCommon(identifyProps);
       }
+      return true;
     }
 
     if (this.events.length === 0) {
@@ -114,6 +117,7 @@ export class SyftCustomPlugin implements ISyftPlugin {
     this.events.push({
       [this.userIdKey]: this.userId,
       [this.annonymousIdKey]: this.annonymousId,
+      ...this.commonProperties,
       ...this.userProperties,
       ...event
     });
