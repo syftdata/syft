@@ -137,5 +137,9 @@ export function onLoadCallback(callback: Callback): void {
     callback();
     return;
   }
-  window.addEventListener('load', callback, false);
+  if (document.readyState !== 'loading') {
+    callback();
+  } else {
+    window.addEventListener('load', callback, false);
+  }
 }
