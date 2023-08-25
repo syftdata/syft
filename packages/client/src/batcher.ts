@@ -4,7 +4,6 @@ import {
   SyftEventInstrumentStatus,
   type FullConfig,
   type IReflector,
-  type ISyftPlugin,
   SyftEventTrackStatus,
   SyftEventValidStatus
 } from './types';
@@ -23,7 +22,6 @@ export default class Batcher {
   private readonly config: FullConfig;
 
   readonly pluginLoader: PluginLoader;
-  private plugins: ISyftPlugin[] = [];
   private pendingEvents: SyftEvent[] = []; // hold events in the queue until all plugins are loaded.
   private readonly dispatcher: IEventDispatcher;
 
@@ -38,16 +36,15 @@ export default class Batcher {
     this.pluginLoader.load(reflector);
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.pluginLoader.onLoad().then(() => {
-      this.plugins = [...this.plugins, ...this.pluginLoader.plugins];
       this.__replayEvents();
     });
   }
 
   tester: TestingPlugin | undefined;
   enableTester(): void {
-    this.tester = new TestingPlugin();
-    this.plugins.push(this.tester);
     this.pluginLoader.markAsLoadingDone(this);
+    this.tester = new TestingPlugin();
+    this.pluginLoader.plugins.push(this.tester);
   }
 
   __replayEvents(): void {
@@ -57,7 +54,7 @@ export default class Batcher {
   }
 
   resetUser(): void {
-    for (const plugin of this.plugins) {
+    for (const plugin of this.pluginLoader.plugins) {
       plugin.resetUserProperties();
     }
   }
@@ -94,7 +91,7 @@ export default class Batcher {
         eventName: convertCase(orig.syft.eventName, this.config.eventNameCase)
       }
     };
-    for (const plugin of this.plugins) {
+    for (const plugin of this.pluginLoader.plugins) {
       if (!plugin.logEvent(event)) {
         return false;
       }
@@ -135,7 +132,7 @@ export default class Batcher {
   }
 
   flush(): void {
-    for (const plugin of this.plugins) {
+    for (const plugin of this.pluginLoader.plugins) {
       if (plugin.requestFlush != null) plugin.requestFlush();
     }
   }
