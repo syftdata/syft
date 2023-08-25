@@ -5,7 +5,6 @@ This document shows how to use [cloud](https://studio.syftdata.com) features
 ### Prerequisites
 
 - Checkout branch `move-recorder-to-panel`
-- Install Chrome Extension from packages/devtool-extension/dist-pkg folder.
 - Get an api-key from [sources page](https://studio.syftdata.com/sources)
 - `npx lerna add -D`
 

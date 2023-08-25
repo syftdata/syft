@@ -61,18 +61,18 @@ export class PluginLoader {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.allPluginsLoaded().then(() => {
+    this.__waitForPluginsToLoad().then(() => {
       this.markAsLoadingDone(reflector);
     });
   }
 
-  pause(time: number): Promise<void> {
+  __pause(time: number): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
-  allPluginsLoaded(time: number = 0): Promise<void> {
+  __waitForPluginsToLoad(time: number = 0): Promise<void> {
     if (this.allPlugins.every((plugin) => plugin.isLoaded())) {
       return Promise.resolve();
     }
@@ -81,9 +81,11 @@ export class PluginLoader {
         resolve();
       } else {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.pause(LOADED_CHECK_INTERVAL).then(() => {
+        this.__pause(LOADED_CHECK_INTERVAL).then(() => {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.allPluginsLoaded(time + LOADED_CHECK_INTERVAL).then(resolve);
+          this.__waitForPluginsToLoad(time + LOADED_CHECK_INTERVAL).then(
+            resolve
+          );
         });
       }
     });

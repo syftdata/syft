@@ -12,7 +12,8 @@ export enum PluginPackage {
   GA4 = 'react-ga4' as string,
   Segment = 'analytics-node' as string,
   Testing = 'testing-plugin' as string,
-  Custom = 'custom-plugin' as string
+  Custom = 'custom-plugin' as string,
+  HTTP = 'http-plugin' as string
 }
 
 export * from './Segment';
@@ -22,3 +23,4 @@ export * from './Heap';
 export * from './GA4';
 export * from './TestingPlugin';
 export * from './Custom';
+export * from './HTTP';
