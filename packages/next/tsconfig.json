@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+    "removeComments": true,
+    "importHelpers": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+
+    "noImplicitAny": false,
+    "strictNullChecks": false,    
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./lib", "./node_modules", "./src/**/*.test.ts"]
+}
