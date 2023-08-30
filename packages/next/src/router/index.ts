@@ -35,7 +35,7 @@ export type DestinationSettings = Record<string, unknown>;
 export interface DestinationConfig {
   name: string;
   settings: DestinationSettings;
-  subscriptions: Subscription[];
+  subscriptions?: Subscription[];
   destination?: Destination;
 }
 
@@ -50,21 +50,37 @@ export class SyftRouter {
     this.options.destinations.map((d) => {
       const destination = getDestination(d.name);
       if (destination != null) {
-        d.subscriptions.forEach((s) => {
-          if (destination.definition != null) {
-            const fields =
-              destination.definition.actions[s.partnerAction]?.fields;
-            if (fields != null) {
-              s.mapping = {
-                ...mapValues(
-                  fields as unknown as Record<string, Record<string, unknown>>,
-                  'default'
-                ),
-                ...s.mapping
-              };
+        if (d.subscriptions == null) {
+          // apply existing presets
+          const presets = destination.definition?.presets ?? [];
+          d.subscriptions = presets
+            .map((p) => {
+              if (p.type === 'automatic') {
+                return p;
+              }
+              return undefined;
+            })
+            .filter((s) => s != null) as Subscription[];
+        } else {
+          d.subscriptions.forEach((s) => {
+            if (destination.definition != null) {
+              const fields =
+                destination.definition.actions[s.partnerAction]?.fields;
+              if (fields != null) {
+                s.mapping = {
+                  ...mapValues(
+                    fields as unknown as Record<
+                      string,
+                      Record<string, unknown>
+                    >,
+                    'default'
+                  ),
+                  ...s.mapping
+                };
+              }
             }
-          }
-        });
+          });
+        }
         d.destination = destination;
         return destination;
       }

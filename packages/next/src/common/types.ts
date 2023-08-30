@@ -5,8 +5,7 @@ export type EventType =
   | 'identify'
   | 'group'
   | 'alias'
-  | 'screen'
-  | 'delete';
+  | 'screen';
 export type EventProps = Record<string, unknown> | never;
 export type UserTraits = Record<string, unknown> | never;
 
