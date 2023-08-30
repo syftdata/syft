@@ -7,7 +7,7 @@
       "packages/client",
       "packages/codehandler",
       "packages/cli",
-      "packages/test"
+      "packages/next"
     ]
   },
   "devDependencies": {

@@ -1,0 +1,69 @@
+{
+  "name": "@syftdata/next",
+  "version": "0.1.30",
+  "description": "Common types and functions used across Syft packages",
+  "keywords": [
+    "syft",
+    "client",
+    "events",
+    "data",
+    "instrumentation",
+    "analytics"
+  ],
+  "sideEffects": false,
+  "author": "Nageswara Rao Mannem <nageswara@syftdata.com>",
+  "homepage": "https://syftdata.com",
+  "license": "Apache-2.0",
+  "directories": {
+    "src": "./src",
+    "test": "./tests"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "./lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syftdata/syft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/syftdata/syft/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint --ext .ts src tests --fix",
+    "prepublish": "npm run build",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+  },
+  "peerDpendencies": {
+    "next": ">=11.1.0",
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "next": "13.2.4",
+    "prettier": "^2.8.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@amplitude/ua-parser-js": "^0.7.33",
+    "@segment/actions-core": "^3.81.2"
+  }
+}
