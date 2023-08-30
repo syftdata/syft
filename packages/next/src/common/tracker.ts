@@ -1,10 +1,4 @@
-import type {
-  CommonPropType,
-  ClientContextData,
-  Event,
-  EventProps,
-  EventType
-} from './types';
+import type { CommonPropType, Event, EventProps } from './types';
 import UniversalConfigStore from './configstore';
 import { type BatchUploader } from './uploader';
 import { uuid } from './utils';
@@ -14,9 +8,6 @@ import { uuid } from './utils';
  */
 export interface EventTypes {
   [key: string]: EventProps;
-  PageView: {
-    title: string;
-  };
   'OutboundLink Clicked': {
     href: string;
   };
@@ -83,6 +74,13 @@ export default class AutoTracker<E extends EventTypes> {
     this.userProperties = newUserProps;
     this.configStore.set(USER_ID_KEY, userId);
     this.configStore.set(USER_TRAITS_KEY, newUserProps);
+
+    const partialEvent = this._getPartialEvent();
+    this._logEvent({
+      event: 'User Identified',
+      type: 'identify',
+      ...partialEvent
+    });
   }
 
   setCommon(commonProperties: Record<string, CommonPropType>): void {
@@ -97,52 +95,55 @@ export default class AutoTracker<E extends EventTypes> {
     this.configStore.remove(USER_TRAITS_KEY);
   }
 
-  __getContextData(): ClientContextData {
-    return {
-      page: {
-        path: location.pathname,
-        referrer: document.referrer ?? null,
-        search: location.search,
-        title: document.title,
-        url: location.href
-      },
-      deviceWidth: window.innerWidth
-    };
+  track<N extends keyof E>(name: N, properties: E[N]): void {
+    const partialEvent = this._getPartialEvent();
+    this._logEvent({
+      event: name as string,
+      type: 'track',
+      ...partialEvent,
+      properties: {
+        ...partialEvent.properties,
+        ...properties
+      }
+    });
   }
 
-  _logEvent<N extends keyof E>(
-    name: N,
-    type: EventType,
-    properties: E[N]
-  ): void {
-    if (this == null) return;
+  pageview(): void {
+    const partialEvent = this._getPartialEvent();
+    this._logEvent({
+      event: 'Page Viewed',
+      type: 'page',
+      ...partialEvent
+    });
+  }
 
-    let event: Event | undefined = {
-      event: name as string,
+  _getPartialEvent(): Omit<Event, 'event' | 'type'> {
+    return {
       messageId: uuid(),
-      type,
       userId: this.userId,
       anonymousId: this.anonymousId,
-      context: this.__getContextData(),
+      context: {
+        page: {
+          path: location.pathname,
+          referrer: document.referrer ?? null,
+          search: location.search,
+          title: document.title,
+          url: location.href
+        },
+        deviceWidth: window.innerWidth
+      },
       properties: {
-        ...this.commonProperties,
-        ...properties
+        ...this.commonProperties
       },
       traits: this.userProperties,
       timestamp: new Date()
     };
+  }
 
-    event = this.options.middleware(event);
-    if (event != null) {
-      this.options.uploader.addToQueue(event);
+  _logEvent(event: Event): void {
+    const _event = this.options.middleware(event);
+    if (_event != null) {
+      this.options.uploader.addToQueue(_event);
     }
-  }
-
-  track<N extends keyof E>(name: N, properties: E[N]): void {
-    this._logEvent(name, 'track', properties);
-  }
-
-  pageview(): void {
-    this._logEvent('PageView', 'page', { title: document.title });
   }
 }

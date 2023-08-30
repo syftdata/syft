@@ -64,6 +64,7 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.33",
+    "@segment/action-destinations": "^3.205.2",
     "@segment/actions-core": "^3.81.2"
   }
 }
