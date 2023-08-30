@@ -41,10 +41,13 @@ jobs:
       - run: cd packages/codehandler;npm publish --access public;cd ../../;
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/test;npm publish --access public;cd ../../;
+      # - run: cd packages/test;npm publish --access public;cd ../../;
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: cd packages/cli;npm publish --access public;cd ../../;
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/cli;npm publish --access public;cd ../../;
+      - run: cd packages/next;npm publish --access public;cd ../../;
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
