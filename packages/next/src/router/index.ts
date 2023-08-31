@@ -7,6 +7,7 @@ import { type UploadRequest, type ServerEvent } from '../common/types';
 import type { SegmentEvent, Destination } from '@segment/actions-core';
 import { getDestination } from './destinations';
 import { mapValues } from '../common/utils';
+import { userAgentFromString } from 'next/server';
 
 interface Subscription {
   partnerAction: string;
@@ -107,7 +108,7 @@ export class SyftRouter {
             version
           },
           userAgent: userAgent ?? 'N/A',
-          // _userAgent: userAgentFromString(userAgentStr),
+          userAgentData: userAgentFromString(userAgent),
           ip: ip ?? 'N/A'
         },
         sentAt,

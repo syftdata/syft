@@ -12,7 +12,6 @@ export function usePageViews({
   hashMode = true,
   enabled = true
 }: UsePageViewsOptions): void {
-  console.log('Use Page Views');
   useEffect(() => {
     if (!enabled) {
       return;

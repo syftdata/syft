@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import type AutoTracker from '../common/tracker';
-import { type EventTypes } from '../common/tracker';
+import { type EventTypes } from '../common/event_types';
 import { SyftContext } from '../components/SyftProvider';
 
 export const useSyft = <E extends EventTypes>(): AutoTracker<E> => {
