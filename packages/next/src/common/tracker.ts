@@ -11,11 +11,11 @@ import type {
 } from './event_types';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
-const COMMON_PROPERTIES_KEY = 'common_properties';
+const COMMON_PROPERTIES_KEY = 'common_props';
 const USER_ID_KEY = 'user_id';
 const USER_TRAITS_KEY = 'user_traits';
 const GROUP_ID_KEY = 'group_id';
-
+const GROUP_TRAITS_KEY = 'group_traits';
 /**
  * Options used when initializing the tracker.
  */
@@ -33,6 +33,7 @@ export default class AutoTracker<E extends EventTypes> {
   userId: string | undefined;
   userTraits: UserTraits = {};
   groupId: string | undefined;
+  groupTraits: GroupTraits = {};
 
   constructor(options: InitOptions) {
     this.options = options;
@@ -52,6 +53,11 @@ export default class AutoTracker<E extends EventTypes> {
         CommonPropType
       >) ?? {};
     this.groupId = this.configStore.get(GROUP_ID_KEY) as string;
+    this.groupTraits =
+      (this.configStore.get(GROUP_TRAITS_KEY) as Record<
+        string,
+        CommonPropType
+      >) ?? {};
     this.commonProperties =
       (this.configStore.get(COMMON_PROPERTIES_KEY) as Record<
         string,
@@ -121,14 +127,16 @@ export default class AutoTracker<E extends EventTypes> {
 
   group(
     groupId: string,
-    groupProperties: GroupTraits = {},
+    traits: GroupTraits = {},
     options?: EventOptions,
     integrations?: unknown
   ): void {
     // TODO: de-dupe calls
 
     this.groupId = groupId;
+    this.groupTraits = traits;
     this.configStore.set(GROUP_ID_KEY, groupId);
+    this.configStore.set(GROUP_TRAITS_KEY, traits);
 
     const partialEvent = this._getPartialEvent();
     this._logEvent(
@@ -140,7 +148,7 @@ export default class AutoTracker<E extends EventTypes> {
           ...partialEvent.context,
           traits: undefined
         },
-        traits: groupProperties
+        traits
       },
       options,
       integrations
@@ -152,13 +160,17 @@ export default class AutoTracker<E extends EventTypes> {
     this.configStore.set(COMMON_PROPERTIES_KEY, commonProperties);
   }
 
-  resetUser(): void {
-    this.userTraits = {};
+  reset(): void {
     this.userId = undefined;
+    this.userTraits = {};
     this.groupId = undefined;
+    this.groupTraits = {};
+    this.commonProperties = {};
     this.configStore.remove(USER_ID_KEY);
     this.configStore.remove(GROUP_ID_KEY);
     this.configStore.remove(USER_TRAITS_KEY);
+    this.configStore.remove(GROUP_TRAITS_KEY);
+    this.configStore.remove(COMMON_PROPERTIES_KEY);
   }
 
   track<N extends keyof E>(
@@ -252,6 +264,7 @@ export default class AutoTracker<E extends EventTypes> {
         ...event,
         context: {
           ...event.context,
+          locale: navigator.language,
           page: {
             path: location.pathname,
             referrer: document.referrer ?? null,

@@ -110,11 +110,9 @@ export class SyftRouter {
     const { events, version, sentAt } = req;
     const receivedAt = new Date();
     const serverEvents = events.map((e): ServerEvent => {
-      const { context, event, ...rest } = e;
+      const { context, ...rest } = e;
       return {
         ...rest,
-        event,
-        name: event,
         context: {
           ...context,
           library: {
@@ -161,7 +159,7 @@ export class SyftRouter {
   ): void {
     const dest = destination.destination;
     if (dest == null) {
-      console.error(`Destination ${destination.name} is not loaded`);
+      console.error(`Destination ${destination.name} is not found!`);
       return;
     }
     const settings: any = {
@@ -169,10 +167,13 @@ export class SyftRouter {
       subscriptions: destination.subscriptions
     };
 
-    const eventPromises = events.map((e) =>
+    const eventPromises = events.map((e) => {
+      console.debug(`
+      sending ${JSON.stringify(e, null, 2)} to ${destination.name}. 
+      ${JSON.stringify(settings, null, 2)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      dest.onEvent(e as SegmentEvent, settings)
-    );
+      return dest.onEvent(e as SegmentEvent, settings);
+    });
     Promise.all(eventPromises).catch((e) => {
       console.error(`error sending to destination ${destination.name}`, e);
     });

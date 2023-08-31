@@ -106,7 +106,7 @@ export interface Event {
 }
 
 export interface ServerEvent extends Omit<Event, 'context'> {
-  name: string;
+  name?: string;
   context: ServerContextData;
   receivedAt: string | Date;
   sentAt: string | Date;
