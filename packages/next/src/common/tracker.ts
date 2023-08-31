@@ -1,12 +1,13 @@
-import type { CommonPropType, Event } from './types';
+import type { Event, EventOptions } from './types';
 import UniversalConfigStore from './configstore';
 import { type BatchUploader } from './uploader';
-import { uuid } from './utils';
+import { isBrowser, uuid } from './utils';
 import type {
-  PageViewProps,
+  CommonPropType,
   EventTypes,
   GroupTraits,
-  UserTraits
+  UserTraits,
+  EventType
 } from './event_types';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
@@ -30,7 +31,7 @@ export default class AutoTracker<E extends EventTypes> {
   anonymousId: string;
   commonProperties: Record<string, CommonPropType> = {};
   userId: string | undefined;
-  userProperties: UserTraits = {};
+  userTraits: UserTraits = {};
   groupId: string | undefined;
 
   constructor(options: InitOptions) {
@@ -45,7 +46,7 @@ export default class AutoTracker<E extends EventTypes> {
     }
 
     this.userId = this.configStore.get(USER_ID_KEY) as string;
-    this.userProperties =
+    this.userTraits =
       (this.configStore.get(USER_TRAITS_KEY) as Record<
         string,
         CommonPropType
@@ -58,53 +59,92 @@ export default class AutoTracker<E extends EventTypes> {
       >) ?? {};
   }
 
-  identify(userId: string, userProperties: UserTraits = {}): void {
+  identify(
+    userId: string,
+    traits: UserTraits = {},
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
     // TODO: de-dupe calls
 
-    let newUserProps = userProperties;
+    let newTraits = traits;
     if (this.userId == null || this.userId === userId) {
-      newUserProps = {
-        ...this.userProperties,
-        ...userProperties
+      newTraits = {
+        ...this.userTraits,
+        ...traits
       };
     }
 
     this.userId = userId;
-    this.userProperties = newUserProps;
+    this.userTraits = newTraits;
     this.configStore.set(USER_ID_KEY, userId);
-    this.configStore.set(USER_TRAITS_KEY, newUserProps);
+    this.configStore.set(USER_TRAITS_KEY, newTraits);
 
     const partialEvent = this._getPartialEvent();
-    this._logEvent({
-      ...partialEvent,
-      event: 'User Identified',
-      type: 'identify',
-      context: {
-        ...partialEvent.context,
-        traits: undefined
+    this._logEvent(
+      {
+        ...partialEvent,
+        type: 'identify',
+        context: {
+          ...partialEvent.context,
+          traits: undefined
+        },
+        traits: newTraits
       },
-      traits: newUserProps
-    });
+      options,
+      integrations
+    );
   }
 
-  group(groupId: string, groupProperties: GroupTraits = {}): void {
+  alias(
+    to: string,
+    from?: string,
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    const partialEvent = this._getPartialEvent();
+    this._logEvent(
+      {
+        ...partialEvent,
+        type: 'alias',
+        userId: to,
+        previousId: from,
+        context: {
+          ...partialEvent.context,
+          traits: undefined
+        }
+      },
+      options,
+      integrations
+    );
+  }
+
+  group(
+    groupId: string,
+    groupProperties: GroupTraits = {},
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
     // TODO: de-dupe calls
 
     this.groupId = groupId;
     this.configStore.set(GROUP_ID_KEY, groupId);
 
     const partialEvent = this._getPartialEvent();
-    this._logEvent({
-      ...partialEvent,
-      event: 'Group Identified',
-      type: 'group',
-      groupId,
-      context: {
-        ...partialEvent.context,
-        traits: undefined
+    this._logEvent(
+      {
+        ...partialEvent,
+        type: 'group',
+        groupId,
+        context: {
+          ...partialEvent.context,
+          traits: undefined
+        },
+        traits: groupProperties
       },
-      traits: groupProperties
-    });
+      options,
+      integrations
+    );
   }
 
   setCommon(commonProperties: Record<string, CommonPropType>): void {
@@ -113,7 +153,7 @@ export default class AutoTracker<E extends EventTypes> {
   }
 
   resetUser(): void {
-    this.userProperties = {};
+    this.userTraits = {};
     this.userId = undefined;
     this.groupId = undefined;
     this.configStore.remove(USER_ID_KEY);
@@ -121,75 +161,118 @@ export default class AutoTracker<E extends EventTypes> {
     this.configStore.remove(USER_TRAITS_KEY);
   }
 
-  track<N extends keyof E>(name: N, properties: E[N]): void {
+  track<N extends keyof E>(
+    name: N,
+    properties: E[N],
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
     const partialEvent = this._getPartialEvent();
-    this._logEvent({
-      ...partialEvent,
-      event: name as string,
-      type: 'track',
-      properties: {
-        ...partialEvent.properties,
-        ...properties
-      }
-    });
+    this._logEvent(
+      {
+        ...partialEvent,
+        event: name as string,
+        type: 'track',
+        properties: {
+          ...partialEvent.properties,
+          ...properties
+        }
+      },
+      options,
+      integrations
+    );
   }
 
-  page(props: PageViewProps = {}): void {
+  _page(
+    type: EventType,
+    category?: string,
+    name?: string,
+    props?: E['page'],
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
     const partialEvent = this._getPartialEvent();
-    const { name, ...rest } = props;
-    this._logEvent({
-      ...partialEvent,
-      event: 'Page Viewed',
-      type: 'page',
-      name,
-      properties: {
-        ...partialEvent.properties,
-        ...rest
-      }
-    });
+    this._logEvent(
+      {
+        ...partialEvent,
+        event: type,
+        type,
+        name,
+        properties: {
+          ...partialEvent.properties,
+          ...props,
+          category
+        }
+      },
+      options,
+      integrations
+    );
   }
 
-  screen(props: PageViewProps = {}): void {
-    const partialEvent = this._getPartialEvent();
-    const { name, ...rest } = props;
-    this._logEvent({
-      ...partialEvent,
-      event: 'Screen Viewed',
-      type: 'screen',
-      name,
-      properties: {
-        ...partialEvent.properties,
-        ...rest
-      }
-    });
+  page(
+    category?: string,
+    page?: string,
+    props?: E['page'],
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    this._page('page', category, page, props, options, integrations);
   }
 
-  _getPartialEvent(): Omit<Event, 'event' | 'type'> {
-    return {
+  screen(
+    category?: string,
+    screen?: string,
+    props?: E['page'],
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    this._page('screen', category, screen, props, options, integrations);
+  }
+
+  _getPartialEvent(
+    options?: EventOptions,
+    integrations?: unknown
+  ): Omit<Event, 'event' | 'type'> {
+    const event = {
       messageId: uuid(),
-      userId: this.userId,
-      anonymousId: this.anonymousId,
+      userId: options?.userId ?? this.userId,
+      anonymousId: options?.anonymousId ?? this.anonymousId,
       context: {
+        ...options?.context,
         groupId: this.groupId,
-        page: {
-          path: location.pathname,
-          referrer: document.referrer ?? null,
-          search: location.search,
-          title: document.title,
-          url: location.href
-        },
-        deviceWidth: window.innerWidth,
-        traits: this.userProperties
+        traits: this.userTraits
       },
       properties: {
         ...this.commonProperties
       },
-      timestamp: new Date()
+      timestamp: options?.timestamp ?? new Date()
     };
+    if (isBrowser()) {
+      return {
+        ...event,
+        context: {
+          ...event.context,
+          page: {
+            path: location.pathname,
+            referrer: document.referrer ?? null,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          },
+          deviceWidth: window.innerWidth
+        }
+      };
+    }
+    return event;
   }
 
-  _logEvent(event: Event): void {
-    const _event = this.options.middleware(event);
+  _logEvent(
+    event: Event,
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    let _event: Event | undefined = event;
+    _event = this.options.middleware(_event);
     if (_event != null) {
       this.options.uploader.addToQueue(_event);
     }

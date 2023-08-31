@@ -50,38 +50,52 @@ export class SyftRouter {
   constructor(private readonly options: SyftRouterOptions) {
     this.options.destinations.map((d) => {
       const destination = getDestination(d.name);
-      if (destination != null) {
+      if (destination?.definition != null) {
         if (d.subscriptions == null) {
           // apply existing presets
-          const presets = destination.definition?.presets ?? [];
-          d.subscriptions = presets
-            .map((p) => {
-              if (p.type === 'automatic') {
-                return p;
+          const presets = destination.definition.presets;
+          if (presets != null) {
+            d.subscriptions = presets
+              .map((p) => {
+                if (p.type === 'automatic') {
+                  return p;
+                }
+                return undefined;
+              })
+              .filter((s) => s != null) as Subscription[];
+          } else {
+            Object.entries(destination.definition.actions).forEach(
+              ([name, action]) => {
+                if (action.defaultSubscription != null) {
+                  d.subscriptions?.push({
+                    partnerAction: name,
+                    subscribe: action.defaultSubscription
+                  });
+                }
               }
-              return undefined;
-            })
-            .filter((s) => s != null) as Subscription[];
-        } else {
-          d.subscriptions.forEach((s) => {
-            if (destination.definition != null) {
-              const fields =
-                destination.definition.actions[s.partnerAction]?.fields;
-              if (fields != null) {
-                s.mapping = {
-                  ...mapValues(
-                    fields as unknown as Record<
-                      string,
-                      Record<string, unknown>
-                    >,
-                    'default'
-                  ),
-                  ...s.mapping
-                };
-              }
+            );
+          }
+        }
+
+        d.subscriptions?.forEach((s) => {
+          // if mapping is provided by the user or preset, dont override it.
+          if (s.mapping != null) return;
+          const fields =
+            destination.definition.actions[s.partnerAction]?.fields;
+          const newMapping = mapValues(
+            fields as unknown as Record<string, Record<string, unknown>>,
+            'default'
+          );
+          // for undefined fields, set it to look it up in the event as a fallback.
+          Object.keys(newMapping).forEach((k) => {
+            if (newMapping[k] === undefined) {
+              newMapping[k] = {
+                '@path': `$.${k}`
+              };
             }
           });
-        }
+          s.mapping = newMapping;
+        });
         d.destination = destination;
         return destination;
       }

@@ -6,6 +6,18 @@ export type EventType =
   | 'alias'
   | 'screen';
 export type EventProps = Record<string, unknown> | never;
+
+/**
+ * A map of event names to their properties.
+ */
+export interface EventTypes {
+  [key: string]: EventProps;
+  page: Record<string, CommonPropType>;
+  'OutboundLink Clicked': {
+    href: string;
+  };
+}
+
 export type CommonPropType =
   | string
   | number
@@ -13,22 +25,6 @@ export type CommonPropType =
   | Date
   | undefined
   | null;
-
-/**
- * A map of event names to their properties.
- */
-export interface EventTypes {
-  [key: string]: EventProps;
-  'OutboundLink Clicked': {
-    href: string;
-  };
-}
-
-export interface PageViewProps {
-  [key: string]: unknown;
-  category?: string;
-  name?: string;
-}
 
 interface Address {
   street?: string;

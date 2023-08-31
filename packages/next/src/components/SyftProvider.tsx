@@ -48,8 +48,8 @@ export const SyftProvider = <E extends EventTypes>(
   usePageViews({
     hashMode: props.hashMode,
     enabled: enabled && props.trackPageviews === true && isBrowser(),
-    callback: () => {
-      tracker?.page();
+    callback: (url) => {
+      tracker?.page(undefined, url.toString());
     }
   });
 

@@ -1,17 +1,25 @@
 import {
   type UserTraits,
   type EventProps,
-  type EventType
+  type EventType,
+  type CommonPropType,
+  type GroupTraits
 } from './event_types';
 
-export type CommonPropType = string | number | boolean | undefined | null;
+export interface EventOptions {
+  [key: string]: CommonPropType | Partial<ClientContextData>;
+  userId?: string;
+  anonymousId?: string;
+  timestamp?: string | Date;
+  context: Partial<ClientContextData>;
+}
 
 /**
  * Data passed to Plausible as events.
  */
 export interface ClientContextData {
   groupId?: string;
-  page: {
+  page?: {
     path: string;
     referrer: Document['referrer'] | null;
     search?: string;
@@ -77,15 +85,22 @@ export interface ServerContextData extends ClientContextData {
 }
 
 export interface Event {
+  messageId?: string;
+
+  // identity
+  anonymousId: string;
   userId?: string;
   groupId?: string;
-  messageId?: string;
-  anonymousId: string;
-  event: string;
+  previousId?: string; // for alias call.
+
   type: EventType;
-  properties: EventProps;
+  event?: string; // optional for page / screen / identify / group calls
   name?: string;
-  traits?: UserTraits;
+  category?: string; // for page / screen
+
+  properties: EventProps;
+
+  traits?: UserTraits | GroupTraits; // applicable for group and identify calls.
   context: ClientContextData;
   timestamp: string | Date;
 }
