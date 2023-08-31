@@ -1,0 +1,77 @@
+export type EventType =
+  | 'page'
+  | 'track'
+  | 'identify'
+  | 'group'
+  | 'alias'
+  | 'screen';
+export type EventProps = Record<string, unknown> | never;
+export type CommonPropType =
+  | string
+  | number
+  | boolean
+  | Date
+  | undefined
+  | null;
+
+/**
+ * A map of event names to their properties.
+ */
+export interface EventTypes {
+  [key: string]: EventProps;
+  'OutboundLink Clicked': {
+    href: string;
+  };
+}
+
+export interface PageViewProps {
+  [key: string]: unknown;
+  category?: string;
+  name?: string;
+}
+
+interface Address {
+  street?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  region?: string;
+}
+
+export interface UserTraits {
+  [key: string]: CommonPropType | Address | GroupTraits;
+  id?: string; // Unique ID in your database for a user
+  address?: Address; // Street address of a user optionally containing: city, country, postalCode, state, or street
+  age?: number; // Age of a user
+  avatar?: string; // URL to an avatar image for the user
+  birthday?: Date | string; // User’s birthday. ISO-8601 date strings / Date object.
+  createdAt?: Date | string; // Date the user’s account was first created. ISO-8601 date strings / Date object.
+  description?: string; // Description of the user
+  email?: string; // Email address of the user
+  firstName?: string; // First name of the user
+  lastName?: string; // Last name of the user
+  gender?: string; // Gender of a user
+  name?: string; // Full name of the user
+  phone?: string; // Phone number of the user
+  title?: string; // Title of a user, usually related to their position at a specific company. Example: “VP of Engineering”
+  username?: string; // User’s username. This should be unique to each user, like the usernames of Twitter or GitHub.
+  website?: string; // URL of the user’s website
+  company?: GroupTraits; // Company traits associated with a user
+}
+
+export interface GroupTraits {
+  [key: string]: CommonPropType | Address;
+  id?: string; // Unique ID in your database for a group
+  address?: Address; // Street address of a group. optionally containing: city, country, postalCode, state, or street
+  avatar?: string; // URL to an avatar image for the user
+  createdAt?: Date | string; // Date the user’s account was first created. ISO-8601 date strings / Date object.
+  description?: string; // Description of the user
+  email?: string; // Email address of the user
+  employees?: number; // Number of employees of a group, typically used for companies.
+  industry?: string; // Industry the group is in, typically used for companies.
+  name?: string; // Full name of the group
+  phone?: string; // Phone number of the group
+  website?: string; // URL of the group’s website
+  plan?: string; // Name of the plan the group is on, typically used for SaaS companies.
+}

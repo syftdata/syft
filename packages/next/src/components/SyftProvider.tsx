@@ -1,9 +1,10 @@
-import React, { createContext, type ReactNode } from "react";
-import { isBrowser } from "../common/utils";
-import AutoTracker, { type EventTypes } from "../common/tracker";
-import type { Event } from "../common/types";
-import { BatchUploader } from "../common/uploader";
-import { useLinkClicks, usePageViews } from "../hooks";
+import React, { createContext, type ReactNode } from 'react';
+import { isBrowser } from '../common/utils';
+import AutoTracker from '../common/tracker';
+import type { Event } from '../common/types';
+import type { EventTypes } from '../common/event_types';
+import { BatchUploader } from '../common/uploader';
+import { useLinkClicks, usePageViews } from '../hooks';
 
 export interface ProviderProps {
   children?: ReactNode | ReactNode[];
@@ -35,12 +36,12 @@ export const SyftProvider = <E extends EventTypes>(
   if (tracker == null && enabled) {
     // pass the url based on the proxy options.
     uploader = new BatchUploader({
-      url: props.uploadPath ?? "/api/syft",
-      batchSize: 1,
+      url: props.uploadPath ?? '/api/syft',
+      batchSize: 1
     });
     tracker = new AutoTracker<E>({
       uploader,
-      middleware: props.middleware ?? ((event) => event),
+      middleware: props.middleware ?? ((event) => event)
     });
   }
 
@@ -48,15 +49,15 @@ export const SyftProvider = <E extends EventTypes>(
     hashMode: props.hashMode,
     enabled: enabled && props.trackPageviews === true && isBrowser(),
     callback: () => {
-      tracker?.pageview();
-    },
+      tracker?.page();
+    }
   });
 
   useLinkClicks({
     enabled: enabled && props.trackOutboundLinks === true && isBrowser(),
     callback: (href) => {
-      tracker?.track("OutboundLink Clicked", { href });
-    },
+      tracker?.track('OutboundLink Clicked', { href });
+    }
   });
 
   if (!enabled) {

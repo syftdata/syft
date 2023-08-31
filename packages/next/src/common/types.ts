@@ -1,18 +1,16 @@
-export type CommonPropType = string | number | boolean | undefined;
-export type EventType =
-  | 'page'
-  | 'track'
-  | 'identify'
-  | 'group'
-  | 'alias'
-  | 'screen';
-export type EventProps = Record<string, unknown> | never;
-export type UserTraits = Record<string, unknown> | never;
+import {
+  type UserTraits,
+  type EventProps,
+  type EventType
+} from './event_types';
+
+export type CommonPropType = string | number | boolean | undefined | null;
 
 /**
  * Data passed to Plausible as events.
  */
 export interface ClientContextData {
+  groupId?: string;
   page: {
     path: string;
     referrer: Document['referrer'] | null;
@@ -74,16 +72,19 @@ export interface ServerContextData extends ClientContextData {
     version: string;
   };
   userAgent: string;
+  userAgentData?: object;
   ip: string;
 }
 
 export interface Event {
   userId?: string;
+  groupId?: string;
   messageId?: string;
   anonymousId: string;
   event: string;
   type: EventType;
   properties: EventProps;
+  name?: string;
   traits?: UserTraits;
   context: ClientContextData;
   timestamp: string | Date;

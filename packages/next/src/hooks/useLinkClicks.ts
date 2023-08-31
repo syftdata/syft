@@ -19,7 +19,6 @@ export function useLinkClicks({
     attributeFilter: ['href']
   }
 }: UseLinkClicksOptions): void {
-  console.log('Use Link Clicks');
   useEffect(() => {
     if (!enabled) {
       return;
