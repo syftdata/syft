@@ -225,10 +225,10 @@ export default class AutoTracker<E extends EventTypes> {
     this._logEvent(
       {
         ...partialEvent,
-        event: type,
         type,
         name,
         properties: {
+          ...partialEvent.context.page,
           ...partialEvent.properties,
           ...props,
           category
