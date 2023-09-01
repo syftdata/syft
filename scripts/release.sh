@@ -13,7 +13,7 @@ if [ -n "$files" ]; then
 	git add *
 	git commit -m "fix package lock file"
 fi
-git push origin $curr_branch
+git push origin $curr_branch --force
 
 # open pull request with main.
 open https://github.com/syftdata/syft/pull/new/$curr_branch

@@ -5,15 +5,12 @@
 
 import { type UploadRequest, type ServerEvent } from '../common/types';
 import type { SegmentEvent, Destination } from '@segment/actions-core';
-import { getDestination } from './destinations';
-import { mapValues } from '../common/utils';
+import {
+  type Subscription,
+  generateMappings,
+  getDestination
+} from './destinations';
 import { userAgentFromString } from 'next/server';
-
-interface Subscription {
-  partnerAction: string;
-  subscribe: string;
-  mapping?: Record<string, unknown>;
-}
 
 interface RequestData {
   ip?: string;
@@ -48,7 +45,7 @@ export interface SyftRouterOptions {
 
 export class SyftRouter {
   constructor(private readonly options: SyftRouterOptions) {
-    this.options.destinations.map((d) => {
+    this.options.destinations.forEach((d) => {
       const destination = getDestination(d.name);
       if (destination?.definition != null) {
         if (d.subscriptions == null) {
@@ -63,43 +60,16 @@ export class SyftRouter {
                 return undefined;
               })
               .filter((s) => s != null) as Subscription[];
-          } else {
-            Object.entries(destination.definition.actions).forEach(
-              ([name, action]) => {
-                if (action.defaultSubscription != null) {
-                  d.subscriptions?.push({
-                    partnerAction: name,
-                    subscribe: action.defaultSubscription
-                  });
-                }
-              }
-            );
           }
         }
 
         d.subscriptions?.forEach((s) => {
-          // if mapping is provided by the user or preset, dont override it.
-          if (s.mapping != null) return;
-          const fields =
-            destination.definition.actions[s.partnerAction]?.fields;
-          const newMapping = mapValues(
-            fields as unknown as Record<string, Record<string, unknown>>,
-            'default'
-          );
-          // for undefined fields, set it to look it up in the event as a fallback.
-          Object.keys(newMapping).forEach((k) => {
-            if (newMapping[k] === undefined) {
-              newMapping[k] = {
-                '@path': `$.${k}`
-              };
-            }
-          });
-          s.mapping = newMapping;
+          generateMappings(d.name, destination.definition, s);
         });
         d.destination = destination;
-        return destination;
+      } else {
+        console.error(`Destination ${d.name} is not found!`);
       }
-      return undefined;
     });
   }
 
@@ -110,11 +80,9 @@ export class SyftRouter {
     const { events, version, sentAt } = req;
     const receivedAt = new Date();
     const serverEvents = events.map((e): ServerEvent => {
-      const { context, event, ...rest } = e;
+      const { context, ...rest } = e;
       return {
         ...rest,
-        event,
-        name: event,
         context: {
           ...context,
           library: {
@@ -161,7 +129,7 @@ export class SyftRouter {
   ): void {
     const dest = destination.destination;
     if (dest == null) {
-      console.error(`Destination ${destination.name} is not loaded`);
+      console.error(`Destination ${destination.name} is not found!`);
       return;
     }
     const settings: any = {
@@ -169,10 +137,13 @@ export class SyftRouter {
       subscriptions: destination.subscriptions
     };
 
-    const eventPromises = events.map((e) =>
+    const eventPromises = events.map((e) => {
+      // console.debug(`
+      // sending ${JSON.stringify(e, null, 2)} to ${destination.name}.
+      // ${JSON.stringify(settings, null, 2)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      dest.onEvent(e as SegmentEvent, settings)
-    );
+      return dest.onEvent(e as SegmentEvent, settings);
+    });
     Promise.all(eventPromises).catch((e) => {
       console.error(`error sending to destination ${destination.name}`, e);
     });

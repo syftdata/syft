@@ -2,17 +2,20 @@
 
 ## Introduction
 
-This is a [next.js](https://nextjs.org) library to capture rich analytics events with high-quality and without vendor lock-in. 
+This is a [next.js](https://nextjs.org) library to capture rich analytics events with high-quality and without vendor lock-in.
 
 ### Data Quality
+
 - Prevent data loss from Ad blockers: This library will automatically proxy events through your nextjs backend.
 - Guarantee type safety: The library can leverage Typescript types to ensure events and fields adhere to a contract.
-  
+
 ### No Lock-In
+
 - Universal vendor-neutral API: A Segment-like API to log events in standard format. The same API can be used for client and server-side logging.
 - Full control over your data: You can route events to multiple data destinations e.g. warehouses, CDP, analytics platforms with simple configuration. It acts as a lightweight-CDP similar to Segment.
 
 ### Rich events
+
 - Enrich collected events on server-side state (e.g. from database) with transforms.
 - Automatically collect page events and standard fields on each event.
 
@@ -29,8 +32,8 @@ npm install --save @syftdata/next
 To enable Syft in your app you'll need to expose the Syft context. Include `<SyftProvider />`, at the top level of your application inside [`_app.js`](https://nextjs.org/docs/advanced-features/custom-app):
 
 ```jsx
-// pages/_app.js
-import SyftProvider from "@syftdata/next";
+// pages/_app.tsx
+import SyftProvider from '@syftdata/next';
 
 export default function MyApp({ Component, pageProps }) {
   return (
@@ -44,39 +47,75 @@ export default function MyApp({ Component, pageProps }) {
 If are using [the app directory](https://beta.nextjs.org/docs/routing/fundamentals#the-app-directory) include `SyftProvider` inside the root layout:
 
 ```jsx
-// app/layout.js
-import SyftProvider from "@syftdata/next";
+// app/layout.tsx
+import SyftProvider from '@syftdata/next';
 
 export default function RootLayout({ children }) {
   return (
     <html>
-      <head>
-        <SyftProvider />
-      </head>
-      <body>{children}</body>
+      <body>
+        <SyftProvider>{children}</SyftProvider>
+      </body>
     </html>
   );
 }
 ```
 
-### Collect Events
-Use the `track()` method.
+### Identity Management
+
+Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage so that the developer has access to it both on the server and the client. This annonymous-id gets included in every event that is generated.
+
+Annonymous-id get reset when an user clears their cookies and local-storage.
+
+#### Identify your users.
+
+Use the `identify()` method to identify your product's users. This will help you track users who are triggering events. An example usage looks like this:
 
 ```jsx
-import { useSyft } from "@syftdata/next";
+import { useSyft } from '@syftdata/next';
+
+const syft = useSyft();
+useEffect(() => {
+  if (user != null) {
+    syft.identify(user.id, {
+      email: user.email
+    });
+  }
+}, [syft, user]);
+```
+
+#### Identify your users' companies.
+
+Use the `group()` method to identify your user's groups / companies. **NOTE:** always call identify before calling group.
+
+```jsx
+import { useSyft } from '@syftdata/next';
+
+const syft = useSyft();
+useEffect(() => {
+  if (user != null) {
+    syft.group(user.orgId, {
+      name: user.orgName
+    });
+  }
+}, [syft, user]);
+```
+
+### Collect Custom Events
+
+Use the `track()` method to log custom events.
+
+```jsx
+import { useSyft } from '@syftdata/next';
 
 export default function MyButton() {
-  const { track } = useSyft();
-
+  const syft = useSyft();
   return (
     <>
       <button
-        id="foo"
         onClick={() =>
-          track("customEventName", {
-            props: {
-              buttonId: "foo",
-            },
+          syft.track('Button Clicked', {
+            buttonId: 'foo'
           })
         }
       >
@@ -87,83 +126,66 @@ export default function MyButton() {
 }
 ```
 
-### Event Routing 
-You can route events to multiple destinations with a simple configuration. You can also set controls such as event filtering and sampling.
+### Event Routing Setup
 
-```js
-const { withSyft } = require("@syftdata/next");
+You can route events to multiple destinations with a simple configuration. Create an API endpoint (/api/syft) by creating the file with the below code. This example shows routing events to June. (You can do more cool stuff like sending slack alerts when a user becomes active / runs into a problem.)
 
-module.exports = withSyft({
-  destinations: [
-    {
-      type: "Amplitude",
-      api_key: "<Amplitude Key>",
-      exclude: ["UserAuth*", "PaymentInfo*"], // filters out UserAuth and PaymentInfo events.
-      samplingRate: 10, // samples the data by 10%.
-      samplingKey: ["user_id", "device_id"], // leave empty if you want sampling to be random.
-    },
-    {
-      type: "Bigquery",
-      projectId: "my-favorite-app",
-      dataset: "product",
-      key: "<secret>",
-    },
-  ],
-})({
-  // ...your next js config, if any
-});
+```ts
+// pages/api/syft.ts
+import { type NextApiRequest, type NextApiResponse } from 'next';
+import { NextSyftServer } from '@syftdata/next/lib/next';
+
+const destinations = [
+  {
+    name: 'june',
+    settings: {
+      apiKey: 'xxxx'
+    }
+  }
+];
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const server = new NextSyftServer({
+    destinations
+  });
+  await server.handlePageApi(req, res);
+}
 ```
 
 #### Proxying events
 
-To avoid being blocked by adblockers, all analytics providers recommend serving their scripts (amplitude/segment/mixpanel/ga) and upload events via a proxy server. This library takes care of that behind the scenes. `withSyft` will set up the necessary rewrites and configure `SyftProvider` to use the local URLs so you don't have to make any changes in the client app.
-
-**Notes:**
-
-- Proxying will only work if you serve your site using `next start`. Statically generated sites won't be able to rewrite the requests.
+To avoid being blocked by adblockers, all analytics providers recommend serving their scripts (amplitude/segment/mixpanel/ga) and upload events via a proxy server. This library takes care of that behind the scenes.
 
 ### Event Transformations / Enrichment
 
-You can define event transformations in TypeScript with the same conventions as request middleware. You'd write a file called syft/transformations.ts
+You can define event transformations and enrichments on the backend. You can query your DB and denormalize your events.
 
 ```js
-import { SyftEvent } from "@syftdata/client";
-
-export function transform(event: SyftEvent) {
-  event.revenue = Number(event.revenue);
-  if (event.eventName.startsWith("OrderCancelled")) {
-    event.cancelledAt = new Date();
+const server = new NextSyftServer({
+  destinations,
+  enricher: (event) => {
+    event.context.ab_featurex_enabled = true;
   }
-  if (event.eventName.startsWith("OrderPlaced")) {
-    // get product title if it is missing.
-    if (event.products.forEach(product => {
-        if (product.name == null) {
-            product.name = queryProduct(product.id)?.title;
-        }
-    }))
-  }
-  return event;
-}
-
-export const config = {
-  matcher: "Order*",
-};
+});
 ```
 
 ### Type safety
 
-If you use Typescript you can type check your custom events like this:
+If you use Typescript you can enable type check to your events like below:
 
-```tsx
-import { useSyft } from "@syft/next";
+```jsx
+import { useSyft } from '@syft/next';
 
-type MyEvents = {
-  customEventName: { buttonId?: string };
-  event2: { prop2: string; prop3: number };
-  event3: never;
+type EventDefs = {
+  page: never;
+  "OutboundLink Clicked": { href: string };
+  "Button Clicked": { buttonId?: string };
 };
 
-const syft = useSyft<MyEvents>();
+const syft = useSyft<EventDefs>();
+syft.track("Button Clicked", { buttonId: 10}); // this throws error as buttonId type is incompatible.
 ```
 
 Only those events with the right props will be allowed to be sent using the `syft` function.
@@ -173,41 +195,28 @@ Only those events with the right props will be allowed to be sent using the `syf
 To track page views set the `trackPageViews` prop of the `SyftProvider` component to true.
 
 ```js
-// pages/_app.js
-...
-    <SyftProvider trackPageViews />
-...
+// pages/_app.jsx
+<SyftProvider trackPageViews />
 ```
 
-By default it will be trigger on hash changes if `trackPageViews` is enabled, but you can ignore hash changes by providing an object to the `trackPageViews` prop:
+By default hash changes are not treated as page views. you can enable it by providing `hashMode` as true.
+
+### Automatic Link click events
+
+To track Outbound link clicks set the `trackOutboundLinks` prop to true.
 
 ```js
-// pages/_app.js
-...
-    <SyftProvider trackPageViews={{ ignoreHashChange: true }} />
-...
+// pages/_app.jsx
+<SyftProvider trackOutboundLinks />
 ```
 
-### User Identity Management
+### Custom Upload Endpoint
 
-Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage so that the developer has access to it both on the server and the client. This annonymous-id gets included in every event that is generated.
-
-Annonymous-ids get reset when `.reset` method is called (or when an user clears their cookies and local-storage.)
-
-For more info refer to [this](https://segment-docs.netlify.app/docs/connections/sources/catalog/libraries/website/javascript/identity/)
-
-### Consent
-
-You can use the `consent` function to update your users' cookie preferences (GDPR). You can set the consent at event name level.
+If you want to upload events to something other than `/api/syft`, you can do so by specifying `uploadPath`
 
 ```js
-const consentValue: "denied" | "granted" | "not-set" =
-  getUserCookiePreference();
-consent({
-  arg: "update",
-  consent: consentValue,
-  match: "*",
-});
+// pages/_app.jsx
+<SyftProvider uploadPath="/client/api/syft" />
 ```
 
 ## Support
