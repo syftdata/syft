@@ -66,8 +66,6 @@
     "@amplitude/ua-parser-js": "^0.7.33",
     "@segment/action-destinations": "^3.205.2",
     "@segment/actions-core": "^3.81.2",
-    "@segment/ad-params": "^1.0.0",
-    "@segment/utm-params": "^2.0.0",
     "js-cookie": "^3.0.5"
   }
 }

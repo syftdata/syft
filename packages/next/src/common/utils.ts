@@ -11,6 +11,13 @@ export const uuid = (): string => {
   });
 };
 
+export function searchParams(search: string): URLSearchParams | undefined {
+  if (search === '' || search == null) {
+    return undefined;
+  }
+  return new URLSearchParams(search);
+}
+
 export function mapValues<
   Obj extends Record<string, Values>,
   Values extends Record<string, unknown>,

@@ -10,7 +10,6 @@ import {
   generateMappings,
   getDestination
 } from './destinations';
-import { userAgentFromString } from 'next/server';
 
 interface RequestData {
   ip?: string;
@@ -90,7 +89,7 @@ export class SyftRouter {
             version
           },
           userAgent: userAgent ?? 'N/A',
-          userAgentData: userAgentFromString(userAgent),
+          userAgentData: req.userAgentData,
           ip: ip ?? 'N/A'
         },
         sentAt,

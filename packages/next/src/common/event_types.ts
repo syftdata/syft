@@ -76,6 +76,13 @@ export interface GroupTraits {
  *  {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L415}
  */
 export interface Referrer {
+  id?: string;
+  type?: string;
+
+  name?: string;
+  url?: string;
+  link?: string;
+
   btid?: string;
   urid?: string;
 }
@@ -86,16 +93,17 @@ export interface Referrer {
  * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L49}
  */
 export interface Campaign {
+  [key: string]: string | undefined;
   /**
    * This can also come from the "utm_campaign" param
    *
    * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L40}
    */
-  name: string;
-  term: string;
-  source: string;
-  medium: string;
-  content: string;
+  name?: string;
+  term?: string;
+  source?: string;
+  medium?: string;
+  content?: string;
 }
 
 /**
