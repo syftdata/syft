@@ -1,5 +1,4 @@
-// import Cookies = require("js-cookie");
-
+import Cookies from 'js-cookie';
 import { isBrowser } from './utils';
 
 interface IConfigStore {
@@ -16,7 +15,7 @@ class UniversalConfigStore implements IConfigStore {
     if (stores.length === 0) {
       if (isBrowser()) {
         this.stores = [
-          // new CookieConfigStore("syft"),
+          new CookieConfigStore('syft'),
           new StorageConfigStore('syft')
         ];
       }
@@ -74,23 +73,23 @@ export class StorageConfigStore implements IConfigStore {
   }
 }
 
-// export class CookieConfigStore implements IConfigStore {
-//   constructor(private readonly namespace: string) {}
+export class CookieConfigStore implements IConfigStore {
+  constructor(private readonly namespace: string) {}
 
-//   set(key: string, value: unknown): void {
-//     Cookies.set(`${this.namespace}.${key}`, JSON.stringify(value));
-//   }
+  set(key: string, value: unknown): void {
+    Cookies.set(`${this.namespace}.${key}`, JSON.stringify(value));
+  }
 
-//   get(key: string): unknown {
-//     const strValue = Cookies.get(`${this.namespace}.${key}`);
-//     if (strValue != null) {
-//       return JSON.parse(strValue);
-//     }
-//   }
+  get(key: string): unknown {
+    const strValue = Cookies.get(`${this.namespace}.${key}`);
+    if (strValue != null) {
+      return JSON.parse(strValue);
+    }
+  }
 
-//   remove(key: string): void {
-//     Cookies.remove(`${this.namespace}.${key}`);
-//   }
-// }
+  remove(key: string): void {
+    Cookies.remove(`${this.namespace}.${key}`);
+  }
+}
 
 export default UniversalConfigStore;

@@ -7,8 +7,14 @@ import type {
   EventTypes,
   GroupTraits,
   UserTraits,
-  EventType
+  EventType,
+  Referrer,
+  Campaign,
+  AMP
 } from './event_types';
+import ads from '@segment/ad-params';
+import utm from '@segment/utm-params';
+import Cookies from 'js-cookie';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -16,6 +22,11 @@ const USER_ID_KEY = 'user_id';
 const USER_TRAITS_KEY = 'user_traits';
 const GROUP_ID_KEY = 'group_id';
 const GROUP_TRAITS_KEY = 'group_traits';
+
+const REFERRER_KEY = 'referrer';
+const CAMPAGIN_KEY = 'campaign';
+const AMP_KEY = 'amp';
+
 /**
  * Options used when initializing the tracker.
  */
@@ -31,9 +42,12 @@ export default class AutoTracker<E extends EventTypes> {
   anonymousId: string;
   commonProperties: Record<string, CommonPropType> = {};
   userId: string | undefined;
-  userTraits: UserTraits = {};
+  userTraits: UserTraits | undefined;
   groupId: string | undefined;
-  groupTraits: GroupTraits = {};
+  groupTraits: GroupTraits | undefined;
+  referrer: Referrer | undefined;
+  campaign: Campaign | undefined;
+  amp: AMP | undefined;
 
   constructor(options: InitOptions) {
     this.options = options;
@@ -63,6 +77,10 @@ export default class AutoTracker<E extends EventTypes> {
         string,
         CommonPropType
       >) ?? {};
+
+    this.referrer = this.configStore.get(REFERRER_KEY) as Referrer | undefined;
+    this.campaign = this.configStore.get(CAMPAGIN_KEY) as Campaign | undefined;
+    this.amp = this.configStore.get(AMP_KEY) as AMP | undefined;
   }
 
   identify(
@@ -162,9 +180,9 @@ export default class AutoTracker<E extends EventTypes> {
 
   reset(): void {
     this.userId = undefined;
-    this.userTraits = {};
+    this.userTraits = undefined;
     this.groupId = undefined;
-    this.groupTraits = {};
+    this.groupTraits = undefined;
     this.commonProperties = {};
     this.configStore.remove(USER_ID_KEY);
     this.configStore.remove(GROUP_ID_KEY);
@@ -241,6 +259,48 @@ export default class AutoTracker<E extends EventTypes> {
     this._page('screen', category, screen, props, options, integrations);
   }
 
+  _getReferrer(): Referrer | undefined {
+    if (isBrowser()) {
+      const { search } = location;
+      const adParams = ads(search);
+      if (adParams != null) {
+        this.referrer = {};
+        if (adParams.type === 'dataxu') {
+          this.referrer.btid = adParams.id;
+        } else {
+          this.referrer.urid = adParams.id;
+        }
+        this.configStore.set(REFERRER_KEY, this.referrer);
+      }
+    }
+    return this.referrer;
+  }
+
+  _getCampaign(): Campaign | undefined {
+    if (isBrowser()) {
+      const { search } = location;
+      const utmParams = utm(search);
+      if (utmParams != null) {
+        this.campaign = utmParams;
+        this.configStore.set(CAMPAGIN_KEY, this.campaign);
+      }
+    }
+    return this.campaign;
+  }
+
+  _getAMP(): AMP | undefined {
+    if (isBrowser()) {
+      const ampId = Cookies.get('_ga');
+      if (ampId != null) {
+        this.amp = {
+          id: ampId
+        };
+        this.configStore.set(AMP_KEY, this.amp);
+      }
+    }
+    return this.amp;
+  }
+
   _getPartialEvent(
     options?: EventOptions,
     integrations?: unknown
@@ -259,7 +319,13 @@ export default class AutoTracker<E extends EventTypes> {
       },
       timestamp: options?.timestamp ?? new Date()
     };
+
     if (isBrowser()) {
+      // get referrer and utm params
+      const referrer = this._getReferrer();
+      const campaign = this._getCampaign();
+      const amp = this._getAMP();
+
       return {
         ...event,
         context: {
@@ -272,6 +338,9 @@ export default class AutoTracker<E extends EventTypes> {
             title: document.title,
             url: location.href
           },
+          referrer,
+          campaign,
+          amp,
           deviceWidth: window.innerWidth
         }
       };

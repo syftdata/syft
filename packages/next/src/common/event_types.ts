@@ -71,3 +71,36 @@ export interface GroupTraits {
   website?: string; // URL of the group’s website
   plan?: string; // Name of the plan the group is on, typically used for SaaS companies.
 }
+
+/**
+ *  {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L415}
+ */
+export interface Referrer {
+  btid?: string;
+  urid?: string;
+}
+
+/**
+ * utm params
+ * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L303-L305}
+ * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L49}
+ */
+export interface Campaign {
+  /**
+   * This can also come from the "utm_campaign" param
+   *
+   * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L40}
+   */
+  name: string;
+  term: string;
+  source: string;
+  medium: string;
+  content: string;
+}
+
+/**
+ * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L322}
+ */
+export interface AMP {
+  id: string;
+}

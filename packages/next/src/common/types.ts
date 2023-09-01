@@ -3,7 +3,10 @@ import {
   type EventProps,
   type EventType,
   type CommonPropType,
-  type GroupTraits
+  type GroupTraits,
+  type Referrer,
+  type Campaign,
+  type AMP
 } from './event_types';
 
 export interface EventOptions {
@@ -40,38 +43,11 @@ export interface ClientContextData {
     [key: string]: any;
   };
 
-  /**
-   * utm params
-   * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L303-L305}
-   * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L49}
-   */
-  campaign?: {
-    /**
-     * This can also come from the "utm_campaign" param
-     *
-     * {@link https://github.com/segmentio/utm-params/blob/master/lib/index.js#L40}
-     */
-    name: string;
-    term: string;
-    source: string;
-    medium: string;
-    content: string;
-  };
+  campaign?: Campaign;
 
-  /**
-   *  {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L415}
-   */
-  referrer?: {
-    btid?: string;
-    urid?: string;
-  };
+  referrer?: Referrer;
 
-  /**
-   * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L322}
-   */
-  amp?: {
-    id: string;
-  };
+  amp?: AMP;
 }
 
 export interface ServerContextData extends ClientContextData {
