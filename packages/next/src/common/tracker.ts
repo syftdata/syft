@@ -12,8 +12,8 @@ import type {
   Campaign,
   AMP
 } from './event_types';
-import ads from '@segment/ad-params';
-import utm from '@segment/utm-params';
+// import ads from '@segment/ad-params';
+// import utm from '@segment/utm-params';
 import Cookies from 'js-cookie';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
@@ -260,31 +260,31 @@ export default class AutoTracker<E extends EventTypes> {
   }
 
   _getReferrer(): Referrer | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const adParams = ads(search);
-      if (adParams != null) {
-        this.referrer = {};
-        if (adParams.type === 'dataxu') {
-          this.referrer.btid = adParams.id;
-        } else {
-          this.referrer.urid = adParams.id;
-        }
-        this.configStore.set(REFERRER_KEY, this.referrer);
-      }
-    }
+    // if (isBrowser()) {
+    //   const { search } = location;
+    //   const adParams = ads(search);
+    //   if (adParams != null) {
+    //     this.referrer = {};
+    //     if (adParams.type === 'dataxu') {
+    //       this.referrer.btid = adParams.id;
+    //     } else {
+    //       this.referrer.urid = adParams.id;
+    //     }
+    //     this.configStore.set(REFERRER_KEY, this.referrer);
+    //   }
+    // }
     return this.referrer;
   }
 
   _getCampaign(): Campaign | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const utmParams = utm(search);
-      if (utmParams != null) {
-        this.campaign = utmParams;
-        this.configStore.set(CAMPAGIN_KEY, this.campaign);
-      }
-    }
+    // if (isBrowser()) {
+    //   const { search } = location;
+    //   const utmParams = utm(search);
+    //   if (utmParams != null) {
+    //     this.campaign = utmParams;
+    //     this.configStore.set(CAMPAGIN_KEY, this.campaign);
+    //   }
+    // }
     return this.campaign;
   }
 

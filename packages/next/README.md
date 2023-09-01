@@ -2,17 +2,20 @@
 
 ## Introduction
 
-This is a [next.js](https://nextjs.org) library to capture rich analytics events with high-quality and without vendor lock-in. 
+This is a [next.js](https://nextjs.org) library to capture rich analytics events with high-quality and without vendor lock-in.
 
 ### Data Quality
+
 - Prevent data loss from Ad blockers: This library will automatically proxy events through your nextjs backend.
 - Guarantee type safety: The library can leverage Typescript types to ensure events and fields adhere to a contract.
-  
+
 ### No Lock-In
+
 - Universal vendor-neutral API: A Segment-like API to log events in standard format. The same API can be used for client and server-side logging.
 - Full control over your data: You can route events to multiple data destinations e.g. warehouses, CDP, analytics platforms with simple configuration. It acts as a lightweight-CDP similar to Segment.
 
 ### Rich events
+
 - Enrich collected events on server-side state (e.g. from database) with transforms.
 - Automatically collect page events and standard fields on each event.
 
@@ -30,11 +33,14 @@ To enable Syft in your app you'll need to expose the Syft context. Include `<Syf
 
 ```jsx
 // pages/_app.js
-import SyftProvider from "@syftdata/next";
+import SyftProvider from '@syftdata/next';
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <SyftProvider>
+    <SyftProvider<EventDefs>
+      trackPageviews={true}
+      trackOutboundLinks={true}
+    >
       <Component {...pageProps} />
     </SyftProvider>
   );
@@ -45,38 +51,50 @@ If are using [the app directory](https://beta.nextjs.org/docs/routing/fundamenta
 
 ```jsx
 // app/layout.js
-import SyftProvider from "@syftdata/next";
+import SyftProvider from '@syftdata/next';
 
 export default function RootLayout({ children }) {
   return (
     <html>
-      <head>
-        <SyftProvider />
-      </head>
-      <body>{children}</body>
+      <body>
+        <SyftProvider<EventDefs>
+          trackPageviews={true}
+          trackOutboundLinks={true}
+        >
+          {children}
+          </SyftProvider>
+      </body>
     </html>
   );
 }
 ```
 
-### Collect Events
-Use the `track()` method.
+### Identify your users & companies
+
+Use the `identify()` method to identify your product's users. This will help you track users who are triggering events. An example usage looks like this:
 
 ```jsx
-import { useSyft } from "@syftdata/next";
+
+```
+
+### Collect Custom Events
+
+Use the `track()` method in order to log custom events.
+
+```jsx
+import { useSyft } from '@syftdata/next';
 
 export default function MyButton() {
-  const { track } = useSyft();
-
+  const syft = useSyft();
   return (
     <>
       <button
         id="foo"
         onClick={() =>
-          track("customEventName", {
+          syft.track('customEventName', {
             props: {
-              buttonId: "foo",
-            },
+              buttonId: 'foo'
+            }
           })
         }
       >
@@ -87,28 +105,29 @@ export default function MyButton() {
 }
 ```
 
-### Event Routing 
+### Event Routing
+
 You can route events to multiple destinations with a simple configuration. You can also set controls such as event filtering and sampling.
 
 ```js
-const { withSyft } = require("@syftdata/next");
+const { withSyft } = require('@syftdata/next');
 
 module.exports = withSyft({
   destinations: [
     {
-      type: "Amplitude",
-      api_key: "<Amplitude Key>",
-      exclude: ["UserAuth*", "PaymentInfo*"], // filters out UserAuth and PaymentInfo events.
+      name: 'amplitude',
+      api_key: '<Amplitude Key>',
+      exclude: ['UserAuth*', 'PaymentInfo*'], // filters out UserAuth and PaymentInfo events.
       samplingRate: 10, // samples the data by 10%.
-      samplingKey: ["user_id", "device_id"], // leave empty if you want sampling to be random.
+      samplingKey: ['user_id', 'device_id'] // leave empty if you want sampling to be random.
     },
     {
-      type: "Bigquery",
-      projectId: "my-favorite-app",
-      dataset: "product",
-      key: "<secret>",
-    },
-  ],
+      type: 'Bigquery',
+      projectId: 'my-favorite-app',
+      dataset: 'product',
+      key: '<secret>'
+    }
+  ]
 })({
   // ...your next js config, if any
 });
@@ -155,7 +174,7 @@ export const config = {
 If you use Typescript you can type check your custom events like this:
 
 ```tsx
-import { useSyft } from "@syft/next";
+import { useSyft } from '@syft/next';
 
 type MyEvents = {
   customEventName: { buttonId?: string };
@@ -201,12 +220,12 @@ For more info refer to [this](https://segment-docs.netlify.app/docs/connections/
 You can use the `consent` function to update your users' cookie preferences (GDPR). You can set the consent at event name level.
 
 ```js
-const consentValue: "denied" | "granted" | "not-set" =
+const consentValue: 'denied' | 'granted' | 'not-set' =
   getUserCookiePreference();
 consent({
-  arg: "update",
+  arg: 'update',
   consent: consentValue,
-  match: "*",
+  match: '*'
 });
 ```
 
