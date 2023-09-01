@@ -65,6 +65,7 @@ export function generateMappings(
   subscription: Subscription
 ): void {
   const fields = definition.actions[subscription.partnerAction]?.fields;
+  if (fields == null) return;
   let newMapping = mapValues(
     fields as unknown as Record<string, JSONObject>,
     'default'

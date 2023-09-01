@@ -32,15 +32,12 @@ npm install --save @syftdata/next
 To enable Syft in your app you'll need to expose the Syft context. Include `<SyftProvider />`, at the top level of your application inside [`_app.js`](https://nextjs.org/docs/advanced-features/custom-app):
 
 ```jsx
-// pages/_app.js
+// pages/_app.tsx
 import SyftProvider from '@syftdata/next';
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <SyftProvider<EventDefs>
-      trackPageviews={true}
-      trackOutboundLinks={true}
-    >
+    <SyftProvider<EventDefs>>
       <Component {...pageProps} />
     </SyftProvider>
   );
@@ -50,17 +47,14 @@ export default function MyApp({ Component, pageProps }) {
 If are using [the app directory](https://beta.nextjs.org/docs/routing/fundamentals#the-app-directory) include `SyftProvider` inside the root layout:
 
 ```jsx
-// app/layout.js
+// app/layout.tsx
 import SyftProvider from '@syftdata/next';
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <SyftProvider<EventDefs>
-          trackPageviews={true}
-          trackOutboundLinks={true}
-        >
+        <SyftProvider<EventDefs>>
           {children}
           </SyftProvider>
       </body>
@@ -69,23 +63,55 @@ export default function RootLayout({ children }) {
 }
 ```
 
-### Identify your users & companies
+### Identity Management
+
+Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage so that the developer has access to it both on the server and the client. This annonymous-id gets included in every event that is generated.
+
+Annonymous-id get reset when an user clears their cookies and local-storage.
+
+#### Identify your users.
 
 Use the `identify()` method to identify your product's users. This will help you track users who are triggering events. An example usage looks like this:
 
 ```jsx
+import { useSyft } from '@syftdata/next';
 
+const syft = useSyft<EventDefs>();
+useEffect(() => {
+  if (user != null) {
+    syft.identify(user.id, {
+      email: user.email,
+    });
+  }
+}, [syft, user]);
+```
+
+#### Identify your users' companies.
+
+Use the `group()` method to identify your user's groups / companies. **NOTE:** always call identify before calling group.
+
+```jsx
+import { useSyft } from '@syftdata/next';
+
+const syft = useSyft<EventDefs>();
+useEffect(() => {
+  if (user != null) {
+    syft.group(user.orgId, {
+      name: user.orgName,
+    });
+  }
+}, [syft, user]);
 ```
 
 ### Collect Custom Events
 
-Use the `track()` method in order to log custom events.
+Use the `track()` method to log custom events.
 
 ```jsx
 import { useSyft } from '@syftdata/next';
 
 export default function MyButton() {
-  const syft = useSyft();
+  const syft = useSyft<EventDefs>();
   return (
     <>
       <button
@@ -105,84 +131,65 @@ export default function MyButton() {
 }
 ```
 
-### Event Routing
+### Event Routing Setup
 
-You can route events to multiple destinations with a simple configuration. You can also set controls such as event filtering and sampling.
+You can route events to multiple destinations with a simple configuration. Create an API endpoint (/api/syft) by creating the file with the below code. This example shows routing events to June. (You can do more cool stuff like sending slack alerts when a user becomes active / runs into a problem.)
 
-```js
-const { withSyft } = require('@syftdata/next');
+```ts
+// pages/api/syft.ts
+import { type NextApiRequest, type NextApiResponse } from 'next';
+import { NextSyftServer } from '@syftdata/next/lib/next';
 
-module.exports = withSyft({
-  destinations: [
-    {
-      name: 'amplitude',
-      api_key: '<Amplitude Key>',
-      exclude: ['UserAuth*', 'PaymentInfo*'], // filters out UserAuth and PaymentInfo events.
-      samplingRate: 10, // samples the data by 10%.
-      samplingKey: ['user_id', 'device_id'] // leave empty if you want sampling to be random.
-    },
-    {
-      type: 'Bigquery',
-      projectId: 'my-favorite-app',
-      dataset: 'product',
-      key: '<secret>'
+const destinations = [
+  {
+    name: 'june',
+    settings: {
+      apiKey: 'xxxx'
     }
-  ]
-})({
-  // ...your next js config, if any
-});
+  }
+];
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const server = new NextSyftServer({
+    destinations
+  });
+  await server.handlePageApi(req, res);
+}
 ```
 
 #### Proxying events
 
-To avoid being blocked by adblockers, all analytics providers recommend serving their scripts (amplitude/segment/mixpanel/ga) and upload events via a proxy server. This library takes care of that behind the scenes. `withSyft` will set up the necessary rewrites and configure `SyftProvider` to use the local URLs so you don't have to make any changes in the client app.
-
-**Notes:**
-
-- Proxying will only work if you serve your site using `next start`. Statically generated sites won't be able to rewrite the requests.
+To avoid being blocked by adblockers, all analytics providers recommend serving their scripts (amplitude/segment/mixpanel/ga) and upload events via a proxy server. This library takes care of that behind the scenes.
 
 ### Event Transformations / Enrichment
 
-You can define event transformations in TypeScript with the same conventions as request middleware. You'd write a file called syft/transformations.ts
+You can define event transformations and enrichments on the backend. You can query your DB and denormalize your events.
 
 ```js
-import { SyftEvent } from "@syftdata/client";
-
-export function transform(event: SyftEvent) {
-  event.revenue = Number(event.revenue);
-  if (event.eventName.startsWith("OrderCancelled")) {
-    event.cancelledAt = new Date();
+const server = new NextSyftServer({
+  destinations,
+  enricher: (event) => {
+    event.context.ab_featurex_enabled = true;
   }
-  if (event.eventName.startsWith("OrderPlaced")) {
-    // get product title if it is missing.
-    if (event.products.forEach(product => {
-        if (product.name == null) {
-            product.name = queryProduct(product.id)?.title;
-        }
-    }))
-  }
-  return event;
-}
-
-export const config = {
-  matcher: "Order*",
-};
+});
 ```
 
 ### Type safety
 
 If you use Typescript you can type check your custom events like this:
 
-```tsx
+```jsx
 import { useSyft } from '@syft/next';
 
-type MyEvents = {
+type EventDefs = {
   customEventName: { buttonId?: string };
   event2: { prop2: string; prop3: number };
   event3: never;
 };
 
-const syft = useSyft<MyEvents>();
+const syft = useSyft<EventDefs>();
 ```
 
 Only those events with the right props will be allowed to be sent using the `syft` function.
@@ -199,35 +206,6 @@ To track page views set the `trackPageViews` prop of the `SyftProvider` componen
 ```
 
 By default it will be trigger on hash changes if `trackPageViews` is enabled, but you can ignore hash changes by providing an object to the `trackPageViews` prop:
-
-```js
-// pages/_app.js
-...
-    <SyftProvider trackPageViews={{ ignoreHashChange: true }} />
-...
-```
-
-### User Identity Management
-
-Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage so that the developer has access to it both on the server and the client. This annonymous-id gets included in every event that is generated.
-
-Annonymous-ids get reset when `.reset` method is called (or when an user clears their cookies and local-storage.)
-
-For more info refer to [this](https://segment-docs.netlify.app/docs/connections/sources/catalog/libraries/website/javascript/identity/)
-
-### Consent
-
-You can use the `consent` function to update your users' cookie preferences (GDPR). You can set the consent at event name level.
-
-```js
-const consentValue: 'denied' | 'granted' | 'not-set' =
-  getUserCookiePreference();
-consent({
-  arg: 'update',
-  consent: consentValue,
-  match: '*'
-});
-```
 
 ## Support
 
