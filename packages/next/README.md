@@ -37,7 +37,7 @@ import SyftProvider from '@syftdata/next';
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <SyftProvider<EventDefs>>
+    <SyftProvider>
       <Component {...pageProps} />
     </SyftProvider>
   );
@@ -54,9 +54,7 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <SyftProvider<EventDefs>>
-          {children}
-          </SyftProvider>
+        <SyftProvider>{children}</SyftProvider>
       </body>
     </html>
   );
@@ -76,11 +74,11 @@ Use the `identify()` method to identify your product's users. This will help you
 ```jsx
 import { useSyft } from '@syftdata/next';
 
-const syft = useSyft<EventDefs>();
+const syft = useSyft();
 useEffect(() => {
   if (user != null) {
     syft.identify(user.id, {
-      email: user.email,
+      email: user.email
     });
   }
 }, [syft, user]);
@@ -93,11 +91,11 @@ Use the `group()` method to identify your user's groups / companies. **NOTE:** a
 ```jsx
 import { useSyft } from '@syftdata/next';
 
-const syft = useSyft<EventDefs>();
+const syft = useSyft();
 useEffect(() => {
   if (user != null) {
     syft.group(user.orgId, {
-      name: user.orgName,
+      name: user.orgName
     });
   }
 }, [syft, user]);
@@ -111,16 +109,13 @@ Use the `track()` method to log custom events.
 import { useSyft } from '@syftdata/next';
 
 export default function MyButton() {
-  const syft = useSyft<EventDefs>();
+  const syft = useSyft();
   return (
     <>
       <button
-        id="foo"
         onClick={() =>
-          syft.track('customEventName', {
-            props: {
-              buttonId: 'foo'
-            }
+          syft.track('Button Clicked', {
+            buttonId: 'foo'
           })
         }
       >
@@ -178,18 +173,19 @@ const server = new NextSyftServer({
 
 ### Type safety
 
-If you use Typescript you can type check your custom events like this:
+If you use Typescript you can enable type check to your events like below:
 
 ```jsx
 import { useSyft } from '@syft/next';
 
 type EventDefs = {
-  customEventName: { buttonId?: string };
-  event2: { prop2: string; prop3: number };
-  event3: never;
+  page: never;
+  "OutboundLink Clicked": { href: string };
+  "Button Clicked": { buttonId?: string };
 };
 
 const syft = useSyft<EventDefs>();
+syft.track("Button Clicked", { buttonId: 10}); // this throws error as buttonId type is incompatible.
 ```
 
 Only those events with the right props will be allowed to be sent using the `syft` function.
@@ -199,13 +195,29 @@ Only those events with the right props will be allowed to be sent using the `syf
 To track page views set the `trackPageViews` prop of the `SyftProvider` component to true.
 
 ```js
-// pages/_app.js
-...
-    <SyftProvider trackPageViews />
-...
+// pages/_app.jsx
+<SyftProvider trackPageViews />
 ```
 
-By default it will be trigger on hash changes if `trackPageViews` is enabled, but you can ignore hash changes by providing an object to the `trackPageViews` prop:
+By default hash changes are not treated as page views. you can enable it by providing `hashMode` as true.
+
+### Automatic Link click events
+
+To track Outbound link clicks set the `trackOutboundLinks` prop to true.
+
+```js
+// pages/_app.jsx
+<SyftProvider trackOutboundLinks />
+```
+
+### Custom Upload Endpoint
+
+If you want to upload events to something other than `/api/syft`, you can do so by specifying `uploadPath`
+
+```js
+// pages/_app.jsx
+<SyftProvider uploadPath="/client/api/syft" />
+```
 
 ## Support
 

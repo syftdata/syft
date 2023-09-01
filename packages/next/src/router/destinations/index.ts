@@ -1,4 +1,8 @@
-import type { DestinationDefinition, JSONObject } from '@segment/actions-core';
+import type {
+  DestinationDefinition,
+  InputField,
+  JSONObject
+} from '@segment/actions-core';
 import { Destination } from '@segment/actions-core';
 import amplitude from '@segment/action-destinations/dist/destinations/amplitude';
 import heap from '@segment/action-destinations/dist/destinations/heap';
@@ -40,7 +44,7 @@ const CUSTOM_PRESETS = {
 /**
  * Use this to add additional fields to the mapping for destinations that have presets already.
  */
-const ADDITIONAL_MAPPING_FIELDS = {
+const ADDITIONAL_MAPPING_FIELDS: Record<string, Record<string, InputField>> = {
   june: {
     context: {
       type: 'object',
@@ -64,25 +68,20 @@ export function generateMappings(
   definition: DestinationDefinition<any>,
   subscription: Subscription
 ): void {
-  const fields = definition.actions[subscription.partnerAction]?.fields;
-  if (fields == null) return;
-  let newMapping = mapValues(
-    fields as unknown as Record<string, JSONObject>,
-    'default'
-  );
-
-  // add additional fields
+  const action = definition.actions[subscription.partnerAction];
+  if (action == null) return;
   const additionalFields = ADDITIONAL_MAPPING_FIELDS[name];
   if (additionalFields != null) {
-    const additionalMapping = mapValues(
-      additionalFields as unknown as Record<string, JSONObject>,
-      'default'
-    );
-    newMapping = {
-      ...additionalMapping,
-      ...newMapping
-    };
+    // modify the schema to add the additional fields.
+    Object.entries(additionalFields).forEach(([k, v]) => {
+      action.fields[k] = v;
+    });
   }
+
+  const newMapping = mapValues(
+    action.fields as unknown as Record<string, JSONObject>,
+    'default'
+  );
 
   // for undefined fields, set it to look it up in the event as a fallback.
   Object.keys(newMapping).forEach((k) => {
