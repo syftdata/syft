@@ -30,7 +30,7 @@ export type Enricher = (
 
 export type DestinationSettings = Record<string, unknown>;
 export interface DestinationConfig {
-  name: string;
+  type: string;
   settings: DestinationSettings;
   subscriptions?: Subscription[];
   destination?: Destination;
@@ -45,7 +45,7 @@ export interface SyftRouterOptions {
 export class SyftRouter {
   constructor(private readonly options: SyftRouterOptions) {
     this.options.destinations.forEach((d) => {
-      const destination = getDestination(d.name);
+      const destination = getDestination(d.type);
       if (destination?.definition != null) {
         if (d.subscriptions == null) {
           // apply existing presets
@@ -63,11 +63,11 @@ export class SyftRouter {
         }
 
         d.subscriptions?.forEach((s) => {
-          generateMappings(d.name, destination.definition, s);
+          generateMappings(d.type, destination.definition, s);
         });
         d.destination = destination;
       } else {
-        console.error(`Destination ${d.name} is not found!`);
+        console.error(`Destination ${d.type} is not found!`);
       }
     });
   }
@@ -128,7 +128,6 @@ export class SyftRouter {
   ): void {
     const dest = destination.destination;
     if (dest == null) {
-      console.error(`Destination ${destination.name} is not found!`);
       return;
     }
     const settings: any = {
@@ -144,7 +143,7 @@ export class SyftRouter {
       return dest.onEvent(e as SegmentEvent, settings);
     });
     Promise.all(eventPromises).catch((e) => {
-      console.error(`error sending to destination ${destination.name}`, e);
+      console.error(`error sending to destination ${destination.type}`, e);
     });
   }
 }
