@@ -14,7 +14,7 @@ const QUERYIDS = {
 export function getReferrer(params: URLSearchParams): Referrer | undefined {
   let referrer: Referrer | undefined;
   Object.keys(QUERYIDS).find((key) => {
-    if (key in params) {
+    if (params.has(key)) {
       referrer = {
         id: params[key],
         type: QUERYIDS[key],
@@ -29,13 +29,14 @@ export function getReferrer(params: URLSearchParams): Referrer | undefined {
 
 export function getCampaign(params: URLSearchParams): Campaign | undefined {
   const results = {};
-  Object.keys(params).forEach((key) => {
+
+  for (const key of params.keys()) {
     if (key.substring(0, 4) === 'utm_') {
       let param = key.substring(4);
       if (param === 'campaign') param = 'name';
       results[param] = params[key];
     }
-  });
+  }
   if (Object.keys(results).length === 0) return undefined;
   return results;
 }
