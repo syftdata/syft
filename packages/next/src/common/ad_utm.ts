@@ -16,9 +16,9 @@ export function getReferrer(params: URLSearchParams): Referrer | undefined {
   Object.keys(QUERYIDS).find((key) => {
     if (params.has(key)) {
       referrer = {
-        id: params[key],
+        id: params.get(key) ?? undefined,
         type: QUERYIDS[key],
-        [key]: params[key]
+        [key]: params.get(key)
       };
       return true;
     }
@@ -34,7 +34,7 @@ export function getCampaign(params: URLSearchParams): Campaign | undefined {
     if (key.substring(0, 4) === 'utm_') {
       let param = key.substring(4);
       if (param === 'campaign') param = 'name';
-      results[param] = params[key];
+      results[param] = params.get(key);
     }
   }
   if (Object.keys(results).length === 0) return undefined;

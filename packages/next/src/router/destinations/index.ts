@@ -4,12 +4,13 @@ import type {
   JSONObject
 } from '@segment/actions-core';
 import { Destination } from '@segment/actions-core';
-import amplitude from '@segment/action-destinations/dist/destinations/amplitude';
-import heap from '@segment/action-destinations/dist/destinations/heap';
-import june from '@segment/action-destinations/dist/destinations/june';
-import mixpanel from '@segment/action-destinations/dist/destinations/mixpanel';
-import slack from '@segment/action-destinations/dist/destinations/slack';
-import ga4 from '@segment/action-destinations/dist/destinations/google-analytics-4';
+import amplitude from '@syftdata/action-destinations/dist/destinations/amplitude';
+import heap from '@syftdata/action-destinations/dist/destinations/heap';
+import june from '@syftdata/action-destinations/dist/destinations/june';
+import bigquery from '@syftdata/action-destinations/dist/destinations/bigquery';
+import mixpanel from '@syftdata/action-destinations/dist/destinations/mixpanel';
+import slack from '@syftdata/action-destinations/dist/destinations/slack';
+import ga4 from '@syftdata/action-destinations/dist/destinations/google-analytics-4';
 import { mapValues } from '../../common/utils';
 
 export interface Subscription {
@@ -125,6 +126,7 @@ register('amplitude', amplitude);
 register('heap', heap);
 register('june', june);
 register('mixpanel', mixpanel);
+register('bigquery', bigquery);
 
 // NO PRESETS
 register('slack', slack);
