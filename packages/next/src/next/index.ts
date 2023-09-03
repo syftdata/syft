@@ -13,7 +13,7 @@ export class NextSyftServer extends SyftRouter {
       const forwarded = req.headers['x-forwarded-for'] as string;
       const ip = forwarded != null ? forwarded.split(/, /)[0] : undefined;
       const userAgent = req.headers['user-agent'] as string;
-      await this._handleEvents(data, {
+      await this.routeEvents(data, {
         ip,
         userAgent,
         cookies: req.cookies
@@ -27,7 +27,7 @@ export class NextSyftServer extends SyftRouter {
   async handleAppApi(req: NextRequest): Promise<NextResponse> {
     if (req.method === 'POST') {
       const data = (await req.json()) as UploadRequest;
-      await this._handleEvents(data, {
+      await this.routeEvents(data, {
         ip: req.ip,
         userAgent: req.headers.get('user-agent') as string,
         geo: req.geo,

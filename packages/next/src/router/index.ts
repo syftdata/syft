@@ -72,7 +72,7 @@ export class SyftRouter {
     });
   }
 
-  async _handleEvents(
+  async routeEvents(
     req: UploadRequest,
     { ip, userAgent, cookies }: RequestData
   ): Promise<void> {
@@ -93,7 +93,7 @@ export class SyftRouter {
           ip: ip ?? 'N/A'
         },
         sentAt,
-        receivedAt
+        receivedAt: receivedAt.toJSON()
       };
     });
     const enrichedEvents = await this._enrichEvents(serverEvents, cookies);
