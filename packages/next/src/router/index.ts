@@ -4,7 +4,11 @@
  */
 
 import { type UploadRequest, type ServerEvent } from '../common/types';
-import type { SegmentEvent, Destination } from '@segment/actions-core';
+import type {
+  SegmentEvent,
+  Destination,
+  JSONObject
+} from '@segment/actions-core';
 import {
   type Subscription,
   generateMappings,
@@ -72,6 +76,22 @@ export class SyftRouter {
     });
   }
 
+  /**
+   * Run only in dev mode to validate that all destinations are setup correctly.
+   * @returns
+   */
+  async validateSetup(): Promise<boolean> {
+    const destinationPromises = this.options.destinations.map((d) => {
+      const dest = d.destination;
+      if (dest == null) {
+        return Promise.reject(new Error("Destination doesn't exist"));
+      }
+      return dest.testAuthentication(d.settings as unknown as JSONObject);
+    });
+    await Promise.all(destinationPromises);
+    return true;
+  }
+
   async routeEvents(
     req: UploadRequest,
     { ip, userAgent, cookies }: RequestData
@@ -113,7 +133,7 @@ export class SyftRouter {
       const filteredEvents = enrichedEvents.filter((e) => e != null);
       return filteredEvents as ServerEvent[];
     }
-    return await Promise.resolve(events);
+    return events;
   }
 
   _sendEvents(events: ServerEvent[]): void {
