@@ -109,6 +109,7 @@ export class BatchUploader {
     const data: UploadRequest = {
       events,
       version: SYFT_VERSION,
+      userAgentData: (navigator as any).userAgent,
       sentAt: new Date()
     };
     await new Promise((resolve, reject) => {

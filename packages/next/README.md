@@ -137,7 +137,7 @@ import { NextSyftServer } from '@syftdata/next/lib/next';
 
 const destinations = [
   {
-    name: 'june',
+    type: 'june',
     settings: {
       apiKey: 'xxxx'
     }

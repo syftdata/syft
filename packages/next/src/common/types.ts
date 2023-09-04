@@ -17,6 +17,26 @@ export interface EventOptions {
   context: Partial<ClientContextData>;
 }
 
+interface UserAgentData {
+  brands?: Array<{
+    brand: string;
+    version: string;
+  }>;
+  mobile?: boolean;
+  platform?: string;
+  architecture?: string;
+  bitness?: string;
+  model?: string;
+  platformVersion?: string;
+  /** @deprecated in favour of fullVersionList */
+  uaFullVersion?: string;
+  fullVersionList?: Array<{
+    brand: string;
+    version: string;
+  }>;
+  wow64?: boolean;
+}
+
 /**
  * Data passed to Plausible as events.
  */
@@ -50,16 +70,6 @@ export interface ClientContextData {
   amp?: AMP;
 }
 
-export interface ServerContextData extends ClientContextData {
-  library: {
-    name: string;
-    version: string;
-  };
-  userAgent: string;
-  userAgentData?: object;
-  ip: string;
-}
-
 export interface Event {
   messageId?: string;
 
@@ -81,6 +91,16 @@ export interface Event {
   timestamp: string | Date;
 }
 
+export interface ServerContextData extends ClientContextData {
+  library: {
+    name: string;
+    version: string;
+  };
+  userAgent: string;
+  userAgentData: UserAgentData;
+  ip: string;
+}
+
 export interface ServerEvent extends Omit<Event, 'context'> {
   name?: string;
   context: ServerContextData;
@@ -92,6 +112,7 @@ export interface UploadRequest {
   events: Event[];
   version: string;
   sentAt: string | Date;
+  userAgentData: UserAgentData;
 }
 
 export const SYFT_VERSION = '0.0.1';

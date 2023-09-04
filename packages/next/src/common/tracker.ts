@@ -1,7 +1,7 @@
 import type { Event, EventOptions } from './types';
 import UniversalConfigStore from './configstore';
 import { type BatchUploader } from './uploader';
-import { isBrowser, uuid } from './utils';
+import { isBrowser, searchParams, uuid } from './utils';
 import type {
   CommonPropType,
   EventTypes,
@@ -12,9 +12,9 @@ import type {
   Campaign,
   AMP
 } from './event_types';
-// import ads from '@segment/ad-params';
 // import utm from '@segment/utm-params';
 import Cookies from 'js-cookie';
+import { getCampaign, getReferrer } from './ad_utm';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -25,7 +25,6 @@ const GROUP_TRAITS_KEY = 'group_traits';
 
 const REFERRER_KEY = 'referrer';
 const CAMPAGIN_KEY = 'campaign';
-const AMP_KEY = 'amp';
 
 /**
  * Options used when initializing the tracker.
@@ -79,8 +78,6 @@ export default class AutoTracker<E extends EventTypes> {
       >) ?? {};
 
     this.referrer = this.configStore.get(REFERRER_KEY) as Referrer | undefined;
-    this.campaign = this.configStore.get(CAMPAGIN_KEY) as Campaign | undefined;
-    this.amp = this.configStore.get(AMP_KEY) as AMP | undefined;
   }
 
   identify(
@@ -260,31 +257,31 @@ export default class AutoTracker<E extends EventTypes> {
   }
 
   _getReferrer(): Referrer | undefined {
-    // if (isBrowser()) {
-    //   const { search } = location;
-    //   const adParams = ads(search);
-    //   if (adParams != null) {
-    //     this.referrer = {};
-    //     if (adParams.type === 'dataxu') {
-    //       this.referrer.btid = adParams.id;
-    //     } else {
-    //       this.referrer.urid = adParams.id;
-    //     }
-    //     this.configStore.set(REFERRER_KEY, this.referrer);
-    //   }
-    // }
+    if (isBrowser()) {
+      const { search } = location;
+      const params = searchParams(search);
+      if (params != null) {
+        const referrer = getReferrer(params);
+        if (referrer != null) {
+          this.referrer = referrer;
+          this.configStore.set(REFERRER_KEY, referrer);
+        }
+      }
+    }
     return this.referrer;
   }
 
   _getCampaign(): Campaign | undefined {
-    // if (isBrowser()) {
-    //   const { search } = location;
-    //   const utmParams = utm(search);
-    //   if (utmParams != null) {
-    //     this.campaign = utmParams;
-    //     this.configStore.set(CAMPAGIN_KEY, this.campaign);
-    //   }
-    // }
+    if (isBrowser()) {
+      const { search } = location;
+      const params = searchParams(search);
+      if (params != null) {
+        const campaign = getCampaign(params);
+        if (campaign != null) {
+          this.campaign = campaign;
+        }
+      }
+    }
     return this.campaign;
   }
 
@@ -295,7 +292,6 @@ export default class AutoTracker<E extends EventTypes> {
         this.amp = {
           id: ampId
         };
-        this.configStore.set(AMP_KEY, this.amp);
       }
     }
     return this.amp;
@@ -322,14 +318,13 @@ export default class AutoTracker<E extends EventTypes> {
 
     if (isBrowser()) {
       // get referrer and utm params
-      const referrer = this._getReferrer();
-      const campaign = this._getCampaign();
-      const amp = this._getAMP();
+      const referrer = event.context.referrer ?? this._getReferrer();
+      const campaign = event.context.campaign ?? this._getCampaign();
+      const amp = event.context.amp ?? this._getAMP();
 
       return {
         ...event,
         context: {
-          ...event.context,
           locale: navigator.language,
           page: {
             path: location.pathname,
@@ -341,7 +336,8 @@ export default class AutoTracker<E extends EventTypes> {
           referrer,
           campaign,
           amp,
-          deviceWidth: window.innerWidth
+          deviceWidth: window.innerWidth,
+          ...event.context
         }
       };
     }

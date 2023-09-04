@@ -1,3 +1,5 @@
+// https://github.com/timfish/sentry-javascript/blob/c760baa871eedb05e14a54c48506a2adb4d0fa48/packages/utils/src/instrument.ts
+
 // import { type FormEvent, useEffect } from 'react';
 // import { isBrowser } from '../common/utils';
 
