@@ -33,21 +33,26 @@ jobs:
       - run: npm install --include-dev
       - run: npx lerna run build
       - run: cd packages/common;npm publish --access public;cd ../../;
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: cd packages/client;npm publish --access public;cd ../../;
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: cd packages/codehandler;npm publish --access public;cd ../../;
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: cd packages/next;npm publish --access public;cd ../../;
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       # - run: cd packages/test;npm publish --access public;cd ../../;
       #   env:
       #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - run: cd packages/cli;npm publish --access public;cd ../../;
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/next;npm publish --access public;cd ../../;
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
