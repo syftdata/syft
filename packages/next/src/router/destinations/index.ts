@@ -40,22 +40,19 @@ const CUSTOM_PRESETS = {
       partnerAction: 'login',
       type: 'automatic'
     }
-  ]
-};
-
-/**
- * Use this to add additional fields to the mapping for destinations that have presets already.
- */
-const ADDITIONAL_MAPPING_FIELDS: Record<string, Record<string, InputField>> = {
-  june: {
-    context: {
-      type: 'object',
-      required: false,
-      description: 'Context properties to send with the event',
-      label: 'Context properties',
-      default: { '@path': '$.context' }
+  ],
+  hubspot: [
+    {
+      subscribe: 'type = "group"',
+      partnerAction: 'upsertCompany',
+      type: 'automatic'
+    },
+    {
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertContact',
+      type: 'automatic'
     }
-  }
+  ]
 };
 
 export const destinations: Record<string, DestinationDefinition> = {};
@@ -72,13 +69,6 @@ export function generateMappings(
 ): void {
   const action = definition.actions[subscription.partnerAction];
   if (action == null) return;
-  const additionalFields = ADDITIONAL_MAPPING_FIELDS[name];
-  if (additionalFields != null) {
-    // modify the schema to add the additional fields.
-    Object.entries(additionalFields).forEach(([k, v]) => {
-      action.fields[k] = v;
-    });
-  }
 
   const newMapping = mapValues(
     action.fields as unknown as Record<string, JSONObject>,

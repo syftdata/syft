@@ -65,7 +65,7 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.33",
     "@segment/actions-core": "^3.81.2",
-    "@syftdata/action-destinations": "^3.205.5",
+    "@syftdata/action-destinations": "^3.205.6",
     "js-cookie": "^3.0.5"
   }
 }
