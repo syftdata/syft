@@ -44,7 +44,3 @@ export default function RootLayout({ children }) {
   );
 }
 ```
-
-## Build Status
-
-![CI tests](https://github.com/syftdata/event-hub/actions/workflows/ci.yaml/badge.svg)

@@ -12,10 +12,10 @@ const config = {
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: `https://${process.env.VERCEL_URL}` || "https://syftdata.com",
+  url: `https://${process.env.VERCEL_URL}` || "https://docs.syftdata.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/docs",
+  baseUrl: "/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -43,10 +43,6 @@ const config = {
           sidebarCollapsible: false,
           breadcrumbs: false,
           routeBasePath: "/",
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          // editUrl:
-          //   "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
         },
         blog: false,
         theme: {
@@ -68,13 +64,11 @@ const config = {
           src: "img/logo.png",
         },
         items: [
-          // {
-          //   type: "docSidebar",
-          //   sidebarId: "tutorialSidebar",
-          //   position: "left",
-          //   label: "Tutorial",
-          // },
-          //{ to: "/blog", label: "Blog", position: "left" },
+          {
+            href: "https://www.syftdata.com/blog",
+            label: "Blog",
+            position: "right",
+          },
           {
             href: "https://github.com/syftdata/syft",
             label: "GitHub",
@@ -88,6 +82,10 @@ const config = {
           {
             label: "Discord",
             href: "https://discordapp.com/invite/docusaurus",
+          },
+          {
+            label: "Twitter",
+            href: "https://twitter.com/syftdata",
           },
           {
             label: "GitHub",
