@@ -11,6 +11,7 @@ import bigquery from '@syftdata/action-destinations/dist/destinations/bigquery';
 import mixpanel from '@syftdata/action-destinations/dist/destinations/mixpanel';
 import slack from '@syftdata/action-destinations/dist/destinations/slack';
 import ga4 from '@syftdata/action-destinations/dist/destinations/google-analytics-4';
+import hubspot from '@syftdata/action-destinations/dist/destinations/hubspot';
 import { mapValues } from '../../common/utils';
 
 export interface Subscription {
@@ -131,6 +132,7 @@ register('bigquery', bigquery);
 // NO PRESETS
 register('slack', slack);
 register('ga4', ga4);
+register('hubspot', hubspot);
 
 export function getDestination(key: string): Destination | null {
   const destination = destinations[key];
