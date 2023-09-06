@@ -1,8 +1,4 @@
-import type {
-  DestinationDefinition,
-  InputField,
-  JSONObject
-} from '@segment/actions-core';
+import type { DestinationDefinition, JSONObject } from '@segment/actions-core';
 import { Destination } from '@segment/actions-core';
 import amplitude from '@syftdata/action-destinations/dist/destinations/amplitude';
 import heap from '@syftdata/action-destinations/dist/destinations/heap';
@@ -12,6 +8,7 @@ import mixpanel from '@syftdata/action-destinations/dist/destinations/mixpanel';
 import slack from '@syftdata/action-destinations/dist/destinations/slack';
 import ga4 from '@syftdata/action-destinations/dist/destinations/google-analytics-4';
 import hubspot from '@syftdata/action-destinations/dist/destinations/hubspot';
+import snowflake from '@syftdata/action-destinations/dist/destinations/snowflake';
 import { mapValues } from '../../common/utils';
 
 export interface Subscription {
@@ -118,6 +115,7 @@ register('heap', heap);
 register('june', june);
 register('mixpanel', mixpanel);
 register('bigquery', bigquery);
+register('snowflake', snowflake);
 
 // NO PRESETS
 register('slack', slack);

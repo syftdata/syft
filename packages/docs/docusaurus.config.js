@@ -33,6 +33,14 @@ const config = {
     locales: ["en"],
   },
 
+  scripts: [
+    {
+      src: "https://buttons.github.io/buttons.js",
+      async: true,
+      defer: true,
+    },
+  ],
+
   presets: [
     [
       "classic",
@@ -71,8 +79,9 @@ const config = {
           },
           {
             href: "https://github.com/syftdata/syft",
-            label: "GitHub",
             position: "right",
+            className: "header-github-link github-button",
+            "aria-label": "GitHub",
           },
         ],
       },
@@ -90,6 +99,8 @@ const config = {
           {
             label: "GitHub",
             href: "https://github.com/syftdata/syft",
+            className: "github-button",
+            "aria-label": "GitHub",
           },
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Syft Data, Inc.`,
