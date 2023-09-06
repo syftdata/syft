@@ -2,9 +2,11 @@
 sidebar_position: 9
 ---
 
-## Common Fields
+# Common Fields
 
-Syft library collects some of the common and useful parameters from clients. Below are those fields and how you can access them.
+## Context
+
+Syft library collects useful parameters from clients and puts them in the context. Below are those fields and how you can access them.
 
 | name          | type   | description                                                                                                                                                                                                                                                                                 |
 | ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
