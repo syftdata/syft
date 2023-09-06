@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.35",
+  "version": "0.1.36-alpha.2",
   "description": "Common types and functions used across Syft packages",
   "keywords": [
     "syft",
@@ -68,9 +68,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@amplitude/ua-parser-js": "^0.7.33",
     "@segment/actions-core": "^3.81.2",
-    "@syftdata/action-destinations": "^3.205.9",
+    "@syftdata/action-destinations": "^3.205.11",
     "js-cookie": "^3.0.5"
   }
 }

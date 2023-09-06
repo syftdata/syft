@@ -9,10 +9,7 @@ This page describes how to set up Snowflake as a destination.
 An example setup for Snowflake is shown below.
 
 ```ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
@@ -21,20 +18,14 @@ const destinations = [
         account: "xxxx",
         warehouse: "xxxx",
         database: "xxxx",
-        schema: "xxxx",
+        schema: PUBLIC,
         username: "xxxx",
         password: "xxxx"
     },
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 ```
 
 ### Configuration options
@@ -44,7 +35,7 @@ export default async function handler(
 | account | string | Your Snowflake Account | true |  |
 | warehouse | string | Your Snowflake Warehouse | true |  |
 | database | string | Your Snowflake Database | true |  |
-| schema | string | Your Snowflake Schema | true |  |
+| schema | string | Your Snowflake Schema | true | PUBLIC |
 | username | string | Your Snowflake Username | true |  |
 | password | string | Your Snowflake Password. This is a secret field. | true |  | 
 

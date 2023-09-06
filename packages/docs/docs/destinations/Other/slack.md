@@ -9,10 +9,7 @@ This page describes how to set up Slack as a destination.
 An example setup for Slack is shown below.
 
 ```ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
@@ -23,13 +20,7 @@ const destinations = [
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 ```
 
 ### Configuration options

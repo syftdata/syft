@@ -10,7 +10,7 @@ import type {
   JSONObject
 } from '@segment/actions-core';
 import {
-  type Subscription,
+  type SyftSubscription,
   generateMappings,
   getDestination
 } from './destinations';
@@ -37,7 +37,7 @@ export type DestinationSettings = Record<string, unknown>;
 export interface DestinationConfig {
   type: string;
   settings: DestinationSettings;
-  subscriptions?: Subscription[];
+  subscriptions?: SyftSubscription[];
   destination?: Destination;
 }
 
@@ -71,7 +71,7 @@ export class SyftRouter {
                 }
                 return undefined;
               })
-              .filter((s) => s != null) as Subscription[];
+              .filter((s) => s != null) as SyftSubscription[];
           }
         }
 
@@ -166,9 +166,6 @@ export class SyftRouter {
     };
 
     const eventPromises = events.map((e) => {
-      // console.debug(`
-      // sending ${JSON.stringify(e, null, 2)} to ${destination.name}.
-      // ${JSON.stringify(settings, null, 2)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return dest.onEvent(e as SegmentEvent, settings, {
         transactionContext: context

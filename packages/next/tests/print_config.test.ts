@@ -1,7 +1,7 @@
 import { Preset } from '@segment/actions-core/destination-kitindex';
 import {
   MyDestinationDefinition,
-  getDestinationSettings
+  getDestinationDefs
 } from '../src/router/destinations/index';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -52,10 +52,7 @@ function getSetup(key: string, title: string, destination: any): string {
 An example setup for the ${title} is shown below.
 
 \`\`\`ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
@@ -64,13 +61,7 @@ const destinations = [
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 \`\`\`
 
 ${getConfigTable(key, title, destination)} 
@@ -148,7 +139,7 @@ ${getPresets(key, destination)}
 
 describe('destinations', () => {
   it('get configs of all registered destinations', async () => {
-    const destinations = getDestinationSettings();
+    const destinations = getDestinationDefs();
     // sorted list.
     Object.entries(destinations)
       .sort((a, b) => a[0].localeCompare(b[0]))
