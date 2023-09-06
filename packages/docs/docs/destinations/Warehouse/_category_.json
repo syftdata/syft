@@ -3,6 +3,6 @@
   "position": 12,
   "link": {
     "type": "generated-index",
-    "description": "Warehouse Destinations and their configurations"
+    "description": "Warehouse Destinations and their configurations. NOTE: please call `server.validateSetup()` while in dev mode. This will ensure that all of your tables are created."
   }
 }

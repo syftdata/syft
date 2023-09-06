@@ -1,4 +1,9 @@
-import type { DestinationDefinition, JSONObject } from '@segment/actions-core';
+import type {
+  DestinationDefinition,
+  JSONObject,
+  Preset,
+  Subscription
+} from '@segment/actions-core';
 import { Destination } from '@segment/actions-core';
 import amplitude from '@syftdata/action-destinations/dist/destinations/amplitude';
 import heap from '@syftdata/action-destinations/dist/destinations/heap';
@@ -11,11 +16,7 @@ import hubspot from '@syftdata/action-destinations/dist/destinations/hubspot';
 import snowflake from '@syftdata/action-destinations/dist/destinations/snowflake';
 import { mapValues } from '../../common/utils';
 
-export interface Subscription {
-  partnerAction: string;
-  subscribe: string;
-  mapping?: Record<string, unknown>;
-}
+export type SyftSubscription = Subscription;
 
 export interface MyDestinationDefinition extends DestinationDefinition {
   type: string;
@@ -29,30 +30,25 @@ const CUSTOM_PRESETS = {
   ga4: [
     {
       subscribe: 'type = "track"',
-      partnerAction: 'customEvent',
-      type: 'automatic'
+      partnerAction: 'customEvent'
     },
     {
       subscribe: 'type = "page" or type = "screen"',
-      partnerAction: 'pageView',
-      type: 'automatic'
+      partnerAction: 'pageView'
     },
     {
       subscribe: 'type = "identify"',
-      partnerAction: 'login',
-      type: 'automatic'
+      partnerAction: 'login'
     }
   ],
   hubspot: [
     {
       subscribe: 'type = "group"',
-      partnerAction: 'upsertCompany',
-      type: 'automatic'
+      partnerAction: 'upsertCompany'
     },
     {
       subscribe: 'type = "identify"',
-      partnerAction: 'upsertContact',
-      type: 'automatic'
+      partnerAction: 'upsertContact'
     }
   ]
 };
@@ -67,7 +63,7 @@ export const destinations: Record<string, DestinationDefinition> = {};
 export function generateMappings(
   name: string,
   definition: DestinationDefinition<any>,
-  subscription: Subscription
+  subscription: SyftSubscription
 ): void {
   const action = definition.actions[subscription.partnerAction];
   if (action == null) return;
@@ -91,28 +87,45 @@ export function generateMappings(
   };
 }
 
-function register(name: string, definition: DestinationDefinition<any>): void {
+function registerDestination(
+  name: string,
+  definition: DestinationDefinition<any>,
+  subscriptions: Subscription[] = []
+): void {
   destinations[name] = definition;
+  const presets: Preset[] = subscriptions.map((s) => {
+    return {
+      ...s,
+      type: 'automatic'
+    };
+  });
+  definition.presets = [...(definition.presets ?? []), ...presets];
+  definition.presets.forEach((preset) => {
+    if (preset.type !== 'automatic') return;
+    generateMappings(name, definition, preset);
+  });
+}
+
+export function register(
+  name: string,
+  definition: DestinationDefinition<any>
+): void {
+  let subscriptions: SyftSubscription[] = [];
   if (definition.presets == null || definition.presets.length === 0) {
-    definition.presets = CUSTOM_PRESETS[name];
-    if (definition.presets == null) {
-      definition.presets = [];
+    subscriptions = CUSTOM_PRESETS[name];
+    if (subscriptions == null) {
+      subscriptions = [];
       Object.entries(definition.actions).forEach(([name, action]) => {
         if (action.defaultSubscription != null) {
-          definition.presets?.push({
-            type: 'automatic',
+          subscriptions.push({
             partnerAction: name,
             subscribe: action.defaultSubscription
           });
         }
       });
     }
-    // compute the mapping.
-    definition.presets?.forEach((preset) => {
-      if (preset.type !== 'automatic') return;
-      generateMappings(name, definition, preset);
-    });
   }
+  registerDestination(name, definition, subscriptions);
 }
 
 register('amplitude', amplitude);
@@ -148,10 +161,7 @@ const DESTINATION_TO_TYPE = {
   hubspot: 'CRM',
   snowflake: 'Warehouse'
 };
-export function getDestinationSettings(): Record<
-  string,
-  MyDestinationDefinition
-> {
+export function getDestinationDefs(): Record<string, MyDestinationDefinition> {
   const myDestinations: Record<string, MyDestinationDefinition> = {};
   Object.entries(destinations).forEach(([name, destination]) => {
     const settings = destination.authentication?.fields ?? {};

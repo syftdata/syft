@@ -9,10 +9,7 @@ This page describes how to set up Mixpanel as a destination.
 An example setup for Mixpanel is shown below.
 
 ```ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
@@ -24,13 +21,7 @@ const destinations = [
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 ```
 
 ### Configuration options
@@ -304,6 +295,7 @@ type = "group"
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
+| group_key | string | The group key you specified in Mixpanel under Project settings. If this is not specified, it will be defaulted to "$group_id". | (<br/>  "@path": "$.group_key"<br/>) |
 | group_id | string | The unique identifier of the group. If there is a trait that matches the group key, it will override this value. | (<br/>  "@path": "$.groupId"<br/>) |
 | traits | object | The properties to set on the group profile. | (<br/>  "@path": "$.traits"<br/>) |
 </details>

@@ -35,9 +35,8 @@ const config = {
 
   scripts: [
     {
-      src: "https://buttons.github.io/buttons.js",
-      async: true,
-      defer: true,
+      src: "/js/koala.js",
+      async: false,
     },
   ],
 

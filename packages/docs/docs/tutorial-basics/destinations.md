@@ -28,9 +28,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const server = new NextSyftServer({
-    destinations,
-  });
+  const server = new NextSyftServer({ destinations });
+  if (process && process.env.NODE_ENV === "development") {
+    if (!(await server.validateSetup())) throw new Error("Invalid setup");
+  }
   await server.handlePageApi(req, res);
 }
 ```

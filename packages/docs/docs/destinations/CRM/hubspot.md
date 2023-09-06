@@ -9,34 +9,26 @@ This page describes how to set up Hubspot as a destination.
 An example setup for Hubspot is shown below.
 
 ```ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
     type: "hubspot",
     settings: {
+        portalId: "xxxx",
         access_token: "xxxx"
     },
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 ```
 
 ### Configuration options
 
 | Name                 | Type           | Description     | Required | Default         |
 | -------------------- | -------------- | --------------- | -------- | --------------- |
-| portalId | string | The Hub ID of your HubSpot account. | false |  |
+| portalId | string | The Hub ID of your HubSpot account. | true |  |
 | access_token | string | Access token to access the destination. | true |  |
 | refresh_token | string | Refresh Token (If applicable) | false |  |
 | refresh_token_url | string | Refresh token URL (If applicable) | false |  |

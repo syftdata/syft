@@ -9,10 +9,7 @@ This page describes how to set up Amplitude as a destination.
 An example setup for Amplitude is shown below.
 
 ```ts title="src/pages/api/syft.ts"
-import { type NextApiRequest, type NextApiResponse } from "next";
-// highlight-next-line
-import { NextSyftServer } from "@syftdata/next/lib/next";
-
+// ...
 const destinations = [
   // highlight-start
   {
@@ -24,13 +21,7 @@ const destinations = [
   },
   // highlight-end
 ];
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const server = new NextSyftServer({ destinations });
-  await server.handlePageApi(req, res);
-}
+// ...
 ```
 
 ### Configuration options
@@ -62,6 +53,7 @@ type = "track" and event != "Order Completed"
 | time | datetime | The timestamp of the event. If time is not sent with the event, it will be set to the request upload time. | (<br/>  "@path": "$.timestamp"<br/>) |
 | event_properties | object | An object of key-value pairs that represent additional data to be sent along with the event. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.properties"<br/>) |
 | user_properties | object | An object of key-value pairs that represent additional data tied to the user. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.traits"<br/>) |
+| groups | object | Groups of users for the event as an event-level group. You can only track up to 5 groups. **Note:** This Amplitude feature is only available to Enterprise customers who have purchased the Accounts add-on. | (<br/>  "@path": "$.groups"<br/>) |
 | app_version | string | The current version of your application. | (<br/>  "@path": "$.context.app.version"<br/>) |
 | platform | string | Platform of the device. | (<br/>  "@path": "$.context.device.type"<br/>) |
 | os_name | string | The name of the mobile operating system or browser that the user is using. | (<br/>  "@path": "$.context.os.name"<br/>) |
@@ -73,6 +65,7 @@ type = "track" and event != "Order Completed"
 | country | string | The current country of the user. | (<br/>  "@path": "$.context.location.country"<br/>) |
 | region | string | The current region of the user. | (<br/>  "@path": "$.context.location.region"<br/>) |
 | city | string | The current city of the user. | (<br/>  "@path": "$.context.location.city"<br/>) |
+| dma | string | The current Designated Market Area of the user. | (<br/>  "@path": "$.dma"<br/>) |
 | language | string | The language set by the user. | (<br/>  "@path": "$.context.locale"<br/>) |
 | price | number | The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds. | (<br/>  "@path": "$.properties.price"<br/>) |
 | quantity | integer | The quantity of the item purchased. Defaults to 1 if not specified. | (<br/>  "@path": "$.properties.quantity"<br/>) |
@@ -85,13 +78,18 @@ type = "track" and event != "Order Completed"
 | idfa | string | Identifier for Advertiser. _(iOS)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
 | idfv | string | Identifier for Vendor. _(iOS)_ | (<br/>  "@path": "$.context.device.id"<br/>) |
 | adid | string | Google Play Services advertising ID. _(Android)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
+| android_id | string | Android ID (not the advertising ID). _(Android)_ | (<br/>  "@path": "$.android_id"<br/>) |
+| event_id | integer | An incrementing counter to distinguish events with the same user ID and timestamp from each other. Amplitude recommends you send an event ID, increasing over time, especially if you expect events to occur simultanenously. | (<br/>  "@path": "$.event_id"<br/>) |
+| insert_id | string | Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time. | (<br/>  "@path": "$.insert_id"<br/>) |
 | library | string | The name of the library that generated the event. | (<br/>  "@path": "$.context.library.name"<br/>) |
 | products | object | The list of products purchased. | (<br/>  "@arrayPath": [<br/>    "$.properties.products",<br/>    (<br/>      "price": (<br/>        "@path": "price"<br/>      ),<br/>      "revenue": (<br/>        "@path": "revenue"<br/>      ),<br/>      "quantity": (<br/>        "@path": "quantity"<br/>      ),<br/>      "productId": (<br/>        "@path": "productId"<br/>      ),<br/>      "revenueType": (<br/>        "@path": "revenueType"<br/>      )<br/>    )<br/>  ]<br/>) |
 | setOnce | object | The following fields will be set only once per session when using AJS2 as the source. | (<br/>  "initial_referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "initial_utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "initial_utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "initial_utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "initial_utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "initial_utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
 | setAlways | object | The following fields will be set every session when using AJS2 as the source. | (<br/>  "referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
+| add | object | Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0. | (<br/>  "@path": "$.add"<br/>) |
 | use_batch_endpoint | boolean | If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth). | false |
 | userAgent | string | The user agent of the device sending the event. | (<br/>  "@path": "$.context.userAgent"<br/>) |
 | userAgentParsing | boolean | Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field. | true |
+| min_id_length | integer | Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths. | (<br/>  "@path": "$.min_id_length"<br/>) |
 </details>
 ,<details>
 <summary>Order Completed Calls</summary>
@@ -113,6 +111,7 @@ type = "track" and event = "Order Completed"
 | time | datetime | The timestamp of the event. If time is not sent with the event, it will be set to the request upload time. | (<br/>  "@path": "$.timestamp"<br/>) |
 | event_properties | object | An object of key-value pairs that represent additional data to be sent along with the event. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.properties"<br/>) |
 | user_properties | object | An object of key-value pairs that represent additional data tied to the user. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.traits"<br/>) |
+| groups | object | Groups of users for the event as an event-level group. You can only track up to 5 groups. **Note:** This Amplitude feature is only available to Enterprise customers who have purchased the Accounts add-on. | (<br/>  "@path": "$.groups"<br/>) |
 | app_version | string | The current version of your application. | (<br/>  "@path": "$.context.app.version"<br/>) |
 | platform | string | Platform of the device. | (<br/>  "@path": "$.context.device.type"<br/>) |
 | os_name | string | The name of the mobile operating system or browser that the user is using. | (<br/>  "@path": "$.context.os.name"<br/>) |
@@ -124,6 +123,7 @@ type = "track" and event = "Order Completed"
 | country | string | The current country of the user. | (<br/>  "@path": "$.context.location.country"<br/>) |
 | region | string | The current region of the user. | (<br/>  "@path": "$.context.location.region"<br/>) |
 | city | string | The current city of the user. | (<br/>  "@path": "$.context.location.city"<br/>) |
+| dma | string | The current Designated Market Area of the user. | (<br/>  "@path": "$.dma"<br/>) |
 | language | string | The language set by the user. | (<br/>  "@path": "$.context.locale"<br/>) |
 | price | number | The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds. | (<br/>  "@path": "$.properties.price"<br/>) |
 | quantity | integer | The quantity of the item purchased. Defaults to 1 if not specified. | (<br/>  "@path": "$.properties.quantity"<br/>) |
@@ -136,6 +136,9 @@ type = "track" and event = "Order Completed"
 | idfa | string | Identifier for Advertiser. _(iOS)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
 | idfv | string | Identifier for Vendor. _(iOS)_ | (<br/>  "@path": "$.context.device.id"<br/>) |
 | adid | string | Google Play Services advertising ID. _(Android)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
+| android_id | string | Android ID (not the advertising ID). _(Android)_ | (<br/>  "@path": "$.android_id"<br/>) |
+| event_id | integer | An incrementing counter to distinguish events with the same user ID and timestamp from each other. Amplitude recommends you send an event ID, increasing over time, especially if you expect events to occur simultanenously. | (<br/>  "@path": "$.event_id"<br/>) |
+| insert_id | string | Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time. | (<br/>  "@path": "$.insert_id"<br/>) |
 | library | string | The name of the library that generated the event. | (<br/>  "@path": "$.context.library.name"<br/>) |
 | products | object | The list of products purchased. | (<br/>  "@arrayPath": [<br/>    "$.properties.products",<br/>    (<br/>      "price": (<br/>        "@path": "price"<br/>      ),<br/>      "revenue": (<br/>        "@path": "revenue"<br/>      ),<br/>      "quantity": (<br/>        "@path": "quantity"<br/>      ),<br/>      "productId": (<br/>        "@path": "productId"<br/>      ),<br/>      "revenueType": (<br/>        "@path": "revenueType"<br/>      )<br/>    )<br/>  ]<br/>) |
 | use_batch_endpoint | boolean | If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth). | false |
@@ -143,6 +146,7 @@ type = "track" and event = "Order Completed"
 | userAgentParsing | boolean | Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field | true |
 | utm_properties | object | UTM Tracking Properties | (<br/>  "utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
 | referrer | string | The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer” | (<br/>  "@path": "$.context.page.referrer"<br/>) |
+| min_id_length | integer | Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths. | (<br/>  "@path": "$.min_id_length"<br/>) |
 </details>
 ,<details>
 <summary>Page Calls</summary>
@@ -163,6 +167,7 @@ type = "page"
 | time | datetime | The timestamp of the event. If time is not sent with the event, it will be set to the request upload time. | (<br/>  "@path": "$.timestamp"<br/>) |
 | event_properties | object | An object of key-value pairs that represent additional data to be sent along with the event. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.properties"<br/>) |
 | user_properties | object | An object of key-value pairs that represent additional data tied to the user. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.traits"<br/>) |
+| groups | object | Groups of users for the event as an event-level group. You can only track up to 5 groups. **Note:** This Amplitude feature is only available to Enterprise customers who have purchased the Accounts add-on. | (<br/>  "@path": "$.groups"<br/>) |
 | app_version | string | The current version of your application. | (<br/>  "@path": "$.context.app.version"<br/>) |
 | platform | string | Platform of the device. | (<br/>  "@path": "$.context.device.type"<br/>) |
 | os_name | string | The name of the mobile operating system or browser that the user is using. | (<br/>  "@path": "$.context.os.name"<br/>) |
@@ -174,6 +179,7 @@ type = "page"
 | country | string | The current country of the user. | (<br/>  "@path": "$.context.location.country"<br/>) |
 | region | string | The current region of the user. | (<br/>  "@path": "$.context.location.region"<br/>) |
 | city | string | The current city of the user. | (<br/>  "@path": "$.context.location.city"<br/>) |
+| dma | string | The current Designated Market Area of the user. | (<br/>  "@path": "$.dma"<br/>) |
 | language | string | The language set by the user. | (<br/>  "@path": "$.context.locale"<br/>) |
 | price | number | The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds. | (<br/>  "@path": "$.properties.price"<br/>) |
 | quantity | integer | The quantity of the item purchased. Defaults to 1 if not specified. | (<br/>  "@path": "$.properties.quantity"<br/>) |
@@ -186,13 +192,18 @@ type = "page"
 | idfa | string | Identifier for Advertiser. _(iOS)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
 | idfv | string | Identifier for Vendor. _(iOS)_ | (<br/>  "@path": "$.context.device.id"<br/>) |
 | adid | string | Google Play Services advertising ID. _(Android)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
+| android_id | string | Android ID (not the advertising ID). _(Android)_ | (<br/>  "@path": "$.android_id"<br/>) |
+| event_id | integer | An incrementing counter to distinguish events with the same user ID and timestamp from each other. Amplitude recommends you send an event ID, increasing over time, especially if you expect events to occur simultanenously. | (<br/>  "@path": "$.event_id"<br/>) |
+| insert_id | string | Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time. | (<br/>  "@path": "$.insert_id"<br/>) |
 | library | string | The name of the library that generated the event. | (<br/>  "@path": "$.context.library.name"<br/>) |
 | products | object | The list of products purchased. | (<br/>  "@arrayPath": [<br/>    "$.properties.products",<br/>    (<br/>      "price": (<br/>        "@path": "price"<br/>      ),<br/>      "revenue": (<br/>        "@path": "revenue"<br/>      ),<br/>      "quantity": (<br/>        "@path": "quantity"<br/>      ),<br/>      "productId": (<br/>        "@path": "productId"<br/>      ),<br/>      "revenueType": (<br/>        "@path": "revenueType"<br/>      )<br/>    )<br/>  ]<br/>) |
 | setOnce | object | The following fields will be set only once per session when using AJS2 as the source. | (<br/>  "initial_referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "initial_utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "initial_utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "initial_utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "initial_utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "initial_utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
 | setAlways | object | The following fields will be set every session when using AJS2 as the source. | (<br/>  "referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
+| add | object | Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0. | (<br/>  "@path": "$.add"<br/>) |
 | use_batch_endpoint | boolean | If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth). | false |
 | userAgent | string | The user agent of the device sending the event. | (<br/>  "@path": "$.context.userAgent"<br/>) |
 | userAgentParsing | boolean | Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field. | true |
+| min_id_length | integer | Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths. | (<br/>  "@path": "$.min_id_length"<br/>) |
 </details>
 ,<details>
 <summary>Screen Calls</summary>
@@ -213,6 +224,7 @@ type = "screen"
 | time | datetime | The timestamp of the event. If time is not sent with the event, it will be set to the request upload time. | (<br/>  "@path": "$.timestamp"<br/>) |
 | event_properties | object | An object of key-value pairs that represent additional data to be sent along with the event. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.properties"<br/>) |
 | user_properties | object | An object of key-value pairs that represent additional data tied to the user. You can store property values in an array, but note that Amplitude only supports one-dimensional arrays. Date values are transformed into string values. Object depth may not exceed 40 layers. | (<br/>  "@path": "$.traits"<br/>) |
+| groups | object | Groups of users for the event as an event-level group. You can only track up to 5 groups. **Note:** This Amplitude feature is only available to Enterprise customers who have purchased the Accounts add-on. | (<br/>  "@path": "$.groups"<br/>) |
 | app_version | string | The current version of your application. | (<br/>  "@path": "$.context.app.version"<br/>) |
 | platform | string | Platform of the device. | (<br/>  "@path": "$.context.device.type"<br/>) |
 | os_name | string | The name of the mobile operating system or browser that the user is using. | (<br/>  "@path": "$.context.os.name"<br/>) |
@@ -224,6 +236,7 @@ type = "screen"
 | country | string | The current country of the user. | (<br/>  "@path": "$.context.location.country"<br/>) |
 | region | string | The current region of the user. | (<br/>  "@path": "$.context.location.region"<br/>) |
 | city | string | The current city of the user. | (<br/>  "@path": "$.context.location.city"<br/>) |
+| dma | string | The current Designated Market Area of the user. | (<br/>  "@path": "$.dma"<br/>) |
 | language | string | The language set by the user. | (<br/>  "@path": "$.context.locale"<br/>) |
 | price | number | The price of the item purchased. Required for revenue data if the revenue field is not sent. You can use negative values to indicate refunds. | (<br/>  "@path": "$.properties.price"<br/>) |
 | quantity | integer | The quantity of the item purchased. Defaults to 1 if not specified. | (<br/>  "@path": "$.properties.quantity"<br/>) |
@@ -236,13 +249,18 @@ type = "screen"
 | idfa | string | Identifier for Advertiser. _(iOS)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
 | idfv | string | Identifier for Vendor. _(iOS)_ | (<br/>  "@path": "$.context.device.id"<br/>) |
 | adid | string | Google Play Services advertising ID. _(Android)_ | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.advertisingId"<br/>    ),<br/>    "else": (<br/>      "@path": "$.context.device.idfa"<br/>    )<br/>  )<br/>) |
+| android_id | string | Android ID (not the advertising ID). _(Android)_ | (<br/>  "@path": "$.android_id"<br/>) |
+| event_id | integer | An incrementing counter to distinguish events with the same user ID and timestamp from each other. Amplitude recommends you send an event ID, increasing over time, especially if you expect events to occur simultanenously. | (<br/>  "@path": "$.event_id"<br/>) |
+| insert_id | string | Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time. | (<br/>  "@path": "$.insert_id"<br/>) |
 | library | string | The name of the library that generated the event. | (<br/>  "@path": "$.context.library.name"<br/>) |
 | products | object | The list of products purchased. | (<br/>  "@arrayPath": [<br/>    "$.properties.products",<br/>    (<br/>      "price": (<br/>        "@path": "price"<br/>      ),<br/>      "revenue": (<br/>        "@path": "revenue"<br/>      ),<br/>      "quantity": (<br/>        "@path": "quantity"<br/>      ),<br/>      "productId": (<br/>        "@path": "productId"<br/>      ),<br/>      "revenueType": (<br/>        "@path": "revenueType"<br/>      )<br/>    )<br/>  ]<br/>) |
 | setOnce | object | The following fields will be set only once per session when using AJS2 as the source. | (<br/>  "initial_referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "initial_utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "initial_utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "initial_utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "initial_utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "initial_utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
 | setAlways | object | The following fields will be set every session when using AJS2 as the source. | (<br/>  "referrer": (<br/>    "@path": "$.context.page.referrer"<br/>  ),<br/>  "utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
+| add | object | Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0. | (<br/>  "@path": "$.add"<br/>) |
 | use_batch_endpoint | boolean | If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth). | false |
 | userAgent | string | The user agent of the device sending the event. | (<br/>  "@path": "$.context.userAgent"<br/>) |
 | userAgentParsing | boolean | Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field. | true |
+| min_id_length | integer | Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths. | (<br/>  "@path": "$.min_id_length"<br/>) |
 </details>
 ,<details>
 <summary>Identify Calls</summary>
@@ -259,6 +277,7 @@ type = "identify"
 | user_id | string | A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. Required unless device ID is present. | (<br/>  "@path": "$.userId"<br/>) |
 | device_id | string | A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. Required unless user ID is present. | (<br/>  "@if": (<br/>    "exists": (<br/>      "@path": "$.context.device.id"<br/>    ),<br/>    "then": (<br/>      "@path": "$.context.device.id"<br/>    ),<br/>    "else": (<br/>      "@path": "$.anonymousId"<br/>    )<br/>  )<br/>) |
 | user_properties | object | Additional data tied to the user in Amplitude. Each distinct value will show up as a user segment on the Amplitude dashboard. Object depth may not exceed 40 layers. **Note:** You can store property values in an array and date values are transformed into string values. | (<br/>  "@path": "$.traits"<br/>) |
+| groups | object | Groups of users for Amplitude's account-level reporting feature. Note: You can only track up to 5 groups. Any groups past that threshold will not be tracked. **Note:** This feature is only available to Amplitude Enterprise customers who have purchased the Amplitude Accounts add-on. | (<br/>  "@path": "$.groups"<br/>) |
 | app_version | string | Version of the app the user is on. | (<br/>  "@path": "$.context.app.version"<br/>) |
 | platform | string | The platform of the user's device. | (<br/>  "@path": "$.context.device.type"<br/>) |
 | os_name | string | The mobile operating system or browser of the user's device. | (<br/>  "@path": "$.context.os.name"<br/>) |
@@ -270,11 +289,16 @@ type = "identify"
 | country | string | The country in which the user is located. | (<br/>  "@path": "$.context.location.country"<br/>) |
 | region | string | The geographical region in which the user is located. | (<br/>  "@path": "$.context.location.region"<br/>) |
 | city | string | The city in which the user is located. | (<br/>  "@path": "$.context.location.city"<br/>) |
+| dma | string | The Designated Market Area in which the user is located. | (<br/>  "@path": "$.dma"<br/>) |
 | language | string | Language the user has set on their device or browser. | (<br/>  "@path": "$.context.locale"<br/>) |
+| paying | boolean | Whether the user is paying or not. | (<br/>  "@path": "$.paying"<br/>) |
+| start_version | string | The version of the app the user was first on. | (<br/>  "@path": "$.start_version"<br/>) |
+| insert_id | string | Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time. | (<br/>  "@path": "$.insert_id"<br/>) |
 | userAgent | string | The user agent of the device sending the event. | (<br/>  "@path": "$.context.userAgent"<br/>) |
 | userAgentParsing | boolean | Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field | true |
 | utm_properties | object | UTM Tracking Properties | (<br/>  "utm_source": (<br/>    "@path": "$.context.campaign.source"<br/>  ),<br/>  "utm_medium": (<br/>    "@path": "$.context.campaign.medium"<br/>  ),<br/>  "utm_campaign": (<br/>    "@path": "$.context.campaign.name"<br/>  ),<br/>  "utm_term": (<br/>    "@path": "$.context.campaign.term"<br/>  ),<br/>  "utm_content": (<br/>    "@path": "$.context.campaign.content"<br/>  )<br/>) |
 | referrer | string | The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer” | (<br/>  "@path": "$.context.page.referrer"<br/>) |
+| min_id_length | integer | Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths. | (<br/>  "@path": "$.min_id_length"<br/>) |
 | library | string | The name of the library that generated the event. | (<br/>  "@path": "$.context.library.name"<br/>) |
 </details>
 ,
