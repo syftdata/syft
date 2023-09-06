@@ -1,0 +1,8 @@
+{
+  "label": "CRM",
+  "position": 11,
+  "link": {
+    "type": "generated-index",
+    "description": "CRM Destinations and their configurations"
+  }
+}

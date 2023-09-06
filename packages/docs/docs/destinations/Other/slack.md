@@ -1,5 +1,5 @@
 ---
-sidebar_position: 17
+sidebar_position: 18
 ---
 # Slack
 
@@ -17,7 +17,9 @@ const destinations = [
   // highlight-start
   {
     type: "slack",
-    settings: {},
+    settings: {
+
+    },
   },
   // highlight-end
 ];
@@ -30,6 +32,10 @@ export default async function handler(
 }
 ```
 
+### Configuration options
+
+| Name                 | Type           | Description     | Required | Default         |
+| -------------------- | -------------- | --------------- | -------- | --------------- |
  
 
 

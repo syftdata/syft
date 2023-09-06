@@ -1,0 +1,8 @@
+{
+  "label": "Warehouse",
+  "position": 12,
+  "link": {
+    "type": "generated-index",
+    "description": "Warehouse Destinations and their configurations"
+  }
+}

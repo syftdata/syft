@@ -1,12 +1,12 @@
 ---
-sidebar_position: 16
+sidebar_position: 12
 ---
-# Snowflake
+# Bigquery
 
-This page describes how to set up the Snowflake as a destination.
+This page describes how to set up the Bigquery as a destination.
 
 ## Set up
-An example setup for the Snowflake is shown below.
+An example setup for the Bigquery is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";
@@ -16,14 +16,10 @@ import { NextSyftServer } from "@syftdata/next/lib/next";
 const destinations = [
   // highlight-start
   {
-    type: "snowflake",
+    type: "bigquery",
     settings: {
-        account: "xxxx",
-        warehouse: "xxxx",
-        database: "xxxx",
-        schema: "xxxx",
-        username: "xxxx",
-        password: "xxxx"
+        projectId: "xxxx",
+        dataset: "xxxx"
     },
   },
   // highlight-end
@@ -41,12 +37,10 @@ export default async function handler(
 
 | Name                 | Type           | Description     | Required | Default         |
 | -------------------- | -------------- | --------------- | -------- | --------------- |
-| account | string | Your Snowflake Account | true |  |
-| warehouse | string | Your Snowflake Warehouse | true |  |
-| database | string | Your Snowflake Database | true |  |
-| schema | string | Your Snowflake Schema | true |  |
-| username | string | Your Snowflake Username | true |  |
-| password | string | Your Snowflake Password. This is a secret field. | true |  | 
+| projectId | string | Your Google Cloud project ID | true |  |
+| dataset | string | The dataset to insert events into | true |  |
+| keyFile | string | Path to your Google Cloud key file | false |  |
+| keyData | string | The contents of your Google Cloud key file | false |  | 
 
 
 ## Data Modeling

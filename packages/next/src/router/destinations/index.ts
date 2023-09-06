@@ -17,6 +17,11 @@ export interface Subscription {
   mapping?: Record<string, unknown>;
 }
 
+export interface MyDestinationDefinition extends DestinationDefinition {
+  type: string;
+  settings: Record<string, unknown>;
+}
+
 /**
  * Use this to add custom presets for destinations that don't have presets.
  */
@@ -133,16 +138,56 @@ export function getDestination(key: string): Destination | null {
   return new Destination(destination as DestinationDefinition<any>);
 }
 
-export function getDestinationSettings(): Record<string, unknown> {
-  const settings: Record<string, unknown> = {};
+const DESTINATION_TO_TYPE = {
+  amplitude: 'Analytics',
+  heap: 'Analytics',
+  june: 'Analytics',
+  mixpanel: 'Analytics',
+  ga4: 'Analytics',
+  bigquery: 'Warehouse',
+  hubspot: 'CRM',
+  snowflake: 'Warehouse'
+};
+export function getDestinationSettings(): Record<
+  string,
+  MyDestinationDefinition
+> {
+  const myDestinations: Record<string, MyDestinationDefinition> = {};
   Object.entries(destinations).forEach(([name, destination]) => {
-    settings[name] = {
-      name: destination.name,
-      description: destination.description,
-      presets: destination.presets,
-      settings: destination.authentication?.fields,
-      actions: destination.actions
+    const settings = destination.authentication?.fields ?? {};
+    if (destination.authentication?.scheme === 'oauth2') {
+      settings.access_token = {
+        label: 'Access Token',
+        description: 'Access token to access the destination.',
+        type: 'string',
+        required: true
+      };
+      settings.refresh_token = {
+        label: 'Refresh Token',
+        description: 'Refresh Token (If applicable)',
+        type: 'string'
+      };
+      settings.refresh_token_url = {
+        label: 'Refresh token URL',
+        description: 'Refresh token URL (If applicable)',
+        type: 'string'
+      };
+      settings.clientId = {
+        label: 'Client ID',
+        description: 'Client ID (If applicable)',
+        type: 'string'
+      };
+      settings.clientSecret = {
+        label: 'Client Secret',
+        description: 'Client Secret (If applicable)',
+        type: 'string'
+      };
+    }
+    myDestinations[name] = {
+      ...destination,
+      settings,
+      type: DESTINATION_TO_TYPE[name] ?? 'Other'
     };
   });
-  return settings;
+  return myDestinations;
 }

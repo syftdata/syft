@@ -1,4 +1,8 @@
-import { getDestinationSettings } from '../src/router/destinations/index';
+import { Preset } from '@segment/actions-core/destination-kitindex';
+import {
+  MyDestinationDefinition,
+  getDestinationSettings
+} from '../src/router/destinations/index';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -73,22 +77,27 @@ ${getConfigTable(key, title, destination)}
 `;
 }
 
-function getPresets(key: string, destination: any): string {
+function getPresets(key: string, destination: MyDestinationDefinition): string {
   if (destination.presets == null || destination.presets.length === 0)
     return '';
   return `## Data Modeling
-${destination.presets?.map((preset: any, index) =>
+${destination.presets?.map((preset, index) =>
   getPreset(preset, index, destination)
 )}
 `;
 }
 
-function getPreset(preset: any, index: number, destination: any) {
+function getPreset(
+  preset: Preset,
+  index: number,
+  destination: MyDestinationDefinition
+) {
   // get action based on the preset/
   const action = Object.entries(destination.actions ?? {}).find(
     (a: any) => a[0] === preset.partnerAction
   );
   if (action == null) return '';
+  if (preset.type !== 'automatic') return '';
   const actionDetails = action[1] as any;
 
   return `<details>
@@ -103,7 +112,7 @@ ${preset.subscribe}
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
-${Object.entries(preset.mapping)
+${Object.entries(preset.mapping ?? {})
   .map(([key, value]: any) => {
     const field = actionDetails.fields[key] ?? {
       type: 'string',
@@ -118,7 +127,12 @@ ${Object.entries(preset.mapping)
 `;
 }
 
-function getMDX(key: string, title: string, index: number, destination: any) {
+function getMDX(
+  key: string,
+  title: string,
+  index: number,
+  destination: MyDestinationDefinition
+) {
   return `---
 sidebar_position: ${index}
 ---
@@ -131,18 +145,25 @@ ${getSetup(key, title, destination)}
 ${getPresets(key, destination)}
 `;
 }
+
 describe('destinations', () => {
   it('get configs of all registered destinations', async () => {
     const destinations = getDestinationSettings();
-    Object.entries(destinations).forEach(([key, value], index) => {
-      // change the first letter to uppercase
-      const title = key.charAt(0).toUpperCase() + key.slice(1);
-      const mdx = getMDX(key, title, index + 11, value);
-      // write to file
-      fs.writeFileSync(
-        path.join(__dirname, `../../docs/docs/destinations/${key}.md`),
-        mdx
-      );
-    });
+    // sorted list.
+    Object.entries(destinations)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .forEach(([key, value], index) => {
+        // change the first letter to uppercase
+        const title = key.charAt(0).toUpperCase() + key.slice(1);
+        const mdx = getMDX(key, title, index + 11, value);
+        // write to file
+        fs.writeFileSync(
+          path.join(
+            __dirname,
+            `../../docs/docs/destinations/${value.type}/${key}.md`
+          ),
+          mdx
+        );
+      });
   });
 });

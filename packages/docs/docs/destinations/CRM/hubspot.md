@@ -1,5 +1,5 @@
 ---
-sidebar_position: 19
+sidebar_position: 15
 ---
 # Hubspot
 
@@ -18,7 +18,7 @@ const destinations = [
   {
     type: "hubspot",
     settings: {
-
+        access_token: "xxxx"
     },
   },
   // highlight-end
@@ -36,7 +36,12 @@ export default async function handler(
 
 | Name                 | Type           | Description     | Required | Default         |
 | -------------------- | -------------- | --------------- | -------- | --------------- |
-| portalId | string | The Hub ID of your HubSpot account. | false |  | 
+| portalId | string | The Hub ID of your HubSpot account. | false |  |
+| access_token | string | Access token to access the destination. | true |  |
+| refresh_token | string | Refresh Token (If applicable) | false |  |
+| refresh_token_url | string | Refresh token URL (If applicable) | false |  |
+| clientId | string | Client ID (If applicable) | false |  |
+| clientSecret | string | Client Secret (If applicable) | false |  | 
 
 
 ## Data Modeling
