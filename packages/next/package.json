@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@segment/actions-core": "^3.81.2",
-    "@syftdata/action-destinations": "^3.205.10",
+    "@syftdata/action-destinations": "^3.205.11",
     "js-cookie": "^3.0.5"
   }
 }
