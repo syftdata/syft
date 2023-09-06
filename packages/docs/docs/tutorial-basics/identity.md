@@ -4,13 +4,13 @@ sidebar_position: 4
 
 # Identify users and companies
 
-Syft's identify call's behavior is very similar to Segment's. Syft library generates and manages annonymous-id (UUID) for you. It stores it in the cookie and browser's local storage so that the developer has access to it both on the server and the client. This annonymous-id gets included in every event that is generated.
-
-Annonymous-id get reset when an user clears their cookies and local-storage.
+Identify the users and the companies who are using your app.
 
 ## Identify your users.
 
-Use the `identify()` method to identify your product's users. This will help you track users who are triggering events. An example usage looks like this:
+Use the `identify()` call to identify which users are triggering events. Call it every time the user changes in your app. Syft's `identify()` call behaves very similarly to [Segment's](https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/identity/). 
+
+An example usage looks like this:
 
 ```jsx
 // highlight-next-line

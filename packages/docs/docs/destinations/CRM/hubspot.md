@@ -3,10 +3,10 @@ sidebar_position: 15
 ---
 # Hubspot
 
-This page describes how to set up the Hubspot as a destination.
+This page describes how to set up Hubspot as a destination.
 
 ## Set up
-An example setup for the Hubspot is shown below.
+An example setup for Hubspot is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";

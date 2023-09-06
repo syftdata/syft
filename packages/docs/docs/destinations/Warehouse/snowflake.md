@@ -3,10 +3,10 @@ sidebar_position: 19
 ---
 # Snowflake
 
-This page describes how to set up the Snowflake as a destination.
+This page describes how to set up Snowflake as a destination.
 
 ## Set up
-An example setup for the Snowflake is shown below.
+An example setup for Snowflake is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";

@@ -3,10 +3,10 @@ sidebar_position: 18
 ---
 # Slack
 
-This page describes how to set up the Slack as a destination.
+This page describes how to set up Slack as a destination.
 
 ## Set up
-An example setup for the Slack is shown below.
+An example setup for Slack is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";

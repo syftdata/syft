@@ -9,8 +9,8 @@ This is a [next.js](https://nextjs.org) library to capture rich analytics events
 
 ## Data Quality
 
-- Prevent data loss from Ad blockers: This library will automatically proxy events through your nextjs backend.
-- Guarantee type safety: The library can leverage Typescript types to ensure events and fields adhere to a contract.
+- Prevent data loss from Ad blockers: This library will automatically proxy events through your next.js backend.
+- Guaranteed type safety: The library can leverage Typescript to ensure events and fields have strict types.
 
 ## No Lock-In
 
@@ -19,5 +19,5 @@ This is a [next.js](https://nextjs.org) library to capture rich analytics events
 
 ## Rich events
 
-- Enrich collected events on server-side state (e.g. from database) with transforms.
+- Enrich collected events with server-side state (e.g. from database) with 'transforms'.
 - Automatically collect page events and standard fields on each event.

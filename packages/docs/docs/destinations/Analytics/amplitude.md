@@ -3,10 +3,10 @@ sidebar_position: 11
 ---
 # Amplitude
 
-This page describes how to set up the Amplitude as a destination.
+This page describes how to set up Amplitude as a destination.
 
 ## Set up
-An example setup for the Amplitude is shown below.
+An example setup for Amplitude is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";

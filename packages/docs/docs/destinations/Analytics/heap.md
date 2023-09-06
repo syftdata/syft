@@ -3,7 +3,7 @@ sidebar_position: 14
 ---
 # Heap
 
-This page describes how to set up the Heap as a destination.
+This page describes how to set up Heap as a destination.
 
 ## Set up
 An example setup for the Heap is shown below.
