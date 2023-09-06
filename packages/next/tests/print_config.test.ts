@@ -77,13 +77,25 @@ function getPresets(key: string, destination: any): string {
   if (destination.presets == null || destination.presets.length === 0)
     return '';
   return `## Data Modeling
-${destination.presets?.map((preset: any, index) => getPreset(preset, index))}
+${destination.presets?.map((preset: any, index) =>
+  getPreset(preset, index, destination)
+)}
 `;
 }
 
-function getPreset(preset: any, index: number) {
+function getPreset(preset: any, index: number, destination: any) {
+  // get action based on the preset/
+  const action = Object.entries(destination.actions ?? {}).find(
+    (a: any) => a[0] === preset.partnerAction
+  );
+  if (action == null) return '';
+  const actionDetails = action[1] as any;
+
   return `<details>
 <summary>${preset.name ?? `Preset ${index + 1}`}</summary>
+
+#### ${actionDetails.title}
+${actionDetails.description}
 
 #### Matched events
 ${preset.subscribe}
@@ -93,7 +105,13 @@ ${preset.subscribe}
 | -------------------- | -------------- | -------------- | --------- |
 ${Object.entries(preset.mapping)
   .map(([key, value]: any) => {
-    return `| ${key} | string | test description | ${getJSON(value)} |`;
+    const field = actionDetails.fields[key] ?? {
+      type: 'string',
+      description: 'N/A'
+    };
+    return `| ${key} | ${field.type} | ${field.description} | ${getJSON(
+      value
+    )} |`;
   })
   .join('\n')}
 </details>

@@ -43,22 +43,28 @@ export default async function handler(
 <details>
 <summary>Track Calls</summary>
 
+#### Track Event
+Send an event to June. [Learn more about Events in June](https://www.june.so/docs/users/track)
+
 #### Matched events
 type = "track"
 
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
-| event | string | test description | (<br/>  "@path": "$.event"<br/>) |
-| properties | string | test description | (<br/>  "@path": "$.properties"<br/>) |
-| timestamp | string | test description | (<br/>  "@path": "$.timestamp"<br/>) |
-| anonymousId | string | test description | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | test description | (<br/>  "@path": "$.userId"<br/>) |
-| context | string | test description | (<br/>  "@path": "$.context"<br/>) |
-| messageId | string | test description | (<br/>  "@path": "$.messageId"<br/>) |
+| event | string | The event name | (<br/>  "@path": "$.event"<br/>) |
+| properties | object | Properties to send with the event | (<br/>  "@path": "$.properties"<br/>) |
+| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
+| anonymousId | string | The anonymous ID associated with the user | (<br/>  "@path": "$.anonymousId"<br/>) |
+| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
+| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
+| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
 </details>
 ,<details>
 <summary>Page Calls</summary>
+
+#### Page Event
+Send a page event to June. [Learn more about Events in June](https://www.june.so/docs/users/track)
 
 #### Matched events
 type = "page"
@@ -66,16 +72,19 @@ type = "page"
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | test description | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | test description | (<br/>  "@path": "$.userId"<br/>) |
-| properties | string | test description | (<br/>  "@path": "$.properties"<br/>) |
-| name | string | test description | (<br/>  "@path": "$.properties.name"<br/>) |
-| context | string | test description | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | test description | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | test description | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | An anonymous identifier | (<br/>  "@path": "$.anonymousId"<br/>) |
+| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
+| properties | object | Page properties | (<br/>  "@path": "$.properties"<br/>) |
+| name | string | The name of the page | (<br/>  "@path": "$.properties.name"<br/>) |
+| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
+| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
+| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
 </details>
 ,<details>
 <summary>Identify Calls</summary>
+
+#### Identify
+Identify user in June
 
 #### Matched events
 type = "identify"
@@ -83,15 +92,18 @@ type = "identify"
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | test description | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | test description | (<br/>  "@path": "$.userId"<br/>) |
-| traits | string | test description | (<br/>  "@path": "$.traits"<br/>) |
-| context | string | test description | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | test description | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | test description | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | An anonymous identifier | (<br/>  "@path": "$.anonymousId"<br/>) |
+| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
+| traits | object | Traits to associate with the user | (<br/>  "@path": "$.traits"<br/>) |
+| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
+| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
+| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
 </details>
 ,<details>
 <summary>Group Calls</summary>
+
+#### Group
+Group user in June
 
 #### Matched events
 type = "group"
@@ -99,13 +111,13 @@ type = "group"
 #### Data Mapping
 | Name                 | Type          | Description     | Default   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | test description | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | test description | (<br/>  "@path": "$.userId"<br/>) |
-| groupId | string | test description | (<br/>  "@path": "$.groupId"<br/>) |
-| traits | string | test description | (<br/>  "@path": "$.traits"<br/>) |
-| context | string | test description | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | test description | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | test description | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | Anonymous id | (<br/>  "@path": "$.anonymousId"<br/>) |
+| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
+| groupId | string | The group id | (<br/>  "@path": "$.groupId"<br/>) |
+| traits | object | Traits to associate with the group | (<br/>  "@path": "$.traits"<br/>) |
+| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
+| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
+| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
 </details>
 
 

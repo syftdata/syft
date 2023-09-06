@@ -140,7 +140,8 @@ export function getDestinationSettings(): Record<string, unknown> {
       name: destination.name,
       description: destination.description,
       presets: destination.presets,
-      settings: destination.authentication?.fields
+      settings: destination.authentication?.fields,
+      actions: destination.actions
     };
   });
   return settings;
