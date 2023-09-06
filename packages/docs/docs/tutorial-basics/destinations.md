@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Configure Destinations
 
-You can route events to multiple destinations with simple configuration. 
+You can route events to multiple destinations with simple configuration.
 
 Syft supports popular analytics, warehouse, and CRM providers as destinations. You can also route your events to Slack to get alerts for user activity!
 
@@ -40,22 +40,65 @@ export default async function handler(
 
 If you want to upload events to something other than `/api/syft`, you can do so by specifying `uploadPath`
 
-```js
-// pages/_app.jsx
+```ts title="src/pages/_app.jsx"
 <SyftProvider uploadPath="/client/api/syft" />
 ```
-
-
 
 ### Event Transformations / Enrichment
 
 You can define event transformations and enrichments on the backend. You can query your DB and denormalize your events.
 
-```ts title="src/pages/api/syft.ts"
+#### Examples
+
+```ts title="Enrich Product Impression event"
 const server = new NextSyftServer({
   destinations,
-  enricher: (event) => {
-    event.context.ab_featurex_enabled = true;
+  // highlight-next-line
+  enricher: async (event) => {
+    if (event.type === "track" && event.event === "Product Viewed") {
+      // highlight-start
+      const product = await prisma.products.findUnique({
+        where: { id: event.properties.productId },
+      });
+      // highlight-end
+      if (product != null) {
+        return {
+          ...event,
+          properties: {
+            ...event.properties,
+            // highlight-next-line
+            isDiscounted: product.isDiscounted,
+          },
+        };
+      }
+    }
+    return event;
+  },
+});
+```
+
+```ts title="Validate and Enrich Identify calls"
+const server = new NextSyftServer({
+  destinations,
+  // highlight-next-line
+  enricher: async (event) => {
+    if (event.type === "identify") {
+      // highlight-start
+      const user = await prisma.user.findUnique({
+        where: { id: event.userId as string },
+      });
+      // highlight-end
+      if (user == null) return; // validate identify calls.
+      return {
+        ...event,
+        traits: {
+          ...event.traits,
+          // highlight-next-line
+          groupId: user.orgId,
+        },
+      };
+    }
+    return event;
   },
 });
 ```
