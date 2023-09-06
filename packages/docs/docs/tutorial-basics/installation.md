@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Installation
 
-```
+```bash npm2yarn
 npm install --save @syftdata/next
 ```
 
@@ -15,12 +15,15 @@ npm install --save @syftdata/next
 To enable Syft in your app you'll need to expose the Syft context. Include `<SyftProvider />`, at the top level of your application inside [`_app.js`](https://nextjs.org/docs/advanced-features/custom-app):
 
 ```jsx title="src/pages/_app.tsx"
+// highlight-next-line
 import SyftProvider from "@syftdata/next";
 
 export default function MyApp({ Component, pageProps }) {
   return (
+    // highlight-next-line
     <SyftProvider>
       <Component {...pageProps} />
+      // highlight-next-line
     </SyftProvider>
   );
 }
@@ -31,13 +34,14 @@ export default function MyApp({ Component, pageProps }) {
 If are using [the app directory](https://beta.nextjs.org/docs/routing/fundamentals#the-app-directory) include `SyftProvider` inside the root layout:
 
 ```jsx title="src/app/layout.tsx"
-// app/layout.tsx
+// highlight-next-line
 import SyftProvider from "@syftdata/next";
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
+        // highlight-next-line
         <SyftProvider>{children}</SyftProvider>
       </body>
     </html>

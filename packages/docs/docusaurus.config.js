@@ -51,6 +51,9 @@ const config = {
           sidebarCollapsible: false,
           breadcrumbs: false,
           routeBasePath: "/",
+          remarkPlugins: [
+            [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
+          ],
         },
         blog: false,
         theme: {

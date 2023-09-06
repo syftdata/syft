@@ -9,7 +9,9 @@ sidebar_position: 3
 To track page views set the `trackPageViews` prop of the `SyftProvider` component to true.
 
 ```jsx title="src/pages/_app.tsx"
+// ...
 <SyftProvider trackPageViews />
+// ...
 ```
 
 By default hash changes are not treated as page views. you can enable it by providing `hashMode` as true.
@@ -19,7 +21,9 @@ By default hash changes are not treated as page views. you can enable it by prov
 To track Outbound link clicks set the `trackOutboundLinks` prop to true.
 
 ```jsx title="src/pages/_app.tsx"
+// ...
 <SyftProvider trackOutboundLinks />
+// ...
 ```
 
 ## Custom Events
@@ -27,14 +31,17 @@ To track Outbound link clicks set the `trackOutboundLinks` prop to true.
 Use the `track()` method to log custom events.
 
 ```jsx title="src/components/MyButton.tsx"
+// highlight-next-line
 import { useSyft } from "@syftdata/next";
 
 export default function MyButton() {
+  // highlight-next-line
   const syft = useSyft();
   return (
     <>
       <button
         onClick={() =>
+          // highlight-next-line
           syft.track("Button Clicked", {
             buttonId: "foo",
           })

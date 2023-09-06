@@ -132,3 +132,16 @@ export function getDestination(key: string): Destination | null {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new Destination(destination as DestinationDefinition<any>);
 }
+
+export function getDestinationSettings(): Record<string, unknown> {
+  const settings: Record<string, unknown> = {};
+  Object.entries(destinations).forEach(([name, destination]) => {
+    settings[name] = {
+      name: destination.name,
+      description: destination.description,
+      presets: destination.presets,
+      settings: destination.authentication?.fields
+    };
+  });
+  return settings;
+}
