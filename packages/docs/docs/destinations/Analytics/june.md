@@ -3,10 +3,10 @@ sidebar_position: 16
 ---
 # June
 
-This page describes how to set up the June as a destination.
+This page describes how to set up June (June.so) as a destination.
 
 ## Set up
-An example setup for the June is shown below.
+An example setup for June is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";

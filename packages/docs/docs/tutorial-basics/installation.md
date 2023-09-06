@@ -4,6 +4,8 @@ sidebar_position: 2
 
 # Installation
 
+Add Syft to your next.js application in less than 5 minutes.
+
 ```bash npm2yarn
 npm install --save @syftdata/next
 ```

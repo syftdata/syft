@@ -4,6 +4,8 @@ sidebar_position: 3
 
 # Event Collection
 
+Automatically capture page views, link clicks, and add custom events.
+
 ## Automatic Page view events
 
 To track page views set the `trackPageViews` prop of the `SyftProvider` component to true.
@@ -53,3 +55,22 @@ export default function MyButton() {
   );
 }
 ```
+
+## Type Safe Events
+
+If you use Typescript, you can define type-safe events as below:
+
+```jsx
+import { useSyft } from '@syft/next';
+
+type EventDefs = {
+  page: never;
+  "OutboundLink Clicked": { href: string };
+  "Button Clicked": { buttonId?: string };
+};
+
+const syft = useSyft<EventDefs>();
+syft.track("Button Clicked", { buttonId: 10}); // this throws error as buttonId type is incompatible.
+```
+
+Only those events with the right props will be allowed to be sent using the `syft` function.

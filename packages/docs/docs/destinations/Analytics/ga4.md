@@ -1,12 +1,12 @@
 ---
 sidebar_position: 13
 ---
-# Ga4
+# Google Analytics
 
-This page describes how to set up the Ga4 as a destination.
+This page describes how to set up Google Analytics 4 (GA4) as a destination.
 
 ## Set up
-An example setup for the Ga4 is shown below.
+An example setup for the GA4 is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";
