@@ -3,10 +3,10 @@ sidebar_position: 12
 ---
 # Bigquery
 
-This page describes how to set up the Bigquery as a destination.
+This page describes how to set up Bigquery as a destination.
 
 ## Set up
-An example setup for the Bigquery is shown below.
+An example setup for Bigquery is shown below.
 
 ```ts title="src/pages/api/syft.ts"
 // ...
@@ -45,26 +45,26 @@ const destinations = [
 type = "track" or type = "screen" or type = "page"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| _id | string | The unique ID of the track call itself. | (<br/>  "@path": "$.messageId"<br/>) |
-| anonymous_id | string | The anonymous ID of the user. | (<br/>  "@path": "$.anonymousId"<br/>) |
-| user_id | string | The User ID. | (<br/>  "@path": "$.userId"<br/>) |
-| context_ip | string | The IP address of the client. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.ip"<br/>) |
-| context_library_name | string | The Logging library name. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.library.name"<br/>) |
-| context_library_version | string | The Logging library version. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.library.version"<br/>) |
-| context_page_path | string | The path of the page on which the event was logged. | (<br/>  "@path": "$.context.page.path"<br/>) |
-| context_page_title | string | The title of the page on which the event was logged. | (<br/>  "@path": "$.context.page.title"<br/>) |
-| context_page_url | string | The full url of the page on which the event was logged. | (<br/>  "@path": "$.context.page.url"<br/>) |
-| context_locale | string | The browsers locale used when the event was logged. | (<br/>  "@path": "$.context.locale"<br/>) |
-| context_user_agent | string | The browsers user-agent string. | (<br/>  "@path": "$.context.userAgent"<br/>) |
-| event | string | The slug of the event name, so you can join the tracks table. | (<br/>  "@path": "$.event"<br/>) |
-| name | string | The event name. | (<br/>  "@path": "$.name"<br/>) |
-| received_at | datetime | When Segment received the track call. | (<br/>  "@path": "$.receivedAt"<br/>) |
-| sent_at | datetime | When a user triggered the track call. This timestamp can also be affected by device clock skew | (<br/>  "@path": "$.sentAt"<br/>) |
-| timestamp | datetime | The UTC-converted timestamp which is set by the Segment library | (<br/>  "@path": "$.timestamp"<br/>) |
-| properties | object | JSON representation of the properties for the event. | (<br/>  "@path": "$.properties"<br/>) |
-| context | object | JSON representation of the context | (<br/>  "@path": "$.context"<br/>) |
+| _id | string | The unique ID of the track call itself. | $.messageId |
+| anonymous_id | string | The anonymous ID of the user. | $.anonymousId |
+| user_id | string | The User ID. | $.userId |
+| context_ip | string | The IP address of the client. Non-user-related context fields sent with each track call. | $.context.ip |
+| context_library_name | string | The Logging library name. Non-user-related context fields sent with each track call. | $.context.library.name |
+| context_library_version | string | The Logging library version. Non-user-related context fields sent with each track call. | $.context.library.version |
+| context_page_path | string | The path of the page on which the event was logged. | $.context.page.path |
+| context_page_title | string | The title of the page on which the event was logged. | $.context.page.title |
+| context_page_url | string | The full url of the page on which the event was logged. | $.context.page.url |
+| context_locale | string | The browsers locale used when the event was logged. | $.context.locale |
+| context_user_agent | string | The browsers user-agent string. | $.context.userAgent |
+| event | string | The slug of the event name, so you can join the tracks table. | $.event |
+| name | string | The event name. | $.name |
+| received_at | datetime | When Syft received the track call. | $.receivedAt |
+| sent_at | datetime | When a user triggered the track call. This timestamp can also be affected by device clock skew | $.sentAt |
+| timestamp | datetime | The UTC-converted timestamp which is set by the Syft library | $.timestamp |
+| properties | object | JSON representation of the properties for the event. | $.properties |
+| context | object | JSON representation of the context | $.context |
 </details>
 ,<details>
 <summary>Identify Calls</summary>
@@ -76,26 +76,26 @@ type = "track" or type = "screen" or type = "page"
 type = "identify" or type = "group"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| _id | string | The unique ID of the track call itself. | (<br/>  "@path": "$.messageId"<br/>) |
-| anonymous_id | string | The anonymous ID of the user. | (<br/>  "@path": "$.anonymousId"<br/>) |
-| user_id | string | The User ID. | (<br/>  "@path": "$.userId"<br/>) |
-| context_ip | string | The IP address of the client. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.ip"<br/>) |
-| context_library_name | string | The Logging library name. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.library.name"<br/>) |
-| context_library_version | string | The Logging library version. Non-user-related context fields sent with each track call. | (<br/>  "@path": "$.context.library.version"<br/>) |
-| context_page_path | string | The path of the page on which the event was logged. | (<br/>  "@path": "$.context.page.path"<br/>) |
-| context_page_title | string | The title of the page on which the event was logged. | (<br/>  "@path": "$.context.page.title"<br/>) |
-| context_page_url | string | The full url of the page on which the event was logged. | (<br/>  "@path": "$.context.page.url"<br/>) |
-| context_locale | string | The browsers locale used when the event was logged. | (<br/>  "@path": "$.context.locale"<br/>) |
-| context_user_agent | string | The browsers user-agent string. | (<br/>  "@path": "$.context.userAgent"<br/>) |
-| event | string | The slug of the event name, so you can join the tracks table. | (<br/>  "@path": "$.event"<br/>) |
-| name | string | The event name. | (<br/>  "@path": "$.name"<br/>) |
-| received_at | datetime | When Segment received the track call. | (<br/>  "@path": "$.receivedAt"<br/>) |
-| sent_at | datetime | When a user triggered the track call. This timestamp can also be affected by device clock skew | (<br/>  "@path": "$.sentAt"<br/>) |
-| timestamp | datetime | The UTC-converted timestamp which is set by the Segment library | (<br/>  "@path": "$.timestamp"<br/>) |
-| properties | object | JSON representation of the properties for the event. | (<br/>  "@path": "$.properties"<br/>) |
-| context | object | JSON representation of the context | (<br/>  "@path": "$.context"<br/>) |
+| _id | string | The unique ID of the track call itself. | $.messageId |
+| anonymous_id | string | The anonymous ID of the user. | $.anonymousId |
+| user_id | string | The User ID. | $.userId |
+| context_ip | string | The IP address of the client. Non-user-related context fields sent with each track call. | $.context.ip |
+| context_library_name | string | The Logging library name. Non-user-related context fields sent with each track call. | $.context.library.name |
+| context_library_version | string | The Logging library version. Non-user-related context fields sent with each track call. | $.context.library.version |
+| context_page_path | string | The path of the page on which the event was logged. | $.context.page.path |
+| context_page_title | string | The title of the page on which the event was logged. | $.context.page.title |
+| context_page_url | string | The full url of the page on which the event was logged. | $.context.page.url |
+| context_locale | string | The browsers locale used when the event was logged. | $.context.locale |
+| context_user_agent | string | The browsers user-agent string. | $.context.userAgent |
+| event | string | The slug of the event name, so you can join the tracks table. | $.event |
+| name | string | The event name. | $.name |
+| received_at | datetime | When Syft received the track call. | $.receivedAt |
+| sent_at | datetime | When a user triggered the track call. This timestamp can also be affected by device clock skew | $.sentAt |
+| timestamp | datetime | The UTC-converted timestamp which is set by the Syft library | $.timestamp |
+| properties | object | JSON representation of the properties for the event. | $.properties |
+| context | object | JSON representation of the context | $.context |
 </details>
 
 

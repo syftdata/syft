@@ -3,7 +3,7 @@ sidebar_position: 16
 ---
 # June
 
-This page describes how to set up June (June.so) as a destination.
+This page describes how to set up June as a destination.
 
 ## Set up
 An example setup for June is shown below.
@@ -41,15 +41,15 @@ Send an event to June. [Learn more about Events in June](https://www.june.so/doc
 type = "track"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| event | string | The event name | (<br/>  "@path": "$.event"<br/>) |
-| properties | object | Properties to send with the event | (<br/>  "@path": "$.properties"<br/>) |
-| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
-| anonymousId | string | The anonymous ID associated with the user | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
-| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
-| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
+| event | string | The event name | $.event |
+| properties | object | Properties to send with the event | $.properties |
+| timestamp | string | The timestamp of the event | $.timestamp |
+| anonymousId | string | The anonymous ID associated with the user | $.anonymousId |
+| userId | string | The ID associated with the user | $.userId |
+| context | object | Context properties to send with the event | $.context |
+| messageId | string | The Syft messageId | $.messageId |
 </details>
 ,<details>
 <summary>Page Calls</summary>
@@ -61,15 +61,15 @@ Send a page event to June. [Learn more about Events in June](https://www.june.so
 type = "page"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | An anonymous identifier | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
-| properties | object | Page properties | (<br/>  "@path": "$.properties"<br/>) |
-| name | string | The name of the page | (<br/>  "@path": "$.properties.name"<br/>) |
-| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | An anonymous identifier | $.anonymousId |
+| userId | string | The ID associated with the user | $.userId |
+| properties | object | Page properties | $.properties |
+| name | string | The name of the page | $.properties.name |
+| context | object | Context properties to send with the event | $.context |
+| timestamp | string | The timestamp of the event | $.timestamp |
+| messageId | string | The Syft messageId | $.messageId |
 </details>
 ,<details>
 <summary>Identify Calls</summary>
@@ -81,14 +81,14 @@ Identify user in June
 type = "identify"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | An anonymous identifier | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
-| traits | object | Traits to associate with the user | (<br/>  "@path": "$.traits"<br/>) |
-| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | An anonymous identifier | $.anonymousId |
+| userId | string | The ID associated with the user | $.userId |
+| traits | object | Traits to associate with the user | $.traits |
+| context | object | Context properties to send with the event | $.context |
+| timestamp | string | The timestamp of the event | $.timestamp |
+| messageId | string | The Syft messageId | $.messageId |
 </details>
 ,<details>
 <summary>Group Calls</summary>
@@ -100,15 +100,15 @@ Group user in June
 type = "group"
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
-| anonymousId | string | Anonymous id | (<br/>  "@path": "$.anonymousId"<br/>) |
-| userId | string | The ID associated with the user | (<br/>  "@path": "$.userId"<br/>) |
-| groupId | string | The group id | (<br/>  "@path": "$.groupId"<br/>) |
-| traits | object | Traits to associate with the group | (<br/>  "@path": "$.traits"<br/>) |
-| context | object | Context properties to send with the event | (<br/>  "@path": "$.context"<br/>) |
-| timestamp | string | The timestamp of the event | (<br/>  "@path": "$.timestamp"<br/>) |
-| messageId | string | The Segment messageId | (<br/>  "@path": "$.messageId"<br/>) |
+| anonymousId | string | Anonymous id | $.anonymousId |
+| userId | string | The ID associated with the user | $.userId |
+| groupId | string | The group id | $.groupId |
+| traits | object | Traits to associate with the group | $.traits |
+| context | object | Context properties to send with the event | $.context |
+| timestamp | string | The timestamp of the event | $.timestamp |
+| messageId | string | The Syft messageId | $.messageId |
 </details>
 
 

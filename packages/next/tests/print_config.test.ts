@@ -10,12 +10,34 @@ function replaceSegment(str: string) {
   return (str ?? '').replace(/Segment/g, 'Syft').replace(/segment/g, 'syft');
 }
 
-function getJSON(obj: any) {
-  const val = JSON.stringify(obj, null, 2)
-    .replace(/\n/g, '<br/>')
-    .replace(/{/g, '(')
-    .replace(/}/g, ')');
-  return val;
+function getDestinationTitle(key: string, destination: any) {
+  if (key === 'ga4') return 'Google Analytics 4';
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+function getFieldValue(obj: any) {
+  if (typeof obj === 'object') {
+    if (obj['@path'] != null) {
+      return obj['@path'];
+    }
+    if (obj['@template'] != null) {
+      return `"${obj['@template'].replace(/{{(.*)}}/g, '$$.$1')}"`;
+    }
+
+    if (obj['@if'] != null) {
+      return `${getFieldValue(obj['@if']['then'])} ?? ${getFieldValue(
+        obj['@if']['else']
+      )}`;
+    }
+    const jsonVal = JSON.stringify(obj, null, 2)
+      .replace(/\n/g, '<br/>')
+      .replace(/{/g, '{')
+      .replace(/}/g, '}');
+    return `<pre>${jsonVal}</pre>`;
+  } else if (typeof obj === 'string') {
+    return `"${obj}"`;
+  }
+  return obj;
 }
 
 function getExampleConfig(destination: any) {
@@ -49,7 +71,7 @@ ${Object.entries(destination.settings)
 
 function getSetup(key: string, title: string, destination: any): string {
   return `## Set up
-An example setup for the ${title} is shown below.
+An example setup for ${title} is shown below.
 
 \`\`\`ts title="src/pages/api/syft.ts"
 // ...
@@ -72,17 +94,11 @@ function getPresets(key: string, destination: MyDestinationDefinition): string {
   if (destination.presets == null || destination.presets.length === 0)
     return '';
   return `## Data Modeling
-${destination.presets?.map((preset, index) =>
-  getPreset(preset, index, destination)
-)}
+${destination.presets?.map((preset) => getPreset(preset, destination))}
 `;
 }
 
-function getPreset(
-  preset: Preset,
-  index: number,
-  destination: MyDestinationDefinition
-) {
+function getPreset(preset: Preset, destination: MyDestinationDefinition) {
   // get action based on the preset/
   const action = Object.entries(destination.actions ?? {}).find(
     (a: any) => a[0] === preset.partnerAction
@@ -92,7 +108,7 @@ function getPreset(
   const actionDetails = action[1] as any;
 
   return `<details>
-<summary>${preset.name ?? `Preset ${index + 1}`}</summary>
+<summary>${preset.name ?? actionDetails.title}</summary>
 
 #### ${actionDetails.title}
 ${actionDetails.description}
@@ -101,7 +117,7 @@ ${actionDetails.description}
 ${preset.subscribe}
 
 #### Data Mapping
-| Name                 | Type          | Description     | Default   |
+| Destination Field                 | Type          | Description     | Source Field   |
 | -------------------- | -------------- | -------------- | --------- |
 ${Object.entries(preset.mapping ?? {})
   .map(([key, value]: any) => {
@@ -109,9 +125,9 @@ ${Object.entries(preset.mapping ?? {})
       type: 'string',
       description: 'N/A'
     };
-    return `| ${key} | ${field.type} | ${field.description} | ${getJSON(
-      value
-    )} |`;
+    return `| ${key} | ${field.type} | ${replaceSegment(
+      field.description
+    )} | ${getFieldValue(value)} |`;
   })
   .join('\n')}
 </details>
@@ -129,7 +145,7 @@ sidebar_position: ${index}
 ---
 # ${title}
 
-This page describes how to set up the ${title} as a destination.
+This page describes how to set up ${title} as a destination.
 
 ${getSetup(key, title, destination)}
 
@@ -145,7 +161,7 @@ describe('destinations', () => {
       .sort((a, b) => a[0].localeCompare(b[0]))
       .forEach(([key, value], index) => {
         // change the first letter to uppercase
-        const title = key.charAt(0).toUpperCase() + key.slice(1);
+        const title = getDestinationTitle(key, value);
         const mdx = getMDX(key, title, index + 11, value);
         // write to file
         fs.writeFileSync(
