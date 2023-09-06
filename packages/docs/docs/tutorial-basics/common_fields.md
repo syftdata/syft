@@ -64,4 +64,4 @@ Every event has three timestamps, timestamp, sentAt, and receivedAt. They’re u
 | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
 | timestamp  | Time on the client device when call was invoked OR The timestamp value manually passed in through server-side libraries. |
 | sentAt     | Time on client device when call was sent. OR sentAt value manually passed in.                                            |
-| receivedAt | Time on Segment server clock when call was received                                                                      |
+| receivedAt | Time on your next.js server clock when call was received                                                                 |
