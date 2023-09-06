@@ -13,16 +13,22 @@ Annonymous-id get reset when an user clears their cookies and local-storage.
 Use the `identify()` method to identify your product's users. This will help you track users who are triggering events. An example usage looks like this:
 
 ```jsx
+// highlight-next-line
 import { useSyft } from "@syftdata/next";
 
-const syft = useSyft();
-useEffect(() => {
-  if (user != null) {
-    syft.identify(user.id, {
-      email: user.email,
-    });
-  }
-}, [syft, user]);
+export default function NavBar() {
+  // highlight-next-line
+  const syft = useSyft();
+  useEffect(() => {
+    if (user != null) {
+      // highlight-next-line
+      syft.identify(user.id, {
+        email: user.email,
+      });
+    }
+  }, [user]);
+  // ...
+}
 ```
 
 ## Identify your users' companies.
@@ -30,14 +36,20 @@ useEffect(() => {
 Use the `group()` method to identify your user's groups / companies. **NOTE:** always call identify before calling group.
 
 ```jsx
+// highlight-next-line
 import { useSyft } from "@syftdata/next";
 
-const syft = useSyft();
-useEffect(() => {
-  if (user != null) {
-    syft.group(user.orgId, {
-      name: user.orgName,
-    });
-  }
-}, [syft, user]);
+export default function NavBar() {
+  // highlight-next-line
+  const syft = useSyft();
+  useEffect(() => {
+    if (user != null) {
+      // highlight-next-line
+      syft.group(user.orgId, {
+        name: user.orgName,
+      });
+    }
+  }, [user]);
+  // ...
+}
 ```

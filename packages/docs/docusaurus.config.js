@@ -12,10 +12,10 @@ const config = {
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: `https://${process.env.VERCEL_URL}` || "https://syftdata.com",
+  url: `https://${process.env.VERCEL_URL}` || "https://docs.syftdata.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/docs",
+  baseUrl: "/",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -33,6 +33,14 @@ const config = {
     locales: ["en"],
   },
 
+  scripts: [
+    {
+      src: "https://buttons.github.io/buttons.js",
+      async: true,
+      defer: true,
+    },
+  ],
+
   presets: [
     [
       "classic",
@@ -43,10 +51,9 @@ const config = {
           sidebarCollapsible: false,
           breadcrumbs: false,
           routeBasePath: "/",
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          // editUrl:
-          //   "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+          remarkPlugins: [
+            [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
+          ],
         },
         blog: false,
         theme: {
@@ -68,17 +75,16 @@ const config = {
           src: "img/logo.png",
         },
         items: [
-          // {
-          //   type: "docSidebar",
-          //   sidebarId: "tutorialSidebar",
-          //   position: "left",
-          //   label: "Tutorial",
-          // },
-          //{ to: "/blog", label: "Blog", position: "left" },
+          {
+            href: "https://www.syftdata.com/blog",
+            label: "Blog",
+            position: "right",
+          },
           {
             href: "https://github.com/syftdata/syft",
-            label: "GitHub",
             position: "right",
+            className: "header-github-link github-button",
+            "aria-label": "GitHub",
           },
         ],
       },
@@ -90,8 +96,14 @@ const config = {
             href: "https://discordapp.com/invite/docusaurus",
           },
           {
+            label: "Twitter",
+            href: "https://twitter.com/syftdata",
+          },
+          {
             label: "GitHub",
             href: "https://github.com/syftdata/syft",
+            className: "github-button",
+            "aria-label": "GitHub",
           },
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Syft Data, Inc.`,

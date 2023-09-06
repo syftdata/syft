@@ -1,8 +1,4 @@
-import type {
-  DestinationDefinition,
-  InputField,
-  JSONObject
-} from '@segment/actions-core';
+import type { DestinationDefinition, JSONObject } from '@segment/actions-core';
 import { Destination } from '@segment/actions-core';
 import amplitude from '@syftdata/action-destinations/dist/destinations/amplitude';
 import heap from '@syftdata/action-destinations/dist/destinations/heap';
@@ -12,6 +8,7 @@ import mixpanel from '@syftdata/action-destinations/dist/destinations/mixpanel';
 import slack from '@syftdata/action-destinations/dist/destinations/slack';
 import ga4 from '@syftdata/action-destinations/dist/destinations/google-analytics-4';
 import hubspot from '@syftdata/action-destinations/dist/destinations/hubspot';
+import snowflake from '@syftdata/action-destinations/dist/destinations/snowflake';
 import { mapValues } from '../../common/utils';
 
 export interface Subscription {
@@ -40,22 +37,19 @@ const CUSTOM_PRESETS = {
       partnerAction: 'login',
       type: 'automatic'
     }
-  ]
-};
-
-/**
- * Use this to add additional fields to the mapping for destinations that have presets already.
- */
-const ADDITIONAL_MAPPING_FIELDS: Record<string, Record<string, InputField>> = {
-  june: {
-    context: {
-      type: 'object',
-      required: false,
-      description: 'Context properties to send with the event',
-      label: 'Context properties',
-      default: { '@path': '$.context' }
+  ],
+  hubspot: [
+    {
+      subscribe: 'type = "group"',
+      partnerAction: 'upsertCompany',
+      type: 'automatic'
+    },
+    {
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertContact',
+      type: 'automatic'
     }
-  }
+  ]
 };
 
 export const destinations: Record<string, DestinationDefinition> = {};
@@ -72,13 +66,6 @@ export function generateMappings(
 ): void {
   const action = definition.actions[subscription.partnerAction];
   if (action == null) return;
-  const additionalFields = ADDITIONAL_MAPPING_FIELDS[name];
-  if (additionalFields != null) {
-    // modify the schema to add the additional fields.
-    Object.entries(additionalFields).forEach(([k, v]) => {
-      action.fields[k] = v;
-    });
-  }
 
   const newMapping = mapValues(
     action.fields as unknown as Record<string, JSONObject>,
@@ -128,6 +115,7 @@ register('heap', heap);
 register('june', june);
 register('mixpanel', mixpanel);
 register('bigquery', bigquery);
+register('snowflake', snowflake);
 
 // NO PRESETS
 register('slack', slack);
@@ -143,4 +131,17 @@ export function getDestination(key: string): Destination | null {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new Destination(destination as DestinationDefinition<any>);
+}
+
+export function getDestinationSettings(): Record<string, unknown> {
+  const settings: Record<string, unknown> = {};
+  Object.entries(destinations).forEach(([name, destination]) => {
+    settings[name] = {
+      name: destination.name,
+      description: destination.description,
+      presets: destination.presets,
+      settings: destination.authentication?.fields
+    };
+  });
+  return settings;
 }

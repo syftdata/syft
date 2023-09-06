@@ -14,6 +14,7 @@ import {
   generateMappings,
   getDestination
 } from './destinations';
+import { type TransactionContext } from '@segment/actions-core/destination-kitindex';
 
 interface RequestData {
   ip?: string;
@@ -44,6 +45,14 @@ export interface SyftRouterOptions {
   name?: string;
   enricher?: Enricher;
   destinations: DestinationConfig[];
+}
+
+class MyTransactionContext implements TransactionContext {
+  constructor(readonly transaction: Record<string, string> = {}) {}
+
+  setTransaction(key: string, value: string): void {
+    this.transaction[key] = value;
+  }
 }
 
 export class SyftRouter {
@@ -150,6 +159,7 @@ export class SyftRouter {
     if (dest == null) {
       return;
     }
+    const context = new MyTransactionContext();
     const settings: any = {
       ...destination.settings,
       subscriptions: destination.subscriptions
@@ -160,7 +170,9 @@ export class SyftRouter {
       // sending ${JSON.stringify(e, null, 2)} to ${destination.name}.
       // ${JSON.stringify(settings, null, 2)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return dest.onEvent(e as SegmentEvent, settings);
+      return dest.onEvent(e as SegmentEvent, settings, {
+        transactionContext: context
+      });
     });
     Promise.all(eventPromises).catch((e) => {
       console.error(`error sending to destination ${destination.type}`, e);
