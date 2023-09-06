@@ -36,69 +36,14 @@ export default async function handler(
 }
 ```
 
+### Destination Field Mapping
+
+Syft internally represents all payloads from `identify()/track()/group()` calls in a "unified" event object. It transforms this event object to a target payload for each destination. You can find this "mapping" documented in the "Data Modeling" section of each Destination doc in this guide.  
+
 ### Custom Upload Endpoint
 
 If you want to upload events to something other than `/api/syft`, you can do so by specifying `uploadPath`
 
 ```ts title="src/pages/_app.jsx"
 <SyftProvider uploadPath="/client/api/syft" />
-```
-
-### Event Transformations / Enrichment
-
-You can define event transformations and enrichments on the backend. You can query your DB and denormalize your events.
-
-#### Examples
-
-```ts title="Enrich Product Impression event"
-const server = new NextSyftServer({
-  destinations,
-  // highlight-next-line
-  enricher: async (event) => {
-    if (event.type === "track" && event.event === "Product Viewed") {
-      // highlight-start
-      const product = await prisma.products.findUnique({
-        where: { id: event.properties.productId },
-      });
-      // highlight-end
-      if (product != null) {
-        return {
-          ...event,
-          properties: {
-            ...event.properties,
-            // highlight-next-line
-            isDiscounted: product.isDiscounted,
-          },
-        };
-      }
-    }
-    return event;
-  },
-});
-```
-
-```ts title="Validate and Enrich Identify calls"
-const server = new NextSyftServer({
-  destinations,
-  // highlight-next-line
-  enricher: async (event) => {
-    if (event.type === "identify") {
-      // highlight-start
-      const user = await prisma.user.findUnique({
-        where: { id: event.userId as string },
-      });
-      // highlight-end
-      if (user == null) return; // validate identify calls.
-      return {
-        ...event,
-        traits: {
-          ...event.traits,
-          // highlight-next-line
-          groupId: user.orgId,
-        },
-      };
-    }
-    return event;
-  },
-});
 ```
