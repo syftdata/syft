@@ -7,7 +7,7 @@ import { Mono } from "../common/styles/fonts";
 import SchemaPropsRenderer, { SchemaAndEvents } from "./schema";
 import { IconButton } from "../common/components/core/Button/IconButton";
 import { css } from "@emotion/css";
-import NoSchemasView from "./noschemasview";
+// import NoSchemasView from "./noschemasview";
 import Section from "../common/components/core/Section";
 
 // Attached Events view.
@@ -159,7 +159,7 @@ const SchemaSelector = ({
   return (
     <List<SchemaAndEvents>
       data={filteredSchemas}
-      emptyMessage={<NoSchemasView onMagicWand={onMagicWand} />}
+      // emptyMessage={<NoSchemasView onMagicWand={onMagicWand} />}
       renderItem={(item) => {
         return (
           <Flex.Row
