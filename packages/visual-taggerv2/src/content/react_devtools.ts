@@ -173,6 +173,7 @@ export function computeReactComponents() {
   }
 
   const htmlElement: ReactElement = rootReactElements[0];
+
   // flatten the hierarchy and assign parents to react source.
   const reactElements: ReactElement[] = [];
   const traverseReactElements = (
@@ -182,6 +183,11 @@ export function computeReactComponents() {
     reactElements.push(element);
     if (parent != null) {
       element.parent = parent;
+      // if you don't find the source, then get the path from parent.
+      if (element.reactSource.source == null) {
+        element.reactSource.source =
+          `${parent.reactSource.source}>${element.reactSource.name}` ?? "";
+      }
     }
     if (element.children != null) {
       element.children.forEach((ch) => traverseReactElements(ch, element));
