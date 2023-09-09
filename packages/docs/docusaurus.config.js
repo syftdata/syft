@@ -92,7 +92,7 @@ const config = {
         links: [
           {
             label: "Discord",
-            href: "https://discordapp.com/invite/docusaurus",
+            href: "https://discord.gg/q4fTwh9T",
           },
           {
             label: "Twitter",
