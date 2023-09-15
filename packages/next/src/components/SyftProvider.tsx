@@ -74,7 +74,7 @@ export const SyftProvider = <E extends EventTypes>(
       const script = document.createElement('script');
       script.src =
         autocapture.toolbarJS ?? 'http://localhost:4173/syftbar.es.js';
-      script.type = 'text/javascript';
+      script.type = 'module';
       document.body.appendChild(script);
     }
   }, []);
