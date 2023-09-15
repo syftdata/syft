@@ -27,6 +27,10 @@ export interface ProviderProps {
    */
   enabled?: boolean;
 
+  trackPageviews?: boolean;
+  hashMode?: boolean;
+
+  trackOutboundLinks?: boolean;
   autocapture?: AutocaptureConfig;
 
   middleware?: (event: Event) => Event | undefined;
@@ -80,15 +84,15 @@ export const SyftProvider = <E extends EventTypes>(
   }, []);
 
   usePageViews({
-    enabled: enabled && autocapture?.trackPageviews === true,
-    hashMode: autocapture?.hashMode,
+    enabled: enabled && props.trackPageviews !== false,
+    hashMode: props.hashMode !== false,
     callback: (url) => {
       tracker?.page(undefined, url.toString());
     }
   });
 
   useLinkClicks({
-    enabled: enabled && autocapture?.trackOutboundLinks === true,
+    enabled: enabled && props.trackOutboundLinks !== false,
     callback: (href) => {
       tracker?.track('OutboundLink Clicked', { href });
     }

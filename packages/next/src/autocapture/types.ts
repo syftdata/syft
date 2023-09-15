@@ -31,8 +31,15 @@ export type AutocaptureCompatibleElement =
   | 'input'
   | 'select'
   | 'textarea'
-  | 'label';
-export type DomAutocaptureEvents = 'click' | 'change' | 'submit';
+  | 'label'
+  | 'div';
+export type DomAutocaptureEvents =
+  | 'click'
+  | 'change'
+  | 'submit'
+  | 'hover'
+  | 'focus'
+  | 'blur';
 
 /**
  * If an array is passed for an allowlist, autocapture events will only be sent for elements matching
@@ -61,11 +68,6 @@ export interface AutocaptureConfig {
    * e.g. ['[syft-capture]']
    */
   css_selector_allowlist?: string[];
-
-  trackPageviews?: boolean;
-  hashMode?: boolean;
-
-  trackOutboundLinks?: boolean;
 
   schemas: EventSchema[];
   tags: EventTag[];
