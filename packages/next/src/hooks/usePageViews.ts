@@ -32,5 +32,5 @@ export function usePageViews({
         Router.events.off('hashChangeComplete', handleRouteChange);
       }
     };
-  }, [Router.events, hashMode]);
+  }, [Router.events, hashMode, enabled]);
 }

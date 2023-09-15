@@ -24,7 +24,6 @@ const GROUP_ID_KEY = 'group_id';
 const GROUP_TRAITS_KEY = 'group_traits';
 
 const REFERRER_KEY = 'referrer';
-const CAMPAGIN_KEY = 'campaign';
 
 /**
  * Options used when initializing the tracker.
@@ -352,6 +351,12 @@ export default class AutoTracker<E extends EventTypes> {
     let _event: Event | undefined = event;
     _event = this.options.middleware(_event);
     if (_event != null) {
+      // fire a syft event on the window. it will show up in the console.
+      window.dispatchEvent(
+        new CustomEvent('syft-event', {
+          detail: event
+        })
+      );
       this.options.uploader.addToQueue(_event);
     }
   }

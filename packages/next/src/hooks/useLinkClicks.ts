@@ -1,32 +1,25 @@
 import { useEffect } from 'react';
-import { isBrowser } from '../common/utils';
 
 export interface UseLinkClicksOptions {
   enabled?: boolean;
   callback: (url: string, element: HTMLAnchorElement) => void;
-  node?: Node & ParentNode;
-  observerInit?: MutationObserverInit;
 }
 
 export function useLinkClicks({
   callback,
-  enabled = true,
-  node,
-  observerInit = {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['href']
-  }
+  enabled = true
 }: UseLinkClicksOptions): void {
   useEffect(() => {
     if (!enabled) {
       return;
     }
-    if (!isBrowser()) {
-      return;
-    }
-    const targetNode = node ?? document;
+    const targetNode = document;
+    const observerInit = {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['href']
+    };
 
     function trackClick(this: HTMLAnchorElement, event: MouseEvent): void {
       callback(this.href, this);
@@ -89,5 +82,5 @@ export function useLinkClicks({
       tracked.clear();
       observer.disconnect();
     };
-  }, []);
+  }, [enabled]);
 }

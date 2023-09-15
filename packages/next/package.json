@@ -70,6 +70,7 @@
   "dependencies": {
     "@segment/actions-core": "^3.81.2",
     "@syftdata/action-destinations": "^3.205.11",
+    "@syftdata/common": "^0.1.36-alpha.0",
     "js-cookie": "^3.0.5"
   }
 }
