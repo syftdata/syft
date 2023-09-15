@@ -69,6 +69,8 @@ export interface AutocaptureConfig {
 
   schemas: EventSchema[];
   tags: EventTag[];
+
+  toolbarJS?: string;
 }
 
 export type SyftEventHandler = (

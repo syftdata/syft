@@ -72,7 +72,8 @@ export const SyftProvider = <E extends EventTypes>(
 
       // load the debug script.
       const script = document.createElement('script');
-      script.src = 'http://localhost:4173/syftbar.umd.js';
+      script.src =
+        autocapture.toolbarJS ?? 'http://localhost:4173/syftbar.es.js';
       script.type = 'text/javascript';
       document.body.appendChild(script);
     }
