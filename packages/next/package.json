@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.36-alpha.4",
+  "version": "0.1.36-alpha.5",
   "description": "Common types and functions used across Syft packages",
   "keywords": [
     "syft",
