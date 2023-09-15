@@ -35,7 +35,6 @@ export function getSafeText(el: Element): string {
   let elText = '';
 
   if (
-    shouldCaptureElement(el) &&
     !isSensitiveElement(el) &&
     el.childNodes != null &&
     el.childNodes.length > 0
@@ -120,6 +119,16 @@ export const autocaptureCompatibleElements = [
   'textarea',
   'label'
 ];
+
+function matchedEventTag(el: Element, event: Event, tag: EventTag): boolean {
+  try {
+    return (
+      tag.reactSource.handlers.includes(event.type) && el.matches(tag.selector)
+    );
+  } catch (e) {}
+  return false;
+}
+
 /*
  * Check whether a DOM event should be "captured" or if it may contain sentitive data
  * using a variety of heuristics.
@@ -169,16 +178,7 @@ export function getMatchingEventTag(
   }
 
   const tags = autocaptureConfig?.tags ?? [];
-
-  // TODO: get the best selector for the element.
-  const tag = tags.find(
-    (t) => el.matches(t.selector) && t.reactSource.handlers.includes(event.type)
-  );
-  return tag;
-}
-
-export function shouldCaptureElement(el: Element): boolean {
-  return true;
+  return tags.find((t) => matchedEventTag(el, event, t));
 }
 
 /*
