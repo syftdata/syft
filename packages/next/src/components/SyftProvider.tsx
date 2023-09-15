@@ -53,7 +53,7 @@ export const SyftProvider = <E extends EventTypes>(
     });
     tracker = new AutoTracker<E>({
       uploader,
-      middleware: props.middleware ?? ((event) => event)
+      middleware: props.middleware
     });
   }
 
@@ -95,8 +95,11 @@ export const SyftProvider = <E extends EventTypes>(
   });
 
   useTrackTags({
-    enabled: enabled && autocapture?.tags != null,
+    enabled:
+      enabled && autocapture?.schemas != null && autocapture?.tags != null,
     callback: (name, event, tag, ele) => {
+      // const eventSchema = eventTag;
+      console.log('>>> received an automated event', name, event, tag, ele);
       tracker?.track(name, event);
     },
     config: autocapture

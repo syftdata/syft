@@ -1,12 +1,16 @@
 {
   "name": "@syftdata/next",
   "version": "0.1.36-alpha.6",
-  "description": "Common types and functions used across Syft packages",
+  "description": "A lightweight low-code alternative to Segment to instrument event analytics",
   "keywords": [
     "syft",
     "client",
     "events",
     "data",
+    "automagic",
+    "segment",
+    "server",
+    "nextjs",
     "instrumentation",
     "analytics"
   ],
@@ -27,7 +31,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/syftdata/syft.git"
+    "url": "git+https://github.com/syftdata/syft.git",
+    "directory": "packages/next"
   },
   "bugs": {
     "url": "https://github.com/syftdata/syft/issues"

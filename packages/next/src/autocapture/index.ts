@@ -85,8 +85,6 @@ export class Autocapture {
             this.callback(eventName, {}, eventTag, el);
           });
         }
-        // const eventSchema = eventTag;
-        console.log('>>> ', eventTag, el, e.type);
       });
 
       return true;
