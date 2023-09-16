@@ -16,6 +16,10 @@ import { type AutocaptureConfig } from '../autocapture/types';
 declare global {
   interface Window {
     SyftUpdateAutoCapture?: (config: AutocaptureConfig) => void;
+    SyftUserSession?: {
+      syftToken: string;
+      syftId: string;
+    };
   }
 }
 
@@ -73,8 +77,26 @@ export const SyftProvider = <E extends EventTypes>(
           ...config
         });
       };
-
-      // load the debug script.
+      const url = new URL(window.location.href);
+      const syftToken = url.searchParams.get('syft_token');
+      const syftId = url.searchParams.get('syft_id');
+      if (syftToken != null && syftId != null) {
+        window.SyftUserSession = {
+          syftToken,
+          syftId
+        };
+        localStorage.setItem(
+          'syftUserSession',
+          JSON.stringify(window.SyftUserSession)
+        );
+      }
+      if (window.SyftUserSession == null) {
+        window.SyftUserSession = JSON.parse(
+          localStorage.getItem('syftUserSession')
+        );
+      }
+    }
+    if (window.SyftUserSession != null) {
       const script = document.createElement('script');
       script.src =
         autocapture.toolbarJS ?? 'http://localhost:4173/syftbar.es.js';
