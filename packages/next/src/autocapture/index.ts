@@ -5,7 +5,12 @@ import {
   getMatchingEventTag,
   isDocumentFragment
 } from './autocapture-utils';
-import { type SyftEventHandler, type AutocaptureConfig } from './types';
+import {
+  type SyftEventHandler,
+  type AutocaptureConfig,
+  type EventTag
+} from './types';
+import { type Field } from '@syftdata/common/lib/types';
 
 const _getEventTarget = (e: Event): Element | null => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Event/target#Compatibility_notes
@@ -55,6 +60,16 @@ export class Autocapture {
     this._deregisterCallbacks = [];
   }
 
+  _getFieldVal = (
+    field: Field,
+    el: Element,
+    e: Event,
+    eventTag: EventTag
+  ): any => {
+    // TODO: fill this.
+    return undefined;
+  };
+
   _captureEvent = (e: Event): boolean | undefined => {
     /** * Don't mess with this code without running IE8 tests on it ***/
     e = e ?? window.event;
@@ -82,7 +97,19 @@ export class Autocapture {
         if (eventTag != null) {
           const events = eventTag.handlerToEvents[e.type];
           events.forEach((eventName) => {
-            this.callback(eventName, {}, eventTag, el);
+            // get schema for eventTag, eventName.
+            const schema = this.config.schemas.find(
+              (schema) => schema.name === eventName
+            );
+            if (schema != null) {
+              // collect data for each field in schema.
+              const props = {};
+              schema.fields.forEach((field) => {
+                const value = this._getFieldVal(field, el, e, eventTag);
+                props[field.name] = value;
+              });
+              this.callback(eventName, props, schema, eventTag, el);
+            }
           });
         }
       });

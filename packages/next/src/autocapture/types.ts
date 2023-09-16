@@ -78,6 +78,7 @@ export interface AutocaptureConfig {
 export type SyftEventHandler = (
   name: string,
   props: Record<string, unknown>,
+  schema: EventSchema,
   tag: EventTag,
   ele: Element
 ) => void;

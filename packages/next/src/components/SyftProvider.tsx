@@ -71,12 +71,6 @@ export const SyftProvider = <E extends EventTypes>(
 
   useEffect(() => {
     if (window.location.href.includes('syft_token')) {
-      window.SyftUpdateAutoCapture = (config) => {
-        setAutoCaptureConfig({
-          ...autocapture,
-          ...config
-        });
-      };
       const url = new URL(window.location.href);
       const syftToken = url.searchParams.get('syft_token');
       const syftId = url.searchParams.get('syft_id');
@@ -97,6 +91,12 @@ export const SyftProvider = <E extends EventTypes>(
       );
     }
     if (window.SyftUserSession != null) {
+      window.SyftUpdateAutoCapture = (config) => {
+        setAutoCaptureConfig({
+          ...autocapture,
+          ...config
+        });
+      };
       const script = document.createElement('script');
       script.src =
         autocapture.toolbarJS ?? 'http://localhost:4173/syftbar.es.js';
@@ -124,7 +124,6 @@ export const SyftProvider = <E extends EventTypes>(
     enabled:
       enabled && autocapture?.schemas != null && autocapture?.tags != null,
     callback: (name, event, tag, ele) => {
-      // const eventSchema = eventTag;
       console.log('>>> received an automated event', name, event, tag, ele);
       tracker?.track(name, event);
     },
