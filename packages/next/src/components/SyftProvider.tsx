@@ -86,13 +86,13 @@ export const SyftProvider = <E extends EventTypes>(
           syftId
         };
         localStorage.setItem(
-          'syftUserSession',
+          'syft-user-session',
           JSON.stringify(window.SyftUserSession)
         );
       }
       if (window.SyftUserSession == null) {
         window.SyftUserSession = JSON.parse(
-          localStorage.getItem('syftUserSession')
+          localStorage.getItem('syft-user-session')
         );
       }
     }
