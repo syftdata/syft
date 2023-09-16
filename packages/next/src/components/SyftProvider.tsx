@@ -90,11 +90,11 @@ export const SyftProvider = <E extends EventTypes>(
           JSON.stringify(window.SyftUserSession)
         );
       }
-      if (window.SyftUserSession == null) {
-        window.SyftUserSession = JSON.parse(
-          localStorage.getItem('syft-user-session')
-        );
-      }
+    }
+    if (window.SyftUserSession == null) {
+      window.SyftUserSession = JSON.parse(
+        localStorage.getItem('syft-user-session')
+      );
     }
     if (window.SyftUserSession != null) {
       const script = document.createElement('script');
