@@ -13,7 +13,7 @@ export interface ProviderProps {
    * Use this to explicitly decide whether or not to render script. If not passed the script will be rendered in production environments.
    */
   enabled?: boolean;
-  trackPageviews?: boolean;
+  trackPageViews?: boolean;
   hashMode?: boolean;
 
   middleware?: (event: Event) => Event | undefined;
@@ -47,7 +47,7 @@ export const SyftProvider = <E extends EventTypes>(
 
   usePageViews({
     hashMode: props.hashMode,
-    enabled: enabled && props.trackPageviews === true && isBrowser(),
+    enabled: enabled && props.trackPageViews === true && isBrowser(),
     callback: (url) => {
       tracker?.page(undefined, url.toString());
     }
