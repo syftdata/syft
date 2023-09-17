@@ -99,7 +99,8 @@ export const SyftProvider = <E extends EventTypes>(
       };
       const script = document.createElement('script');
       script.src =
-        autocapture.toolbarJS ?? 'http://localhost:4173/syftbar.es.js';
+        autocapture.toolbarJS ??
+        'https://storage.googleapis.com/syft_cdn/syftbar/0.0.1/syftbar.es.js';
       script.type = 'module';
       document.body.appendChild(script);
     }

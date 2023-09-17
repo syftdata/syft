@@ -18,7 +18,7 @@ To enable Syft in your app you'll need to expose the Syft context. Include `<Syf
 
 ```jsx title="src/pages/_app.tsx"
 // highlight-next-line
-import SyftProvider from "@syftdata/next";
+import { SyftProvider } from "@syftdata/next";
 
 export default function MyApp({ Component, pageProps }) {
   return (
@@ -37,7 +37,7 @@ If are using [the app directory](https://beta.nextjs.org/docs/routing/fundamenta
 
 ```jsx title="src/app/layout.tsx"
 // highlight-next-line
-import SyftProvider from "@syftdata/next";
+import { SyftProvider } from "@syftdata/next";
 
 export default function RootLayout({ children }) {
   return (
