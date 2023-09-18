@@ -19,6 +19,7 @@ declare global {
     SyftUserSession?: {
       syftToken: string;
       syftId: string;
+      syftSourceId: string;
     };
   }
 }
@@ -50,8 +51,8 @@ export const SyftContext = createContext<typeof tracker>(undefined);
 export const SyftProvider = <E extends EventTypes>(
   props: ProviderProps
 ): JSX.Element => {
-  const enabled =
-    props.enabled !== undefined ? props.enabled : true && isBrowser();
+  const enabled = props.enabled !== undefined ? props.enabled : true;
+  const autocaptureEnabled = enabled && isBrowser();
 
   if (tracker == null && enabled) {
     // pass the url based on the proxy options.
@@ -74,10 +75,12 @@ export const SyftProvider = <E extends EventTypes>(
       const url = new URL(window.location.href);
       const syftToken = url.searchParams.get('syft_token');
       const syftId = url.searchParams.get('syft_id');
+      const syftSourceId = url.searchParams.get('syft_source_id');
       if (syftToken != null && syftId != null) {
         window.SyftUserSession = {
           syftToken,
-          syftId
+          syftId,
+          syftSourceId
         };
         localStorage.setItem(
           'syft-user-session',
@@ -99,7 +102,7 @@ export const SyftProvider = <E extends EventTypes>(
       };
       const script = document.createElement('script');
       script.src =
-        autocapture.toolbarJS ??
+        autocapture?.toolbarJS ??
         'https://storage.googleapis.com/syft_cdn/syftbar/0.0.1/syftbar.es.js';
       script.type = 'module';
       document.body.appendChild(script);
@@ -107,7 +110,7 @@ export const SyftProvider = <E extends EventTypes>(
   }, []);
 
   usePageViews({
-    enabled: enabled && props.trackPageviews !== false,
+    enabled: autocaptureEnabled && props.trackPageviews !== false,
     hashMode: props.hashMode !== false,
     callback: (url) => {
       tracker?.page(undefined, url.toString());
@@ -115,7 +118,7 @@ export const SyftProvider = <E extends EventTypes>(
   });
 
   useLinkClicks({
-    enabled: enabled && props.trackOutboundLinks !== false,
+    enabled: autocaptureEnabled && props.trackOutboundLinks !== false,
     callback: (href) => {
       tracker?.track('OutboundLink Clicked', { href });
     }
@@ -123,9 +126,10 @@ export const SyftProvider = <E extends EventTypes>(
 
   useTrackTags({
     enabled:
-      enabled && autocapture?.schemas != null && autocapture?.tags != null,
+      autocaptureEnabled &&
+      autocapture?.schemas != null &&
+      autocapture?.tags != null,
     callback: (name, event, tag, ele) => {
-      console.log('>>> received an automated event', name, event, tag, ele);
       tracker?.track(name, event);
     },
     config: autocapture

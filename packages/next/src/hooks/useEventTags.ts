@@ -20,12 +20,10 @@ export function useTrackTags({
     if (!enabled) {
       return;
     }
-    console.log('>>> got a new config to generate events', config);
     const autocapture = new Autocapture(config);
     autocapture.init(callback);
 
     return () => {
-      // TODO: remove event listeners.
       autocapture.destroy();
     };
   }, [enabled, config]);
