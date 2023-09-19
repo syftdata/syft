@@ -12,6 +12,8 @@ To add a destination, first create an API endpoint (/api/syft) in your next.js a
 
 The example below shows June as a destination. You can find the list of supported destinations with their configuration details [here](/category/destinations)
 
+### Page based routing
+
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { NextSyftServer } from "@syftdata/next/lib/next";
@@ -36,9 +38,32 @@ export default async function handler(
 }
 ```
 
+### App based routing
+
+```ts title="src/app/api/syft/route.ts"
+import { type NextRequest } from "next";
+import { NextSyftServer } from "@syftdata/next/lib/next";
+
+const destinations = [
+  {
+    type: "june",
+    settings: {
+      apiKey: "xxxx",
+    },
+  },
+];
+export default async function POST(req: NextRequest) {
+  const server = new NextSyftServer({ destinations });
+  if (process && process.env.NODE_ENV === "development") {
+    if (!(await server.validateSetup())) throw new Error("Invalid setup");
+  }
+  return await server.handleAppApi(req);
+}
+```
+
 ### Destination Field Mapping
 
-Syft internally represents all payloads from `identify()/track()/group()` calls in a "unified" event object. It transforms this event object to a target payload for each destination. You can find this "mapping" documented in the "Data Modeling" section of each Destination doc in this guide.  
+Syft internally represents all payloads from `identify()/track()/group()` calls in a "unified" event object. It transforms this event object to a target payload for each destination. You can find this "mapping" documented in the "Data Modeling" section of each Destination doc in this guide.
 
 ### Custom Upload Endpoint
 
