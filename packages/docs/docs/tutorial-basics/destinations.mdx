@@ -2,6 +2,9 @@
 sidebar_position: 5
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 # Configure Destinations
 
 You can route events to multiple destinations with simple configuration.
@@ -12,7 +15,8 @@ To add a destination, first create an API endpoint (/api/syft) in your next.js a
 
 The example below shows June as a destination. You can find the list of supported destinations with their configuration details [here](/category/destinations)
 
-### Page based routing
+<Tabs groupId="next-style">
+<TabItem value="pages" label="Page Routing">
 
 ```ts title="src/pages/api/syft.ts"
 import { type NextApiRequest, type NextApiResponse } from "next";
@@ -38,7 +42,8 @@ export default async function handler(
 }
 ```
 
-### App based routing
+</TabItem>
+<TabItem value="app" label="App Routing">
 
 ```ts title="src/app/api/syft/route.ts"
 import { type NextRequest } from "next";
@@ -60,6 +65,9 @@ export default async function POST(req: NextRequest) {
   return await server.handleAppApi(req);
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Destination Field Mapping
 
