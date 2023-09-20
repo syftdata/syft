@@ -25,6 +25,10 @@ const GROUP_TRAITS_KEY = 'group_traits';
 
 const REFERRER_KEY = 'referrer';
 
+function deepEqual(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 /**
  * Options used when initializing the tracker.
  */
@@ -85,8 +89,6 @@ export default class AutoTracker<E extends EventTypes> {
     options?: EventOptions,
     integrations?: unknown
   ): void {
-    // TODO: de-dupe calls
-
     let newTraits = traits;
     if (this.userId == null || this.userId === userId) {
       newTraits = {
@@ -95,12 +97,21 @@ export default class AutoTracker<E extends EventTypes> {
       };
     }
 
+    if (this.userId === userId && deepEqual(this.userTraits, newTraits)) {
+      return;
+    }
+
     this.userId = userId;
     this.userTraits = newTraits;
     this.configStore.set(USER_ID_KEY, userId);
     this.configStore.set(USER_TRAITS_KEY, newTraits);
 
-    const partialEvent = this._getPartialEvent();
+    if (options.userId != null) {
+      console.warn("don't pass userId in options, pass it as the first arg");
+      options.userId = userId;
+    }
+
+    const partialEvent = this._getPartialEvent(options, integrations);
     this._logEvent(
       {
         ...partialEvent,
@@ -122,7 +133,7 @@ export default class AutoTracker<E extends EventTypes> {
     options?: EventOptions,
     integrations?: unknown
   ): void {
-    const partialEvent = this._getPartialEvent();
+    const partialEvent = this._getPartialEvent(options, integrations);
     this._logEvent(
       {
         ...partialEvent,
@@ -145,14 +156,16 @@ export default class AutoTracker<E extends EventTypes> {
     options?: EventOptions,
     integrations?: unknown
   ): void {
-    // TODO: de-dupe calls
+    if (this.groupId === groupId && deepEqual(this.groupTraits, traits)) {
+      return;
+    }
 
     this.groupId = groupId;
     this.groupTraits = traits;
     this.configStore.set(GROUP_ID_KEY, groupId);
     this.configStore.set(GROUP_TRAITS_KEY, traits);
 
-    const partialEvent = this._getPartialEvent();
+    const partialEvent = this._getPartialEvent(options, integrations);
     this._logEvent(
       {
         ...partialEvent,
@@ -193,7 +206,7 @@ export default class AutoTracker<E extends EventTypes> {
     options?: EventOptions,
     integrations?: unknown
   ): void {
-    const partialEvent = this._getPartialEvent();
+    const partialEvent = this._getPartialEvent(options, integrations);
     this._logEvent(
       {
         ...partialEvent,
@@ -217,7 +230,7 @@ export default class AutoTracker<E extends EventTypes> {
     options?: EventOptions,
     integrations?: unknown
   ): void {
-    const partialEvent = this._getPartialEvent();
+    const partialEvent = this._getPartialEvent(options, integrations);
     this._logEvent(
       {
         ...partialEvent,
