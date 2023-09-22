@@ -32,7 +32,7 @@ export interface ProviderProps {
    */
   enabled?: boolean;
 
-  trackPageviews?: boolean;
+  trackPageViews?: boolean;
   hashMode?: boolean;
 
   trackOutboundLinks?: boolean;
@@ -110,7 +110,7 @@ export const SyftProvider = <E extends EventTypes>(
   }, []);
 
   usePageViews({
-    enabled: autocaptureEnabled && props.trackPageviews !== false,
+    enabled: autocaptureEnabled && props.trackPageViews !== false,
     hashMode: props.hashMode !== false,
     callback: (url) => {
       tracker?.page(undefined, url.toString());
