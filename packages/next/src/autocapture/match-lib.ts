@@ -1,5 +1,9 @@
 import { type EventTag } from './types';
 
+/***
+ * This file will be used as-it-is in Syft Package.
+ */
+
 export interface PathMatchResult {
   matched: boolean;
   matchedElement?: Element;
@@ -21,7 +25,7 @@ export function getPath(element: HTMLElement): PathComponent[] {
   }
 
   const paths: PathComponent[] = [];
-  let current = findParentFiberWithHTML(fiber);
+  let current = findParentFiber(fiber.return);
   let previous: FiberElement | undefined;
   while (current != null) {
     // find the index of the previous element in this component.
@@ -29,6 +33,7 @@ export function getPath(element: HTMLElement): PathComponent[] {
       const siblings = findChildFibersWithName(current.fiber, previous.name);
       if (siblings.length > 1) {
         const previousComp = paths[paths.length - 1];
+        // we are searching based on fiber.
         previousComp.index = siblings.indexOf(previous.fiber);
       }
     }
@@ -38,7 +43,7 @@ export function getPath(element: HTMLElement): PathComponent[] {
       ele: current.ele
     });
     previous = current;
-    current = findParentFiberWithHTML(current.fiber.return);
+    current = findParentFiber(current.fiber.return);
   }
   return paths.reverse();
 }
@@ -151,28 +156,35 @@ function getFiberName(fiber: any): string | undefined {
 interface FiberElement {
   fiber: any;
   name: string;
-  ele: Element;
+  ele: HTMLElement;
 }
-function findParentFiberWithHTML(fiber: any): FiberElement | undefined {
+
+function findParentFiber(fiber: any): FiberElement | undefined {
   // find the parent fiber with component name and state node.
   let current = fiber;
-  let topEle: Element | undefined;
-  let foundHTML = false; // initialize with true as the current element is from an HTML element.
+  let ele: HTMLElement | undefined;
+
+  // 1. get the top html element of the parent fiber. if it is body, then return, no parent.
+  // 2. if not, then find the component with name and return.
+
   while (current != null) {
-    if (current.stateNode instanceof Element) {
-      topEle = current.stateNode;
-      foundHTML = true;
+    if (current.stateNode instanceof HTMLElement) {
+      ele = current.stateNode;
+      break;
     }
-    if (foundHTML) {
-      const name = getFiberName(current);
-      if (name != null) {
-        return {
-          fiber: current,
-          name,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ele: topEle!
-        };
-      }
+    current = current.return;
+  }
+  if (ele == null || ele === document.body) return;
+
+  current = fiber;
+  while (current != null) {
+    const name = getFiberName(current);
+    if (name != null) {
+      return {
+        fiber: current,
+        name,
+        ele
+      };
     }
     current = current.return;
   }
@@ -188,25 +200,37 @@ function getChildFibers(fiber: any): any[] {
   return children;
 }
 
+/**
+ * Returns child fibers with the given name and has an html element in / or its children.
+ * @param fiber
+ * @param name
+ * @returns
+ */
 function findChildFibersWithName(fiber: any, name: string): any[] {
   const children = getChildFibers(fiber).flatMap((child) => {
     const compName = getFiberName(child);
-    if (compName != null) {
-      let foundHTML = child.stateNode instanceof Element;
-      if (!foundHTML) {
-        foundHTML = getChildFibers(child).some(
-          (gchild) => gchild.stateNode instanceof Element
-        );
-      }
-      if (foundHTML) {
-        if (compName === name) {
-          return child;
-        } else {
-          return undefined;
-        }
-      }
+    if (compName != null && compName === name) {
+      return child;
     }
     return findChildFibersWithName(child, name);
   });
   return children.filter((child) => child != null);
+}
+
+/// / TESTING ////
+export function matchTest(el: HTMLElement, tag: EventTag): void {
+  const elComps = getPath(el);
+  const result = match(tag, elComps);
+  if (!result.matched) {
+    console.warn(
+      'no match found for element',
+      el,
+      tag.selector,
+      result.elPathComps,
+      result.tagPathComps,
+      result.matchedPathComps
+    );
+  } else {
+    console.log('matched', result);
+  }
 }
