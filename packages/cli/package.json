@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/cli",
-  "version": "0.1.37-alpha.2",
+  "version": "0.1.37",
   "description": "CLI to get event instrumentation right.",
   "keywords": [
     "syft",
@@ -69,8 +69,8 @@
   "dependencies": {
     "@es-joy/jsdoccomment": "^0.37.0",
     "@scarf/scarf": "^1.1.1",
-    "@syftdata/codehandler": "^0.1.37-alpha.2",
-    "@syftdata/common": "^0.1.37-alpha.2",
+    "@syftdata/codehandler": "^0.1.37",
+    "@syftdata/common": "^0.1.37",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "chalk": "^4.1",
