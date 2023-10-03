@@ -132,7 +132,6 @@ function getFiberForElement(element: HTMLElement): any {
   const fiberKey = Object.keys(element).find((key) =>
     key.startsWith('__reactFiber')
   );
-  // @ts-expect-error __reactFiber is a private property
   return fiberKey != null ? element[fiberKey] : null;
 }
 
