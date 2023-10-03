@@ -11,13 +11,13 @@ export interface ReactSource {
 
 interface ReactElement {
   reactSource: ReactSource;
-  selector: string;
-  // to show the tree hierarchy.
-  children?: ReactElement[];
-  parent?: ReactElement;
+  reactPath: string;
 }
 
 export interface EventTag extends ReactElement {
+  useReactPath?: boolean;
+  selector: string;
+
   // we need to maintain a mapping between handlernames and events.
   handlerToEvents: Record<string, string[]>;
   committed?: boolean;

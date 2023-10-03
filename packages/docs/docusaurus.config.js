@@ -75,15 +75,21 @@ const config = {
         },
         items: [
           {
-            href: "https://www.syftdata.com/blog",
-            label: "Blog",
+            href: "https://discord.gg/2VsD9XsJwK",
             position: "right",
+            className: "header-discord-link discord-button",
+            "aria-label": "Discord",
           },
           {
             href: "https://github.com/syftdata/syft",
             position: "right",
             className: "header-github-link github-button",
             "aria-label": "GitHub",
+          },
+          {
+            href: "https://www.syftdata.com/blog",
+            label: "Blog",
+            position: "right",
           },
         ],
       },
@@ -92,7 +98,7 @@ const config = {
         links: [
           {
             label: "Discord",
-            href: "https://discord.gg/q4fTwh9T",
+            href: "https://discord.gg/2VsD9XsJwK",
           },
           {
             label: "Twitter",

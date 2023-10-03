@@ -3,7 +3,7 @@ import * as chalk from 'chalk';
 
 export const SYFT_DOCUMENTATION = `https://github.com/syftdata/syft/`;
 export const FILE_A_BUG = 'https://github.com/syftdata/syft/issues/new';
-export const DISCORD_LINK = 'https://discord.gg/mudHQGf8hT';
+export const DISCORD_LINK = 'https://discord.gg/2VsD9XsJwK';
 
 const log = console.log; // eslint-disable-line no-console
 const logException = console.error; // eslint-disable-line no-console

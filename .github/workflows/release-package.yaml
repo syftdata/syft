@@ -14,9 +14,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install --include-dev
-      - run: npx lerna run build
-      - run: npx lerna run test
+      - name: install
+        run: npm install --include-dev
+      - name: build
+        run: npx lerna run build
+      - name: test
+        run: npx lerna run test
 
   publish-npm:
     needs: build
@@ -30,28 +33,50 @@ jobs:
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - run: npm install --include-dev
-      - run: npx lerna run build
-      - run: cd packages/common;npm publish --access public;cd ../../;
+      - name: install
+        run: npm install --include-dev
+      - name: build
+        run: npx lerna run build
+      - name: publish-common
+        run: |
+          cd packages/common
+          npm publish --access public
+          cd ../../
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/client;npm publish --access public;cd ../../;
+      - name: publish-client
+        run: |
+          cd packages/client
+          npm publish --access public
+          cd ../../
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/codehandler;npm publish --access public;cd ../../;
+      - name: publish-codehandler
+        run: |
+          cd packages/codehandler
+          npm publish --access public
+          cd ../../
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/next;npm publish --access public;cd ../../;
+      - name: publish-next
+        run: |
+          cd packages/next
+          npm publish --access public
+          cd ../../
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       # - run: cd packages/test;npm publish --access public;cd ../../;
       #   env:
       #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - run: cd packages/cli;npm publish --access public;cd ../../;
+      - name: publish-cli
+        run: |
+          cd packages/cli
+          npm publish --access public
+          cd ../../
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
