@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.38-alpha.1",
+  "version": "0.1.38-alpha.2",
   "description": "A lightweight low-code alternative to Segment to instrument event analytics",
   "keywords": [
     "syft",
