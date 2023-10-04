@@ -1,5 +1,6 @@
 import type { Event, EventOptions } from './types';
-import UniversalConfigStore from './configstore';
+import type UniversalConfigStore from './configstore';
+import { globalStore } from './configstore';
 import { type BatchUploader } from './uploader';
 import { isBrowser, searchParams, uuid } from './utils';
 import type {
@@ -15,6 +16,7 @@ import type {
 // import utm from '@segment/utm-params';
 import Cookies from 'js-cookie';
 import { getCampaign, getReferrer } from './ad_utm';
+import { canLog, type GDPROptions } from './gdpr';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -35,6 +37,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export interface InitOptions {
   uploader: BatchUploader;
   readonly middleware?: (event: Event) => Event | undefined;
+  gdpr?: GDPROptions;
 }
 export default class AutoTracker<E extends EventTypes> {
   options: InitOptions;
@@ -53,7 +56,7 @@ export default class AutoTracker<E extends EventTypes> {
 
   constructor(options: InitOptions) {
     this.options = options;
-    this.configStore = new UniversalConfigStore([]);
+    this.configStore = globalStore;
 
     this.anonymousId = this.configStore.get(ANONYMOUS_ID_KEY) as string;
     if (this.anonymousId == null) {
@@ -366,13 +369,15 @@ export default class AutoTracker<E extends EventTypes> {
       _event = this.options.middleware(_event);
 
     if (_event != null) {
-      // fire a syft event on the window. it will show up in the console.
-      window.dispatchEvent(
-        new CustomEvent('syft-event', {
-          detail: event
-        })
-      );
-      this.options.uploader.addToQueue(_event);
+      if (canLog(this.options.gdpr)) {
+        // fire a syft event on the window. it will show up in the console.
+        window.dispatchEvent(
+          new CustomEvent('syft-event', {
+            detail: event
+          })
+        );
+        this.options.uploader.addToQueue(_event);
+      }
     }
   }
 }

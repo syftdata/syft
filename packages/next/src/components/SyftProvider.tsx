@@ -12,6 +12,7 @@ import { BatchUploader } from '../common/uploader';
 import { useLinkClicks, usePageViews } from '../hooks';
 import { useTrackTags } from '../hooks/useEventTags';
 import { type AutocaptureConfig } from '../autocapture/types';
+import { type GDPROptions } from '../common/gdpr';
 
 declare global {
   interface Window {
@@ -38,6 +39,8 @@ export interface ProviderProps {
   trackOutboundLinks?: boolean;
   autocapture?: AutocaptureConfig;
 
+  gdpr?: GDPROptions;
+
   middleware?: (event: Event) => Event | undefined;
   /**
    * The path to upload the events to. Defaults to `/api/syft`.
@@ -62,6 +65,7 @@ export const SyftProvider = <E extends EventTypes>(
     });
     tracker = new AutoTracker<E>({
       uploader,
+      gdpr: props.gdpr,
       middleware: props.middleware
     });
   }
