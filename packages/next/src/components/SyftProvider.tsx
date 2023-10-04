@@ -12,7 +12,7 @@ import { BatchUploader } from '../common/uploader';
 import { useLinkClicks, usePageViews } from '../hooks';
 import { useTrackTags } from '../hooks/useEventTags';
 import { type AutocaptureConfig } from '../autocapture/types';
-import { type GDPROptions } from '../common/gdpr';
+import { type ConsentOptions } from '../common/consent';
 
 declare global {
   interface Window {
@@ -39,7 +39,7 @@ export interface ProviderProps {
   trackOutboundLinks?: boolean;
   autocapture?: AutocaptureConfig;
 
-  gdpr?: GDPROptions;
+  consent?: ConsentOptions;
 
   middleware?: (event: Event) => Event | undefined;
   /**
@@ -65,7 +65,7 @@ export const SyftProvider = <E extends EventTypes>(
     });
     tracker = new AutoTracker<E>({
       uploader,
-      gdpr: props.gdpr,
+      consent: props.consent,
       middleware: props.middleware
     });
   }

@@ -58,44 +58,40 @@ export default function MyButton() {
 
 ## Privacy friendly
 
-Syft makes it easy to handle user privacy preferences. This functionality needs to be enabled explicitly as shown below.
+Syft makes it easy to handle privacy preferences as required by laws such as GDPR and CCPA. This functionality needs to be enabled explicitly as shown below.
 
 ```jsx title="src/pages/_app.tsx"
 // ...
-<SyftProvider gdpr={{ enabled: true }} />
+<SyftProvider consent={{ enabled: true }} />
 // ...
 ```
 
 #### Helper methods
 
 ```js
+import { consent } from "@syft/next";
+
 /**
  * call this method when user opts in / accepts.
  */
-optIn();
+consent.optIn();
 
 /**
  * call this method when user opts out / rejects.
  */
-optOut();
+consent.optOut();
 
 /**
  * This method helps to decide if consent popup needs to be shown.
  * returns true if user had either opted in or opted out.
  */
-hasGivenConsent();
-
-/**
- * This method helps to check if user has given consent or not.
- * returns true if user opted in.
- */
-hasOptedIn();
+consent.hasGivenConsent();
 
 /**
  * This method helps to check if data can be collected or not.
  * returns true if it is okay to collect data.
  */
-canLog();
+consent.canLog();
 ```
 
 ## Type Safe Events

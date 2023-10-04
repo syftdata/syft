@@ -16,7 +16,7 @@ import type {
 // import utm from '@segment/utm-params';
 import Cookies from 'js-cookie';
 import { getCampaign, getReferrer } from './ad_utm';
-import { canLog, type GDPROptions } from './gdpr';
+import { canLog, type ConsentOptions } from './consent';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -37,7 +37,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export interface InitOptions {
   uploader: BatchUploader;
   readonly middleware?: (event: Event) => Event | undefined;
-  gdpr?: GDPROptions;
+  consent?: ConsentOptions;
 }
 export default class AutoTracker<E extends EventTypes> {
   options: InitOptions;
@@ -369,7 +369,7 @@ export default class AutoTracker<E extends EventTypes> {
       _event = this.options.middleware(_event);
 
     if (_event != null) {
-      if (canLog(this.options.gdpr)) {
+      if (canLog(this.options.consent)) {
         // fire a syft event on the window. it will show up in the console.
         window.dispatchEvent(
           new CustomEvent('syft-event', {
