@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Router } from 'next/router';
 
 export interface UsePageViewsOptions {
   hashMode?: boolean;
@@ -12,25 +11,43 @@ export function usePageViews({
   hashMode = true,
   enabled = true
 }: UsePageViewsOptions): void {
+  const handleRouteChange = (): void => {
+    callback(new URL(window.location.href));
+  };
+
   useEffect(() => {
     if (!enabled) {
       return;
     }
-    const handleRouteChange = (url: URL): void => {
-      callback(url);
-    };
-
-    Router.events.on('routeChangeComplete', handleRouteChange);
-
+    const originalPushState = history.pushState;
+    if (originalPushState != null) {
+      history.pushState = function (data, title, url) {
+        originalPushState.apply(this, [data, title, url]);
+        handleRouteChange();
+      };
+      addEventListener('popstate', handleRouteChange);
+    }
+    // Attach hashchange listener
     if (hashMode) {
-      Router.events.on('hashChangeComplete', handleRouteChange);
+      addEventListener('hashchange', handleRouteChange);
     }
 
     return () => {
-      Router.events.off('routeChangeComplete', handleRouteChange);
+      if (originalPushState != null) {
+        history.pushState = originalPushState;
+        removeEventListener('popstate', handleRouteChange);
+      }
       if (hashMode) {
-        Router.events.off('hashChangeComplete', handleRouteChange);
+        removeEventListener('hashchange', handleRouteChange);
       }
     };
-  }, [Router.events, hashMode, enabled]);
+  }, [hashMode, enabled]);
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+    // call the callback once on mount.
+    handleRouteChange();
+  });
 }
