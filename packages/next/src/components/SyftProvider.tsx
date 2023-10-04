@@ -12,7 +12,7 @@ import { BatchUploader } from '../common/uploader';
 import { useLinkClicks, usePageViews } from '../hooks';
 import { useTrackTags } from '../hooks/useEventTags';
 import { type AutocaptureConfig } from '../autocapture/types';
-import { type ConsentOptions } from '../common/consent';
+import { type ConsentConfig } from '../common/consent';
 
 declare global {
   interface Window {
@@ -39,7 +39,7 @@ export interface ProviderProps {
   trackOutboundLinks?: boolean;
   autocapture?: AutocaptureConfig;
 
-  consent?: ConsentOptions;
+  consent: ConsentConfig;
 
   middleware?: (event: Event) => Event | undefined;
   /**

@@ -16,7 +16,7 @@ import type {
 // import utm from '@segment/utm-params';
 import Cookies from 'js-cookie';
 import { getCampaign, getReferrer } from './ad_utm';
-import { canLog, type ConsentOptions } from './consent';
+import { canLog, type ConsentConfig } from './consent';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -37,8 +37,9 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export interface InitOptions {
   uploader: BatchUploader;
   readonly middleware?: (event: Event) => Event | undefined;
-  consent?: ConsentOptions;
+  consent: ConsentConfig;
 }
+
 export default class AutoTracker<E extends EventTypes> {
   options: InitOptions;
 

@@ -1,13 +1,23 @@
 import { globalStore } from './configstore';
 
-export interface ConsentOptions {
-  enable?: boolean;
+interface ConsentOptions {
   respectDnt?: boolean;
 }
+export type ConsentConfig = ConsentOptions | boolean | undefined;
 
 const GDPR_DEFAULT_PERSISTENCE_PREFIX = '_opt_in_out_';
 function getKey(): string {
   return `${GDPR_DEFAULT_PERSISTENCE_PREFIX}.default`;
+}
+
+function getOptionsFromConfig(
+  config: ConsentConfig
+): ConsentOptions | undefined {
+  if (config == null) return undefined;
+  if (typeof config === 'boolean') {
+    return config ? {} : undefined;
+  }
+  return config;
 }
 
 /**
@@ -38,9 +48,9 @@ export function hasGivenConsent(): boolean {
  * This method helps to check if data can be collected or not.
  * returns true if it is okay to collect data.
  */
-export function canLog(options?: ConsentOptions): boolean {
-  options = options ?? {};
-  if (!(options.enable ?? false)) return true;
+export function canLog(config: ConsentConfig): boolean {
+  const options = getOptionsFromConfig(config);
+  if (options == null) return true;
   if (options.respectDnt === true) {
     if ([true, 1, '1', 'yes'].includes(window.navigator.doNotTrack))
       return false;

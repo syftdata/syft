@@ -62,7 +62,7 @@ Syft makes it easy to handle privacy preferences as required by laws such as GDP
 
 ```jsx title="src/pages/_app.tsx"
 // ...
-<SyftProvider consent={{ enabled: true }} />
+<SyftProvider consent />
 // ...
 ```
 
@@ -92,6 +92,14 @@ consent.hasGivenConsent();
  * returns true if it is okay to collect data.
  */
 consent.canLog();
+```
+
+#### Respect [Do Not Track](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/doNotTrack).
+
+```jsx title="src/pages/_app.tsx"
+// ...
+<SyftProvider consent={{ respectDNT: true }} />
+// ...
 ```
 
 ## Type Safe Events
