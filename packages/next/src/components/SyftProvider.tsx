@@ -39,7 +39,7 @@ export interface ProviderProps {
   trackOutboundLinks?: boolean;
   autocapture?: AutocaptureConfig;
 
-  consent: ConsentConfig;
+  consent?: ConsentConfig;
 
   middleware?: (event: Event) => Event | undefined;
   /**
