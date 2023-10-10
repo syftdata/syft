@@ -1,3 +1,5 @@
+import { getAttributes } from 'dom-utils';
+
 export const isBrowser = (): boolean => typeof window !== 'undefined';
 
 export const uuid = (): string => {
@@ -31,4 +33,35 @@ export function mapValues<
     agg[nameKey] = value[key] as Obj[keyof Obj][ValueKey];
     return agg;
   }, result);
+}
+
+/**
+ * Retrieves the attributes from an DOM element and returns a fields object
+ * for all attributes matching the passed prefix string.
+ * @param {Element} element The DOM element to get attributes from.
+ * @param {string} prefix An attribute prefix. Only the attributes matching
+ *     the prefix will be returned on the fields object.
+ */
+export function getAttributeFields(
+  element: Element,
+  prefix: string = ''
+): Record<string, unknown> {
+  const attributes = getAttributes(element);
+  const attributeFields = {};
+
+  Object.keys(attributes).forEach(function (attribute) {
+    // The `on` prefix is used for event handling but isn't a field.
+    if (attribute.indexOf(prefix) === 0) {
+      let value = attributes[attribute];
+
+      // Detects Boolean value strings.
+      if (value === 'true') value = true;
+      if (value === 'false') value = false;
+
+      const field = attribute.slice(prefix.length);
+      attributeFields[field] = value;
+    }
+  });
+
+  return attributeFields;
 }

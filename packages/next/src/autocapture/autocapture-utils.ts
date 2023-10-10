@@ -3,7 +3,7 @@
  * @param {Element} el - element to get the className of
  * @returns {string} the element's class
  */
-import { getPropPathComponents, matchedEventTag } from './match-lib';
+import { getDOMPathComponents, matchedEventTag } from './match-lib';
 import { type EventTag, type AutocaptureConfig } from './types';
 
 /*
@@ -117,7 +117,7 @@ export function getMatchingEventTag(
   }
 
   // get react path for the element.
-  const pathComps = getPropPathComponents(el);
+  const pathComps = getDOMPathComponents(el);
   const tags = autocaptureConfig?.tags ?? [];
   return tags.find((t) => matchedEventTag(event, t, pathComps));
 }

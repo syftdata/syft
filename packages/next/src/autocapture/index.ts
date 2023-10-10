@@ -49,7 +49,9 @@ export class Autocapture {
       registerEvent(document, 'change', this._captureEvent, false, true)
     );
     res.push(registerEvent(document, 'click', this._captureEvent, false, true));
-    this._deregisterCallbacks = res;
+    this._deregisterCallbacks = res.filter(
+      (cb) => cb !== undefined
+    ) as DeregisterCallback[];
   }
 
   destroy(): void {
@@ -103,12 +105,16 @@ export class Autocapture {
             );
             if (schema != null) {
               // collect data for each field in schema.
-              const props = {};
+              const props: Record<string, any> = {};
               schema.fields.forEach((field) => {
                 const value = this._getFieldVal(field, el, e, eventTag);
-                props[field.name] = value;
+                if (value !== undefined) {
+                  props[field.name] = value;
+                }
               });
-              this.callback(eventName, props, schema, eventTag, el);
+              if (this.callback !== undefined) {
+                this.callback(eventName, props, schema, eventTag, el);
+              }
             }
           });
         }

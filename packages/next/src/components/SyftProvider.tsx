@@ -13,6 +13,7 @@ import { useLinkClicks, usePageViews } from '../hooks';
 import { useTrackTags } from '../hooks/useEventTags';
 import { type AutocaptureConfig } from '../autocapture/types';
 import { type ConsentConfig } from '../common/consent';
+import { useFormSubmit } from '../hooks/useFormSubmit';
 
 declare global {
   interface Window {
@@ -37,6 +38,7 @@ export interface ProviderProps {
   hashMode?: boolean;
 
   trackOutboundLinks?: boolean;
+  trackFormSubmits?: boolean;
   autocapture?: AutocaptureConfig;
 
   consent?: ConsentConfig;
@@ -117,7 +119,9 @@ export const SyftProvider = <E extends EventTypes>(
     enabled: autocaptureEnabled && props.trackPageViews !== false,
     hashMode: props.hashMode !== false,
     callback: (url) => {
-      tracker?.page(undefined, url.toString());
+      // only pass the pathname. the full url is not needed.
+      const pathname = url.pathname;
+      tracker?.page(undefined, pathname);
     }
   });
 
@@ -125,6 +129,20 @@ export const SyftProvider = <E extends EventTypes>(
     enabled: autocaptureEnabled && props.trackOutboundLinks !== false,
     callback: (href) => {
       tracker?.track('OutboundLink Clicked', { href });
+    }
+  });
+
+  useFormSubmit({
+    enabled: autocaptureEnabled && props.trackFormSubmits !== false,
+    callback: (url, attributes) => {
+      const eventName =
+        url.hostname === window.location.hostname
+          ? 'Form Submitted'
+          : 'Outbound Form';
+      tracker?.track(eventName, {
+        action: url.pathname,
+        ...attributes
+      });
     }
   });
 
