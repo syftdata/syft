@@ -10,7 +10,7 @@ import type { Event } from '../common/types';
 import type { EventTypes } from '../common/event_types';
 import { BatchUploader } from '../common/uploader';
 import { useLinkClicks, usePageViews } from '../hooks';
-import { useTrackTags } from '../hooks/useEventTags';
+import { useTrackTags } from '../hooks/useTrackTags';
 import { type AutocaptureConfig } from '../autocapture/types';
 import { type ConsentConfig } from '../common/consent';
 import { useFormSubmit } from '../hooks/useFormSubmit';
