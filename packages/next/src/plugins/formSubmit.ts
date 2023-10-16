@@ -1,0 +1,147 @@
+import { type SyftFormData, type SyftFormField } from '../blocks/forms/types';
+import { getCurrentPath } from '../common/utils';
+function parseFormAction(
+  formAction: string,
+  baseUrl: string = window.location.href
+): URL | undefined {
+  if (formAction == null || formAction === '') return;
+  try {
+    const parsedURL = new URL(formAction, baseUrl);
+    return parsedURL;
+  } catch (error) {}
+}
+
+type FormInputField =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement;
+
+function getLabelText(r: Element): string {
+  if (!(r instanceof HTMLElement)) return;
+  let t = r.innerText.trim();
+  if (t.length === 0) {
+    t = r.textContent.trim();
+    if (t.length === 0) {
+      t = r.getAttribute('aria-label');
+    }
+  }
+  return t;
+}
+function getLabelTextForInput(r: FormInputField): string | undefined {
+  if (r.labels?.length > 0) {
+    const labels = Array.from(r.labels)
+      .map((g) => getLabelText(g))
+      .filter((label) => label.length > 0);
+    if (labels.length > 0) {
+      return labels[0];
+    }
+  }
+}
+
+function getFormFields(r: HTMLFormElement): SyftFormField[] {
+  const fields: SyftFormField[] = [];
+  const children = Array.from(r.elements);
+  children.forEach((child) => {
+    if (
+      !(
+        child instanceof HTMLInputElement ||
+        child instanceof HTMLTextAreaElement ||
+        child instanceof HTMLSelectElement
+      )
+    )
+      return;
+    if (
+      child.value == null ||
+      (child instanceof HTMLInputElement &&
+        (child.type === 'checkbox' || child.type === 'radio') &&
+        !child.checked)
+    )
+      return;
+
+    const label = getLabelTextForInput(child);
+    fields.push({
+      id: child.id,
+      label,
+      name: child.name,
+      type: child.type,
+      tagName: child.tagName,
+      value: child.value
+    });
+  });
+  return fields;
+}
+
+export function formSubmits(
+  callback: (path: string, data: SyftFormData, destination?: URL) => void,
+  shouldTrack?: (
+    path: string,
+    form: HTMLFormElement,
+    destination?: URL
+  ) => boolean
+): () => void {
+  function handleSubmit(form: HTMLFormElement, destination?: URL): void {
+    const currentPath = getCurrentPath(true);
+    if (shouldTrack != null) {
+      if (!shouldTrack(currentPath, form, destination)) {
+        return;
+      }
+    }
+    callback(
+      currentPath,
+      {
+        attributes: { ...form.dataset },
+        fields: getFormFields(form)
+      },
+      destination
+    );
+  }
+
+  const handleSubmitEvent = (event: SubmitEvent): void => {
+    const form = event.target as HTMLFormElement;
+    const submitter = event.submitter;
+    if (form.dataset.syftSubmitted === 'true') {
+      delete form.dataset.syftSubmitted;
+      return;
+    }
+    if (form != null && typeof form.requestSubmit === 'function') {
+      handleSubmit(form, parseFormAction(form.action));
+      if (
+        !(typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
+      ) {
+        form.dataset.syftSubmitted = 'true';
+        event.preventDefault();
+        event.stopPropagation();
+        setTimeout(() => {
+          // TODO: call requestSubmit or submit ?
+          form.requestSubmit(submitter);
+        }, 10);
+      }
+    }
+  };
+
+  document.addEventListener('submit', handleSubmitEvent);
+  const iframes = document.querySelectorAll('iframe');
+  iframes.forEach((iframe) => {
+    const doc = iframe.contentDocument;
+    if (doc == null) return;
+    doc.addEventListener('submit', handleSubmitEvent);
+  });
+
+  const originalSubmit = HTMLFormElement.prototype.submit;
+  HTMLFormElement.prototype.submit = function () {
+    try {
+      handleSubmit(this);
+    } catch (e) {}
+    originalSubmit.call(this);
+  };
+
+  return () => {
+    document.removeEventListener('submit', handleSubmitEvent);
+    iframes.forEach((iframe) => {
+      const doc = iframe.contentDocument;
+      if (doc == null) return;
+      doc.removeEventListener('submit', handleSubmitEvent);
+    });
+    HTMLFormElement.prototype.submit = originalSubmit;
+  };
+}

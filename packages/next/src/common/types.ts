@@ -14,7 +14,7 @@ export interface EventOptions {
   userId?: string;
   anonymousId?: string;
   timestamp?: string | Date;
-  context: Partial<ClientContextData>;
+  context?: Partial<ClientContextData>;
 }
 
 interface UserAgentData {
@@ -63,6 +63,7 @@ export interface ClientContextData {
     [key: string]: any;
   };
 
+  firstCampaign?: Campaign;
   campaign?: Campaign;
 
   referrer?: Referrer;

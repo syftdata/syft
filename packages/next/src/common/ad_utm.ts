@@ -1,4 +1,7 @@
-import { type Campaign, type Referrer } from './event_types';
+import type UniversalConfigStore from './configstore';
+import { type AMP, type Campaign, type Referrer } from './event_types';
+import { searchParams } from './utils';
+import Cookies from 'js-cookie';
 
 /**
  * Get all ads info from the given `querystring`
@@ -39,4 +42,85 @@ export function getCampaign(params: URLSearchParams): Campaign | undefined {
   }
   if (Object.keys(results).length === 0) return undefined;
   return results;
+}
+
+const REFERRER_KEY = 'referrer';
+const FIRST_UTM_KEY = 'first_utm';
+const LAST_UTM_KEY = 'last_utm';
+
+export function getPersistentReferrer(configStore): Referrer | undefined {
+  const { search } = location;
+  const params = searchParams(search);
+  let referrer: Referrer | undefined;
+  if (params != null) {
+    const referrer = getReferrer(params);
+    if (referrer != null) {
+      configStore.set(REFERRER_KEY, referrer);
+    }
+  }
+  if (referrer == null) {
+    referrer = configStore.get(REFERRER_KEY);
+  }
+  return referrer;
+}
+
+const CAMPAIGN_EXPIRATION_DAYS = 30;
+/**
+ * TODO: delete campaign after conversion.
+ * @param configStore
+ * @param key
+ * @returns
+ */
+function _getPersistentCampaign(
+  configStore: UniversalConfigStore,
+  key: string
+): Campaign | undefined {
+  const { search } = location;
+  const params = searchParams(search);
+  let campaign: Campaign | undefined;
+  if (params != null) {
+    campaign = getCampaign(params);
+    if (campaign != null) {
+      configStore.setWithExpiration(key, campaign, CAMPAIGN_EXPIRATION_DAYS);
+    }
+  }
+  if (campaign == null) {
+    campaign = configStore.get(key) as Campaign | undefined;
+  }
+  return campaign;
+}
+
+export function getLastPersistentCampaign(
+  configStore: UniversalConfigStore
+): Campaign | undefined {
+  return _getPersistentCampaign(configStore, LAST_UTM_KEY);
+}
+
+export function getFirstPersistentCampaign(
+  configStore: UniversalConfigStore
+): Campaign | undefined {
+  // check if first utm is set
+  const firstUtm = configStore.get(FIRST_UTM_KEY) as Campaign | undefined;
+  if (firstUtm != null) {
+    return firstUtm;
+  }
+  const currentUtm = getLastPersistentCampaign(configStore);
+  if (currentUtm != null) {
+    // expire after 30 days.
+    configStore.setWithExpiration(
+      FIRST_UTM_KEY,
+      currentUtm,
+      CAMPAIGN_EXPIRATION_DAYS
+    );
+    return currentUtm;
+  }
+}
+
+export function getAMP(): AMP | undefined {
+  const ampId = Cookies.get('_ga');
+  if (ampId != null) {
+    return {
+      id: ampId
+    };
+  }
 }

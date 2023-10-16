@@ -11,7 +11,7 @@ import type { EventTypes } from '../common/event_types';
 import { BatchUploader } from '../common/uploader';
 import { useLinkClicks, usePageViews } from '../hooks';
 import { useTrackTags } from '../hooks/useTrackTags';
-import { type AutocaptureConfig } from '../autocapture/types';
+import { type AutocaptureConfig } from '../plugins/autotrack/types';
 import { type ConsentConfig } from '../common/consent';
 import { useFormSubmit } from '../hooks/useFormSubmit';
 
@@ -109,7 +109,7 @@ export const SyftProvider = <E extends EventTypes>(
       const script = document.createElement('script');
       script.src =
         autocapture?.toolbarJS ??
-        'https://storage.googleapis.com/syft_cdn/syftbar/0.0.1/syftbar.es.js';
+        'https://cdn.syftdata.com/syftbar/0.0.1/syftbar.es.js';
       script.type = 'module';
       document.body.appendChild(script);
     }
@@ -118,9 +118,7 @@ export const SyftProvider = <E extends EventTypes>(
   usePageViews({
     enabled: autocaptureEnabled && props.trackPageViews !== false,
     hashMode: props.hashMode !== false,
-    callback: (url) => {
-      // only pass the pathname. the full url is not needed.
-      const pathname = url.pathname;
+    callback: (pathname) => {
       tracker?.page(undefined, pathname);
     }
   });
@@ -134,14 +132,17 @@ export const SyftProvider = <E extends EventTypes>(
 
   useFormSubmit({
     enabled: autocaptureEnabled && props.trackFormSubmits !== false,
-    callback: (url, attributes) => {
+    callback: (url, formData, destination) => {
       const eventName =
-        url.hostname === window.location.hostname
-          ? 'Form Submitted'
-          : 'Outbound Form';
+        destination != null && destination.hostname !== window.location.hostname
+          ? 'Outbound Form'
+          : 'Form Submitted';
+
+      // clean up the field data and extract attributes.
+
       tracker?.track(eventName, {
-        action: url.pathname,
-        ...attributes
+        destination: destination?.toString(),
+        ...formData.attributes
       });
     }
   });

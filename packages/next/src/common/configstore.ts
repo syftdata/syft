@@ -3,6 +3,18 @@ import { isBrowser } from './utils';
 
 interface IConfigStore {
   set: (key: string, value: unknown) => void;
+  /**
+   *
+   * @param key
+   * @param value
+   * @param expirationTime number of days before the data expires.
+   * @returns
+   */
+  setWithExpiration?: (
+    key: string,
+    value: unknown,
+    expirationTime: number
+  ) => void;
   get: (key: string) => unknown | undefined;
   remove: (key: string) => void;
 }
@@ -29,6 +41,14 @@ class UniversalConfigStore implements IConfigStore {
     const namespaceKey = `${this.namespace}.${key}`;
     for (const store of this.stores) {
       store.set(namespaceKey, value);
+    }
+  }
+
+  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+    const namespaceKey = `${this.namespace}.${key}`;
+    for (const store of this.stores) {
+      if (store.setWithExpiration != null)
+        store.setWithExpiration(namespaceKey, value, expirationTime);
     }
   }
 
@@ -63,10 +83,27 @@ export class StorageConfigStore implements IConfigStore {
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+    const _syftExpiration = Date.now() + expirationTime * 24 * 60 * 60 * 1000;
+    const valueWithExpiration = {
+      value,
+      _syftExpiration
+    };
+    localStorage.setItem(key, JSON.stringify(valueWithExpiration));
+  }
+
   get(key: string): unknown | undefined {
     const strValue = localStorage.getItem(key);
     if (strValue != null) {
-      return JSON.parse(strValue);
+      const value = JSON.parse(strValue);
+      if (value._syftExpiration != null) {
+        if (Date.now() > value._syftExpiration) {
+          localStorage.removeItem(key);
+          return undefined;
+        }
+        return value.value;
+      }
+      return value;
     }
     return undefined;
   }
@@ -79,6 +116,13 @@ export class StorageConfigStore implements IConfigStore {
 export class CookieConfigStore implements IConfigStore {
   set(key: string, value: unknown): void {
     Cookies.set(key, JSON.stringify(value));
+  }
+
+  // TODO: put a timestamp in the value and check it before returning.
+  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+    Cookies.set(key, JSON.stringify(value), {
+      expires: expirationTime
+    });
   }
 
   get(key: string): unknown {

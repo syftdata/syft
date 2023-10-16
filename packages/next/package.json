@@ -38,11 +38,13 @@
     "url": "https://github.com/syftdata/syft/issues"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
+    "dev": "tsc && NODE_ENV=development vite build --watch",
     "lint": "eslint --ext .ts src tests --fix",
     "prepublish": "npm run build",
     "test": "jest",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "preview": "vite preview"
   },
   "peerDpendencies": {
     "next": ">=11.1.0",
@@ -70,7 +72,13 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+
+    "@vitejs/plugin-react": "^4.0.4",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.3",
+    "vite-plugin-svgr": "^4.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
   },
   "dependencies": {
     "@segment/actions-core": "^3.81.2",

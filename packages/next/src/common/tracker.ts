@@ -2,7 +2,7 @@ import type { Event, EventOptions } from './types';
 import type UniversalConfigStore from './configstore';
 import { globalStore } from './configstore';
 import { type BatchUploader } from './uploader';
-import { isBrowser, searchParams, uuid } from './utils';
+import { isBrowser, uuid } from './utils';
 import type {
   CommonPropType,
   EventTypes,
@@ -13,10 +13,13 @@ import type {
   Campaign,
   AMP
 } from './event_types';
-// import utm from '@segment/utm-params';
-import Cookies from 'js-cookie';
-import { getCampaign, getReferrer } from './ad_utm';
 import { canLog, type ConsentConfig } from './consent';
+import {
+  getAMP,
+  getFirstPersistentCampaign,
+  getLastPersistentCampaign,
+  getPersistentReferrer
+} from './ad_utm';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -24,8 +27,6 @@ const USER_ID_KEY = 'user_id';
 const USER_TRAITS_KEY = 'user_traits';
 const GROUP_ID_KEY = 'group_id';
 const GROUP_TRAITS_KEY = 'group_traits';
-
-const REFERRER_KEY = 'referrer';
 
 function deepEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
@@ -37,7 +38,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export interface InitOptions {
   uploader: BatchUploader;
   readonly middleware?: (event: Event) => Event | undefined;
-  consent: ConsentConfig;
+  consent?: ConsentConfig;
 }
 
 export default class AutoTracker<E extends EventTypes> {
@@ -52,6 +53,7 @@ export default class AutoTracker<E extends EventTypes> {
   groupId: string | undefined;
   groupTraits: GroupTraits | undefined;
   referrer: Referrer | undefined;
+  firstCampaign: Campaign | undefined;
   campaign: Campaign | undefined;
   amp: AMP | undefined;
 
@@ -84,13 +86,18 @@ export default class AutoTracker<E extends EventTypes> {
         CommonPropType
       >) ?? {};
 
-    this.referrer = this.configStore.get(REFERRER_KEY) as Referrer | undefined;
+    if (isBrowser()) {
+      this.referrer = getPersistentReferrer(this.configStore);
+      this.firstCampaign = getFirstPersistentCampaign(this.configStore);
+      this.campaign = getLastPersistentCampaign(this.configStore);
+      this.amp = getAMP();
+    }
   }
 
   identify(
     userId: string,
     traits: UserTraits = {},
-    options?: EventOptions,
+    options: EventOptions = {},
     integrations?: unknown
   ): void {
     let newTraits = traits;
@@ -272,47 +279,6 @@ export default class AutoTracker<E extends EventTypes> {
     this._page('screen', category, screen, props, options, integrations);
   }
 
-  _getReferrer(): Referrer | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const params = searchParams(search);
-      if (params != null) {
-        const referrer = getReferrer(params);
-        if (referrer != null) {
-          this.referrer = referrer;
-          this.configStore.set(REFERRER_KEY, referrer);
-        }
-      }
-    }
-    return this.referrer;
-  }
-
-  _getCampaign(): Campaign | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const params = searchParams(search);
-      if (params != null) {
-        const campaign = getCampaign(params);
-        if (campaign != null) {
-          this.campaign = campaign;
-        }
-      }
-    }
-    return this.campaign;
-  }
-
-  _getAMP(): AMP | undefined {
-    if (isBrowser()) {
-      const ampId = Cookies.get('_ga');
-      if (ampId != null) {
-        this.amp = {
-          id: ampId
-        };
-      }
-    }
-    return this.amp;
-  }
-
   _getPartialEvent(
     options?: EventOptions,
     integrations?: unknown
@@ -334,9 +300,10 @@ export default class AutoTracker<E extends EventTypes> {
 
     if (isBrowser()) {
       // get referrer and utm params
-      const referrer = event.context.referrer ?? this._getReferrer();
-      const campaign = event.context.campaign ?? this._getCampaign();
-      const amp = event.context.amp ?? this._getAMP();
+      const referrer = event.context.referrer ?? this.referrer;
+      const campaign = event.context.campaign ?? this.campaign;
+      const firstCampaign = event.context.firstCampaign ?? this.firstCampaign;
+      const amp = event.context.amp ?? this.amp;
 
       return {
         ...event,
@@ -350,6 +317,7 @@ export default class AutoTracker<E extends EventTypes> {
             url: location.href
           },
           referrer,
+          firstCampaign,
           campaign,
           amp,
           deviceWidth: window.innerWidth,

@@ -32,3 +32,9 @@ export function mapValues<
     return agg;
   }, result);
 }
+export function getCurrentPath(hashMode: boolean): string {
+  const location = window.location;
+  return hashMode && location.hash.length > 0
+    ? `${location.pathname}#${location.hash}`
+    : location.pathname;
+}
