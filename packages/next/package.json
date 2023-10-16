@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.38-alpha.9",
+  "version": "0.1.38-alpha.10",
   "description": "A lightweight low-code alternative to Segment to instrument event analytics",
   "keywords": [
     "syft",
@@ -58,6 +58,7 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
+    "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-standard-with-typescript": "^34.0.0",
@@ -73,8 +74,6 @@
     "react-dom": "18.2.0",
     "ts-jest": "^29.0.5",
     "typescript": "^4.9.5",
-
-    "@vitejs/plugin-react": "^4.0.4",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.5.3",
     "vite-plugin-svgr": "^4.1.0",
