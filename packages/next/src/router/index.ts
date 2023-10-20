@@ -30,7 +30,8 @@ interface RequestData {
 export type ReqCookies = Partial<Record<string, string>>;
 export type Enricher = (
   event: ServerEvent,
-  cookies: ReqCookies
+  cookies: ReqCookies,
+  context: TransactionContext
 ) => Promise<ServerEvent | ServerEvent[]>;
 
 export type DestinationSettings = Record<string, unknown>;
@@ -111,9 +112,9 @@ export class SyftRouter {
     req: UploadRequest,
     { ip, userAgent, cookies }: RequestData
   ): Promise<void> {
-    const { events, version, sentAt } = req;
+    const { events, version, sentAt, sourceId } = req;
     const receivedAt = new Date();
-
+    const context = new MyTransactionContext();
     const serverEvents = events.map((e): ServerEvent => {
       const { context, ...rest } = e;
       return {
@@ -122,7 +123,8 @@ export class SyftRouter {
           ...context,
           library: {
             name: this.options.name ?? 'syft',
-            version
+            version,
+            sourceId
           },
           userAgent: userAgent ?? '',
           userAgentData: req.userAgentData,
@@ -132,19 +134,24 @@ export class SyftRouter {
         receivedAt: receivedAt.toJSON()
       };
     });
-    const enrichedEvents = await this._enrichEvents(serverEvents, cookies);
-    this._sendEvents(enrichedEvents);
+    const enrichedEvents = await this._enrichEvents(
+      serverEvents,
+      cookies,
+      context
+    );
+    this._sendEvents(enrichedEvents, context);
   }
 
   async _enrichEvents(
     events: ServerEvent[],
-    cookies: ReqCookies
+    cookies: ReqCookies,
+    context: TransactionContext
   ): Promise<ServerEvent[]> {
     const enrichers = this.options.enrichers;
     if (enrichers != null) {
       for (const enricher of enrichers) {
         const a = events.map(async (event) => {
-          return await enricher(event, cookies);
+          return await enricher(event, cookies, context);
         });
         events = (await Promise.all(a)).flatMap((e) => e);
       }
@@ -152,9 +159,9 @@ export class SyftRouter {
     return events;
   }
 
-  _sendEvents(events: ServerEvent[]): void {
+  _sendEvents(events: ServerEvent[], context: TransactionContext): void {
     this.options.destinations.forEach((d) => {
-      this._sendEventsToDestination(d, events).catch((e) => {
+      this._sendEventsToDestination(d, events, context).catch((e) => {
         console.error(`Failed to send events to ${d.type}`, e);
       });
     });
@@ -162,13 +169,13 @@ export class SyftRouter {
 
   async _sendEventsToDestination(
     destination: DestinationConfig,
-    events: ServerEvent[]
+    events: ServerEvent[],
+    context: TransactionContext
   ): Promise<boolean> {
     const dest = destination.destination;
     if (dest == null) {
       return;
     }
-    const context = new MyTransactionContext();
     const settings: any = {
       ...destination.settings,
       subscriptions: destination.subscriptions

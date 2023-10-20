@@ -97,6 +97,7 @@ export interface ServerContextData extends ClientContextData {
   library: {
     name: string;
     version: string;
+    sourceId: string;
   };
   userAgent: string;
   userAgentData: UserAgentData;
@@ -111,6 +112,7 @@ export interface ServerEvent extends Omit<Event, 'context'> {
 }
 
 export interface UploadRequest {
+  sourceId: string;
   events: Event[];
   version: string;
   sentAt: string | Date;
