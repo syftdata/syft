@@ -1,28 +1,37 @@
-import { convertToAttributeSet } from './get_attributes';
-import { type AttributeSet, type SyftFormField } from './types';
+import {
+  type GroupTraits,
+  type Address,
+  type UserTraits
+} from '../../common/event_types';
+import { getAttributeSet } from './get_attributes';
+import { type SyftFormField } from './types';
 
 export interface Identity {
   id: string;
-  traits: AttributeSet;
+  traits: UserTraits;
+  groupTraits: GroupTraits;
 }
 
-const TRAIT_FIELDS = [
-  'email',
+const USER_ADDRESS_FIELDS = ['country', 'state', 'city'];
+const USER_TRAIT_FIELDS = [
   'name',
-  'employees',
-  'employeeCount',
   'phone',
   'firstName',
   'lastName',
   'fullName',
   'title',
   'role',
-  'username',
-  'website',
-  'domain',
-  'company',
-  'country'
+  'username'
 ];
+const USER_TRAIT_MAPPING = {
+  role: 'title'
+};
+
+const GROUP_TRAIT_FIELDS = ['employees', 'employeeCount', 'company', 'website'];
+const GROUP_TRAIT_MAPPING = {
+  employeeCount: 'employees',
+  company: 'name'
+};
 
 export function findIdentityInForm(
   fields: SyftFormField[]
@@ -39,15 +48,27 @@ export function findIdentityInForm(
     return;
   }
 
-  const traits = fields.filter((field) => {
-    const data = [field.id, field.name, field.label, field.type];
-    return data.some(
-      (f) => f != null && TRAIT_FIELDS.some((x) => f.toLowerCase().includes(x))
-    );
-  });
+  const userTraits = getAttributeSet<UserTraits>(
+    fields,
+    USER_TRAIT_FIELDS,
+    USER_TRAIT_MAPPING
+  );
+  const address = getAttributeSet<Address>(fields, USER_ADDRESS_FIELDS);
+  const company = getAttributeSet<GroupTraits>(
+    fields,
+    GROUP_TRAIT_FIELDS,
+    GROUP_TRAIT_MAPPING
+  );
 
+  const email = emailField.value;
   return {
-    id: emailField.value,
-    traits: convertToAttributeSet(traits)
+    id: email,
+    traits: {
+      ...userTraits,
+      company: company.name,
+      address,
+      email
+    },
+    groupTraits: company
   };
 }

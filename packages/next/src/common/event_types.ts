@@ -26,7 +26,7 @@ export type CommonPropType =
   | undefined
   | null;
 
-interface Address {
+export interface Address {
   street?: string;
   city?: string;
   state?: string;
@@ -47,13 +47,14 @@ export interface UserTraits {
   email?: string; // Email address of the user
   firstName?: string; // First name of the user
   lastName?: string; // Last name of the user
+  fullName?: string; // Full name of the user
   gender?: string; // Gender of a user
   name?: string; // Full name of the user
   phone?: string; // Phone number of the user
   title?: string; // Title of a user, usually related to their position at a specific company. Example: “VP of Engineering”
   username?: string; // User’s username. This should be unique to each user, like the usernames of Twitter or GitHub.
   website?: string; // URL of the user’s website
-  company?: GroupTraits; // Company traits associated with a user
+  company?: string; // Company name.
 }
 
 export interface GroupTraits {

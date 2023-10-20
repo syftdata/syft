@@ -44,24 +44,62 @@ export function getCampaign(params: URLSearchParams): Campaign | undefined {
   return results;
 }
 
-const REFERRER_KEY = 'referrer';
-const FIRST_UTM_KEY = 'first_utm';
+const INITIAL_REFERRER_KEY = 'initial_referrer';
+const LAST_REFERRER_KEY = 'last_referrer';
+const INITIAL_UTM_KEY = 'initial_utm';
 const LAST_UTM_KEY = 'last_utm';
 
-export function getPersistentReferrer(configStore): Referrer | undefined {
+/**
+ * TODO: delete campaign after conversion.
+ * @param configStore
+ * @param key
+ * @returns
+ */
+function _getPersistentReferrer(
+  configStore: UniversalConfigStore,
+  key: string
+): Referrer | undefined {
   const { search } = location;
   const params = searchParams(search);
   let referrer: Referrer | undefined;
   if (params != null) {
-    const referrer = getReferrer(params);
+    referrer = getReferrer(params);
     if (referrer != null) {
-      configStore.set(REFERRER_KEY, referrer);
+      configStore.setWithExpiration(key, referrer, CAMPAIGN_EXPIRATION_DAYS);
     }
   }
   if (referrer == null) {
-    referrer = configStore.get(REFERRER_KEY);
+    referrer = configStore.get(key) as Campaign | undefined;
   }
   return referrer;
+}
+
+export function getLastPersistentReferrer(
+  configStore: UniversalConfigStore
+): Referrer | undefined {
+  return _getPersistentReferrer(configStore, LAST_REFERRER_KEY);
+}
+
+export function getInitialPersistentReferrer(
+  configStore: UniversalConfigStore
+): Referrer | undefined {
+  // check if first utm is set
+  const firstReferrer = configStore.get(INITIAL_REFERRER_KEY) as
+    | Referrer
+    | undefined;
+  if (firstReferrer != null) {
+    return firstReferrer;
+  }
+  const currentReferrer = getLastPersistentReferrer(configStore);
+  if (currentReferrer != null) {
+    // expire after 30 days.
+    configStore.setWithExpiration(
+      INITIAL_REFERRER_KEY,
+      currentReferrer,
+      CAMPAIGN_EXPIRATION_DAYS
+    );
+    return currentReferrer;
+  }
 }
 
 const CAMPAIGN_EXPIRATION_DAYS = 30;
@@ -96,11 +134,11 @@ export function getLastPersistentCampaign(
   return _getPersistentCampaign(configStore, LAST_UTM_KEY);
 }
 
-export function getFirstPersistentCampaign(
+export function getInitialPersistentCampaign(
   configStore: UniversalConfigStore
 ): Campaign | undefined {
   // check if first utm is set
-  const firstUtm = configStore.get(FIRST_UTM_KEY) as Campaign | undefined;
+  const firstUtm = configStore.get(INITIAL_UTM_KEY) as Campaign | undefined;
   if (firstUtm != null) {
     return firstUtm;
   }
@@ -108,12 +146,38 @@ export function getFirstPersistentCampaign(
   if (currentUtm != null) {
     // expire after 30 days.
     configStore.setWithExpiration(
-      FIRST_UTM_KEY,
+      INITIAL_UTM_KEY,
       currentUtm,
       CAMPAIGN_EXPIRATION_DAYS
     );
     return currentUtm;
   }
+}
+
+// https://docs.mixpanel.com/docs/tracking/reference/javascript#tracking-utm-parameters
+const KNOWN_CLICKIDS = [
+  'dclid',
+  'fbclid',
+  'gclid',
+  'ko_click_id',
+  'li_fat_id',
+  'msclkid',
+  'ttclid',
+  'twclid',
+  'wbraid'
+];
+export function getClickIds(): Record<string, string> {
+  const { search } = location;
+  const params = searchParams(search);
+  const clickIds = {};
+  if (params != null) {
+    for (const key of params.keys()) {
+      if (KNOWN_CLICKIDS.includes(key)) {
+        clickIds[key] = params.get(key);
+      }
+    }
+  }
+  return clickIds;
 }
 
 export function getAMP(): AMP | undefined {

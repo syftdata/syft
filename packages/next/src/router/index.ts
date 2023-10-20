@@ -31,7 +31,7 @@ export type ReqCookies = Partial<Record<string, string>>;
 export type Enricher = (
   event: ServerEvent,
   cookies: ReqCookies
-) => Promise<ServerEvent | undefined>;
+) => Promise<ServerEvent | ServerEvent[]>;
 
 export type DestinationSettings = Record<string, unknown>;
 export interface DestinationConfig {
@@ -43,7 +43,7 @@ export interface DestinationConfig {
 
 export interface SyftRouterOptions {
   name?: string;
-  enricher?: Enricher;
+  enrichers?: Enricher[];
   destinations: DestinationConfig[];
 }
 
@@ -75,6 +75,7 @@ export class SyftRouter {
           }
         }
 
+        // if subscription is given by customer. Generate mappings for it.
         d.subscriptions?.forEach((s) => {
           generateMappings(d.type, destination.definition, s);
         });
@@ -90,14 +91,19 @@ export class SyftRouter {
    * @returns
    */
   async validateSetup(): Promise<boolean> {
-    const destinationPromises = this.options.destinations.map((d) => {
+    const dPromises = this.options.destinations.map(async (d) => {
       const dest = d.destination;
       if (dest == null) {
-        return Promise.reject(new Error("Destination doesn't exist"));
+        return await Promise.reject(new Error("Destination doesn't exist"));
       }
-      return dest.testAuthentication(d.settings as unknown as JSONObject);
+      await dest
+        .testAuthentication(d.settings as unknown as JSONObject)
+        .catch(async (e) => {
+          console.error(`Destination ${d.type} is not setup correctly!`, e);
+          return e;
+        });
     });
-    await Promise.all(destinationPromises);
+    await Promise.all(dPromises);
     return true;
   }
 
@@ -107,6 +113,7 @@ export class SyftRouter {
   ): Promise<void> {
     const { events, version, sentAt } = req;
     const receivedAt = new Date();
+
     const serverEvents = events.map((e): ServerEvent => {
       const { context, ...rest } = e;
       return {
@@ -117,9 +124,9 @@ export class SyftRouter {
             name: this.options.name ?? 'syft',
             version
           },
-          userAgent: userAgent ?? 'N/A',
+          userAgent: userAgent ?? '',
           userAgentData: req.userAgentData,
-          ip: ip ?? 'N/A'
+          ip: ip ?? ''
         },
         sentAt,
         receivedAt: receivedAt.toJSON()
@@ -133,28 +140,30 @@ export class SyftRouter {
     events: ServerEvent[],
     cookies: ReqCookies
   ): Promise<ServerEvent[]> {
-    const enricher = this.options.enricher;
-    if (enricher != null) {
-      const enrichedEventPromises = events.map(
-        async (event) => await enricher(event, cookies)
-      );
-      const enrichedEvents = await Promise.all(enrichedEventPromises);
-      const filteredEvents = enrichedEvents.filter((e) => e != null);
-      return filteredEvents as ServerEvent[];
+    const enrichers = this.options.enrichers;
+    if (enrichers != null) {
+      for (const enricher of enrichers) {
+        const a = events.map(async (event) => {
+          return await enricher(event, cookies);
+        });
+        events = (await Promise.all(a)).flatMap((e) => e);
+      }
     }
     return events;
   }
 
   _sendEvents(events: ServerEvent[]): void {
     this.options.destinations.forEach((d) => {
-      this._sendEventsToDestination(d, events);
+      this._sendEventsToDestination(d, events).catch((e) => {
+        console.error(`Failed to send events to ${d.type}`, e);
+      });
     });
   }
 
-  _sendEventsToDestination(
+  async _sendEventsToDestination(
     destination: DestinationConfig,
     events: ServerEvent[]
-  ): void {
+  ): Promise<boolean> {
     const dest = destination.destination;
     if (dest == null) {
       return;
@@ -165,14 +174,12 @@ export class SyftRouter {
       subscriptions: destination.subscriptions
     };
 
-    const eventPromises = events.map((e) => {
+    for (const event of events) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return dest.onEvent(e as SegmentEvent, settings, {
+      await dest.onEvent(event as SegmentEvent, settings, {
         transactionContext: context
       });
-    });
-    Promise.all(eventPromises).catch((e) => {
-      console.error(`error sending to destination ${destination.type}`, e);
-    });
+    }
+    return true;
   }
 }

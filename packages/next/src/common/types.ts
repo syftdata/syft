@@ -63,9 +63,10 @@ export interface ClientContextData {
     [key: string]: any;
   };
 
-  firstCampaign?: Campaign;
+  initialCampaign?: Campaign;
   campaign?: Campaign;
 
+  initialReferrer?: Referrer;
   referrer?: Referrer;
 
   amp?: AMP;

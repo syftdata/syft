@@ -7,6 +7,7 @@ import { formSubmits } from '../plugins/formSubmit';
 import { linkClicks } from '../plugins/linkClicks';
 import { pageViews } from '../plugins/pageViews';
 import { getCurrentPath } from '../common/utils';
+import { sessionTrack } from '../plugins/sessionTrack';
 
 export type ExistingLog = [string, ...any[]];
 
@@ -43,14 +44,13 @@ function startSyft(): () => void {
   const enabled = props.enabled !== undefined ? props.enabled : true;
   // pass the url based on the proxy options.
   uploader = new BatchUploader({
-    url: props.uploadPath ?? '/api/syft',
+    url: props.uploadPath ?? 'http://localhost:3001/api/syft',
     batchSize: 1
   });
 
   tracker = new AutoTracker({
     uploader,
     middleware: (e) => {
-      console.log('>>>> SYFT EVENT', e);
       if (window.syftc.enabled !== false) return e;
     }
   });
@@ -73,26 +73,37 @@ function startSyft(): () => void {
       deregisterCallbacks.push(cb);
     }
 
+    const sessionDestroy = sessionTrack(() => {});
+    deregisterCallbacks.push(sessionDestroy);
+
     if (props.trackFormSubmits !== false) {
-      const cb = formSubmits((path, formData, destination) => {
-        const eventName =
-          destination != null &&
-          destination.hostname !== window.location.hostname
-            ? 'Outbound Form'
-            : 'Form Submit';
-        const attributes = {
-          destination: destination?.toString(),
-          ...formData.attributes,
-          ...convertToAttributeSet(removeSensitive(formData.fields))
-        };
-        tracker?.track(eventName, attributes);
-        if (props.identifyFormPage == null || path === props.identifyFormPage) {
-          const identity = findIdentityInForm(formData.fields);
-          if (identity != null) {
-            tracker?.identify(identity.id, identity.traits);
+      const cb = formSubmits(
+        (path, formData, destination) => {
+          const eventName =
+            destination != null &&
+            destination.hostname !== window.location.hostname
+              ? 'Outbound Form'
+              : 'Form Submit';
+          const attributes = {
+            destination: destination?.toString(),
+            ...formData.attributes,
+            ...convertToAttributeSet(removeSensitive(formData.fields))
+          };
+          tracker?.track(eventName, attributes);
+          if (
+            props.identifyFormPage == null ||
+            path === props.identifyFormPage
+          ) {
+            const identity = findIdentityInForm(formData.fields);
+            console.log('>>> found identity', identity);
+            if (identity != null) {
+              tracker?.identify(identity.id, identity.traits);
+            }
           }
-        }
-      });
+        },
+        undefined,
+        tracker.campaign
+      );
       deregisterCallbacks.push(cb);
     }
   }

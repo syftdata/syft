@@ -1,4 +1,5 @@
 import { type SyftFormData, type SyftFormField } from '../blocks/forms/types';
+import { type Campaign } from '../common/event_types';
 import { getCurrentPath } from '../common/utils';
 function parseFormAction(
   formAction: string,
@@ -77,14 +78,13 @@ export function formSubmits(
     path: string,
     form: HTMLFormElement,
     destination?: URL
-  ) => boolean
+  ) => boolean,
+  campaign?: Campaign
 ): () => void {
   function handleSubmit(form: HTMLFormElement, destination?: URL): void {
     const currentPath = getCurrentPath(true);
-    if (shouldTrack != null) {
-      if (!shouldTrack(currentPath, form, destination)) {
-        return;
-      }
+    if (shouldTrack != null && !shouldTrack(currentPath, form, destination)) {
+      return;
     }
     callback(
       currentPath,
@@ -126,6 +126,20 @@ export function formSubmits(
     if (doc == null) return;
     doc.addEventListener('submit', handleSubmitEvent);
   });
+
+  // add input hidden fields to all forms.
+  if (campaign != null) {
+    const forms = document.querySelectorAll('form');
+    forms.forEach((form) => {
+      Object.entries(campaign).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `utm_${name}`;
+        input.value = value;
+        form.appendChild(input);
+      });
+    });
+  }
 
   const originalSubmit = HTMLFormElement.prototype.submit;
   HTMLFormElement.prototype.submit = function () {

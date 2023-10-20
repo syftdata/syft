@@ -16,9 +16,11 @@ import type {
 import { canLog, type ConsentConfig } from './consent';
 import {
   getAMP,
-  getFirstPersistentCampaign,
+  getClickIds,
+  getInitialPersistentCampaign,
+  getInitialPersistentReferrer,
   getLastPersistentCampaign,
-  getPersistentReferrer
+  getLastPersistentReferrer
 } from './ad_utm';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
@@ -52,10 +54,12 @@ export default class AutoTracker<E extends EventTypes> {
   userTraits: UserTraits | undefined;
   groupId: string | undefined;
   groupTraits: GroupTraits | undefined;
+  initialReferrer: Referrer | undefined;
   referrer: Referrer | undefined;
-  firstCampaign: Campaign | undefined;
+  initialCampaign: Campaign | undefined;
   campaign: Campaign | undefined;
   amp: AMP | undefined;
+  clickIds: Record<string, string> = {};
 
   constructor(options: InitOptions) {
     this.options = options;
@@ -74,6 +78,7 @@ export default class AutoTracker<E extends EventTypes> {
         string,
         CommonPropType
       >) ?? {};
+    console.log('>>> user traits are ', this.userTraits);
     this.groupId = this.configStore.get(GROUP_ID_KEY) as string;
     this.groupTraits =
       (this.configStore.get(GROUP_TRAITS_KEY) as Record<
@@ -87,10 +92,12 @@ export default class AutoTracker<E extends EventTypes> {
       >) ?? {};
 
     if (isBrowser()) {
-      this.referrer = getPersistentReferrer(this.configStore);
-      this.firstCampaign = getFirstPersistentCampaign(this.configStore);
+      this.initialReferrer = getInitialPersistentReferrer(this.configStore);
+      this.referrer = getLastPersistentReferrer(this.configStore);
+      this.initialCampaign = getInitialPersistentCampaign(this.configStore);
       this.campaign = getLastPersistentCampaign(this.configStore);
       this.amp = getAMP();
+      this.clickIds = getClickIds();
     }
   }
 
@@ -109,6 +116,7 @@ export default class AutoTracker<E extends EventTypes> {
     }
 
     if (this.userId === userId && deepEqual(this.userTraits, newTraits)) {
+      console.log('>>> deduping identify event', this.userId, this.userTraits);
       return;
     }
 
@@ -222,6 +230,7 @@ export default class AutoTracker<E extends EventTypes> {
       {
         ...partialEvent,
         event: name as string,
+        name: name as string,
         type: 'track',
         properties: {
           ...partialEvent.properties,
@@ -300,9 +309,12 @@ export default class AutoTracker<E extends EventTypes> {
 
     if (isBrowser()) {
       // get referrer and utm params
+      const initialReferrer =
+        event.context.initialReferrer ?? this.initialReferrer;
       const referrer = event.context.referrer ?? this.referrer;
       const campaign = event.context.campaign ?? this.campaign;
-      const firstCampaign = event.context.firstCampaign ?? this.firstCampaign;
+      const initialCampaign =
+        event.context.initialCampaign ?? this.initialCampaign;
       const amp = event.context.amp ?? this.amp;
 
       return {
@@ -316,11 +328,13 @@ export default class AutoTracker<E extends EventTypes> {
             title: document.title,
             url: location.href
           },
+          initialReferrer,
           referrer,
-          firstCampaign,
+          initialCampaign,
           campaign,
           amp,
           deviceWidth: window.innerWidth,
+          ...this.clickIds,
           ...event.context
         }
       };
