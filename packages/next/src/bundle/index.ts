@@ -31,6 +31,7 @@ interface SyftProps {
    * The path to upload the events to. Defaults to `/api/syft`.
    */
   uploadPath?: string;
+  sourceId?: string;
 
   identifyFormPage?: string; // the page where the identify form is located
   conversionFormPage?: string; // the page where the conversion form is located
@@ -44,6 +45,7 @@ function startSyft(): () => void {
   const enabled = props.enabled !== undefined ? props.enabled : true;
   // pass the url based on the proxy options.
   uploader = new BatchUploader({
+    sourceId: props.sourceId,
     url: props.uploadPath ?? 'http://localhost:3001/api/syft',
     batchSize: 1
   });

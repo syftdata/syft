@@ -5,6 +5,7 @@ import { type UploadRequest, type Event, SYFT_VERSION } from './types';
  */
 export interface InitOptions {
   url: string;
+  sourceId?: string;
   batchSize?: number;
   maxWaitingTime?: number;
   retries?: number;
@@ -13,6 +14,7 @@ export interface InitOptions {
 export class BatchUploader {
   events: Event[] = [];
 
+  sourceId?: string;
   url: string;
   batchSize: number;
   maxWaitingTime: number; // an event doesnt wait more than this time to be uploaded. (unless an upload is in progress)
@@ -26,11 +28,13 @@ export class BatchUploader {
 
   constructor(options: InitOptions) {
     const {
+      sourceId,
       url,
       batchSize = 10,
       maxWaitingTime = 10000,
       retries = 3
     } = options;
+    this.sourceId = sourceId;
     this.url = url;
     this.batchSize = batchSize;
     this.maxWaitingTime = maxWaitingTime;
@@ -108,6 +112,7 @@ export class BatchUploader {
   async upload(events: Event[]): Promise<void> {
     const data: UploadRequest = {
       events,
+      sourceId: this.sourceId,
       version: SYFT_VERSION,
       userAgentData: (navigator as any).userAgent,
       sentAt: new Date()

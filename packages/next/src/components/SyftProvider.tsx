@@ -44,10 +44,12 @@ export interface ProviderProps {
   consent?: ConsentConfig;
 
   middleware?: (event: Event) => Event | undefined;
+
   /**
    * The path to upload the events to. Defaults to `/api/syft`.
    */
   uploadPath?: string;
+  sourceId?: string; // a way to uniquely identify your uploader.
 }
 
 let uploader: BatchUploader | undefined;
@@ -62,6 +64,7 @@ export const SyftProvider = <E extends EventTypes>(
   if (tracker == null && enabled) {
     // pass the url based on the proxy options.
     uploader = new BatchUploader({
+      sourceId: props.sourceId,
       url: props.uploadPath ?? '/api/syft',
       batchSize: 1
     });
