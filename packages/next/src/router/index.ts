@@ -147,13 +147,20 @@ export class SyftRouter {
     cookies: ReqCookies,
     context: TransactionContext
   ): Promise<ServerEvent[]> {
+    // TODO: events need to be processed in sequence.
     const enrichers = this.options.enrichers;
     if (enrichers != null) {
       for (const enricher of enrichers) {
-        const a = events.map(async (event) => {
-          return await enricher(event, cookies, context);
-        });
-        events = (await Promise.all(a)).flatMap((e) => e);
+        let newEvents = [];
+        for (const event of events) {
+          const enrichedEvents = await enricher(event, cookies, context);
+          if (Array.isArray(enrichedEvents)) {
+            newEvents = [...newEvents, ...enrichedEvents];
+          } else {
+            newEvents.push(enrichedEvents);
+          }
+        }
+        events = newEvents;
       }
     }
     return events;
