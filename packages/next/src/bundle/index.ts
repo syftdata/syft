@@ -8,6 +8,7 @@ import { linkClicks } from '../plugins/linkClicks';
 import { pageViews } from '../plugins/pageViews';
 import { getCurrentPath } from '../common/utils';
 import { sessionTrack } from '../plugins/sessionTrack';
+import { globalStore } from '../common/configstore';
 
 export type ExistingLog = [string, ...any[]];
 
@@ -75,7 +76,23 @@ function startSyft(): () => void {
       deregisterCallbacks.push(cb);
     }
 
-    const sessionDestroy = sessionTrack(() => {});
+    const sessionDestroy = sessionTrack(
+      {
+        onNewSession: (session) => {
+          console.log('>>> Started a new session ', session);
+          tracker.session = session;
+        },
+        onEndSession: (session) => {
+          console.log('>>> Ended the session ', session);
+          tracker.session = undefined;
+        },
+        onContinueSession: (session, activeTime) => {
+          console.log('>>> Active session ', session, activeTime);
+          tracker.track('syft_session', { activeTime });
+        }
+      },
+      globalStore
+    );
     deregisterCallbacks.push(sessionDestroy);
 
     if (props.trackFormSubmits !== false) {

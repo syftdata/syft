@@ -37,6 +37,12 @@ interface UserAgentData {
   wow64?: boolean;
 }
 
+export interface Session {
+  id: string;
+  startTime: number; // utc
+  lastActivityTime: number;
+}
+
 /**
  * Data passed to Plausible as events.
  */
@@ -91,6 +97,9 @@ export interface Event {
   traits?: UserTraits | GroupTraits; // applicable for group and identify calls.
   context: ClientContextData;
   timestamp: string | Date;
+
+  // session
+  session?: Session;
 }
 
 export interface ServerContextData extends ClientContextData {

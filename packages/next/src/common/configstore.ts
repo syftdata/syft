@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
-import { isBrowser } from './utils';
+import { isBrowser, safeJSONParse, safeJSONStringify } from './utils';
 
-interface IConfigStore {
+export interface IConfigStore {
   set: (key: string, value: unknown) => void;
   /**
    *
@@ -80,7 +80,8 @@ class UniversalConfigStore implements IConfigStore {
 
 export class StorageConfigStore implements IConfigStore {
   set(key: string, value: unknown): void {
-    localStorage.setItem(key, JSON.stringify(value));
+    const strVal = safeJSONStringify(value);
+    if (strVal) localStorage.setItem(key, JSON.stringify(value));
   }
 
   setWithExpiration(key: string, value: unknown, expirationTime: number): void {
@@ -89,23 +90,24 @@ export class StorageConfigStore implements IConfigStore {
       value,
       _syftExpiration
     };
-    localStorage.setItem(key, JSON.stringify(valueWithExpiration));
+    this.set(key, valueWithExpiration);
   }
 
   get(key: string): unknown | undefined {
     const strValue = localStorage.getItem(key);
     if (strValue != null) {
-      const value = JSON.parse(strValue);
+      const value = safeJSONParse(strValue) as any;
+      if (value === undefined) return;
       if (value._syftExpiration != null) {
         if (Date.now() > value._syftExpiration) {
           localStorage.removeItem(key);
           return undefined;
         }
-        return value.value;
+        return value.value as unknown;
       }
-      return value;
+      return value as unknown;
     }
-    return undefined;
+    return;
   }
 
   remove(key: string): void {
@@ -115,20 +117,23 @@ export class StorageConfigStore implements IConfigStore {
 
 export class CookieConfigStore implements IConfigStore {
   set(key: string, value: unknown): void {
-    Cookies.set(key, JSON.stringify(value));
+    const strVal = safeJSONStringify(value);
+    if (strVal) Cookies.set(key, strVal);
   }
 
   // TODO: put a timestamp in the value and check it before returning.
   setWithExpiration(key: string, value: unknown, expirationTime: number): void {
-    Cookies.set(key, JSON.stringify(value), {
-      expires: expirationTime
-    });
+    const strVal = safeJSONStringify(value);
+    if (strVal)
+      Cookies.set(key, strVal, {
+        expires: expirationTime
+      });
   }
 
   get(key: string): unknown {
     const strValue = Cookies.get(key);
     if (strValue != null) {
-      return JSON.parse(strValue);
+      return safeJSONParse(strValue);
     }
   }
 

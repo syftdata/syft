@@ -38,3 +38,17 @@ export function getCurrentPath(hashMode: boolean): string {
     ? `${location.pathname}#${location.hash}`
     : location.pathname;
 }
+
+export function safeJSONParse(val: string, def?: unknown): unknown {
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    return def;
+  }
+}
+
+export function safeJSONStringify(val: unknown): string | undefined {
+  try {
+    return JSON.stringify(val);
+  } catch (e) {}
+}

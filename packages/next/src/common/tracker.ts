@@ -1,4 +1,4 @@
-import type { Event, EventOptions } from './types';
+import type { Event, EventOptions, Session } from './types';
 import type UniversalConfigStore from './configstore';
 import { globalStore } from './configstore';
 import { type BatchUploader } from './uploader';
@@ -54,6 +54,9 @@ export default class AutoTracker<E extends EventTypes> {
   userTraits: UserTraits | undefined;
   groupId: string | undefined;
   groupTraits: GroupTraits | undefined;
+
+  session: Session | undefined;
+
   initialReferrer: Referrer | undefined;
   referrer: Referrer | undefined;
   initialCampaign: Campaign | undefined;
@@ -78,7 +81,6 @@ export default class AutoTracker<E extends EventTypes> {
         string,
         CommonPropType
       >) ?? {};
-    console.log('>>> user traits are ', this.userTraits);
     this.groupId = this.configStore.get(GROUP_ID_KEY) as string;
     this.groupTraits =
       (this.configStore.get(GROUP_TRAITS_KEY) as Record<
@@ -116,7 +118,6 @@ export default class AutoTracker<E extends EventTypes> {
     }
 
     if (this.userId === userId && deepEqual(this.userTraits, newTraits)) {
-      console.log('>>> deduping identify event', this.userId, this.userTraits);
       return;
     }
 
@@ -319,6 +320,7 @@ export default class AutoTracker<E extends EventTypes> {
 
       return {
         ...event,
+        session: this.session,
         context: {
           locale: navigator.language,
           page: {

@@ -1,11 +1,29 @@
-export type SessionCallback = (
-  idle: boolean,
-  sessionLength: number,
-  activeTime: number
-) => void;
+import { IConfigStore } from '../common/configstore';
+import { Session } from '../common/types';
+import { uuid } from '../common/utils';
+
+export interface SessionCallback {
+  onNewSession(session: Session): void;
+  onContinueSession?(
+    session: Session,
+    activeTime: number,
+    sessionLength: number
+  ): void;
+  onEndSession(session: Session): void;
+}
+
 interface Settings {
+  // must be smaller than idle timeout.
+  idleTimeCheckIntervalMs?: number;
+
+  // must be smaller than session timeout.
   idleTimeoutMs?: number;
+
+  // must be large. session is tracked across tabs.
+  sessionTimeoutMs?: number;
+
   callback: SessionCallback;
+  configStore: IConfigStore;
 }
 interface Times {
   start: number;
@@ -26,7 +44,9 @@ const documentIdleEvents = [
   'contextmenu'
 ];
 
-export default class InteractionTime {
+const SESSION_KEY = 'session';
+
+class InteractionTime {
   private times: Times[];
   private isIdle: boolean;
 
@@ -35,25 +55,73 @@ export default class InteractionTime {
   private currentIdleTimeMs: number;
 
   private readonly idleTimeoutMs: number;
-  private readonly checkIdleIntervalMs: number;
+  private readonly sessionTimeoutMs: number;
+  private readonly idleTimeCheckIntervalMs: number;
   private readonly callback: SessionCallback;
+  private readonly configStore: IConfigStore;
 
-  constructor({ idleTimeoutMs = 3000, callback }: Settings) {
+  private session: Session;
+
+  constructor({
+    configStore,
+    callback,
+    idleTimeCheckIntervalMs = 5000,
+    idleTimeoutMs = 30 * 1000,
+    sessionTimeoutMs = 30 * 60 * 1000
+  }: Settings) {
     this.times = [];
     this.isIdle = false;
     this.currentIdleTimeMs = 0;
 
-    this.checkIdleIntervalMs = 1000;
+    this.idleTimeCheckIntervalMs = idleTimeCheckIntervalMs;
     this.idleTimeoutMs = idleTimeoutMs;
+    this.sessionTimeoutMs = sessionTimeoutMs;
     this.callback = callback;
+    this.configStore = configStore;
+
+    this.session = this.refreshSession();
     this.registerEventListeners();
   }
 
+  /**
+   * Checks if a session needs to be started or resumed. starts if this is the first time user is visiting.
+   * @returns
+   */
+  private readonly refreshSession = (): Session => {
+    let session = this.configStore.get(SESSION_KEY) as Session;
+    if (session == null) {
+      return this.createNewSession();
+    } else {
+      const now = Date.now();
+      const elapsed = now - session.lastActivityTime;
+      if (elapsed > this.sessionTimeoutMs) {
+        this.callback.onEndSession(session);
+        return this.createNewSession();
+      }
+    }
+    return session;
+  };
+
+  private readonly createNewSession = (): Session => {
+    const now = Date.now();
+    const session = {
+      id: uuid(),
+      startTime: now,
+      lastActivityTime: now
+    };
+    this.configStore.set(SESSION_KEY, session);
+    this.session = session;
+    this.callback.onNewSession(session);
+    return session;
+  };
+
   private readonly onBrowserActiveChange = (): void => {
     if (document.visibilityState === 'visible') {
+      // check if we need to start a new session;
+      this.refreshSession();
       this.onActivity();
     } else {
-      this.onInactivity();
+      this.markAsIdle();
     }
   };
 
@@ -68,22 +136,37 @@ export default class InteractionTime {
     }
   };
 
+  /**
+   * Call this method to let listeners know that user is active.
+   */
   private readonly heartBeat = (): void => {
-    // give heartbeat.
-    this.callback(
-      this.isIdle,
-      performance.now() - this.times[0].start,
-      this.getTimeInMilliseconds()
-    );
+    if (this.callback.onContinueSession != null)
+      this.callback.onContinueSession(
+        this.session,
+        performance.now() - this.times[0].start,
+        this.getTimeInMilliseconds()
+      );
   };
 
-  private readonly checkIdleTime = (): void => {
+  private readonly markAsIdle = (): void => {
+    if (this.isIdle) return;
+    this.isIdle = true;
+    this.stopTimer();
+  };
+
+  /**
+   * This method checks if user spent more than allowed idle time.
+   * If yes, it marks the user as inactive. otherwise, calls heartbeat.
+   */
+  private readonly checkIfIdle = (): void => {
     this.checkVideoState();
     if (this.currentIdleTimeMs >= this.idleTimeoutMs) {
-      this.onInactivity();
+      this.markAsIdle();
     } else {
+      // TODO: write session last activity time.
+      this.configStore.set(SESSION_KEY, this.session);
       this.heartBeat();
-      this.currentIdleTimeMs += this.checkIdleIntervalMs;
+      this.currentIdleTimeMs += this.idleTimeCheckIntervalMs;
     }
   };
 
@@ -93,13 +176,7 @@ export default class InteractionTime {
     }
     this.isIdle = false;
     this.currentIdleTimeMs = 0;
-  };
-
-  private readonly onInactivity = (): void => {
-    if (this.isIdle) return;
-    this.isIdle = true;
-    this.stopTimer();
-    this.heartBeat();
+    this.session.lastActivityTime = Date.now();
   };
 
   private readonly registerEventListeners = (): void => {
@@ -149,8 +226,8 @@ export default class InteractionTime {
     });
     if (this.idleIntervalId == null) {
       this.idleIntervalId = window.setInterval(
-        this.checkIdleTime,
-        this.checkIdleIntervalMs
+        this.checkIfIdle,
+        this.idleTimeCheckIntervalMs
       );
     }
   };
@@ -189,16 +266,13 @@ export default class InteractionTime {
   };
 }
 
-export function sessionTrack(callback: () => void): () => void {
+export function sessionTrack(
+  callback: SessionCallback,
+  configStore: IConfigStore
+): () => void {
   const a = new InteractionTime({
-    callback: (idle, sessionLength, activeTime) => {
-      callback();
-      // if (idle) {
-      //   console.log('>> turned idle', sessionLength, activeTime);
-      // } else {
-      //   console.log('>> turned active', sessionLength, activeTime);
-      // }
-    }
+    callback,
+    configStore
   });
   a.startTimer();
   return () => {

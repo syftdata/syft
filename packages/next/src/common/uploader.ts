@@ -89,14 +89,13 @@ export class BatchUploader {
         this.currentRetryCount = 0;
         this.isUploading = false;
       })
-      .catch(() => {
+      .catch((e) => {
         if (this.currentRetryCount >= this.retries) {
           // drop events
           console.warn('dropping events', events.length);
           this.isUploading = false;
           return;
         }
-
         // put back events.
         this.events = [...events, ...this.events];
         this.oldestEventTimestamp = 0;
@@ -109,7 +108,7 @@ export class BatchUploader {
       });
   };
 
-  async upload(events: Event[]): Promise<void> {
+  upload(events: Event[]): Promise<boolean> {
     const data: UploadRequest = {
       events,
       sourceId: this.sourceId,
@@ -117,7 +116,7 @@ export class BatchUploader {
       userAgentData: (navigator as any).userAgent,
       sentAt: new Date()
     };
-    await new Promise((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
       const req = new XMLHttpRequest();
       req.open('POST', this.url, true);
       req.setRequestHeader('Content-Type', 'text/plain');
