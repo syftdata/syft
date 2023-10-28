@@ -19,69 +19,18 @@ export interface IConfigStore {
   remove: (key: string) => void;
 }
 
-class UniversalConfigStore implements IConfigStore {
-  constructor(
-    readonly namespace: string,
-    private readonly stores: IConfigStore[]
-  ) {
-    if (stores.length === 0) {
-      if (isBrowser()) {
-        this.stores = [
-          new InMemoryConfigStore(),
-          new CookieConfigStore(),
-          new StorageConfigStore()
-        ];
-      } else {
-        this.stores = [new InMemoryConfigStore()];
-      }
-    }
-  }
-
-  set(key: string, value: unknown): void {
-    const namespaceKey = `${this.namespace}.${key}`;
-    for (const store of this.stores) {
-      store.set(namespaceKey, value);
-    }
-  }
-
-  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
-    const namespaceKey = `${this.namespace}.${key}`;
-    for (const store of this.stores) {
-      if (store.setWithExpiration != null)
-        store.setWithExpiration(namespaceKey, value, expirationTime);
-    }
-  }
-
-  get(key: string): unknown | undefined {
-    const namespaceKey = `${this.namespace}.${key}`;
-    const missedStores: IConfigStore[] = [];
-    for (const store of this.stores) {
-      const value = store.get(namespaceKey);
-      if (value !== undefined) {
-        // populate this value in all stores.
-        for (const missedStore of missedStores) {
-          missedStore.set(namespaceKey, value);
-        }
-        return value;
-      } else {
-        missedStores.push(store);
-      }
-    }
-    return undefined;
-  }
-
-  remove(key: string): void {
-    const namespaceKey = `${this.namespace}.${key}`;
-    for (const store of this.stores) {
-      store.remove(namespaceKey);
-    }
-  }
-}
-
 export class StorageConfigStore implements IConfigStore {
+  storage: Storage | undefined;
+
+  constructor() {
+    try {
+      this.storage = window.localStorage;
+    } catch (e) {}
+  }
+
   set(key: string, value: unknown): void {
     const strVal = safeJSONStringify(value);
-    if (strVal) localStorage.setItem(key, JSON.stringify(value));
+    if (strVal) this.storage.setItem(key, JSON.stringify(value));
   }
 
   setWithExpiration(key: string, value: unknown, expirationTime: number): void {
@@ -94,13 +43,13 @@ export class StorageConfigStore implements IConfigStore {
   }
 
   get(key: string): unknown | undefined {
-    const strValue = localStorage.getItem(key);
+    const strValue = this.storage.getItem(key);
     if (strValue != null) {
       const value = safeJSONParse(strValue) as any;
       if (value === undefined) return;
       if (value._syftExpiration != null) {
         if (Date.now() > value._syftExpiration) {
-          localStorage.removeItem(key);
+          this.storage.removeItem(key);
           return undefined;
         }
         return value.value as unknown;
@@ -111,7 +60,7 @@ export class StorageConfigStore implements IConfigStore {
   }
 
   remove(key: string): void {
-    localStorage.removeItem(key);
+    this.storage.removeItem(key);
   }
 }
 
@@ -156,6 +105,65 @@ export class InMemoryConfigStore implements IConfigStore {
 
   remove(key: string): void {
     this.inMemory.delete(key);
+  }
+}
+
+class UniversalConfigStore implements IConfigStore {
+  constructor(
+    readonly namespace: string,
+    private readonly stores: IConfigStore[]
+  ) {
+    if (stores.length === 0) {
+      if (isBrowser()) {
+        this.stores = [new InMemoryConfigStore(), new CookieConfigStore()];
+        const storageStore = new StorageConfigStore();
+        if (storageStore.storage != null) {
+          this.stores.push(storageStore);
+        }
+      } else {
+        this.stores = [new InMemoryConfigStore()];
+      }
+    }
+  }
+
+  set(key: string, value: unknown): void {
+    const namespaceKey = `${this.namespace}.${key}`;
+    for (const store of this.stores) {
+      store.set(namespaceKey, value);
+    }
+  }
+
+  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+    const namespaceKey = `${this.namespace}.${key}`;
+    for (const store of this.stores) {
+      if (store.setWithExpiration != null)
+        store.setWithExpiration(namespaceKey, value, expirationTime);
+    }
+  }
+
+  get(key: string): unknown | undefined {
+    const namespaceKey = `${this.namespace}.${key}`;
+    const missedStores: IConfigStore[] = [];
+    for (const store of this.stores) {
+      const value = store.get(namespaceKey);
+      if (value !== undefined) {
+        // populate this value in all stores.
+        for (const missedStore of missedStores) {
+          missedStore.set(namespaceKey, value);
+        }
+        return value;
+      } else {
+        missedStores.push(store);
+      }
+    }
+    return undefined;
+  }
+
+  remove(key: string): void {
+    const namespaceKey = `${this.namespace}.${key}`;
+    for (const store of this.stores) {
+      store.remove(namespaceKey);
+    }
   }
 }
 

@@ -11,9 +11,9 @@ export const uuid = (): string => {
   });
 };
 
-export function searchParams(search: string): URLSearchParams | undefined {
+export function searchParams(search: string): URLSearchParams {
   if (search === '' || search == null) {
-    return undefined;
+    return new URLSearchParams();
   }
   return new URLSearchParams(search);
 }
@@ -35,7 +35,7 @@ export function mapValues<
 export function getCurrentPath(hashMode: boolean): string {
   const location = window.location;
   return hashMode && location.hash.length > 0
-    ? `${location.pathname}#${location.hash}`
+    ? `${location.pathname}${location.hash}`
     : location.pathname;
 }
 

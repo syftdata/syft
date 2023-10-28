@@ -79,15 +79,13 @@ function startSyft(): () => void {
     const sessionDestroy = sessionTrack(
       {
         onNewSession: (session) => {
-          console.log('>>> Started a new session ', session);
           tracker.session = session;
         },
         onEndSession: (session) => {
-          console.log('>>> Ended the session ', session);
           tracker.session = undefined;
         },
         onContinueSession: (session, activeTime) => {
-          console.log('>>> Active session ', session, activeTime);
+          tracker.session = session;
           tracker.track('syft_session', { activeTime });
         }
       },
@@ -114,14 +112,13 @@ function startSyft(): () => void {
             path === props.identifyFormPage
           ) {
             const identity = findIdentityInForm(formData.fields);
-            console.log('>>> found identity', identity);
             if (identity != null) {
               tracker?.identify(identity.id, identity.traits);
             }
           }
         },
         undefined,
-        tracker.campaign
+        tracker.source.campaign
       );
       deregisterCallbacks.push(cb);
     }

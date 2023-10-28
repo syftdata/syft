@@ -89,15 +89,17 @@ class InteractionTime {
    */
   private readonly refreshSession = (): Session => {
     let session = this.configStore.get(SESSION_KEY) as Session;
-    if (session == null) {
-      return this.createNewSession();
-    } else {
+    if (session != null) {
       const now = Date.now();
       const elapsed = now - session.lastActivityTime;
-      if (elapsed > this.sessionTimeoutMs) {
+      if (elapsed <= this.sessionTimeoutMs) {
+        this.callback.onContinueSession(session, 0, 0);
+      } else {
         this.callback.onEndSession(session);
         return this.createNewSession();
       }
+    } else {
+      return this.createNewSession();
     }
     return session;
   };
@@ -106,7 +108,7 @@ class InteractionTime {
     const now = Date.now();
     const session = {
       id: uuid(),
-      startTime: now,
+      startTime: new Date(),
       lastActivityTime: now
     };
     this.configStore.set(SESSION_KEY, session);

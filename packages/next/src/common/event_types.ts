@@ -113,3 +113,9 @@ export interface Campaign {
 export interface AMP {
   id: string;
 }
+
+export interface SourceTouch {
+  campaign?: Campaign;
+  referrer?: Referrer;
+  clickIds?: Record<string, string>;
+}

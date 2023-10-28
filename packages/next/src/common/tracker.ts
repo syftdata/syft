@@ -9,19 +9,11 @@ import type {
   GroupTraits,
   UserTraits,
   EventType,
-  Referrer,
-  Campaign,
-  AMP
+  AMP,
+  SourceTouch
 } from './event_types';
 import { canLog, type ConsentConfig } from './consent';
-import {
-  getAMP,
-  getClickIds,
-  getInitialPersistentCampaign,
-  getInitialPersistentReferrer,
-  getLastPersistentCampaign,
-  getLastPersistentReferrer
-} from './ad_utm';
+import { getAMP, getInitialSourceTouch, getSessionSourceTouch } from './ad_utm';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -57,12 +49,10 @@ export default class AutoTracker<E extends EventTypes> {
 
   session: Session | undefined;
 
-  initialReferrer: Referrer | undefined;
-  referrer: Referrer | undefined;
-  initialCampaign: Campaign | undefined;
-  campaign: Campaign | undefined;
   amp: AMP | undefined;
-  clickIds: Record<string, string> = {};
+
+  initialSource: SourceTouch | undefined;
+  source: SourceTouch;
 
   constructor(options: InitOptions) {
     this.options = options;
@@ -94,12 +84,9 @@ export default class AutoTracker<E extends EventTypes> {
       >) ?? {};
 
     if (isBrowser()) {
-      this.initialReferrer = getInitialPersistentReferrer(this.configStore);
-      this.referrer = getLastPersistentReferrer(this.configStore);
-      this.initialCampaign = getInitialPersistentCampaign(this.configStore);
-      this.campaign = getLastPersistentCampaign(this.configStore);
       this.amp = getAMP();
-      this.clickIds = getClickIds();
+      this.source = getSessionSourceTouch(this.configStore);
+      this.initialSource = getInitialSourceTouch(this.configStore);
     }
   }
 
@@ -310,12 +297,17 @@ export default class AutoTracker<E extends EventTypes> {
 
     if (isBrowser()) {
       // get referrer and utm params
-      const initialReferrer =
-        event.context.initialReferrer ?? this.initialReferrer;
-      const referrer = event.context.referrer ?? this.referrer;
-      const campaign = event.context.campaign ?? this.campaign;
-      const initialCampaign =
-        event.context.initialCampaign ?? this.initialCampaign;
+      const initialSource = event.context.initialSource ?? this.initialSource;
+      const source = { ...this.source };
+      if (event.context.referrer != null) {
+        source.referrer = event.context.referrer;
+      }
+      if (event.context.campaign != null) {
+        source.campaign = event.context.campaign;
+      }
+      if (event.context.clickIds != null) {
+        source.clickIds = event.context.clickIds;
+      }
       const amp = event.context.amp ?? this.amp;
 
       return {
@@ -330,13 +322,12 @@ export default class AutoTracker<E extends EventTypes> {
             title: document.title,
             url: location.href
           },
-          initialReferrer,
-          referrer,
-          initialCampaign,
-          campaign,
+
+          ...source,
+          initialSource,
+
           amp,
           deviceWidth: window.innerWidth,
-          ...this.clickIds,
           ...event.context
         }
       };

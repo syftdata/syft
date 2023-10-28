@@ -4,9 +4,8 @@ import {
   type EventType,
   type CommonPropType,
   type GroupTraits,
-  type Referrer,
-  type Campaign,
-  type AMP
+  type AMP,
+  type SourceTouch
 } from './event_types';
 
 export interface EventOptions {
@@ -39,14 +38,14 @@ interface UserAgentData {
 
 export interface Session {
   id: string;
-  startTime: number; // utc
+  startTime: string | Date;
   lastActivityTime: number;
 }
 
 /**
  * Data passed to Plausible as events.
  */
-export interface ClientContextData {
+export interface ClientContextData extends SourceTouch {
   groupId?: string;
   page?: {
     path: string;
@@ -68,13 +67,7 @@ export interface ClientContextData {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
-
-  initialCampaign?: Campaign;
-  campaign?: Campaign;
-
-  initialReferrer?: Referrer;
-  referrer?: Referrer;
-
+  initialSource?: SourceTouch;
   amp?: AMP;
 }
 
