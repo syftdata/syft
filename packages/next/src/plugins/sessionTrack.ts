@@ -1,15 +1,16 @@
-import { IConfigStore } from '../common/configstore';
-import { Session } from '../common/types';
+import { type IConfigStore } from '../common/configstore';
+import { type Session } from '../common/types';
 import { uuid } from '../common/utils';
+import { getSafeText } from './autotrack/autocapture-utils';
 
 export interface SessionCallback {
-  onNewSession(session: Session): void;
-  onContinueSession?(
+  onNewSession: (session: Session) => void;
+  onContinueSession?: (
     session: Session,
     activeTime: number,
     sessionLength: number
-  ): void;
-  onEndSession(session: Session): void;
+  ) => void;
+  onEndSession: (session: Session) => void;
 }
 
 interface Settings {
@@ -88,7 +89,7 @@ class InteractionTime {
    * @returns
    */
   private readonly refreshSession = (): Session => {
-    let session = this.configStore.get(SESSION_KEY) as Session;
+    const session = this.configStore.get(SESSION_KEY) as Session;
     if (session != null) {
       const now = Date.now();
       const elapsed = now - session.lastActivityTime;
@@ -109,7 +110,8 @@ class InteractionTime {
     const session = {
       id: uuid(),
       startTime: new Date(),
-      lastActivityTime: now
+      lastActivityTime: now,
+      content: []
     };
     this.configStore.set(SESSION_KEY, session);
     this.session = session;
@@ -142,12 +144,14 @@ class InteractionTime {
    * Call this method to let listeners know that user is active.
    */
   private readonly heartBeat = (): void => {
-    if (this.callback.onContinueSession != null)
+    if (this.callback.onContinueSession != null) {
       this.callback.onContinueSession(
         this.session,
         performance.now() - this.times[0].start,
         this.getTimeInMilliseconds()
       );
+      this.session.content = [];
+    }
   };
 
   private readonly markAsIdle = (): void => {
@@ -165,19 +169,31 @@ class InteractionTime {
     if (this.currentIdleTimeMs >= this.idleTimeoutMs) {
       this.markAsIdle();
     } else {
-      // TODO: write session last activity time.
       this.configStore.set(SESSION_KEY, this.session);
       this.heartBeat();
       this.currentIdleTimeMs += this.idleTimeCheckIntervalMs;
     }
   };
 
-  private readonly onActivity = (): void => {
+  private readonly onActivity = (e?: Event): void => {
     if (this.isIdle) {
       this.startTimer();
     }
     this.isIdle = false;
     this.currentIdleTimeMs = 0;
+    // append the content to session.
+    if (e?.type === 'click') {
+      let target = e.target as HTMLElement;
+      let content: string | undefined;
+      while (target != null) {
+        content = getSafeText(target);
+        if (content != null) {
+          break;
+        }
+        target = target.parentElement;
+      }
+      if (content != null) this.session.content.push(content);
+    }
     this.session.lastActivityTime = Date.now();
   };
 

@@ -3,6 +3,7 @@
  * @param {Element} el - element to get the className of
  * @returns {string} the element's class
  */
+import { canCaptureValue } from '../../blocks/forms/remove_sensitive';
 import { getDOMPathComponents, matchedEventTag } from './match-lib';
 import { type EventTag, type AutocaptureConfig } from './types';
 
@@ -120,4 +121,40 @@ export function getMatchingEventTag(
   const pathComps = getDOMPathComponents(el);
   const tags = autocaptureConfig?.tags ?? [];
   return tags.find((t) => matchedEventTag(event, t, pathComps));
+}
+
+/**
+ * Dont capture input values. This is a helper function to get text of what user is reading.
+ * @param el
+ * @returns
+ */
+export function getSafeText(
+  el: Element,
+  validMinWords: number = 5
+): string | undefined {
+  const textContent = [];
+  if (
+    !(el instanceof HTMLInputElement) &&
+    el.childNodes != null &&
+    el.childNodes.length > 0
+  ) {
+    el.childNodes.forEach((child) => {
+      if (child instanceof Element && isTextNode(child)) {
+        const text = child.textContent
+          .trim()
+          .split(/(\s+)/)
+          .filter(canCaptureValue)
+          .join('')
+          // normalize whitespace
+          .replace(/[\r\n]/g, ' ')
+          .replace(/[ ]+/g, ' ')
+          .trim();
+        if (text.length > 0) textContent.push(text);
+      }
+    });
+  }
+
+  if (textContent.length > validMinWords) {
+    return textContent.join(' ').trim();
+  }
 }

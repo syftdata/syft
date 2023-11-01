@@ -68,6 +68,7 @@ export interface GroupTraits {
   employees?: number; // Number of employees of a group, typically used for companies.
   industry?: string; // Industry the group is in, typically used for companies.
   name?: string; // Full name of the group
+  legalName?: string; // Legal name of the group / company.
   phone?: string; // Phone number of the group
   website?: string; // URL of the group’s website
   plan?: string; // Name of the plan the group is on, typically used for SaaS companies.

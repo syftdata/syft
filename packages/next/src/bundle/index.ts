@@ -47,7 +47,7 @@ function startSyft(): () => void {
   // pass the url based on the proxy options.
   uploader = new BatchUploader({
     sourceId: props.sourceId,
-    url: props.uploadPath ?? 'http://localhost:3001/api/syft',
+    url: props.uploadPath ?? 'https://app.syftdata.com/api/syft',
     batchSize: 1
   });
 
@@ -86,7 +86,10 @@ function startSyft(): () => void {
         },
         onContinueSession: (session, activeTime) => {
           tracker.session = session;
-          tracker.track('syft_session', { activeTime });
+          tracker.track('syft_session', {
+            activeTime,
+            content: session.content.join(' ')
+          });
         }
       },
       globalStore
