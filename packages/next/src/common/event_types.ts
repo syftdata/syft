@@ -65,10 +65,18 @@ export interface GroupTraits {
   createdAt?: Date | string; // Date the user’s account was first created. ISO-8601 date strings / Date object.
   description?: string; // Description of the user
   email?: string; // Email address of the user
+
   employees?: number; // Number of employees of a group, typically used for companies.
+  employeesRange?: string;
+
+  annualRevenue?: number; // Annual revenue of a group, typically used for companies.
+  estimatedAnnualRevenue?: string;
+
+  sector?: string;
   industry?: string; // Industry the group is in, typically used for companies.
   name?: string; // Full name of the group
   legalName?: string; // Legal name of the group / company.
+  location?: string; // Location of the group, typically used for companies.
   phone?: string; // Phone number of the group
   website?: string; // URL of the group’s website
   plan?: string; // Name of the plan the group is on, typically used for SaaS companies.
