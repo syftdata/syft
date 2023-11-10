@@ -108,7 +108,7 @@ export class BatchUploader {
       });
   };
 
-  upload(events: Event[]): Promise<boolean> {
+  async upload(events: Event[]): Promise<boolean> {
     const data: UploadRequest = {
       events,
       sourceId: this.sourceId,
@@ -116,7 +116,7 @@ export class BatchUploader {
       userAgentData: (navigator as any).userAgent,
       sentAt: new Date()
     };
-    return new Promise<boolean>((resolve, reject) => {
+    return await new Promise<boolean>((resolve, reject) => {
       const req = new XMLHttpRequest();
       req.open('POST', this.url, true);
       req.setRequestHeader('Content-Type', 'text/plain');

@@ -52,3 +52,11 @@ export function safeJSONStringify(val: unknown): string | undefined {
     return JSON.stringify(val);
   } catch (e) {}
 }
+
+export function ready(fn: () => void, wait: number = 0): void {
+  if (document.readyState !== 'loading') {
+    setTimeout(fn, wait); // simulate async
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}

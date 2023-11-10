@@ -6,7 +6,7 @@ import { BatchUploader } from '../common/uploader';
 import { formSubmits } from '../plugins/formSubmit';
 import { linkClicks } from '../plugins/linkClicks';
 import { pageViews } from '../plugins/pageViews';
-import { getCurrentPath } from '../common/utils';
+import { getCurrentPath, ready } from '../common/utils';
 import { sessionTrack } from '../plugins/sessionTrack';
 import { globalStore } from '../common/configstore';
 
@@ -49,6 +49,8 @@ function startSyft(): () => void {
     sourceId: props.sourceId,
     url: props.uploadPath ?? 'https://app.syftdata.com/api/syft',
     batchSize: 1
+    // batchSize: 5,
+    // maxWaitingTime: 5000
   });
 
   tracker = new AutoTracker({
@@ -59,23 +61,6 @@ function startSyft(): () => void {
   });
 
   if (enabled) {
-    if (props.trackPageViews !== false) {
-      const callPage = (path): void => {
-        tracker?.page(undefined, path);
-      };
-      const cb = pageViews(callPage, props.hashMode !== false);
-      deregisterCallbacks.push(cb);
-      // call the page view once.
-      callPage(getCurrentPath(props.hashMode !== false));
-    }
-
-    if (props.trackOutboundLinks !== false) {
-      const cb = linkClicks((href) => {
-        tracker?.track('OutboundLink Clicked', { href });
-      });
-      deregisterCallbacks.push(cb);
-    }
-
     const sessionDestroy = sessionTrack(
       {
         onNewSession: (session) => {
@@ -96,6 +81,25 @@ function startSyft(): () => void {
     );
     deregisterCallbacks.push(sessionDestroy);
 
+    if (props.trackPageViews !== false) {
+      const callPage = (path): void => {
+        // wait for page to load, correctness of title is important.
+        ready(() => {
+          tracker.page(undefined, path);
+        }, 100);
+      };
+      // call the page view once. we need session all the time.
+      callPage(getCurrentPath(props.hashMode !== false));
+      const cb = pageViews(callPage, props.hashMode !== false);
+      deregisterCallbacks.push(cb);
+    }
+
+    if (props.trackOutboundLinks !== false) {
+      const cb = linkClicks((href) => {
+        tracker.track('OutboundLink Clicked', { href });
+      });
+      deregisterCallbacks.push(cb);
+    }
     if (props.trackFormSubmits !== false) {
       const cb = formSubmits(
         (path, formData, destination) => {
@@ -109,14 +113,14 @@ function startSyft(): () => void {
             ...formData.attributes,
             ...convertToAttributeSet(removeSensitive(formData.fields))
           };
-          tracker?.track(eventName, attributes);
+          tracker.track(eventName, attributes);
           if (
             props.identifyFormPage == null ||
             path === props.identifyFormPage
           ) {
             const identity = findIdentityInForm(formData.fields);
             if (identity != null) {
-              tracker?.identify(identity.id, identity.traits);
+              tracker.identify(identity.id, identity.traits);
             }
           }
         },
@@ -129,17 +133,17 @@ function startSyft(): () => void {
 
   // check if there is data in syft.
   const existingData = (window.syft ?? []) as ExistingLog[];
+  window.syft = tracker;
   existingData.forEach((data: any[]) => {
     const type = data.shift();
     if (type === 'page') {
-      tracker?.page(...(data as [string, string?]));
+      tracker.page(...(data as [string, string?]));
     } else if (type === 'track') {
-      tracker?.track(...(data as [string, Record<string, any>?]));
+      tracker.track(...(data as [string, Record<string, any>?]));
     } else if (type === 'identify') {
-      tracker?.identify(...(data as [string, Record<string, any>?]));
+      tracker.identify(...(data as [string, Record<string, any>?]));
     }
   });
-  window.syft = tracker;
 
   return () => {
     deregisterCallbacks.forEach((deregister) => {

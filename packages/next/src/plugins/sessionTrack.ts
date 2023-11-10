@@ -68,7 +68,7 @@ class InteractionTime {
     callback,
     idleTimeCheckIntervalMs = 5000,
     idleTimeoutMs = 30 * 1000,
-    sessionTimeoutMs = 30 * 60 * 1000
+    sessionTimeoutMs = 10 * 60 * 1000 // 10 minutes by default.
   }: Settings) {
     this.times = [];
     this.isIdle = false;
@@ -145,6 +145,15 @@ class InteractionTime {
    */
   private readonly heartBeat = (): void => {
     if (this.callback.onContinueSession != null) {
+      // TODO: count the time since last timer. (instead of first timer)
+      // const activeTime = this.times.reduce((acc, current) => {
+      //   if (current.stop != null) {
+      //     acc = acc + (current.stop - current.start);
+      //   } else {
+      //     acc = acc + (performance.now() - current.start);
+      //   }
+      //   return acc;
+      // }, 0);
       this.callback.onContinueSession(
         this.session,
         performance.now() - this.times[0].start,
