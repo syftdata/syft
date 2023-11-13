@@ -39,8 +39,6 @@ interface UserAgentData {
 export interface Session {
   id: string;
   startTime: string | Date;
-  lastActivityTime: number;
-  content: string[];
 }
 
 /**

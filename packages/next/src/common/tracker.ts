@@ -312,7 +312,10 @@ export default class AutoTracker<E extends EventTypes> {
 
       return {
         ...event,
-        session: this.session,
+        session: {
+          id: this.session.id,
+          startTime: this.session.startTime
+        },
         context: {
           locale: navigator.language,
           page: {

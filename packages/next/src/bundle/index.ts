@@ -69,10 +69,11 @@ function startSyft(): () => void {
         onEndSession: (session) => {
           tracker.session = undefined;
         },
-        onContinueSession: (session, activeTime) => {
+        onContinueSession: (session, activeTime, sessionLength) => {
           tracker.session = session;
           tracker.track('syft_session', {
             activeTime,
+            sessionLength,
             content: session.content.join(' ')
           });
         }

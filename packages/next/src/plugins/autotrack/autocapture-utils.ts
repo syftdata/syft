@@ -123,6 +123,10 @@ export function getMatchingEventTag(
   return tags.find((t) => matchedEventTag(event, t, pathComps));
 }
 
+export function canTextNodeContainer(el: Element): boolean {
+  return el.tagName === 'P' || el.tagName === 'ARTICLE' || el.tagName === 'DIV';
+}
+
 /**
  * Dont capture input values. This is a helper function to get text of what user is reading.
  * @param el
@@ -132,29 +136,14 @@ export function getSafeText(
   el: Element,
   validMinWords: number = 5
 ): string | undefined {
-  const textContent = [];
-  if (
-    !(el instanceof HTMLInputElement) &&
-    el.childNodes != null &&
-    el.childNodes.length > 0
-  ) {
-    el.childNodes.forEach((child) => {
-      if (child instanceof Element && isTextNode(child)) {
-        const text = child.textContent
-          .trim()
-          .split(/(\s+)/)
-          .filter(canCaptureValue)
-          .join('')
-          // normalize whitespace
-          .replace(/[\r\n]/g, ' ')
-          .replace(/[ ]+/g, ' ')
-          .trim();
-        if (text.length > 0) textContent.push(text);
-      }
-    });
-  }
-
-  if (textContent.length > validMinWords) {
-    return textContent.join(' ').trim();
+  if (!(el instanceof HTMLInputElement) && canTextNodeContainer(el)) {
+    const text = el.textContent
+      .trim()
+      .replace(/[\r\n]/g, ' ')
+      .split(/\s+/)
+      .filter(canCaptureValue);
+    if (text.length > validMinWords) {
+      return text.slice(0, 100).join(' ').trim(); // 100 words max.
+    }
   }
 }

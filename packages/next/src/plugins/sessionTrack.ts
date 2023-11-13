@@ -8,7 +8,8 @@ export interface SessionCallback {
   onContinueSession?: (
     session: Session,
     activeTime: number,
-    sessionLength: number
+    sessionLength: number,
+    content: string[]
   ) => void;
   onEndSession: (session: Session) => void;
 }
@@ -47,6 +48,11 @@ const documentIdleEvents = [
 
 const SESSION_KEY = 'session';
 
+export interface SessionInternal extends Session {
+  lastActivityTime: number;
+  content: string[];
+}
+
 class InteractionTime {
   private times: Times[];
   private isIdle: boolean;
@@ -61,14 +67,14 @@ class InteractionTime {
   private readonly callback: SessionCallback;
   private readonly configStore: IConfigStore;
 
-  private session: Session;
+  private session: SessionInternal;
 
   constructor({
     configStore,
     callback,
-    idleTimeCheckIntervalMs = 5000,
-    idleTimeoutMs = 30 * 1000,
-    sessionTimeoutMs = 10 * 60 * 1000 // 10 minutes by default.
+    idleTimeCheckIntervalMs = 5 * 1000, // 5 sec
+    idleTimeoutMs = 30 * 1000, // 30 sec
+    sessionTimeoutMs = 10 * 60 * 1000 // 10 mins by default.
   }: Settings) {
     this.times = [];
     this.isIdle = false;
@@ -88,15 +94,14 @@ class InteractionTime {
    * Checks if a session needs to be started or resumed. starts if this is the first time user is visiting.
    * @returns
    */
-  private readonly refreshSession = (): Session => {
-    const session = this.configStore.get(SESSION_KEY) as Session;
+  private readonly refreshSession = (): SessionInternal => {
+    const session = this.configStore.get(SESSION_KEY) as SessionInternal;
     if (session != null) {
       const now = Date.now();
       const elapsed = now - session.lastActivityTime;
-      if (elapsed <= this.sessionTimeoutMs) {
-        this.callback.onContinueSession(session, 0, 0);
-      } else {
+      if (elapsed > this.sessionTimeoutMs) {
         this.callback.onEndSession(session);
+        this.reset(); // change the timers.
         return this.createNewSession();
       }
     } else {
@@ -105,7 +110,7 @@ class InteractionTime {
     return session;
   };
 
-  private readonly createNewSession = (): Session => {
+  private readonly createNewSession = (): SessionInternal => {
     const now = Date.now();
     const session = {
       id: uuid(),
@@ -121,8 +126,6 @@ class InteractionTime {
 
   private readonly onBrowserActiveChange = (): void => {
     if (document.visibilityState === 'visible') {
-      // check if we need to start a new session;
-      this.refreshSession();
       this.onActivity();
     } else {
       this.markAsIdle();
@@ -145,19 +148,11 @@ class InteractionTime {
    */
   private readonly heartBeat = (): void => {
     if (this.callback.onContinueSession != null) {
-      // TODO: count the time since last timer. (instead of first timer)
-      // const activeTime = this.times.reduce((acc, current) => {
-      //   if (current.stop != null) {
-      //     acc = acc + (current.stop - current.start);
-      //   } else {
-      //     acc = acc + (performance.now() - current.start);
-      //   }
-      //   return acc;
-      // }, 0);
       this.callback.onContinueSession(
         this.session,
+        this.getTimeInMilliseconds(),
         performance.now() - this.times[0].start,
-        this.getTimeInMilliseconds()
+        this.session.content
       );
       this.session.content = [];
     }
@@ -186,6 +181,8 @@ class InteractionTime {
 
   private readonly onActivity = (e?: Event): void => {
     if (this.isIdle) {
+      // check if we need to start a new session;
+      this.refreshSession();
       this.startTimer();
     }
     this.isIdle = false;
@@ -194,7 +191,8 @@ class InteractionTime {
     if (e?.type === 'click') {
       let target = e.target as HTMLElement;
       let content: string | undefined;
-      while (target != null) {
+      // don't go more than 2 levels up.
+      for (let i = 0; i < 2 && target != null; i++) {
         content = getSafeText(target);
         if (content != null) {
           break;

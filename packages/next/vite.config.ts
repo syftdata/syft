@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
       lib: {
         entry: path.resolve(__dirname, 'src/bundle/index.ts'),
         name: 'Syft',
-        formats: ['es'],
+        formats: ['es', 'umd'],
         fileName: (format: string) => `syft.${format}.js`
       }
     }
