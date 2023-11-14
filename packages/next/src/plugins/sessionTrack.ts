@@ -86,7 +86,7 @@ class InteractionTime {
     this.callback = callback;
     this.configStore = configStore;
 
-    this.session = this.refreshSession();
+    this.refreshSession();
     this.registerEventListeners();
   }
 
@@ -94,20 +94,36 @@ class InteractionTime {
    * Checks if a session needs to be started or resumed. starts if this is the first time user is visiting.
    * @returns
    */
-  private readonly refreshSession = (): SessionInternal => {
+  private readonly refreshSession = (): void => {
     const session = this.configStore.get(SESSION_KEY) as SessionInternal;
     if (session != null) {
-      const now = Date.now();
-      const elapsed = now - session.lastActivityTime;
-      if (elapsed > this.sessionTimeoutMs) {
-        this.callback.onEndSession(session);
-        this.reset(); // change the timers.
-        return this.createNewSession();
+      this.session = session;
+      if (!this.refreshSessionIfNeeded()) {
+        // session is not restarted, so, call onContinueSession.
+        if (this.callback.onContinueSession != null) {
+          this.callback.onContinueSession(
+            this.session,
+            0,
+            0,
+            this.session.content
+          );
+        }
       }
     } else {
-      return this.createNewSession();
+      this.createNewSession();
     }
-    return session;
+  };
+
+  private readonly refreshSessionIfNeeded = (): boolean => {
+    const now = Date.now();
+    const elapsed = now - this.session.lastActivityTime;
+    if (elapsed > this.sessionTimeoutMs) {
+      this.callback.onEndSession(this.session);
+      this.reset(); // change the timers.
+      this.createNewSession();
+      return true;
+    }
+    return false;
   };
 
   private readonly createNewSession = (): SessionInternal => {
@@ -182,7 +198,7 @@ class InteractionTime {
   private readonly onActivity = (e?: Event): void => {
     if (this.isIdle) {
       // check if we need to start a new session;
-      this.refreshSession();
+      this.refreshSessionIfNeeded();
       this.startTimer();
     }
     this.isIdle = false;
