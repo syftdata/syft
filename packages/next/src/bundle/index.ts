@@ -9,6 +9,7 @@ import { pageViews } from '../plugins/pageViews';
 import { getCurrentPath, ready } from '../common/utils';
 import { sessionTrack } from '../plugins/sessionTrack';
 import { globalStore } from '../common/configstore';
+import { DEFAULT_UPLOAD_PATH } from '../common/types';
 
 export type ExistingLog = [string, ...any[]];
 
@@ -47,10 +48,9 @@ function startSyft(): () => void {
   // pass the url based on the proxy options.
   uploader = new BatchUploader({
     sourceId: props.sourceId,
-    url: props.uploadPath ?? 'https://app.syftdata.com/api/syft',
-    batchSize: 1
-    // batchSize: 5,
-    // maxWaitingTime: 5000
+    url: props.uploadPath ?? DEFAULT_UPLOAD_PATH,
+    batchSize: 5,
+    maxWaitingTime: 5000
   });
 
   tracker = new AutoTracker({

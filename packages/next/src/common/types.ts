@@ -8,6 +8,8 @@ import {
   type SourceTouch
 } from './event_types';
 
+import { version as PACKAGE_VERSION } from '../../package.json';
+
 export interface EventOptions {
   [key: string]: CommonPropType | Partial<ClientContextData>;
   userId?: string;
@@ -120,4 +122,8 @@ export interface UploadRequest {
   userAgentData: UserAgentData;
 }
 
-export const SYFT_VERSION = '0.0.1';
+export const SYFT_VERSION = PACKAGE_VERSION;
+export const DEFAULT_UPLOAD_PATH =
+  process.env.NODE_ENV === 'production'
+    ? 'https://app.syftdata.com/api/syft'
+    : 'http://localhost:3000/api/syft';
