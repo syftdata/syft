@@ -53,7 +53,8 @@ function startSyft(): () => void {
     sourceId: props.sourceId,
     url: props.uploadPath ?? DEFAULT_UPLOAD_PATH,
     batchSize: 5,
-    maxWaitingTime: 5000
+    maxWaitingTime: 5000,
+    preferBeacon: true
   });
 
   let domain: string | undefined;
@@ -162,7 +163,16 @@ function startSyft(): () => void {
     }
   });
 
+  // flush the data before page goes to background.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      uploader.urgentFlush();
+    }
+  });
+
   return () => {
+    // flush the data before page unloads.
+    uploader.urgentFlush();
     deregisterCallbacks.forEach((deregister) => {
       deregister();
     });
@@ -170,6 +180,6 @@ function startSyft(): () => void {
   };
 }
 const deregister = startSyft();
-window.onunload = () => {
+window.onbeforeunload = () => {
   deregister();
 };

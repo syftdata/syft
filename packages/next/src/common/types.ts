@@ -1,11 +1,11 @@
 import {
-  type UserTraits,
+  type AMP,
+  type CommonPropType,
   type EventProps,
   type EventType,
-  type CommonPropType,
   type GroupTraits,
-  type AMP,
-  type SourceTouch
+  type SourceTouch,
+  type UserTraits
 } from './event_types';
 
 import { version as PACKAGE_VERSION } from '../../package.json';
@@ -120,6 +120,7 @@ export interface UploadRequest {
   version: string;
   sentAt: string | Date;
   userAgentData: UserAgentData;
+  beacon?: boolean;
 }
 
 export const SYFT_VERSION = PACKAGE_VERSION;
