@@ -1,7 +1,10 @@
 import { convertToAttributeSet } from '../blocks/forms/get_attributes';
 import { findIdentityInForm } from '../blocks/forms/get_identity';
 import { removeSensitive } from '../blocks/forms/remove_sensitive';
-import { globalStore } from '../common/configstore';
+import UniversalConfigStore, {
+  CookieConfigStore,
+  InMemoryConfigStore
+} from '../common/configstore';
 import AutoTracker from '../common/tracker';
 import { DEFAULT_UPLOAD_PATH } from '../common/types';
 import { BatchUploader } from '../common/uploader';
@@ -35,6 +38,8 @@ interface SyftProps {
   uploadPath?: string;
   sourceId?: string;
 
+  acrossDomain?: boolean; // true by default. if false, then visitors are not tracked across your sub domains.
+
   identifyFormPage?: string; // the page where the identify form is located
 }
 
@@ -51,13 +56,30 @@ function startSyft(): () => void {
     maxWaitingTime: 5000
   });
 
-  tracker = new AutoTracker({
-    uploader,
-    middleware: (e) => {
-      // we are dropping the data. instead hold the data ?
-      if (window.syftc.enabled !== false) return e;
+  let domain: string | undefined;
+  if (props.acrossDomain !== false) {
+    domain = window.location.hostname;
+    // set the cookie domain to root domain.
+    const parts = domain.split('.');
+    if (parts.length > 2) {
+      parts.shift();
     }
-  });
+    domain = parts.join('.');
+  }
+  const store = new UniversalConfigStore('syft', [
+    new InMemoryConfigStore(),
+    new CookieConfigStore(domain)
+  ]);
+  tracker = new AutoTracker(
+    {
+      uploader,
+      middleware: (e) => {
+        // we are dropping the data. instead hold the data ?
+        if (window.syftc.enabled !== false) return e;
+      }
+    },
+    store
+  );
 
   const sessionDestroy = sessionTrack(
     {
@@ -72,11 +94,11 @@ function startSyft(): () => void {
         tracker.track('syft_session', {
           activeTime,
           sessionLength,
-          content: content.join(' ')
+          content: content.join('\n')
         });
       }
     },
-    globalStore
+    store
   );
   deregisterCallbacks.push(sessionDestroy);
 

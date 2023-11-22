@@ -30,7 +30,7 @@ export class StorageConfigStore implements IConfigStore {
 
   set(key: string, value: unknown): void {
     const strVal = safeJSONStringify(value);
-    if (strVal) this.storage.setItem(key, JSON.stringify(value));
+    if (strVal != null) this.storage.setItem(key, JSON.stringify(value));
   }
 
   setWithExpiration(key: string, value: unknown, expirationTime: number): void {
@@ -56,7 +56,6 @@ export class StorageConfigStore implements IConfigStore {
       }
       return value as unknown;
     }
-    return;
   }
 
   remove(key: string): void {
@@ -65,17 +64,20 @@ export class StorageConfigStore implements IConfigStore {
 }
 
 export class CookieConfigStore implements IConfigStore {
+  constructor(readonly domain?: string) {}
+
   set(key: string, value: unknown): void {
     const strVal = safeJSONStringify(value);
-    if (strVal) Cookies.set(key, strVal);
+    if (strVal != null) Cookies.set(key, strVal, { domain: this.domain });
   }
 
   // TODO: put a timestamp in the value and check it before returning.
   setWithExpiration(key: string, value: unknown, expirationTime: number): void {
     const strVal = safeJSONStringify(value);
-    if (strVal)
+    if (strVal != null)
       Cookies.set(key, strVal, {
-        expires: expirationTime
+        expires: expirationTime,
+        domain: this.domain
       });
   }
 

@@ -1,7 +1,11 @@
 export const isBrowser = (): boolean => typeof window !== 'undefined';
 
 export const uuid = (): string => {
-  if (isBrowser() && window.crypto != null) {
+  if (
+    isBrowser() &&
+    window.crypto != null &&
+    window.crypto.randomUUID != null
+  ) {
     return window.crypto.randomUUID();
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {

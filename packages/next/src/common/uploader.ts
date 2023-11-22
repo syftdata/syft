@@ -1,4 +1,4 @@
-import { type UploadRequest, type Event, SYFT_VERSION } from './types';
+import { SYFT_VERSION, type Event, type UploadRequest } from './types';
 
 /**
  * Options used when initializing the uploader.

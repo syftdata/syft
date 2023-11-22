@@ -1,19 +1,18 @@
-import type { Event, EventOptions, Session } from './types';
+import { getAMP, getInitialSourceTouch, getSessionSourceTouch } from './ad_utm';
 import type UniversalConfigStore from './configstore';
-import { globalStore } from './configstore';
-import { type BatchUploader } from './uploader';
-import { isBrowser, uuid } from './utils';
+import { canLog, type ConsentConfig } from './consent';
 import type {
+  AMP,
   CommonPropType,
+  EventType,
   EventTypes,
   GroupTraits,
-  UserTraits,
-  EventType,
-  AMP,
-  SourceTouch
+  SourceTouch,
+  UserTraits
 } from './event_types';
-import { canLog, type ConsentConfig } from './consent';
-import { getAMP, getInitialSourceTouch, getSessionSourceTouch } from './ad_utm';
+import type { Event, EventOptions, Session } from './types';
+import { type BatchUploader } from './uploader';
+import { isBrowser, uuid } from './utils';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -54,9 +53,9 @@ export default class AutoTracker<E extends EventTypes> {
   initialSource: SourceTouch | undefined;
   source: SourceTouch;
 
-  constructor(options: InitOptions) {
+  constructor(options: InitOptions, store: UniversalConfigStore) {
     this.options = options;
-    this.configStore = globalStore;
+    this.configStore = store;
 
     this.anonymousId = this.configStore.get(ANONYMOUS_ID_KEY) as string;
     if (this.anonymousId == null) {

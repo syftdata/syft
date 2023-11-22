@@ -1,19 +1,15 @@
-import React, {
-  createContext,
-  useEffect,
-  type ReactNode,
-  useState
-} from 'react';
-import { isBrowser } from '../common/utils';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { globalStore } from '../common/configstore';
+import { type ConsentConfig } from '../common/consent';
+import type { EventTypes } from '../common/event_types';
 import AutoTracker from '../common/tracker';
 import type { Event } from '../common/types';
-import type { EventTypes } from '../common/event_types';
 import { BatchUploader } from '../common/uploader';
+import { isBrowser } from '../common/utils';
 import { useLinkClicks, usePageViews } from '../hooks';
+import { useFormSubmit } from '../hooks/useFormSubmit';
 import { useTrackTags } from '../hooks/useTrackTags';
 import { type AutocaptureConfig } from '../plugins/autotrack/types';
-import { type ConsentConfig } from '../common/consent';
-import { useFormSubmit } from '../hooks/useFormSubmit';
 
 declare global {
   interface Window {
@@ -68,11 +64,14 @@ export const SyftProvider = <E extends EventTypes>(
       url: props.uploadPath ?? '/api/syft',
       batchSize: 1
     });
-    tracker = new AutoTracker<E>({
-      uploader,
-      consent: props.consent,
-      middleware: props.middleware
-    });
+    tracker = new AutoTracker<E>(
+      {
+        uploader,
+        consent: props.consent,
+        middleware: props.middleware
+      },
+      globalStore
+    );
   }
 
   const [autocapture, setAutoCaptureConfig] = useState<

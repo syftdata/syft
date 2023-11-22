@@ -5,7 +5,7 @@
  */
 import { canCaptureValue } from '../../blocks/forms/remove_sensitive';
 import { getDOMPathComponents, matchedEventTag } from './match-lib';
-import { type EventTag, type AutocaptureConfig } from './types';
+import { type AutocaptureConfig, type EventTag } from './types';
 
 /*
  * Check whether an element has nodeType Node.ELEMENT_NODE
@@ -143,7 +143,7 @@ export function getSafeText(
       .split(/\s+/)
       .filter(canCaptureValue);
     if (text.length > validMinWords) {
-      return text.slice(0, 100).join(' ').trim(); // 100 words max.
+      return text.join(' ').trim().slice(0, 250); // 250 characters max.
     }
   }
 }

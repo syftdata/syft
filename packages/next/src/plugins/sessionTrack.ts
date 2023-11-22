@@ -215,7 +215,15 @@ class InteractionTime {
         }
         target = target.parentElement;
       }
-      if (content != null) this.session.content.push(content);
+      if (content != null) {
+        // only keep last 3 clicks, to keep cookie size small.
+        if (!this.session.content.includes(content)) {
+          this.session.content.push(content);
+          while (this.session.content.length > 3) {
+            this.session.content.shift();
+          }
+        }
+      }
     }
     this.session.lastActivityTime = Date.now();
   };
