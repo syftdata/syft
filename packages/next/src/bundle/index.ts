@@ -52,8 +52,8 @@ function startSyft(): () => void {
   uploader = new BatchUploader({
     sourceId: props.sourceId,
     url: props.uploadPath ?? DEFAULT_UPLOAD_PATH,
-    batchSize: 5,
-    maxWaitingTime: 5000,
+    batchSize: 10,
+    maxWaitingTime: 9999,
     preferBeacon: true
   });
 
@@ -138,7 +138,7 @@ function startSyft(): () => void {
         tracker.track(eventName, attributes);
         if (props.identifyFormPage == null || path === props.identifyFormPage) {
           const identity = findIdentityInForm(formData.fields);
-          if (identity != null) {
+          if (identity?.id != null && identity?.id !== '') {
             tracker.identify(identity.id, identity.traits);
           }
         }

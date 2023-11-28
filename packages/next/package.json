@@ -45,7 +45,7 @@
     "prepublish": "npm run build",
     "test": "jest",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "peerDpendencies": {
     "next": ">=11.1.0",

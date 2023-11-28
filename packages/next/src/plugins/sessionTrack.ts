@@ -72,7 +72,7 @@ class InteractionTime {
   constructor({
     configStore,
     callback,
-    idleTimeCheckIntervalMs = 5 * 1000, // 5 sec
+    idleTimeCheckIntervalMs = 10 * 1000, // 10 secs is good.
     idleTimeoutMs = 30 * 1000, // 30 sec
     sessionTimeoutMs = 10 * 60 * 1000 // 10 mins by default.
   }: Settings) {
@@ -144,6 +144,8 @@ class InteractionTime {
     if (document.visibilityState === 'visible') {
       this.onActivity();
     } else {
+      // send the last heartbeat before hiding the tab.
+      this.heartBeat();
       this.markAsIdle();
     }
   };
@@ -310,6 +312,8 @@ class InteractionTime {
   };
 
   public destroy = (): void => {
+    // flush the data before page unloads.
+    this.heartBeat();
     this.reset();
     this.unregisterEventListeners();
   };

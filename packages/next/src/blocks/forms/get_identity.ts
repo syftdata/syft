@@ -1,6 +1,6 @@
 import {
-  type GroupTraits,
   type Address,
+  type GroupTraits,
   type UserTraits
 } from '../../common/event_types';
 import { getAttributeSet } from './get_attributes';
@@ -33,6 +33,11 @@ const GROUP_TRAIT_MAPPING = {
   company: 'name'
 };
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+function validateEmail(email): boolean {
+  return email != null && EMAIL_REGEX.test(email);
+}
+
 export function findIdentityInForm(
   fields: SyftFormField[]
 ): Identity | undefined {
@@ -42,6 +47,9 @@ export function findIdentityInForm(
     emailField = fields.find(
       (field) => field.name.includes('email') || field.label?.includes('email')
     );
+    if (emailField == null) {
+      emailField = fields.find((field) => validateEmail(field.value));
+    }
   }
 
   if (emailField == null || emailField.value == null) {
