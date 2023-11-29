@@ -113,8 +113,8 @@ function startSyft(): () => void {
       }, 100);
     };
     // call the page view once. we need session all the time.
-    callPage(getCurrentPath(props.hashMode === true));
-    const cb = pageViews(callPage, props.hashMode === true);
+    callPage(getCurrentPath(props.hashMode !== false));
+    const cb = pageViews(callPage, props.hashMode !== false);
     deregisterCallbacks.push(cb);
   }
 

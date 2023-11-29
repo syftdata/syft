@@ -244,7 +244,6 @@ export default class AutoTracker<E extends EventTypes> {
         type,
         name,
         properties: {
-          ...partialEvent.context.page,
           ...partialEvent.properties,
           ...props,
           category
