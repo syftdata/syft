@@ -99,15 +99,36 @@ export function formSubmits(
   const handleSubmitEvent = (event: SubmitEvent): void => {
     const form = event.target as HTMLFormElement;
     if (form == null || !(form instanceof HTMLFormElement)) return;
-    handleSubmit(form, parseFormAction(form.action));
+    if (form.dataset.syftSubmitted === 'true') {
+      delete form.dataset.syftSubmitted;
+      return;
+    }
+    if (typeof form.requestSubmit === 'function') {
+      const submitter = event.submitter;
+      handleSubmit(form, parseFormAction(form.action));
+      if (
+        !(typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
+      ) {
+        form.dataset.syftSubmitted = 'true';
+        event.preventDefault();
+        event.stopPropagation();
+        setTimeout(() => {
+          form.requestSubmit(submitter);
+        }, 0);
+      }
+    }
   };
 
-  document.addEventListener('submit', handleSubmitEvent);
+  document.addEventListener('submit', handleSubmitEvent, {
+    capture: true
+  });
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach((iframe) => {
     const doc = iframe.contentDocument;
     if (doc == null) return;
-    doc.addEventListener('submit', handleSubmitEvent);
+    doc.addEventListener('submit', handleSubmitEvent, {
+      capture: true
+    });
   });
 
   // add input hidden fields to all forms.
@@ -133,11 +154,13 @@ export function formSubmits(
   };
 
   return () => {
-    document.removeEventListener('submit', handleSubmitEvent);
+    document.removeEventListener('submit', handleSubmitEvent, {
+      capture: true
+    });
     iframes.forEach((iframe) => {
       const doc = iframe.contentDocument;
       if (doc == null) return;
-      doc.removeEventListener('submit', handleSubmitEvent);
+      doc.removeEventListener('submit', handleSubmitEvent, { capture: true });
     });
     HTMLFormElement.prototype.submit = originalSubmit;
   };
