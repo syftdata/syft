@@ -9,6 +9,7 @@ import AutoTracker from '../common/tracker';
 import { DEFAULT_UPLOAD_PATH } from '../common/types';
 import { BatchUploader } from '../common/uploader';
 import { getCurrentPath, ready } from '../common/utils';
+import { buttonClicks } from '../plugins/buttonClicks';
 import { formSubmits } from '../plugins/formSubmit';
 import { linkClicks } from '../plugins/linkClicks';
 import { pageViews } from '../plugins/pageViews';
@@ -28,6 +29,7 @@ interface SyftProps {
   hashMode?: boolean;
 
   trackOutboundLinks?: boolean;
+  trackButtonClicks?: boolean;
   trackFormSubmits?: boolean;
 
   enabled?: boolean; // true by default if not specified. set it to false, until a consent is given.
@@ -111,14 +113,20 @@ function startSyft(): () => void {
       }, 100);
     };
     // call the page view once. we need session all the time.
-    callPage(getCurrentPath(props.hashMode !== false));
-    const cb = pageViews(callPage, props.hashMode !== false);
+    callPage(getCurrentPath(props.hashMode === true));
+    const cb = pageViews(callPage, props.hashMode === true);
     deregisterCallbacks.push(cb);
   }
 
   if (props.trackOutboundLinks !== false) {
     const cb = linkClicks((href) => {
       tracker.track('OutboundLink Clicked', { href });
+    });
+    deregisterCallbacks.push(cb);
+  }
+  if (props.trackButtonClicks !== false) {
+    const cb = buttonClicks((type, text, selectors) => {
+      tracker.track('Button Clicked', { type, text, selectors });
     });
     deregisterCallbacks.push(cb);
   }

@@ -98,25 +98,8 @@ export function formSubmits(
 
   const handleSubmitEvent = (event: SubmitEvent): void => {
     const form = event.target as HTMLFormElement;
-    const submitter = event.submitter;
-    if (form.dataset.syftSubmitted === 'true') {
-      delete form.dataset.syftSubmitted;
-      return;
-    }
-    if (form != null && typeof form.requestSubmit === 'function') {
-      handleSubmit(form, parseFormAction(form.action));
-      if (
-        !(typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
-      ) {
-        form.dataset.syftSubmitted = 'true';
-        event.preventDefault();
-        event.stopPropagation();
-        setTimeout(() => {
-          // TODO: call requestSubmit or submit ?
-          form.requestSubmit(submitter);
-        }, 10);
-      }
-    }
+    if (form == null || !(form instanceof HTMLFormElement)) return;
+    handleSubmit(form, parseFormAction(form.action));
   };
 
   document.addEventListener('submit', handleSubmitEvent);
