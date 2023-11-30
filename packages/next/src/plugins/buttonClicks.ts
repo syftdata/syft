@@ -1,3 +1,5 @@
+import { getLabelText } from './formSubmit';
+
 export function buttonClicks(
   callback: (
     type: string,
@@ -13,14 +15,7 @@ export function buttonClicks(
       target.tagName === 'A' ||
       target.tagName === 'SPAN'
     ) {
-      let text = target.innerText.trim();
-      if (text.length === 0) {
-        text = target.textContent.trim();
-        if (text.length === 0) {
-          text = target.getAttribute('aria-label');
-        }
-      }
-      callback(target.tagName, text, {
+      callback(target.tagName, getLabelText(target), {
         id: target.id,
         class: target.getAttribute('class'),
         href: target.getAttribute('href')

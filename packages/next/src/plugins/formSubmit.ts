@@ -17,7 +17,7 @@ type FormInputField =
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
-function getLabelText(r: Element): string {
+export function getLabelText(r: Element): string {
   if (!(r instanceof HTMLElement)) return;
   let t = r.innerText.trim();
   if (t.length === 0) {
@@ -32,7 +32,7 @@ function getLabelTextForInput(r: FormInputField): string | undefined {
   if (r.labels?.length > 0) {
     const labels = Array.from(r.labels)
       .map((g) => getLabelText(g))
-      .filter((label) => label.length > 0);
+      .filter((label) => label != null && label.length > 0);
     if (labels.length > 0) {
       return labels[0];
     }
