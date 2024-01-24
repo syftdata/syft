@@ -72,10 +72,9 @@ export class CookieConfigStore implements IConfigStore {
 
   setWithExpiration(key: string, value: unknown, exporationDays: number): void {
     const strVal = safeJSONStringify(value);
-    const expires = Date.now() + exporationDays * 24 * 60 * 60 * 1000;
     if (strVal != null)
       Cookies.set(key, strVal, {
-        expires,
+        expires: exporationDays,
         domain: this.domain
       });
   }
