@@ -10,6 +10,7 @@ export interface InitOptions {
   maxWaitingTime?: number;
   retries?: number;
   preferBeacon?: boolean;
+  replicateTo?: string[];
 }
 
 export class BatchUploader {
@@ -17,6 +18,7 @@ export class BatchUploader {
 
   sourceId?: string;
   url: string;
+  replicateTo: string[];
   batchSize: number;
   maxWaitingTime: number; // an event doesnt wait more than this time to be uploaded. (unless an upload is in progress)
   retries: number;
@@ -35,7 +37,8 @@ export class BatchUploader {
       batchSize = 10,
       maxWaitingTime = 10000,
       retries = 3,
-      preferBeacon = false
+      preferBeacon = false,
+      replicateTo = []
     } = options;
     this.sourceId = sourceId;
     this.url = url;
@@ -43,6 +46,7 @@ export class BatchUploader {
     this.maxWaitingTime = maxWaitingTime;
     this.retries = retries;
     this.preferBeacon = preferBeacon;
+    this.replicateTo = replicateTo;
   }
 
   addToQueue(event: Event): boolean {
@@ -125,7 +129,12 @@ export class BatchUploader {
         ? navigator?.sendBeacon?.bind(navigator)
         : undefined;
       if (beacon != null) {
-        resolve(beacon(this.url, JSON.stringify(data)));
+        const blob = JSON.stringify(data);
+        const resp = beacon(this.url, blob);
+        this.replicateTo.forEach((url) => {
+          beacon(url, blob);
+        });
+        resolve(resp);
       } else {
         const req = new XMLHttpRequest();
         req.open('POST', this.url, true);

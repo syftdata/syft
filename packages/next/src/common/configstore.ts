@@ -7,13 +7,13 @@ export interface IConfigStore {
    *
    * @param key
    * @param value
-   * @param expirationTime number of days before the data expires.
+   * @param exporationDays number of days before the data expires.
    * @returns
    */
   setWithExpiration?: (
     key: string,
     value: unknown,
-    expirationTime: number
+    exporationDays: number
   ) => void;
   get: (key: string) => unknown | undefined;
   remove: (key: string) => void;
@@ -33,8 +33,8 @@ export class StorageConfigStore implements IConfigStore {
     if (strVal != null) this.storage.setItem(key, JSON.stringify(value));
   }
 
-  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
-    const _syftExpiration = Date.now() + expirationTime * 24 * 60 * 60 * 1000;
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
+    const _syftExpiration = Date.now() + exporationDays * 24 * 60 * 60 * 1000;
     const valueWithExpiration = {
       value,
       _syftExpiration
@@ -67,19 +67,15 @@ export class CookieConfigStore implements IConfigStore {
   constructor(readonly domain?: string) {}
 
   set(key: string, value: unknown): void {
-    const strVal = safeJSONStringify(value);
-    // we need expiration time for cookies.
-    const expires = Date.now() + 365 * 24 * 60 * 60 * 1000;
-    if (strVal != null)
-      Cookies.set(key, strVal, { domain: this.domain, expires });
+    this.setWithExpiration(key, value, 365);
   }
 
-  // TODO: put a timestamp in the value and check it before returning.
-  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
     const strVal = safeJSONStringify(value);
+    const expires = Date.now() + exporationDays * 24 * 60 * 60 * 1000;
     if (strVal != null)
       Cookies.set(key, strVal, {
-        expires: expirationTime,
+        expires,
         domain: this.domain
       });
   }
@@ -138,11 +134,11 @@ class UniversalConfigStore implements IConfigStore {
     }
   }
 
-  setWithExpiration(key: string, value: unknown, expirationTime: number): void {
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
     const namespaceKey = `${this.namespace}.${key}`;
     for (const store of this.stores) {
       if (store.setWithExpiration != null)
-        store.setWithExpiration(namespaceKey, value, expirationTime);
+        store.setWithExpiration(namespaceKey, value, exporationDays);
     }
   }
 

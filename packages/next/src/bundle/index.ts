@@ -38,6 +38,7 @@ interface SyftProps {
    * The path to upload the events to. Defaults to `/api/syft`.
    */
   uploadPath?: string;
+  replicateTo?: string[]; // if specified, then the events are replicated to these urls.
   sourceId?: string;
 
   acrossDomain?: boolean; // true by default. if false, then visitors are not tracked across your sub domains.
@@ -54,6 +55,7 @@ function startSyft(): () => void {
   uploader = new BatchUploader({
     sourceId: props.sourceId,
     url: props.uploadPath ?? DEFAULT_UPLOAD_PATH,
+    replicateTo: props.replicateTo,
     batchSize: 10,
     maxWaitingTime: 9999,
     preferBeacon: true
