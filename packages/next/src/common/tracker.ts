@@ -61,8 +61,9 @@ export default class AutoTracker<E extends EventTypes> {
     if (this.anonymousId == null) {
       // generate a new anonymous id
       this.anonymousId = uuid();
-      this.configStore.set(ANONYMOUS_ID_KEY, this.anonymousId);
     }
+    // refresh expiration date.
+    this.configStore.set(ANONYMOUS_ID_KEY, this.anonymousId);
 
     this.userId = this.configStore.get(USER_ID_KEY) as string;
     this.userTraits =
