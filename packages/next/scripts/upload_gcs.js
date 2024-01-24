@@ -10,6 +10,15 @@ const storage = new Storage({
   projectId: 'ornate-acronym-372603'
 });
 
+if (!gcsBucketName) {
+  console.error('GCS_BUCKET_NAME env variable is not set');
+  console.log('gcloud auth application-default login');
+  console.log(
+    'Usage: GCS_BUCKET_NAME=<bucket-name> node ./scripts/upload-gcs.js'
+  );
+  process.exit(1);
+}
+
 // This function takes a file path and uploads it to Google Cloud Storage bucket.
 // It returns a promise that resolves with the public url of the file.
 function upload(file, destPath) {
@@ -22,7 +31,7 @@ function upload(file, destPath) {
       reject(err);
     });
     stream.on('finish', () => {
-      resolve(file + destPath);
+      resolve({ file, url: destPath });
     });
     // write contentd to gcs file stream
     stream.write(contents);
@@ -32,24 +41,25 @@ function upload(file, destPath) {
 
 const LOCAL_DIST_PATH = 'dist/';
 const files = fs.readdirSync(LOCAL_DIST_PATH);
-const uploadPromises = files
-  .flatMap((file) => {
-    if (file.endsWith('.js')) {
-      return [
-        upload(
-          path.join(LOCAL_DIST_PATH, file),
-          path.join(STORAGE_PATH, PackageJson.version, file)
-        ),
-        upload(path.join(LOCAL_DIST_PATH, file), path.join(STORAGE_PATH, file))
-      ];
+const uploadPromises = files.flatMap((file) => {
+  if (file.endsWith('.js')) {
+    return [
+      upload(
+        path.join(LOCAL_DIST_PATH, file),
+        path.join(STORAGE_PATH, PackageJson.version, file)
+      ),
+      upload(path.join(LOCAL_DIST_PATH, file), path.join(STORAGE_PATH, file))
+    ];
+  }
+  return [];
+});
+Promise.allSettled(uploadPromises).then((results) => {
+  results.forEach((result) => {
+    if (result.status === 'fulfilled') {
+      const value = result.value;
+      console.debug(`Written ${value.file} To ${value.url}`);
+    } else {
+      console.error(result.reason);
     }
-    return null;
-  })
-  .filter((promise) => promise != null);
-Promise.all(uploadPromises)
-  .then((url) => {
-    console.log(url);
-  })
-  .catch((err) => {
-    console.log(err);
   });
+});
