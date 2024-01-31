@@ -90,12 +90,13 @@ export default class AutoTracker<E extends EventTypes> {
     }
   }
 
-  identify(
-    userId: string,
-    traits: UserTraits = {},
-    options: EventOptions = {},
-    integrations?: unknown
-  ): void {
+  /**
+   * Returns true if the user was updated. false if it is duplicate call.
+   * @param userId
+   * @param traits
+   * @returns
+   */
+  __setUser(userId: string, traits: UserTraits): boolean {
     let newTraits = traits;
     if (this.userId == null || this.userId === userId) {
       newTraits = {
@@ -105,17 +106,24 @@ export default class AutoTracker<E extends EventTypes> {
     }
 
     if (this.userId === userId && deepEqual(this.userTraits, newTraits)) {
-      return;
+      return false;
     }
 
     this.userId = userId;
     this.userTraits = newTraits;
     this.configStore.set(USER_ID_KEY, userId);
     this.configStore.set(USER_TRAITS_KEY, newTraits);
+    return true;
+  }
 
-    if (options.userId != null) {
-      console.warn("don't pass userId in options, pass it as the first arg");
-      options.userId = userId;
+  identify(
+    userId: string,
+    traits: UserTraits = {},
+    options: EventOptions = {},
+    integrations?: unknown
+  ): void {
+    if (!this.__setUser(userId, traits)) {
+      return;
     }
 
     const partialEvent = this._getPartialEvent(options, integrations);
@@ -127,7 +135,7 @@ export default class AutoTracker<E extends EventTypes> {
           ...partialEvent.context,
           traits: undefined
         },
-        traits: newTraits
+        traits: this.userTraits
       },
       options,
       integrations
@@ -224,6 +232,29 @@ export default class AutoTracker<E extends EventTypes> {
           ...partialEvent.properties,
           ...properties
         }
+      },
+      options,
+      integrations
+    );
+  }
+
+  signup(
+    email: string,
+    traits: UserTraits = {},
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    if (!this.__setUser(email, traits)) return;
+    const partialEvent = this._getPartialEvent(options, integrations);
+    this._logEvent(
+      {
+        ...partialEvent,
+        type: 'signup',
+        context: {
+          ...partialEvent.context,
+          traits: undefined
+        },
+        traits: this.userTraits
       },
       options,
       integrations

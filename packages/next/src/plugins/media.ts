@@ -1,20 +1,20 @@
-function linkClicksInDoc(
+const observerInit = {
+  subtree: true,
+  childList: true,
+  attributes: true,
+  attributeFilter: ['src']
+};
+function mediaPlaysInDoc(
   doc: Document,
-  callback: (url: string, element: HTMLAnchorElement) => void
+  callback: (event: string, element: HTMLMediaElement) => void
 ): () => void {
-  const observerInit = {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['href']
-  };
-
-  function trackClick(this: HTMLAnchorElement, event: MouseEvent): void {
+  console.log('>>> tracking media in ', doc);
+  function trackPlay(this: HTMLMediaElement, event: Event): void {
     if (this.dataset.syftClicked === 'true') {
       delete this.dataset.syftClicked;
       return;
     }
-    callback(this.href, this);
+    callback(event.type, this);
     if (!(typeof process !== 'undefined' && process.env.NODE_ENV === 'test')) {
       this.dataset.syftClicked = 'true';
       setTimeout(() => {
@@ -24,24 +24,27 @@ function linkClicksInDoc(
     }
   }
 
-  const tracked = new Set<HTMLAnchorElement>();
+  const tracked = new Set<HTMLMediaElement>();
   function addNode(node: Node | ParentNode): void {
-    if (node instanceof HTMLAnchorElement) {
-      if (node.host !== location.host) {
-        node.addEventListener('click', trackClick);
-        tracked.add(node);
-      }
+    if (node instanceof HTMLMediaElement) {
+      console.log('>>> found video nodes ', node);
+      node.addEventListener('play', trackPlay);
+      node.addEventListener('pause', trackPlay);
+      node.addEventListener('ended', trackPlay);
+      tracked.add(node);
     } else if ('querySelectorAll' in node) {
-      node.querySelectorAll('a').forEach(addNode);
+      node.querySelectorAll('video').forEach(addNode);
     }
   }
 
   function removeNode(node: Node | ParentNode): void {
-    if (node instanceof HTMLAnchorElement) {
-      node.removeEventListener('click', trackClick);
+    if (node instanceof HTMLMediaElement) {
+      node.removeEventListener('play', trackPlay);
+      node.removeEventListener('pause', trackPlay);
+      node.removeEventListener('ended', trackPlay);
       tracked.delete(node);
     } else if ('querySelectorAll' in node) {
-      node.querySelectorAll('a').forEach(removeNode);
+      node.querySelectorAll('video').forEach(removeNode);
     }
   }
 
@@ -60,32 +63,33 @@ function linkClicksInDoc(
     });
   });
 
-  // Track existing nodes
-  doc.querySelectorAll('a').forEach(addNode);
+  doc.querySelectorAll('video').forEach(addNode);
   // Observe mutations
   observer.observe(doc, observerInit);
 
   return () => {
-    tracked.forEach((a) => {
-      a.removeEventListener('click', trackClick);
+    tracked.forEach((node) => {
+      node.removeEventListener('play', trackPlay);
+      node.removeEventListener('pause', trackPlay);
+      node.removeEventListener('ended', trackPlay);
     });
     tracked.clear();
     observer.disconnect();
   };
 }
-
-export function linkClicks(
-  callback: (url: string, element: HTMLAnchorElement) => void
+export function mediaPlays(
+  callback: (event: string, element: HTMLMediaElement) => void
 ): () => void {
-  const deregisterCallbacks = [linkClicksInDoc(document, callback)];
+  const deregisterCallbacks = [mediaPlaysInDoc(document, callback)];
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach((iframe) => {
     iframe.addEventListener('load', () => {
       const doc = iframe.contentDocument;
       if (doc == null) {
+        console.warn('>>> iframe contentDocument is null', iframe);
         return;
       }
-      deregisterCallbacks.push(linkClicksInDoc(doc, callback));
+      deregisterCallbacks.push(mediaPlaysInDoc(doc, callback));
     });
   });
   return () => {

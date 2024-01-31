@@ -53,7 +53,7 @@ export interface SessionInternal extends Session {
   content: string[];
 }
 
-class InteractionTime {
+export class InteractionTime {
   private times: Times[];
   private isIdle: boolean;
 
@@ -72,9 +72,9 @@ class InteractionTime {
   constructor({
     configStore,
     callback,
-    idleTimeCheckIntervalMs = 10 * 1000, // 10 secs is good.
-    idleTimeoutMs = 30 * 1000, // 30 sec
-    sessionTimeoutMs = 10 * 60 * 1000 // 10 mins by default.
+    idleTimeCheckIntervalMs = 10 * 1000,
+    idleTimeoutMs = 30 * 1000,
+    sessionTimeoutMs = 10 * 60 * 1000
   }: Settings) {
     this.times = [];
     this.isIdle = false;
@@ -316,19 +316,5 @@ class InteractionTime {
     this.heartBeat();
     this.reset();
     this.unregisterEventListeners();
-  };
-}
-
-export function sessionTrack(
-  callback: SessionCallback,
-  configStore: IConfigStore
-): () => void {
-  const a = new InteractionTime({
-    callback,
-    configStore
-  });
-  a.startTimer();
-  return () => {
-    a.destroy();
   };
 }

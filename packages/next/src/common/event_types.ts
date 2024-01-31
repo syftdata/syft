@@ -1,6 +1,7 @@
 export type EventType =
   | 'page'
   | 'track'
+  | 'signup'
   | 'identify'
   | 'group'
   | 'alias'
@@ -13,6 +14,7 @@ export type EventProps = Record<string, unknown> | never;
 export interface EventTypes {
   [key: string]: EventProps;
   page: Record<string, CommonPropType>;
+  signup: Record<string, CommonPropType>;
   'OutboundLink Clicked': {
     href: string;
   };

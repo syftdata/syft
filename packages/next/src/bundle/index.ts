@@ -13,7 +13,7 @@ import { buttonClicks } from '../plugins/buttonClicks';
 import { formSubmits } from '../plugins/formSubmit';
 import { linkClicks } from '../plugins/linkClicks';
 import { pageViews } from '../plugins/pageViews';
-import { sessionTrack } from '../plugins/sessionTrack';
+import { InteractionTime } from '../plugins/sessionTrack';
 
 export type ExistingLog = [string, ...any[]];
 
@@ -25,10 +25,12 @@ declare global {
 }
 
 interface SyftProps {
+  autoTrackEnabled?: boolean; // true by default. set it to false, if you want to disable auto tracking completely. use below individual flags to enable/disable specific tracking.
   trackPageViews?: boolean;
   hashMode?: boolean;
 
   trackOutboundLinks?: boolean;
+  trackMedia?: boolean;
   trackButtonClicks?: boolean;
   trackFormSubmits?: boolean;
 
@@ -86,8 +88,8 @@ function startSyft(): () => void {
     store
   );
 
-  const sessionDestroy = sessionTrack(
-    {
+  const a = new InteractionTime({
+    callback: {
       onNewSession: (session) => {
         tracker.session = session;
       },
@@ -96,67 +98,84 @@ function startSyft(): () => void {
       },
       onContinueSession: (session, activeTime, sessionLength, content) => {
         tracker.session = session;
-        tracker.track('syft_session', {
-          activeTime,
-          sessionLength,
-          content: content.join('\n')
-        });
+        if (props.autoTrackEnabled !== false) {
+          tracker.track('syft_session', {
+            activeTime,
+            sessionLength,
+            content: content.join('\n')
+          });
+        }
       }
     },
-    store
-  );
-  deregisterCallbacks.push(sessionDestroy);
+    configStore: store
+  });
+  a.startTimer();
+  deregisterCallbacks.push(a.destroy);
+  if (props.autoTrackEnabled !== false) {
+    if (props.trackPageViews !== false) {
+      const callPage = (path): void => {
+        // wait for page to load, correctness of title is important.
+        ready(() => {
+          tracker.page(undefined, path);
+        }, 100);
+      };
+      // call the page view once. we need session all the time.
+      callPage(getCurrentPath(props.hashMode !== false));
+      const cb = pageViews(callPage, props.hashMode !== false);
+      deregisterCallbacks.push(cb);
+    }
 
-  if (props.trackPageViews !== false) {
-    const callPage = (path): void => {
-      // wait for page to load, correctness of title is important.
-      ready(() => {
-        tracker.page(undefined, path);
-      }, 100);
-    };
-    // call the page view once. we need session all the time.
-    callPage(getCurrentPath(props.hashMode !== false));
-    const cb = pageViews(callPage, props.hashMode !== false);
-    deregisterCallbacks.push(cb);
-  }
-
-  if (props.trackOutboundLinks !== false) {
-    const cb = linkClicks((href) => {
-      tracker.track('OutboundLink Clicked', { href });
-    });
-    deregisterCallbacks.push(cb);
-  }
-  if (props.trackButtonClicks !== false) {
-    const cb = buttonClicks((type, text, selectors) => {
-      tracker.track('Button Clicked', { type, text, selectors });
-    });
-    deregisterCallbacks.push(cb);
-  }
-  if (props.trackFormSubmits !== false) {
-    const cb = formSubmits(
-      (path, formData, destination) => {
-        const eventName =
-          destination != null &&
-          destination.hostname !== window.location.hostname
-            ? 'Outbound Form'
-            : 'Form Submit';
-        const attributes = {
-          destination: destination?.toString(),
-          ...formData.attributes,
-          ...convertToAttributeSet(removeSensitive(formData.fields))
-        };
-        tracker.track(eventName, attributes);
-        if (props.identifyFormPage == null || path === props.identifyFormPage) {
-          const identity = findIdentityInForm(formData.fields);
-          if (identity?.id != null && identity?.id !== '') {
-            tracker.identify(identity.id, identity.traits);
+    if (props.trackOutboundLinks !== false) {
+      const cb = linkClicks((href) => {
+        tracker.track('OutboundLink Clicked', { href });
+      });
+      deregisterCallbacks.push(cb);
+    }
+    // if (props.trackMedia !== false) {
+    //   const cb = mediaPlays((type, video) => {
+    //     tracker.track(`Video ${type}`, {
+    //       src: video.currentSrc,
+    //       id: video.id,
+    //       position: video.currentTime
+    //     });
+    //   });
+    //   deregisterCallbacks.push(cb);
+    // }
+    if (props.trackButtonClicks !== false) {
+      const cb = buttonClicks((type, text, selectors) => {
+        tracker.track('Button Clicked', { type, text, selectors });
+      });
+      deregisterCallbacks.push(cb);
+    }
+    if (props.trackFormSubmits !== false) {
+      const cb = formSubmits(
+        (path, formData, destination) => {
+          const eventName =
+            destination != null &&
+            destination.hostname !== window.location.hostname
+              ? 'Outbound Form'
+              : 'Form Submit';
+          const attributes = {
+            destination: destination?.toString(),
+            ...formData.attributes,
+            ...convertToAttributeSet(removeSensitive(formData.fields))
+          };
+          tracker.track(eventName, attributes);
+          if (
+            props.identifyFormPage == null ||
+            path === props.identifyFormPage
+          ) {
+            const identity = findIdentityInForm(formData.fields);
+            if (identity?.id != null && identity?.id !== '') {
+              tracker.identify(identity.id, identity.traits);
+            }
           }
-        }
-      },
-      undefined,
-      tracker.source.campaign
-    );
-    deregisterCallbacks.push(cb);
+        },
+        undefined,
+        tracker.source.campaign
+      );
+      deregisterCallbacks.push(cb);
+    }
   }
 
   // check if there is data in syft.
@@ -168,6 +187,8 @@ function startSyft(): () => void {
       tracker.page(...(data as [string, string?]));
     } else if (type === 'track') {
       tracker.track(...(data as [string, Record<string, any>?]));
+    } else if (type === 'signup') {
+      tracker.signup(...(data as [string, Record<string, any>?]));
     } else if (type === 'identify') {
       tracker.identify(...(data as [string, Record<string, any>?]));
     }

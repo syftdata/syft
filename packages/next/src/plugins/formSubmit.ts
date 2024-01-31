@@ -72,6 +72,19 @@ function getFormFields(r: HTMLFormElement): SyftFormField[] {
   return fields;
 }
 
+function addCampaignToForm(doc: Document, campaign: Campaign): void {
+  const forms = doc.querySelectorAll('form');
+  forms.forEach((form) => {
+    Object.entries(campaign).forEach(([name, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = `utm_${name}`;
+      input.value = value;
+      form.appendChild(input);
+    });
+  });
+}
+
 export function formSubmits(
   callback: (path: string, data: SyftFormData, destination?: URL) => void,
   shouldTrack?: (
@@ -122,6 +135,10 @@ export function formSubmits(
   document.addEventListener('submit', handleSubmitEvent, {
     capture: true
   });
+  if (campaign != null) {
+    addCampaignToForm(document, campaign);
+  }
+
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach((iframe) => {
     const doc = iframe.contentDocument;
@@ -129,21 +146,10 @@ export function formSubmits(
     doc.addEventListener('submit', handleSubmitEvent, {
       capture: true
     });
+    if (campaign != null) {
+      addCampaignToForm(doc, campaign);
+    }
   });
-
-  // add input hidden fields to all forms.
-  if (campaign != null) {
-    const forms = document.querySelectorAll('form');
-    forms.forEach((form) => {
-      Object.entries(campaign).forEach(([name, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = `utm_${name}`;
-        input.value = value;
-        form.appendChild(input);
-      });
-    });
-  }
 
   const originalSubmit = HTMLFormElement.prototype.submit;
   HTMLFormElement.prototype.submit = function () {
