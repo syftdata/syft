@@ -42,20 +42,7 @@ export function findIdentityInForm(
   fields: SyftFormField[]
 ): Identity | undefined {
   // identify email / name / username
-  let emailField = fields.find((field) => field.type === 'email');
-  if (emailField == null) {
-    emailField = fields.find(
-      (field) => field.name.includes('email') || field.label?.includes('email')
-    );
-    if (emailField == null) {
-      emailField = fields.find((field) => validateEmail(field.value));
-    }
-  }
-
-  if (emailField == null || emailField.value == null) {
-    return;
-  }
-
+  const emailField = fields.find((field) => validateEmail(field.value));
   const userTraits = getAttributeSet<UserTraits>(
     fields,
     USER_TRAIT_FIELDS,
@@ -68,7 +55,7 @@ export function findIdentityInForm(
     GROUP_TRAIT_MAPPING
   );
 
-  const email = emailField.value;
+  const email = emailField?.value;
   return {
     id: email,
     traits: {

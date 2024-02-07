@@ -125,8 +125,14 @@ export interface AMP {
   id: string;
 }
 
+export interface SyftIDs {
+  email?: string;
+  domain?: string;
+}
+
 export interface SourceTouch {
   campaign?: Campaign;
   referrer?: Referrer;
   clickIds?: Record<string, string>;
+  syftIds?: SyftIDs;
 }

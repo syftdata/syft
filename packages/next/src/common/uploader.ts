@@ -100,7 +100,7 @@ export class BatchUploader {
       .catch((e) => {
         if (this.currentRetryCount >= this.retries) {
           // drop events
-          console.warn('dropping events', events.length, e);
+          // console.warn('dropping events', events.length, e);
           this.isUploading = false;
           return;
         }

@@ -1,6 +1,4 @@
-import { convertToAttributeSet } from '../blocks/forms/get_attributes';
 import { findIdentityInForm } from '../blocks/forms/get_identity';
-import { removeSensitive } from '../blocks/forms/remove_sensitive';
 import UniversalConfigStore, {
   CookieConfigStore,
   InMemoryConfigStore
@@ -92,8 +90,16 @@ function startSyft(): () => void {
     callback: {
       onNewSession: (session) => {
         tracker.session = session;
+        if (props.autoTrackEnabled !== false) {
+          // fire a new event.
+          if (tracker.source.syftIds?.email != null) {
+            tracker.identify(tracker.source.syftIds.email, {
+              source: 'url_track'
+            });
+          }
+        }
       },
-      onEndSession: (session) => {
+      onEndSession: (_s) => {
         tracker.session = undefined;
       },
       onContinueSession: (session, activeTime, sessionLength, content) => {
@@ -113,11 +119,15 @@ function startSyft(): () => void {
   deregisterCallbacks.push(a.destroy);
   if (props.autoTrackEnabled !== false) {
     if (props.trackPageViews !== false) {
+      let currentPath: string | undefined;
       const callPage = (path): void => {
+        currentPath = path;
         // wait for page to load, correctness of title is important.
         ready(() => {
+          // user might have navigated to a different page.
+          if (currentPath !== path) return;
           tracker.page(undefined, path);
-        }, 100);
+        }, 1000);
       };
       // call the page view once. we need session all the time.
       callPage(getCurrentPath(props.hashMode !== false));
@@ -155,19 +165,17 @@ function startSyft(): () => void {
             destination.hostname !== window.location.hostname
               ? 'Outbound Form'
               : 'Form Submit';
-          const attributes = {
-            destination: destination?.toString(),
-            ...formData.attributes,
-            ...convertToAttributeSet(removeSensitive(formData.fields))
-          };
-          tracker.track(eventName, attributes);
+          const identity = findIdentityInForm(formData.fields);
+          tracker.track(eventName, identity);
           if (
             props.identifyFormPage == null ||
             path === props.identifyFormPage
           ) {
-            const identity = findIdentityInForm(formData.fields);
-            if (identity?.id != null && identity?.id !== '') {
-              tracker.identify(identity.id, identity.traits);
+            if (identity.id != null) {
+              tracker.identify(identity.id, {
+                ...identity.traits,
+                source: 'form_submit'
+              });
             }
           }
         },
@@ -210,7 +218,10 @@ function startSyft(): () => void {
     deregisterCallbacks.length = 0;
   };
 }
-const deregister = startSyft();
-window.onbeforeunload = () => {
-  deregister();
-};
+
+try {
+  const deregister = startSyft();
+  window.onbeforeunload = () => {
+    deregister();
+  };
+} catch (e) {}

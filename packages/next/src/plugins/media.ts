@@ -8,7 +8,7 @@ function mediaPlaysInDoc(
   doc: Document,
   callback: (event: string, element: HTMLMediaElement) => void
 ): () => void {
-  console.log('>>> tracking media in ', doc);
+  // console.log('>>> tracking media in ', doc);
   function trackPlay(this: HTMLMediaElement, event: Event): void {
     if (this.dataset.syftClicked === 'true') {
       delete this.dataset.syftClicked;
@@ -27,7 +27,7 @@ function mediaPlaysInDoc(
   const tracked = new Set<HTMLMediaElement>();
   function addNode(node: Node | ParentNode): void {
     if (node instanceof HTMLMediaElement) {
-      console.log('>>> found video nodes ', node);
+      // console.log('>>> found video nodes ', node);
       node.addEventListener('play', trackPlay);
       node.addEventListener('pause', trackPlay);
       node.addEventListener('ended', trackPlay);
@@ -86,7 +86,7 @@ export function mediaPlays(
     iframe.addEventListener('load', () => {
       const doc = iframe.contentDocument;
       if (doc == null) {
-        console.warn('>>> iframe contentDocument is null', iframe);
+        // console.warn('>>> iframe contentDocument is null', iframe);
         return;
       }
       deregisterCallbacks.push(mediaPlaysInDoc(doc, callback));

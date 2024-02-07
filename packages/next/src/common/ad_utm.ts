@@ -1,12 +1,13 @@
+import Cookies from 'js-cookie';
 import type UniversalConfigStore from './configstore';
 import {
-  type SourceTouch,
   type AMP,
   type Campaign,
-  type Referrer
+  type Referrer,
+  type SourceTouch,
+  type SyftIDs
 } from './event_types';
 import { searchParams } from './utils';
-import Cookies from 'js-cookie';
 
 export function getReferrerFromParams(
   params: URLSearchParams
@@ -56,6 +57,20 @@ export function getClickIdsFromParams(
   return clickIds;
 }
 
+export function getSyftIds(params: URLSearchParams): SyftIDs {
+  const ids: SyftIDs = {};
+  if (params != null) {
+    for (const key of params.keys()) {
+      if (key === 'sy_e') {
+        ids.email = params.get(key);
+      } else if (key === 'sy_d') {
+        ids.domain = params.get(key);
+      }
+    }
+  }
+  return ids;
+}
+
 export function getAMP(): AMP | undefined {
   const ampId = Cookies.get('_ga');
   if (ampId != null) {
@@ -71,10 +86,12 @@ export function getSourceTouch(): SourceTouch {
   const referrer = getReferrerFromParams(params);
   const campaign = getCampaignFromParams(params);
   const clickIds = getClickIdsFromParams(params);
+  const syftIds = getSyftIds(params);
   return {
     referrer,
     campaign,
-    clickIds
+    clickIds,
+    syftIds
   };
 }
 
