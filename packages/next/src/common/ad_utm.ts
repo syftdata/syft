@@ -54,6 +54,7 @@ export function getClickIdsFromParams(
       }
     }
   }
+  if (Object.keys(clickIds).length === 0) return undefined;
   return clickIds;
 }
 
@@ -68,6 +69,7 @@ export function getSyftIds(params: URLSearchParams): SyftIDs {
       }
     }
   }
+  if (Object.keys(ids).length === 0) return undefined;
   return ids;
 }
 
@@ -100,13 +102,24 @@ const SOURCE_TOUCH_KEY = 'source_touch';
 export function getSessionSourceTouch(
   configStore: UniversalConfigStore
 ): SourceTouch | undefined {
-  let sourceTouch = configStore.get(SOURCE_TOUCH_KEY) as
+  const sourceTouch = getSourceTouch();
+  const existingSourceTouch = configStore.get(SOURCE_TOUCH_KEY) as
     | SourceTouch
     | undefined;
-  if (sourceTouch != null) {
-    return sourceTouch;
+  if (existingSourceTouch != null) {
+    if (sourceTouch.campaign == null) {
+      sourceTouch.campaign = existingSourceTouch.campaign;
+    }
+    if (sourceTouch.referrer == null) {
+      sourceTouch.referrer = existingSourceTouch.referrer;
+    }
+    if (sourceTouch.syftIds == null) {
+      sourceTouch.syftIds = existingSourceTouch.syftIds;
+    }
+    if (sourceTouch.clickIds == null) {
+      sourceTouch.clickIds = existingSourceTouch.clickIds;
+    }
   }
-  sourceTouch = getSourceTouch();
   configStore.setWithExpiration(
     SOURCE_TOUCH_KEY,
     sourceTouch,
