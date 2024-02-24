@@ -9,32 +9,43 @@ export function buttonClicks(
 ): () => void {
   const handleClickEvent = (e: MouseEvent): void => {
     if (e.type !== 'click') return;
-    const target = e.target as HTMLElement;
+    let target = e.target as HTMLElement;
     // get parent if target is a child of a button
-    const parentTarget = target.closest('button, a');
-    if (parentTarget != null) {
+    if (
+      window.location.hostname.includes('pomerium') ||
+      window.location.hostname.includes('syftdata')
+    ) {
+      target = target.closest('button, a');
+      if (target == null) return;
+    }
+    const href = target.getAttribute('href');
+    const isButton =
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'SPAN' ||
+      (target.tagName === 'A' && (href == null || href === '#'));
+    if (isButton) {
       callback(target.tagName, getLabelText(target), {
         id: target.id,
         class: target.getAttribute('class'),
-        href: target.getAttribute('href')
+        href
       });
     }
   };
 
-  document.addEventListener('click', handleClickEvent);
+  document.addEventListener('click', handleClickEvent, { capture: true });
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach((iframe) => {
     const doc = iframe.contentDocument;
     if (doc == null) return;
-    doc.addEventListener('click', handleClickEvent);
+    doc.addEventListener('click', handleClickEvent, { capture: true });
   });
 
   return () => {
-    document.removeEventListener('click', handleClickEvent);
+    document.removeEventListener('click', handleClickEvent, { capture: true });
     iframes.forEach((iframe) => {
       const doc = iframe.contentDocument;
       if (doc == null) return;
-      doc.removeEventListener('click', handleClickEvent);
+      doc.removeEventListener('click', handleClickEvent, { capture: true });
     });
   };
 }
