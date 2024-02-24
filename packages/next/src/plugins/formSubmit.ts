@@ -1,6 +1,7 @@
 import { type SyftFormData, type SyftFormField } from '../blocks/forms/types';
 import { type Campaign } from '../common/event_types';
 import { getCurrentPath } from '../common/utils';
+import { getLabelText } from './autotrack/utils';
 function parseFormAction(
   formAction: string,
   baseUrl: string = window.location.href
@@ -17,17 +18,6 @@ type FormInputField =
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
-export function getLabelText(r: Element): string {
-  if (!(r instanceof HTMLElement)) return;
-  let t = r.innerText.trim();
-  if (t.length === 0) {
-    t = r.textContent.trim();
-    if (t.length === 0) {
-      t = r.getAttribute('aria-label');
-    }
-  }
-  return t;
-}
 function getLabelTextForInput(r: FormInputField): string | undefined {
   if (r.labels?.length > 0) {
     const labels = Array.from(r.labels)

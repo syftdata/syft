@@ -1,4 +1,4 @@
-import { getLabelText } from './formSubmit';
+import { getLabelText } from './autotrack/utils';
 
 export function buttonClicks(
   callback: (
@@ -10,11 +10,9 @@ export function buttonClicks(
   const handleClickEvent = (e: MouseEvent): void => {
     if (e.type !== 'click') return;
     const target = e.target as HTMLElement;
-    if (
-      target.tagName === 'BUTTON' ||
-      target.tagName === 'A' ||
-      target.tagName === 'SPAN'
-    ) {
+    // get parent if target is a child of a button
+    const parentTarget = target.closest('button, a');
+    if (parentTarget != null) {
       callback(target.tagName, getLabelText(target), {
         id: target.id,
         class: target.getAttribute('class'),
