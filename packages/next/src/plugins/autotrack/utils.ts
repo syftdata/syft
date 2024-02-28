@@ -119,8 +119,8 @@ export function getLabelText(r: Element): string {
     t = r.textContent.trim();
     if (t.length === 0) {
       t = r.getAttribute('aria-label');
-      if (t.length === 0) {
-        t = r.getAttribute('title');
+      if (t == null || t.length === 0) {
+        t = r.getAttribute('title') ?? '';
       }
     }
   }
