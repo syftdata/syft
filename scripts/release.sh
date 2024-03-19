@@ -19,6 +19,6 @@ git push origin $curr_branch --force
 open https://github.com/syftdata/syft/pull/new/$curr_branch
 
 git branch -D release
-git push origin :release
+git push origin :release || true
 git checkout -b release
 git push origin release

@@ -34,3 +34,9 @@ We welcome your contributions to make Syft better. Please follow [this doc](./CO
 ## Build Status
 
 ![CI tests](https://github.com/syftdata/event-hub/actions/workflows/ci.yaml/badge.svg)
+
+####
+
+`npm i -D`
+`cd packages/common;npm i -D;npm run build`
+`cd packages/next;npm i -D;npm run build`
