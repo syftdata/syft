@@ -111,3 +111,18 @@ export const registerEvent = (function () {
 export const _trim = function (str: string): string {
   return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 };
+
+export function getLabelText(r: Element): string {
+  if (!(r instanceof HTMLElement)) return;
+  let t = r.innerText.trim();
+  if (t.length === 0) {
+    t = r.textContent.trim();
+    if (t.length === 0) {
+      t = r.getAttribute('aria-label');
+      if (t == null || t.length === 0) {
+        t = r.getAttribute('title') ?? '';
+      }
+    }
+  }
+  return t;
+}

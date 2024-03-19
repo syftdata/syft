@@ -1,20 +1,22 @@
 import {
-  type UserTraits,
+  type AMP,
+  type CommonPropType,
   type EventProps,
   type EventType,
-  type CommonPropType,
   type GroupTraits,
-  type Referrer,
-  type Campaign,
-  type AMP
+  type SourceTouch,
+  type UserTraits
 } from './event_types';
+
+import { version as PACKAGE_VERSION } from '../../package.json';
+import { isBrowser } from './utils';
 
 export interface EventOptions {
   [key: string]: CommonPropType | Partial<ClientContextData>;
   userId?: string;
   anonymousId?: string;
   timestamp?: string | Date;
-  context: Partial<ClientContextData>;
+  context?: Partial<ClientContextData>;
 }
 
 interface UserAgentData {
@@ -37,10 +39,15 @@ interface UserAgentData {
   wow64?: boolean;
 }
 
+export interface Session {
+  id: string;
+  startTime: string | Date;
+}
+
 /**
  * Data passed to Plausible as events.
  */
-export interface ClientContextData {
+export interface ClientContextData extends SourceTouch {
   groupId?: string;
   page?: {
     path: string;
@@ -62,11 +69,7 @@ export interface ClientContextData {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
-
-  campaign?: Campaign;
-
-  referrer?: Referrer;
-
+  initialSource?: SourceTouch;
   amp?: AMP;
 }
 
@@ -89,12 +92,16 @@ export interface Event {
   traits?: UserTraits | GroupTraits; // applicable for group and identify calls.
   context: ClientContextData;
   timestamp: string | Date;
+
+  // session
+  session?: Session;
 }
 
 export interface ServerContextData extends ClientContextData {
   library: {
     name: string;
     version: string;
+    sourceId: string;
   };
   userAgent: string;
   userAgentData: UserAgentData;
@@ -109,10 +116,31 @@ export interface ServerEvent extends Omit<Event, 'context'> {
 }
 
 export interface UploadRequest {
+  sourceId?: string;
   events: Event[];
   version: string;
   sentAt: string | Date;
   userAgentData: UserAgentData;
+  beacon?: boolean;
 }
 
-export const SYFT_VERSION = '0.0.1';
+export const SYFT_VERSION = PACKAGE_VERSION;
+export const DEFAULT_UPLOAD_PATH =
+  process.env.NODE_ENV === 'production'
+    ? 'https://app.syftdata.com/api/syft'
+    : 'http://localhost:3000/api/syft';
+export const BETA_UPLOAD_PATH = 'https://event.syftdata.com/events';
+
+const BETA_ORGS = [
+  'dolthub',
+  'syftdata.com',
+  'dreamteamos.com',
+  'revopscoop.com',
+  'safegraph.com'
+];
+export function isBeta(): boolean {
+  if (!isBrowser()) return false;
+  const e = window.location.hostname;
+  if (e == null) return false;
+  return BETA_ORGS.some((org) => e.includes(org));
+}

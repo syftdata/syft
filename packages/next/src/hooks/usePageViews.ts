@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { Router } from 'next/router';
+import { pageViews } from '../plugins/pageViews';
+import { getCurrentPath } from '../common/utils';
 
 export interface UsePageViewsOptions {
   hashMode?: boolean;
   enabled?: boolean;
-  callback: (url: URL) => void;
+  callback: (path: string) => void;
 }
 
 export function usePageViews({
@@ -16,21 +17,13 @@ export function usePageViews({
     if (!enabled) {
       return;
     }
-    const handleRouteChange = (url: URL): void => {
-      callback(url);
-    };
+    return pageViews(callback, hashMode);
+  }, [hashMode, enabled]);
 
-    Router.events.on('routeChangeComplete', handleRouteChange);
-
-    if (hashMode) {
-      Router.events.on('hashChangeComplete', handleRouteChange);
+  useEffect(() => {
+    if (!enabled) {
+      return;
     }
-
-    return () => {
-      Router.events.off('routeChangeComplete', handleRouteChange);
-      if (hashMode) {
-        Router.events.off('hashChangeComplete', handleRouteChange);
-      }
-    };
-  }, [Router.events, hashMode, enabled]);
+    callback(getCurrentPath(hashMode));
+  }, []);
 }

@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/common",
-  "version": "0.1.38-alpha.0",
+  "version": "0.1.38-alpha.37",
   "description": "Common types and functions used across Syft packages",
   "keywords": [
     "syft",

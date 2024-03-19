@@ -1,18 +1,15 @@
-import React, {
-  createContext,
-  useEffect,
-  type ReactNode,
-  useState
-} from 'react';
-import { isBrowser } from '../common/utils';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { globalStore } from '../common/configstore';
+import { type ConsentConfig } from '../common/consent';
+import type { EventTypes } from '../common/event_types';
 import AutoTracker from '../common/tracker';
 import type { Event } from '../common/types';
-import type { EventTypes } from '../common/event_types';
 import { BatchUploader } from '../common/uploader';
+import { isBrowser } from '../common/utils';
 import { useLinkClicks, usePageViews } from '../hooks';
-import { useTrackTags } from '../hooks/useEventTags';
-import { type AutocaptureConfig } from '../autocapture/types';
-import { type ConsentConfig } from '../common/consent';
+import { useFormSubmit } from '../hooks/useFormSubmit';
+import { useTrackTags } from '../hooks/useTrackTags';
+import { type AutocaptureConfig } from '../plugins/autotrack/types';
 
 declare global {
   interface Window {
@@ -37,15 +34,18 @@ export interface ProviderProps {
   hashMode?: boolean;
 
   trackOutboundLinks?: boolean;
+  trackFormSubmits?: boolean;
   autocapture?: AutocaptureConfig;
 
-  consent: ConsentConfig;
+  consent?: ConsentConfig;
 
   middleware?: (event: Event) => Event | undefined;
+
   /**
    * The path to upload the events to. Defaults to `/api/syft`.
    */
   uploadPath?: string;
+  sourceId?: string; // a way to uniquely identify your uploader.
 }
 
 let uploader: BatchUploader | undefined;
@@ -60,14 +60,18 @@ export const SyftProvider = <E extends EventTypes>(
   if (tracker == null && enabled) {
     // pass the url based on the proxy options.
     uploader = new BatchUploader({
+      sourceId: props.sourceId,
       url: props.uploadPath ?? '/api/syft',
       batchSize: 1
     });
-    tracker = new AutoTracker<E>({
-      uploader,
-      consent: props.consent,
-      middleware: props.middleware
-    });
+    tracker = new AutoTracker<E>(
+      {
+        uploader,
+        consent: props.consent,
+        middleware: props.middleware
+      },
+      globalStore
+    );
   }
 
   const [autocapture, setAutoCaptureConfig] = useState<
@@ -107,7 +111,7 @@ export const SyftProvider = <E extends EventTypes>(
       const script = document.createElement('script');
       script.src =
         autocapture?.toolbarJS ??
-        'https://storage.googleapis.com/syft_cdn/syftbar/0.0.1/syftbar.es.js';
+        'https://cdn.syftdata.com/syftbar/0.0.1/syftbar.es.js';
       script.type = 'module';
       document.body.appendChild(script);
     }
@@ -116,8 +120,8 @@ export const SyftProvider = <E extends EventTypes>(
   usePageViews({
     enabled: autocaptureEnabled && props.trackPageViews !== false,
     hashMode: props.hashMode !== false,
-    callback: (url) => {
-      tracker?.page(undefined, url.toString());
+    callback: (pathname) => {
+      tracker?.page(undefined, pathname);
     }
   });
 
@@ -125,6 +129,23 @@ export const SyftProvider = <E extends EventTypes>(
     enabled: autocaptureEnabled && props.trackOutboundLinks !== false,
     callback: (href) => {
       tracker?.track('OutboundLink Clicked', { href });
+    }
+  });
+
+  useFormSubmit({
+    enabled: autocaptureEnabled && props.trackFormSubmits !== false,
+    callback: (url, formData, destination) => {
+      const eventName =
+        destination != null && destination.hostname !== window.location.hostname
+          ? 'Outbound Form'
+          : 'Form Submitted';
+
+      // clean up the field data and extract attributes.
+
+      tracker?.track(eventName, {
+        destination: destination?.toString(),
+        ...formData.attributes
+      });
     }
   });
 

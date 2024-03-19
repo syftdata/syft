@@ -14,6 +14,7 @@ import slack from '@syftdata/action-destinations/dist/destinations/slack';
 import ga4 from '@syftdata/action-destinations/dist/destinations/google-analytics-4';
 import hubspot from '@syftdata/action-destinations/dist/destinations/hubspot';
 import snowflake from '@syftdata/action-destinations/dist/destinations/snowflake';
+import koala from '@syftdata/action-destinations/dist/destinations/koala';
 import { mapValues } from '../../common/utils';
 
 export type SyftSubscription = Subscription;
@@ -134,6 +135,7 @@ register('june', june);
 register('mixpanel', mixpanel);
 register('bigquery', bigquery);
 register('snowflake', snowflake);
+register('koala', koala);
 
 // NO PRESETS
 register('slack', slack);
@@ -159,6 +161,7 @@ const DESTINATION_TO_TYPE = {
   ga4: 'Analytics',
   bigquery: 'Warehouse',
   hubspot: 'CRM',
+  koala: 'CRM',
   snowflake: 'Warehouse'
 };
 export function getDestinationDefs(): Record<string, MyDestinationDefinition> {

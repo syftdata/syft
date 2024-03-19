@@ -1,10 +1,111 @@
 import Cookies from 'js-cookie';
-import { isBrowser } from './utils';
+import { isBrowser, safeJSONParse, safeJSONStringify } from './utils';
 
-interface IConfigStore {
+export interface IConfigStore {
   set: (key: string, value: unknown) => void;
+  /**
+   *
+   * @param key
+   * @param value
+   * @param exporationDays number of days before the data expires.
+   * @returns
+   */
+  setWithExpiration?: (
+    key: string,
+    value: unknown,
+    exporationDays: number
+  ) => void;
   get: (key: string) => unknown | undefined;
   remove: (key: string) => void;
+}
+
+export class StorageConfigStore implements IConfigStore {
+  storage: Storage | undefined;
+
+  constructor() {
+    try {
+      this.storage = window.localStorage;
+    } catch (e) {}
+  }
+
+  set(key: string, value: unknown): void {
+    const strVal = safeJSONStringify(value);
+    if (strVal != null) this.storage.setItem(key, JSON.stringify(value));
+  }
+
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
+    const _syftExpiration = Date.now() + exporationDays * 24 * 60 * 60 * 1000;
+    const valueWithExpiration = {
+      value,
+      _syftExpiration
+    };
+    this.set(key, valueWithExpiration);
+  }
+
+  get(key: string): unknown | undefined {
+    const strValue = this.storage.getItem(key);
+    if (strValue != null) {
+      const value = safeJSONParse(strValue) as any;
+      if (value === undefined) return;
+      if (value._syftExpiration != null) {
+        if (Date.now() > value._syftExpiration) {
+          this.storage.removeItem(key);
+          return undefined;
+        }
+        return value.value as unknown;
+      }
+      return value as unknown;
+    }
+  }
+
+  remove(key: string): void {
+    this.storage.removeItem(key);
+  }
+}
+
+export class CookieConfigStore implements IConfigStore {
+  constructor(readonly domain?: string) {}
+
+  set(key: string, value: unknown): void {
+    this.setWithExpiration(key, value, 365);
+  }
+
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
+    const strVal = safeJSONStringify(value);
+    if (strVal != null)
+      Cookies.set(key, strVal, {
+        expires: exporationDays,
+        domain: this.domain
+      });
+  }
+
+  get(key: string): unknown {
+    const strValue = Cookies.get(key);
+    if (strValue != null) {
+      return safeJSONParse(strValue);
+    }
+  }
+
+  remove(key: string): void {
+    Cookies.remove(key);
+  }
+}
+
+export class InMemoryConfigStore implements IConfigStore {
+  // create an in-memory store for the current session
+  private readonly inMemory = new Map<string, unknown>();
+
+  set(key: string, value: unknown): void {
+    this.inMemory.set(key, value);
+  }
+
+  get(key: string): unknown {
+    return this.inMemory.get(key);
+  }
+
+  remove(key: string): void {
+    this.inMemory.delete(key);
+  }
 }
 
 class UniversalConfigStore implements IConfigStore {
@@ -14,11 +115,11 @@ class UniversalConfigStore implements IConfigStore {
   ) {
     if (stores.length === 0) {
       if (isBrowser()) {
-        this.stores = [
-          new InMemoryConfigStore(),
-          new CookieConfigStore(),
-          new StorageConfigStore()
-        ];
+        this.stores = [new InMemoryConfigStore(), new CookieConfigStore()];
+        const storageStore = new StorageConfigStore();
+        if (storageStore.storage != null) {
+          this.stores.push(storageStore);
+        }
       } else {
         this.stores = [new InMemoryConfigStore()];
       }
@@ -29,6 +130,14 @@ class UniversalConfigStore implements IConfigStore {
     const namespaceKey = `${this.namespace}.${key}`;
     for (const store of this.stores) {
       store.set(namespaceKey, value);
+    }
+  }
+
+  setWithExpiration(key: string, value: unknown, exporationDays: number): void {
+    const namespaceKey = `${this.namespace}.${key}`;
+    for (const store of this.stores) {
+      if (store.setWithExpiration != null)
+        store.setWithExpiration(namespaceKey, value, exporationDays);
     }
   }
 
@@ -55,58 +164,6 @@ class UniversalConfigStore implements IConfigStore {
     for (const store of this.stores) {
       store.remove(namespaceKey);
     }
-  }
-}
-
-export class StorageConfigStore implements IConfigStore {
-  set(key: string, value: unknown): void {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  get(key: string): unknown | undefined {
-    const strValue = localStorage.getItem(key);
-    if (strValue != null) {
-      return JSON.parse(strValue);
-    }
-    return undefined;
-  }
-
-  remove(key: string): void {
-    localStorage.removeItem(key);
-  }
-}
-
-export class CookieConfigStore implements IConfigStore {
-  set(key: string, value: unknown): void {
-    Cookies.set(key, JSON.stringify(value));
-  }
-
-  get(key: string): unknown {
-    const strValue = Cookies.get(key);
-    if (strValue != null) {
-      return JSON.parse(strValue);
-    }
-  }
-
-  remove(key: string): void {
-    Cookies.remove(key);
-  }
-}
-
-export class InMemoryConfigStore implements IConfigStore {
-  // create an in-memory store for the current session
-  private readonly inMemory = new Map<string, unknown>();
-
-  set(key: string, value: unknown): void {
-    this.inMemory.set(key, value);
-  }
-
-  get(key: string): unknown {
-    return this.inMemory.get(key);
-  }
-
-  remove(key: string): void {
-    this.inMemory.delete(key);
   }
 }
 

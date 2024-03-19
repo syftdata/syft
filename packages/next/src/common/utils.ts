@@ -1,7 +1,11 @@
 export const isBrowser = (): boolean => typeof window !== 'undefined';
 
 export const uuid = (): string => {
-  if (isBrowser() && window.crypto != null) {
+  if (
+    isBrowser() &&
+    window.crypto != null &&
+    window.crypto.randomUUID != null
+  ) {
     return window.crypto.randomUUID();
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -11,9 +15,9 @@ export const uuid = (): string => {
   });
 };
 
-export function searchParams(search: string): URLSearchParams | undefined {
+export function searchParams(search: string): URLSearchParams {
   if (search === '' || search == null) {
-    return undefined;
+    return new URLSearchParams();
   }
   return new URLSearchParams(search);
 }
@@ -31,4 +35,32 @@ export function mapValues<
     agg[nameKey] = value[key] as Obj[keyof Obj][ValueKey];
     return agg;
   }, result);
+}
+export function getCurrentPath(hashMode: boolean): string {
+  const location = window.location;
+  return hashMode && location.hash.length > 0
+    ? `${location.pathname}${location.hash}`
+    : location.pathname;
+}
+
+export function safeJSONParse(val: string, def?: unknown): unknown {
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    return def;
+  }
+}
+
+export function safeJSONStringify(val: unknown): string | undefined {
+  try {
+    return JSON.stringify(val);
+  } catch (e) {}
+}
+
+export function ready(fn: () => void, wait: number = 0): void {
+  if (document.readyState !== 'loading') {
+    setTimeout(fn, wait); // simulate async
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
 }

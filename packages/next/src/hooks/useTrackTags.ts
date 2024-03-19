@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import {
   type AutocaptureConfig,
   type SyftEventHandler
-} from '../autocapture/types';
-import { Autocapture } from '../autocapture';
+} from '../plugins/autotrack/types';
+import { Autocapture } from '../plugins/autotrack';
 
 export interface UseTrackTagsOptions {
   enabled?: boolean;

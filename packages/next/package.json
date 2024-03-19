@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.38-alpha.2",
+  "version": "0.1.38-alpha.37",
   "description": "A lightweight low-code alternative to Segment to instrument event analytics",
   "keywords": [
     "syft",
@@ -38,11 +38,14 @@
     "url": "https://github.com/syftdata/syft/issues"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
+    "dev": "tsc --watch",
+    "dev-bundle": "NODE_ENV=development vite build --watch",
     "lint": "eslint --ext .ts src tests --fix",
     "prepublish": "npm run build",
     "test": "jest",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "preview": "vite preview --host"
   },
   "peerDpendencies": {
     "next": ">=11.1.0",
@@ -56,6 +59,7 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
+    "@vitejs/plugin-react": "^4.0.4",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-standard-with-typescript": "^34.0.0",
@@ -70,12 +74,16 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.3",
+    "vite-plugin-svgr": "^4.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
   },
   "dependencies": {
     "@segment/actions-core": "^3.81.2",
     "@syftdata/action-destinations": "^3.205.11",
-    "@syftdata/common": "^0.1.38-alpha.0",
+    "@syftdata/common": "^0.1.38-alpha.37",
     "js-cookie": "^3.0.5"
   }
 }

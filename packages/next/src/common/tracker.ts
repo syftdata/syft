@@ -1,22 +1,18 @@
-import type { Event, EventOptions } from './types';
+import { getAMP, getInitialSourceTouch, getSessionSourceTouch } from './ad_utm';
 import type UniversalConfigStore from './configstore';
-import { globalStore } from './configstore';
-import { type BatchUploader } from './uploader';
-import { isBrowser, searchParams, uuid } from './utils';
+import { canLog, type ConsentConfig } from './consent';
 import type {
+  AMP,
   CommonPropType,
+  EventType,
   EventTypes,
   GroupTraits,
-  UserTraits,
-  EventType,
-  Referrer,
-  Campaign,
-  AMP
+  SourceTouch,
+  UserTraits
 } from './event_types';
-// import utm from '@segment/utm-params';
-import Cookies from 'js-cookie';
-import { getCampaign, getReferrer } from './ad_utm';
-import { canLog, type ConsentConfig } from './consent';
+import type { Event, EventOptions, Session } from './types';
+import { type BatchUploader } from './uploader';
+import { isBrowser, uuid } from './utils';
 
 const ANONYMOUS_ID_KEY = 'anonymous_id';
 const COMMON_PROPERTIES_KEY = 'common_props';
@@ -24,8 +20,6 @@ const USER_ID_KEY = 'user_id';
 const USER_TRAITS_KEY = 'user_traits';
 const GROUP_ID_KEY = 'group_id';
 const GROUP_TRAITS_KEY = 'group_traits';
-
-const REFERRER_KEY = 'referrer';
 
 function deepEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
@@ -37,7 +31,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
 export interface InitOptions {
   uploader: BatchUploader;
   readonly middleware?: (event: Event) => Event | undefined;
-  consent: ConsentConfig;
+  consent?: ConsentConfig;
 }
 
 export default class AutoTracker<E extends EventTypes> {
@@ -51,20 +45,25 @@ export default class AutoTracker<E extends EventTypes> {
   userTraits: UserTraits | undefined;
   groupId: string | undefined;
   groupTraits: GroupTraits | undefined;
-  referrer: Referrer | undefined;
-  campaign: Campaign | undefined;
+
+  session: Session | undefined;
+
   amp: AMP | undefined;
 
-  constructor(options: InitOptions) {
+  initialSource: SourceTouch | undefined;
+  source: SourceTouch;
+
+  constructor(options: InitOptions, store: UniversalConfigStore) {
     this.options = options;
-    this.configStore = globalStore;
+    this.configStore = store;
 
     this.anonymousId = this.configStore.get(ANONYMOUS_ID_KEY) as string;
     if (this.anonymousId == null) {
       // generate a new anonymous id
       this.anonymousId = uuid();
-      this.configStore.set(ANONYMOUS_ID_KEY, this.anonymousId);
     }
+    // refresh expiration date.
+    this.configStore.set(ANONYMOUS_ID_KEY, this.anonymousId);
 
     this.userId = this.configStore.get(USER_ID_KEY) as string;
     this.userTraits =
@@ -84,15 +83,20 @@ export default class AutoTracker<E extends EventTypes> {
         CommonPropType
       >) ?? {};
 
-    this.referrer = this.configStore.get(REFERRER_KEY) as Referrer | undefined;
+    if (isBrowser()) {
+      this.amp = getAMP();
+      this.source = getSessionSourceTouch(this.configStore);
+      this.initialSource = getInitialSourceTouch(this.configStore);
+    }
   }
 
-  identify(
-    userId: string,
-    traits: UserTraits = {},
-    options?: EventOptions,
-    integrations?: unknown
-  ): void {
+  /**
+   * Returns true if the user was updated. false if it is duplicate call.
+   * @param userId
+   * @param traits
+   * @returns
+   */
+  __setUser(userId: string, traits: UserTraits): boolean {
     let newTraits = traits;
     if (this.userId == null || this.userId === userId) {
       newTraits = {
@@ -102,17 +106,24 @@ export default class AutoTracker<E extends EventTypes> {
     }
 
     if (this.userId === userId && deepEqual(this.userTraits, newTraits)) {
-      return;
+      return false;
     }
 
     this.userId = userId;
     this.userTraits = newTraits;
     this.configStore.set(USER_ID_KEY, userId);
     this.configStore.set(USER_TRAITS_KEY, newTraits);
+    return true;
+  }
 
-    if (options.userId != null) {
-      console.warn("don't pass userId in options, pass it as the first arg");
-      options.userId = userId;
+  identify(
+    userId: string,
+    traits: UserTraits = {},
+    options: EventOptions = {},
+    integrations?: unknown
+  ): void {
+    if (!this.__setUser(userId, traits)) {
+      return;
     }
 
     const partialEvent = this._getPartialEvent(options, integrations);
@@ -124,7 +135,7 @@ export default class AutoTracker<E extends EventTypes> {
           ...partialEvent.context,
           traits: undefined
         },
-        traits: newTraits
+        traits: this.userTraits
       },
       options,
       integrations
@@ -215,11 +226,35 @@ export default class AutoTracker<E extends EventTypes> {
       {
         ...partialEvent,
         event: name as string,
+        name: name as string,
         type: 'track',
         properties: {
           ...partialEvent.properties,
           ...properties
         }
+      },
+      options,
+      integrations
+    );
+  }
+
+  signup(
+    email: string,
+    traits: UserTraits = {},
+    options?: EventOptions,
+    integrations?: unknown
+  ): void {
+    if (!this.__setUser(email, traits)) return;
+    const partialEvent = this._getPartialEvent(options, integrations);
+    this._logEvent(
+      {
+        ...partialEvent,
+        type: 'signup',
+        context: {
+          ...partialEvent.context,
+          traits: undefined
+        },
+        traits: this.userTraits
       },
       options,
       integrations
@@ -241,7 +276,6 @@ export default class AutoTracker<E extends EventTypes> {
         type,
         name,
         properties: {
-          ...partialEvent.context.page,
           ...partialEvent.properties,
           ...props,
           category
@@ -272,47 +306,6 @@ export default class AutoTracker<E extends EventTypes> {
     this._page('screen', category, screen, props, options, integrations);
   }
 
-  _getReferrer(): Referrer | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const params = searchParams(search);
-      if (params != null) {
-        const referrer = getReferrer(params);
-        if (referrer != null) {
-          this.referrer = referrer;
-          this.configStore.set(REFERRER_KEY, referrer);
-        }
-      }
-    }
-    return this.referrer;
-  }
-
-  _getCampaign(): Campaign | undefined {
-    if (isBrowser()) {
-      const { search } = location;
-      const params = searchParams(search);
-      if (params != null) {
-        const campaign = getCampaign(params);
-        if (campaign != null) {
-          this.campaign = campaign;
-        }
-      }
-    }
-    return this.campaign;
-  }
-
-  _getAMP(): AMP | undefined {
-    if (isBrowser()) {
-      const ampId = Cookies.get('_ga');
-      if (ampId != null) {
-        this.amp = {
-          id: ampId
-        };
-      }
-    }
-    return this.amp;
-  }
-
   _getPartialEvent(
     options?: EventOptions,
     integrations?: unknown
@@ -334,12 +327,25 @@ export default class AutoTracker<E extends EventTypes> {
 
     if (isBrowser()) {
       // get referrer and utm params
-      const referrer = event.context.referrer ?? this._getReferrer();
-      const campaign = event.context.campaign ?? this._getCampaign();
-      const amp = event.context.amp ?? this._getAMP();
+      const initialSource = event.context.initialSource ?? this.initialSource;
+      const source = { ...this.source };
+      if (event.context.referrer != null) {
+        source.referrer = event.context.referrer;
+      }
+      if (event.context.campaign != null) {
+        source.campaign = event.context.campaign;
+      }
+      if (event.context.clickIds != null) {
+        source.clickIds = event.context.clickIds;
+      }
+      const amp = event.context.amp ?? this.amp;
 
       return {
         ...event,
+        session: {
+          id: this.session.id,
+          startTime: this.session.startTime
+        },
         context: {
           locale: navigator.language,
           page: {
@@ -349,8 +355,10 @@ export default class AutoTracker<E extends EventTypes> {
             title: document.title,
             url: location.href
           },
-          referrer,
-          campaign,
+
+          ...source,
+          initialSource,
+
           amp,
           deviceWidth: window.innerWidth,
           ...event.context

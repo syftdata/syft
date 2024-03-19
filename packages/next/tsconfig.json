@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2016",
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
@@ -12,10 +12,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-
+    "resolveJsonModule": true,
     "noImplicitAny": false,
-    "strictNullChecks": false,    
+    "strictNullChecks": false,
   },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["./lib", "./node_modules", "./src/**/*.test.ts"]
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./lib",
+    "./node_modules",
+    "./src/**/*.test.ts"
+  ]
 }

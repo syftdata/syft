@@ -3,8 +3,9 @@
  * @param {Element} el - element to get the className of
  * @returns {string} the element's class
  */
-import { getPath, matchedEventTag } from './match-lib';
-import { type EventTag, type AutocaptureConfig } from './types';
+import { canCaptureValue } from '../../blocks/forms/remove_sensitive';
+import { getDOMPathComponents, matchedEventTag } from './match-lib';
+import { type AutocaptureConfig, type EventTag } from './types';
 
 /*
  * Check whether an element has nodeType Node.ELEMENT_NODE
@@ -117,7 +118,32 @@ export function getMatchingEventTag(
   }
 
   // get react path for the element.
-  const pathComps = getPath(el);
+  const pathComps = getDOMPathComponents(el);
   const tags = autocaptureConfig?.tags ?? [];
   return tags.find((t) => matchedEventTag(event, t, pathComps));
+}
+
+export function canTextNodeContainer(el: Element): boolean {
+  return el.tagName === 'P' || el.tagName === 'ARTICLE' || el.tagName === 'DIV';
+}
+
+/**
+ * Dont capture input values. This is a helper function to get text of what user is reading.
+ * @param el
+ * @returns
+ */
+export function getSafeText(
+  el: Element,
+  validMinWords: number = 5
+): string | undefined {
+  if (!(el instanceof HTMLInputElement) && canTextNodeContainer(el)) {
+    const text = el.textContent
+      .trim()
+      .replace(/[\r\n]/g, ' ')
+      .split(/\s+/)
+      .filter(canCaptureValue);
+    if (text.length > validMinWords) {
+      return text.join(' ').trim().slice(0, 250); // 250 characters max.
+    }
+  }
 }

@@ -1,17 +1,17 @@
-import { type Campaign, type Referrer } from './event_types';
+import Cookies from 'js-cookie';
+import type UniversalConfigStore from './configstore';
+import {
+  type AMP,
+  type Campaign,
+  type Referrer,
+  type SourceTouch,
+  type SyftIDs
+} from './event_types';
+import { searchParams } from './utils';
 
-/**
- * Get all ads info from the given `querystring`
- * Inspired from https://github.com/segmentio/ad-params/blob/master/lib/index.js
- * @param {string} query
- * @return {Object}
- */
-const QUERYIDS = {
-  btid: 'dataxu',
-  urid: 'millennial-media'
-};
-
-export function getReferrer(params: URLSearchParams): Referrer | undefined {
+export function getReferrerFromParams(
+  params: URLSearchParams
+): Referrer | undefined {
   let referrer: Referrer | undefined;
   Object.keys(QUERYIDS).find((key) => {
     if (params.has(key)) {
@@ -27,7 +27,9 @@ export function getReferrer(params: URLSearchParams): Referrer | undefined {
   return referrer;
 }
 
-export function getCampaign(params: URLSearchParams): Campaign | undefined {
+export function getCampaignFromParams(
+  params: URLSearchParams
+): Campaign | undefined {
   const results = {};
 
   for (const key of params.keys()) {
@@ -40,3 +42,132 @@ export function getCampaign(params: URLSearchParams): Campaign | undefined {
   if (Object.keys(results).length === 0) return undefined;
   return results;
 }
+
+export function getClickIdsFromParams(
+  params: URLSearchParams
+): Record<string, string> {
+  const clickIds = {};
+  if (params != null) {
+    for (const key of params.keys()) {
+      if (KNOWN_CLICKIDS.includes(key)) {
+        clickIds[key] = params.get(key);
+      }
+    }
+  }
+  if (Object.keys(clickIds).length === 0) return undefined;
+  return clickIds;
+}
+
+export function getSyftIds(params: URLSearchParams): SyftIDs {
+  const ids: SyftIDs = {};
+  if (params != null) {
+    for (const key of params.keys()) {
+      if (key === 'sy_e') {
+        ids.email = params.get(key);
+      } else if (key === 'sy_d') {
+        ids.domain = params.get(key);
+      }
+    }
+  }
+  if (Object.keys(ids).length === 0) return undefined;
+  return ids;
+}
+
+export function getAMP(): AMP | undefined {
+  const ampId = Cookies.get('_ga');
+  if (ampId != null) {
+    return {
+      id: ampId
+    };
+  }
+}
+
+export function getSourceTouch(): SourceTouch {
+  const { search } = location;
+  const params = searchParams(search);
+  const referrer = getReferrerFromParams(params);
+  const campaign = getCampaignFromParams(params);
+  const clickIds = getClickIdsFromParams(params);
+  const syftIds = getSyftIds(params);
+  return {
+    referrer,
+    campaign,
+    clickIds,
+    syftIds
+  };
+}
+
+const SOURCE_EXPIRATION_DAYS = 1;
+const SOURCE_TOUCH_KEY = 'source_touch';
+export function getSessionSourceTouch(
+  configStore: UniversalConfigStore
+): SourceTouch | undefined {
+  const sourceTouch = getSourceTouch();
+  const existingSourceTouch = configStore.get(SOURCE_TOUCH_KEY) as
+    | SourceTouch
+    | undefined;
+  if (existingSourceTouch != null) {
+    if (sourceTouch.campaign == null) {
+      sourceTouch.campaign = existingSourceTouch.campaign;
+    }
+    if (sourceTouch.referrer == null) {
+      sourceTouch.referrer = existingSourceTouch.referrer;
+    }
+    if (sourceTouch.syftIds == null) {
+      sourceTouch.syftIds = existingSourceTouch.syftIds;
+    }
+    if (sourceTouch.clickIds == null) {
+      sourceTouch.clickIds = existingSourceTouch.clickIds;
+    }
+  }
+  configStore.setWithExpiration(
+    SOURCE_TOUCH_KEY,
+    sourceTouch,
+    SOURCE_EXPIRATION_DAYS
+  );
+  return sourceTouch;
+}
+
+const INITIAL_SOURCE_EXPIRATION_DAYS = 30;
+const INITIAL_SOURCE_TOUCH_KEY = 'initial_source_touch';
+export function getInitialSourceTouch(
+  configStore: UniversalConfigStore
+): SourceTouch | undefined {
+  let sourceTouch = configStore.get(INITIAL_SOURCE_TOUCH_KEY) as
+    | SourceTouch
+    | undefined;
+  if (sourceTouch != null) {
+    return sourceTouch;
+  }
+  sourceTouch = getSourceTouch();
+  configStore.setWithExpiration(
+    INITIAL_SOURCE_TOUCH_KEY,
+    sourceTouch,
+    INITIAL_SOURCE_EXPIRATION_DAYS
+  );
+  return sourceTouch;
+}
+
+/**
+ * Get all ads info from the given `querystring`
+ * Inspired from https://github.com/segmentio/ad-params/blob/master/lib/index.js
+ * @param {string} query
+ * @return {Object}
+ */
+const QUERYIDS = {
+  btid: 'dataxu',
+  urid: 'millennial-media'
+};
+
+// https://docs.mixpanel.com/docs/tracking/reference/javascript#tracking-utm-parameters
+const KNOWN_CLICKIDS = [
+  'dclid',
+  'fbclid',
+  'gclid',
+  'ko_click_id',
+  'li_fat_id',
+  'msclkid',
+  'ttclid',
+  'twclid',
+  'wbraid'
+];

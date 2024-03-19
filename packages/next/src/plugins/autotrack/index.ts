@@ -49,7 +49,9 @@ export class Autocapture {
       registerEvent(document, 'change', this._captureEvent, false, true)
     );
     res.push(registerEvent(document, 'click', this._captureEvent, false, true));
-    this._deregisterCallbacks = res;
+    this._deregisterCallbacks = res.filter(
+      (cb) => cb !== undefined
+    ) as DeregisterCallback[];
   }
 
   destroy(): void {
@@ -91,26 +93,36 @@ export class Autocapture {
         targetElementList.push(curEl);
       }
 
+      const usedEventTags = new Set<EventTag>();
       targetElementList.forEach((el) => {
         // get event tag for el, e.type.
         const eventTag = getMatchingEventTag(el, e, this.config);
         if (eventTag != null) {
           const events = eventTag.handlerToEvents[e.type];
-          events.forEach((eventName) => {
-            // get schema for eventTag, eventName.
-            const schema = this.config.schemas.find(
-              (schema) => schema.name === eventName
-            );
-            if (schema != null) {
-              // collect data for each field in schema.
-              const props = {};
-              schema.fields.forEach((field) => {
-                const value = this._getFieldVal(field, el, e, eventTag);
-                props[field.name] = value;
-              });
-              this.callback(eventName, props, schema, eventTag, el);
-            }
-          });
+          if (events != null && events.length > 0) {
+            if (usedEventTags.has(eventTag)) return; // skip if already used.
+            usedEventTags.add(eventTag);
+
+            events.forEach((eventName) => {
+              // get schema for eventTag, eventName.
+              const schema = this.config.schemas.find(
+                (schema) => schema.name === eventName
+              );
+              if (schema != null) {
+                // collect data for each field in schema.
+                const props: Record<string, any> = {};
+                schema.fields.forEach((field) => {
+                  const value = this._getFieldVal(field, el, e, eventTag);
+                  if (value !== undefined) {
+                    props[field.name] = value;
+                  }
+                });
+                if (this.callback !== undefined) {
+                  this.callback(eventName, props, schema, eventTag, el);
+                }
+              }
+            });
+          }
         }
       });
 
