@@ -1,6 +1,6 @@
 {
   "name": "@syftdata/next",
-  "version": "0.1.38-alpha.36",
+  "version": "0.1.38-alpha.37",
   "description": "A lightweight low-code alternative to Segment to instrument event analytics",
   "keywords": [
     "syft",
@@ -83,7 +83,7 @@
   "dependencies": {
     "@segment/actions-core": "^3.81.2",
     "@syftdata/action-destinations": "^3.205.11",
-    "@syftdata/common": "^0.1.38-alpha.3",
+    "@syftdata/common": "^0.1.38-alpha.37",
     "js-cookie": "^3.0.5"
   }
 }
