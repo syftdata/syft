@@ -34,7 +34,6 @@ interface Times {
 
 const windowIdleEvents = ['scroll', 'resize'];
 const documentIdleEvents = [
-  'wheel',
   'keydown',
   'keyup',
   'mousedown',
@@ -48,19 +47,40 @@ const documentIdleEvents = [
 
 const SESSION_KEY = 'session';
 
-export interface SessionInternal extends Session {
+interface SessionInternal extends Session {
   lastActivityTime: number;
   content: string[];
 }
+
+const modifyEventListeners = (
+  action: 'add' | 'remove',
+  target: Window | Document,
+  events: string[],
+  listener: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+): void => {
+  events.forEach((event) => {
+    target[`${action}EventListener`](event, listener, options);
+  });
+};
+
+// Simplified content collection
+const getContentFromClick = (
+  target: HTMLElement | undefined,
+  levels: number
+): string | undefined => {
+  while (levels-- > 0 && target != null) {
+    const content = getSafeText(target);
+    if (content != null && content.length > 0) return content;
+    target = target.parentElement;
+  }
+};
 
 export class InteractionTime {
   private times: Times[];
   private isIdle: boolean;
 
   private idleIntervalId?: number;
-
-  private currentIdleTimeMs: number;
-
   private readonly idleTimeoutMs: number;
   private readonly sessionTimeoutMs: number;
   private readonly idleTimeCheckIntervalMs: number;
@@ -76,62 +96,45 @@ export class InteractionTime {
     idleTimeoutMs = 30 * 1000,
     sessionTimeoutMs = 10 * 60 * 1000
   }: Settings) {
-    this.times = [];
-    this.isIdle = false;
-    this.currentIdleTimeMs = 0;
-
     this.idleTimeCheckIntervalMs = idleTimeCheckIntervalMs;
     this.idleTimeoutMs = idleTimeoutMs;
     this.sessionTimeoutMs = sessionTimeoutMs;
     this.callback = callback;
     this.configStore = configStore;
+    this.session = this.configStore.get(SESSION_KEY) as SessionInternal;
 
-    this.refreshSession();
+    this.times = [];
+    this.isIdle = true;
+    this.onActivity(); // to start the session.
     this.registerEventListeners();
   }
 
   /**
-   * Checks if a session needs to be started or resumed. starts if this is the first time user is visiting.
+   * Checks if a session needs to be started or resumed.
+   * starts if this is the first time user is visiting.
+   * NOTE: lastActivityTime is based on performance.now() which can get reset after browser restart. so, elapsed time can be negative.
    * @returns
    */
-  private readonly refreshSession = (): void => {
-    const session = this.configStore.get(SESSION_KEY) as SessionInternal;
+  private readonly refreshSession = (session?: SessionInternal): void => {
     if (session != null) {
-      this.session = session;
-      if (!this.refreshSessionIfNeeded()) {
-        // session is not restarted, so, call onContinueSession.
-        if (this.callback.onContinueSession != null) {
-          this.callback.onContinueSession(
-            this.session,
-            0,
-            0,
-            this.session.content
-          );
-        }
+      const elapsed = performance.now() - session.lastActivityTime;
+      if (elapsed >= 0 && elapsed < this.sessionTimeoutMs) {
+        this.session = session;
+      } else {
+        this.callback.onEndSession(session);
+        this.createNewSession();
       }
     } else {
       this.createNewSession();
     }
   };
 
-  private readonly refreshSessionIfNeeded = (): boolean => {
-    const now = Date.now();
-    const elapsed = now - this.session.lastActivityTime;
-    if (elapsed > this.sessionTimeoutMs) {
-      this.callback.onEndSession(this.session);
-      this.reset(); // change the timers.
-      this.createNewSession();
-      return true;
-    }
-    return false;
-  };
-
   private readonly createNewSession = (): SessionInternal => {
-    const now = Date.now();
+    this.times = [];
     const session = {
       id: uuid(),
       startTime: new Date(),
-      lastActivityTime: now,
+      lastActivityTime: performance.now(),
       content: []
     };
     this.configStore.set(SESSION_KEY, session);
@@ -144,27 +147,17 @@ export class InteractionTime {
     if (document.visibilityState === 'visible') {
       this.onActivity();
     } else {
-      // send the last heartbeat before hiding the tab.
-      this.heartBeat();
       this.markAsIdle();
-    }
-  };
-
-  private readonly checkVideoState = (): void => {
-    const vidoes = document.querySelectorAll('video');
-    const playingVideos = Array.from(vidoes).filter(
-      (g) =>
-        !(g.paused || g.loop || (g.muted && !g.controls) || g.readyState < 2)
-    );
-    if (playingVideos.length > 0 && document.visibilityState === 'visible') {
-      this.onActivity();
     }
   };
 
   /**
    * Call this method to let listeners know that user is active.
    */
-  private readonly heartBeat = (): void => {
+  private readonly notifyTheSession = (): void => {
+    // console.log("notifying session", this.session.id,
+    //   this.session.content, this.getTimeInMilliseconds() / 1000,
+    //   (performance.now() - this.times[0].start) / 1000);
     if (this.callback.onContinueSession != null) {
       this.callback.onContinueSession(
         this.session,
@@ -177,7 +170,6 @@ export class InteractionTime {
   };
 
   private readonly markAsIdle = (): void => {
-    if (this.isIdle) return;
     this.isIdle = true;
     this.stopTimer();
   };
@@ -187,47 +179,41 @@ export class InteractionTime {
    * If yes, it marks the user as inactive. otherwise, calls heartbeat.
    */
   private readonly checkIfIdle = (): void => {
-    this.checkVideoState();
-    if (this.currentIdleTimeMs >= this.idleTimeoutMs) {
-      this.markAsIdle();
+    const elapsed = performance.now() - this.session.lastActivityTime;
+    if (elapsed > 0 && elapsed < this.idleTimeoutMs) {
+      this.notifyTheSession();
     } else {
-      this.configStore.set(SESSION_KEY, this.session);
-      this.heartBeat();
-      this.currentIdleTimeMs += this.idleTimeCheckIntervalMs;
+      this.markAsIdle();
     }
+    this.configStore.set(SESSION_KEY, this.session); // store the session in memory.
   };
 
   private readonly onActivity = (e?: Event): void => {
     if (this.isIdle) {
       // check if we need to start a new session;
-      this.refreshSessionIfNeeded();
+      this.refreshSession(this.session);
       this.startTimer();
+      this.isIdle = false;
     }
-    this.isIdle = false;
-    this.currentIdleTimeMs = 0;
-    // append the content to session.
-    if (e?.type === 'click') {
-      let target = e.target as HTMLElement;
-      let content: string | undefined;
-      // don't go more than 2 levels up.
-      for (let i = 0; i < 2 && target != null; i++) {
-        content = getSafeText(target);
+    try {
+      // append the content to session.
+      if (e?.type === 'click') {
+        const target = e.target as HTMLElement;
+        const content = getContentFromClick(target, 2);
         if (content != null) {
-          break;
-        }
-        target = target.parentElement;
-      }
-      if (content != null) {
-        // only keep last 3 clicks, to keep cookie size small.
-        if (!this.session.content.includes(content)) {
-          this.session.content.push(content);
-          while (this.session.content.length > 3) {
-            this.session.content.shift();
+          // only keep last 3 clicks, to keep cookie size small.
+          if (!this.session.content.includes(content)) {
+            this.session.content.push(content);
+            while (this.session.content.length > 3) {
+              this.session.content.shift();
+            }
           }
         }
       }
+    } catch (_e) {
+      // ignore
     }
-    this.session.lastActivityTime = Date.now();
+    this.session.lastActivityTime = performance.now();
   };
 
   private readonly registerEventListeners = (): void => {
@@ -235,24 +221,20 @@ export class InteractionTime {
     const windowListenerOptions = { ...documentListenerOptions, capture: true };
 
     document.addEventListener('visibilitychange', this.onBrowserActiveChange);
-
-    // TODO: throttle reset.
-    const throttleResetIdleTime = this.onActivity;
-    windowIdleEvents.forEach((event) => {
-      window.addEventListener(
-        event,
-        throttleResetIdleTime,
-        windowListenerOptions
-      );
-    });
-
-    documentIdleEvents.forEach((event) => {
-      document.addEventListener(
-        event,
-        throttleResetIdleTime,
-        documentListenerOptions
-      );
-    });
+    modifyEventListeners(
+      'add',
+      window,
+      windowIdleEvents,
+      this.onActivity,
+      windowListenerOptions
+    );
+    modifyEventListeners(
+      'add',
+      document,
+      documentIdleEvents,
+      this.onActivity,
+      documentListenerOptions
+    );
   };
 
   private readonly unregisterEventListeners = (): void => {
@@ -260,17 +242,16 @@ export class InteractionTime {
       'visibilitychange',
       this.onBrowserActiveChange
     );
-
-    windowIdleEvents.forEach((event) => {
-      window.removeEventListener(event, this.onActivity);
-    });
-
-    documentIdleEvents.forEach((event) => {
-      document.removeEventListener(event, this.onActivity);
-    });
+    modifyEventListeners('remove', window, windowIdleEvents, this.onActivity);
+    modifyEventListeners(
+      'remove',
+      document,
+      documentIdleEvents,
+      this.onActivity
+    );
   };
 
-  public startTimer = (): void => {
+  private readonly startTimer = (): void => {
     this.times.push({
       start: performance.now(),
       stop: null
@@ -283,14 +264,17 @@ export class InteractionTime {
     }
   };
 
-  public stopTimer = (): void => {
-    if (this.times.length === 0) {
-      return;
+  private readonly stopTimer = (): void => {
+    if (this.times.length > 0) {
+      this.times[this.times.length - 1].stop = performance.now();
     }
-    this.times[this.times.length - 1].stop = performance.now();
+    if (this.idleIntervalId != null) {
+      window.clearInterval(this.idleIntervalId);
+      this.idleIntervalId = undefined;
+    }
   };
 
-  public getTimeInMilliseconds = (): number => {
+  private readonly getTimeInMilliseconds = (): number => {
     return this.times.reduce((acc, current) => {
       if (current.stop != null) {
         acc = acc + (current.stop - current.start);
@@ -301,20 +285,12 @@ export class InteractionTime {
     }, 0);
   };
 
-  public reset = (): void => {
-    this.stopTimer();
-    this.times = [];
-    this.isIdle = false;
-    this.currentIdleTimeMs = 0;
-
-    window.clearInterval(this.idleIntervalId);
-    this.idleIntervalId = undefined;
-  };
-
   public destroy = (): void => {
     // flush the data before page unloads.
-    this.heartBeat();
-    this.reset();
+    this.stopTimer();
+    this.notifyTheSession();
+    this.times = [];
+    this.isIdle = true;
     this.unregisterEventListeners();
   };
 }

@@ -4,7 +4,7 @@ import UniversalConfigStore, {
   InMemoryConfigStore
 } from '../common/configstore';
 import AutoTracker from '../common/tracker';
-import { DEFAULT_UPLOAD_PATH } from '../common/types';
+import { BETA_UPLOAD_PATH, DEFAULT_UPLOAD_PATH, isBeta } from '../common/types';
 import { BatchUploader } from '../common/uploader';
 import { getCurrentPath, ready } from '../common/utils';
 import { buttonClicks } from '../plugins/buttonClicks';
@@ -54,7 +54,8 @@ function startSyft(): () => void {
   // pass the url based on the proxy options.
   uploader = new BatchUploader({
     sourceId: props.sourceId,
-    url: props.uploadPath ?? DEFAULT_UPLOAD_PATH,
+    url:
+      props.uploadPath ?? (isBeta() ? BETA_UPLOAD_PATH : DEFAULT_UPLOAD_PATH),
     replicateTo: props.replicateTo,
     batchSize: 10,
     maxWaitingTime: 9999,
@@ -115,7 +116,6 @@ function startSyft(): () => void {
     },
     configStore: store
   });
-  a.startTimer();
   deregisterCallbacks.push(a.destroy);
   if (props.autoTrackEnabled !== false) {
     if (props.trackPageViews !== false) {
@@ -162,7 +162,7 @@ function startSyft(): () => void {
         (path, formData, destination) => {
           const eventName =
             destination != null &&
-            destination.hostname !== window.location.hostname
+              destination.hostname !== window.location.hostname
               ? 'Outbound Form'
               : 'Form Submit';
           const identity = findIdentityInForm(formData.fields);
@@ -224,4 +224,4 @@ try {
   window.onbeforeunload = () => {
     deregister();
   };
-} catch (e) {}
+} catch (e) { }

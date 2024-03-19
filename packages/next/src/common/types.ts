@@ -9,6 +9,7 @@ import {
 } from './event_types';
 
 import { version as PACKAGE_VERSION } from '../../package.json';
+import { isBrowser } from './utils';
 
 export interface EventOptions {
   [key: string]: CommonPropType | Partial<ClientContextData>;
@@ -128,3 +129,18 @@ export const DEFAULT_UPLOAD_PATH =
   process.env.NODE_ENV === 'production'
     ? 'https://app.syftdata.com/api/syft'
     : 'http://localhost:3000/api/syft';
+export const BETA_UPLOAD_PATH = 'https://event.syftdata.com/events';
+
+const BETA_ORGS = [
+  'dolthub',
+  'syftdata.com',
+  'dreamteamos.com',
+  'revopscoop.com',
+  'safegraph.com'
+];
+export function isBeta(): boolean {
+  if (!isBrowser()) return false;
+  const e = window.location.hostname;
+  if (e == null) return false;
+  return BETA_ORGS.some((org) => e.includes(org));
+}
